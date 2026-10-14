@@ -8,6 +8,8 @@
 """
 import json
 import os
+import random
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -154,7 +156,14 @@ def _call(client: OpenAI, messages: list[dict]):
 
 
 def judge_leaf(paper_md: str, addendum: str, submission_dir: Path, leaf: dict) -> dict:
-    """리프 1개 채점. {"score", "reason"}에 측정용 "usage", "parse_retries"를 덧붙여 돌려준다."""
+    """리프 1개 채점. {"score", "reason"}에 측정용 "usage", "parse_retries"를 덧붙여 돌려준다.
+
+    MOCK_JUDGE=1이면 LLM을 부르지 않고 MOCK_DELAY_SEC 기다린 뒤 무작위 0/1을 돌려준다.
+    """
+    if os.environ.get("MOCK_JUDGE") == "1":
+        time.sleep(float(os.environ.get("MOCK_DELAY_SEC", "3")))
+        usage = {"input_tokens": 0, "output_tokens": 0, "cached_tokens": 0, "calls": 0}
+        return {"score": random.randint(0, 1), "reason": "mock", "usage": usage, "parse_retries": 0}
     client = _client()
     messages = build_messages(paper_md, addendum, submission_dir, leaf)
     usage = {"input_tokens": 0, "output_tokens": 0, "cached_tokens": 0, "calls": 0}

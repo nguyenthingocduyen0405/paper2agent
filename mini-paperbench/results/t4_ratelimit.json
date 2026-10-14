@@ -1,0 +1,236 @@
+{
+ "run": "t4_ratelimit",
+ "label": "12 tasks, 4 workers",
+ "total": 12,
+ "completed": 12,
+ "errors": 0,
+ "workers": 4,
+ "tasks_per_worker": {
+  "gpu7-3528032": 3,
+  "gpu7-3528031": 4,
+  "gpu7-3528030": 2,
+  "gpu7-3528033": 3
+ },
+ "wall_time_sec": 56.28,
+ "mean_task_sec": 18.59,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 211.04,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.5833,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/judge_eval/semantic-self-consistency/0/submission",
+ "leaves": {
+  "7e05fd91-a2fa-47ce-918f-9626d9b23f75": {
+   "leaf_id": "7e05fd91-a2fa-47ce-918f-9626d9b23f75",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528032",
+   "started_at": 1791979146.780275,
+   "finished_at": 1791979147.7810295,
+   "ratelimit_wait_sec": 0.0
+  },
+  "81246c81-3081-4734-8bdd-b6de2992105a": {
+   "leaf_id": "81246c81-3081-4734-8bdd-b6de2992105a",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528031",
+   "started_at": 1791979146.7761536,
+   "finished_at": 1791979147.776678,
+   "ratelimit_wait_sec": 0.0
+  },
+  "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1": {
+   "leaf_id": "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528031",
+   "started_at": 1791979145.7741544,
+   "finished_at": 1791979146.7747436,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5096c429-1bd2-45ef-acf9-edadd7c9286b": {
+   "leaf_id": "5096c429-1bd2-45ef-acf9-edadd7c9286b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528030",
+   "started_at": 1791979145.8127751,
+   "finished_at": 1791979146.8134036,
+   "ratelimit_wait_sec": 0.0
+  },
+  "77d8f917-a53e-4374-8eaa-c24fa70186e2": {
+   "leaf_id": "77d8f917-a53e-4374-8eaa-c24fa70186e2",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528030",
+   "started_at": 1791979146.814823,
+   "finished_at": 1791979201.0513434,
+   "ratelimit_wait_sec": 53.23
+  },
+  "a560cc7a-6ad0-453b-8283-239b981d8754": {
+   "leaf_id": "a560cc7a-6ad0-453b-8283-239b981d8754",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528033",
+   "started_at": 1791979146.7835612,
+   "finished_at": 1791979201.051489,
+   "ratelimit_wait_sec": 53.27
+  },
+  "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d": {
+   "leaf_id": "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528032",
+   "started_at": 1791979147.7822394,
+   "finished_at": 1791979201.0513482,
+   "ratelimit_wait_sec": 52.27
+  },
+  "2d8d7041-be93-45ae-a6ac-80fa53a49199": {
+   "leaf_id": "2d8d7041-be93-45ae-a6ac-80fa53a49199",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528033",
+   "started_at": 1791979201.0529923,
+   "finished_at": 1791979202.053498,
+   "ratelimit_wait_sec": 0.0
+  },
+  "067da205-f599-4a40-92fe-4cfc3f635c41": {
+   "leaf_id": "067da205-f599-4a40-92fe-4cfc3f635c41",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528033",
+   "started_at": 1791979145.7807264,
+   "finished_at": 1791979146.7817528,
+   "ratelimit_wait_sec": 0.0
+  },
+  "50fe90ba-39a2-4b00-8e52-edb99448ca7b": {
+   "leaf_id": "50fe90ba-39a2-4b00-8e52-edb99448ca7b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528031",
+   "started_at": 1791979201.0529506,
+   "finished_at": 1791979202.0534554,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8006761a-19e1-4990-92fa-778b6ee89266": {
+   "leaf_id": "8006761a-19e1-4990-92fa-778b6ee89266",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528032",
+   "started_at": 1791979145.7783248,
+   "finished_at": 1791979146.778871,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f4ea36de-ac1c-498b-a8db-7616907780cb": {
+   "leaf_id": "f4ea36de-ac1c-498b-a8db-7616907780cb",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3528031",
+   "started_at": 1791979147.7785356,
+   "finished_at": 1791979201.051323,
+   "ratelimit_wait_sec": 52.27
+  }
+ }
+}

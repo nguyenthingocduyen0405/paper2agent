@@ -1,0 +1,371 @@
+{
+ "run": "t1_w3",
+ "label": "20 tasks, 3 workers",
+ "total": 20,
+ "completed": 20,
+ "errors": 0,
+ "workers": 3,
+ "tasks_per_worker": {
+  "gpu7-2333746": 7,
+  "gpu7-2333745": 6,
+  "gpu7-2333740": 7
+ },
+ "wall_time_sec": 21.04,
+ "mean_task_sec": 3.0,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.55,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/judge_eval/semantic-self-consistency/0/submission",
+ "leaves": {
+  "5096c429-1bd2-45ef-acf9-edadd7c9286b": {
+   "leaf_id": "5096c429-1bd2-45ef-acf9-edadd7c9286b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333746",
+   "started_at": 1791978852.9988992,
+   "finished_at": 1791978855.9993787,
+   "ratelimit_wait_sec": 0.0
+  },
+  "77d8f917-a53e-4374-8eaa-c24fa70186e2": {
+   "leaf_id": "77d8f917-a53e-4374-8eaa-c24fa70186e2",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333745",
+   "started_at": 1791978856.025267,
+   "finished_at": 1791978859.025929,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b63359fc-8d24-4473-bed3-d54fe1586b53": {
+   "leaf_id": "b63359fc-8d24-4473-bed3-d54fe1586b53",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333745",
+   "started_at": 1791978862.0298424,
+   "finished_at": 1791978865.030323,
+   "ratelimit_wait_sec": 0.0
+  },
+  "53060482-d130-4c4d-ac1c-93e755c7db43": {
+   "leaf_id": "53060482-d130-4c4d-ac1c-93e755c7db43",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333740",
+   "started_at": 1791978862.0298212,
+   "finished_at": 1791978865.0302787,
+   "ratelimit_wait_sec": 0.0
+  },
+  "81246c81-3081-4734-8bdd-b6de2992105a": {
+   "leaf_id": "81246c81-3081-4734-8bdd-b6de2992105a",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333740",
+   "started_at": 1791978853.0231812,
+   "finished_at": 1791978856.0236988,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a560cc7a-6ad0-453b-8283-239b981d8754": {
+   "leaf_id": "a560cc7a-6ad0-453b-8283-239b981d8754",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333746",
+   "started_at": 1791978856.0010304,
+   "finished_at": 1791978859.0015008,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d": {
+   "leaf_id": "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333746",
+   "started_at": 1791978859.0028822,
+   "finished_at": 1791978862.003484,
+   "ratelimit_wait_sec": 0.0
+  },
+  "067da205-f599-4a40-92fe-4cfc3f635c41": {
+   "leaf_id": "067da205-f599-4a40-92fe-4cfc3f635c41",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333745",
+   "started_at": 1791978850.021447,
+   "finished_at": 1791978853.0220802,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7e05fd91-a2fa-47ce-918f-9626d9b23f75": {
+   "leaf_id": "7e05fd91-a2fa-47ce-918f-9626d9b23f75",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333745",
+   "started_at": 1791978853.0232832,
+   "finished_at": 1791978856.023736,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8006761a-19e1-4990-92fa-778b6ee89266": {
+   "leaf_id": "8006761a-19e1-4990-92fa-778b6ee89266",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333740",
+   "started_at": 1791978850.0210788,
+   "finished_at": 1791978853.0218186,
+   "ratelimit_wait_sec": 0.0
+  },
+  "796cdb25-0885-4219-a0f9-bdedb3e37a0d": {
+   "leaf_id": "796cdb25-0885-4219-a0f9-bdedb3e37a0d",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333746",
+   "started_at": 1791978862.0055532,
+   "finished_at": 1791978865.006367,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5814593-5393-4a6d-80e7-5b85eac9e593": {
+   "leaf_id": "c5814593-5393-4a6d-80e7-5b85eac9e593",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333746",
+   "started_at": 1791978865.0079956,
+   "finished_at": 1791978868.0088787,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8519dd43-eaf9-42dd-b96e-cda00b737479": {
+   "leaf_id": "8519dd43-eaf9-42dd-b96e-cda00b737479",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333740",
+   "started_at": 1791978868.0334115,
+   "finished_at": 1791978871.0338995,
+   "ratelimit_wait_sec": 0.0
+  },
+  "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7": {
+   "leaf_id": "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333740",
+   "started_at": 1791978865.0316603,
+   "finished_at": 1791978868.0321913,
+   "ratelimit_wait_sec": 0.0
+  },
+  "50fe90ba-39a2-4b00-8e52-edb99448ca7b": {
+   "leaf_id": "50fe90ba-39a2-4b00-8e52-edb99448ca7b",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333745",
+   "started_at": 1791978859.027619,
+   "finished_at": 1791978862.0285954,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4d197469-b5e8-4bff-bae7-211a4f83f140": {
+   "leaf_id": "4d197469-b5e8-4bff-bae7-211a4f83f140",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333745",
+   "started_at": 1791978865.031664,
+   "finished_at": 1791978868.032242,
+   "ratelimit_wait_sec": 0.0
+  },
+  "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1": {
+   "leaf_id": "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333746",
+   "started_at": 1791978849.996034,
+   "finished_at": 1791978852.9975514,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2d8d7041-be93-45ae-a6ac-80fa53a49199": {
+   "leaf_id": "2d8d7041-be93-45ae-a6ac-80fa53a49199",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333740",
+   "started_at": 1791978859.0278187,
+   "finished_at": 1791978862.0286787,
+   "ratelimit_wait_sec": 0.0
+  },
+  "32076d58-8586-4aac-9eb5-8a7570cc45cf": {
+   "leaf_id": "32076d58-8586-4aac-9eb5-8a7570cc45cf",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333746",
+   "started_at": 1791978868.0102963,
+   "finished_at": 1791978871.010876,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f4ea36de-ac1c-498b-a8db-7616907780cb": {
+   "leaf_id": "f4ea36de-ac1c-498b-a8db-7616907780cb",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2333740",
+   "started_at": 1791978856.0253801,
+   "finished_at": 1791978859.0261154,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

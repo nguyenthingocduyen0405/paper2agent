@@ -1,0 +1,709 @@
+{
+ "run": "t3_w1",
+ "label": "40 tasks, 1 workers",
+ "total": 40,
+ "completed": 40,
+ "errors": 0,
+ "workers": 1,
+ "tasks_per_worker": {
+  "gpu7-2610925": 40
+ },
+ "wall_time_sec": 120.1,
+ "mean_task_sec": 3.0,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.425,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/judge_eval/semantic-self-consistency/0/submission",
+ "leaves": {
+  "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d": {
+   "leaf_id": "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978945.6585314,
+   "finished_at": 1791978948.659349,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8519dd43-eaf9-42dd-b96e-cda00b737479": {
+   "leaf_id": "8519dd43-eaf9-42dd-b96e-cda00b737479",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978975.6853127,
+   "finished_at": 1791978978.6857727,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a09d85b6-e400-42bf-9958-def3b4311d9d": {
+   "leaf_id": "a09d85b6-e400-42bf-9958-def3b4311d9d",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978987.6957285,
+   "finished_at": 1791978990.6964972,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b4ec7fec-fe79-4cfc-a15e-c2e43db21c2b": {
+   "leaf_id": "b4ec7fec-fe79-4cfc-a15e-c2e43db21c2b",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979005.7094686,
+   "finished_at": 1791979008.7100027,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c08b029c-fa6d-475b-b201-6b43dcd14c5e": {
+   "leaf_id": "c08b029c-fa6d-475b-b201-6b43dcd14c5e",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979002.7070715,
+   "finished_at": 1791979005.7075644,
+   "ratelimit_wait_sec": 0.0
+  },
+  "be2d3c6c-efbd-477e-97fe-a616f6fc3bf1": {
+   "leaf_id": "be2d3c6c-efbd-477e-97fe-a616f6fc3bf1",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978984.69306,
+   "finished_at": 1791978987.6936672,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0dffe1c8-da0c-4829-9bb6-033512baada3": {
+   "leaf_id": "0dffe1c8-da0c-4829-9bb6-033512baada3",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978978.6875231,
+   "finished_at": 1791978981.6882062,
+   "ratelimit_wait_sec": 0.0
+  },
+  "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7": {
+   "leaf_id": "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978969.6808043,
+   "finished_at": 1791978972.681636,
+   "ratelimit_wait_sec": 0.0
+  },
+  "50fe90ba-39a2-4b00-8e52-edb99448ca7b": {
+   "leaf_id": "50fe90ba-39a2-4b00-8e52-edb99448ca7b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978948.6626334,
+   "finished_at": 1791978951.6635876,
+   "ratelimit_wait_sec": 0.0
+  },
+  "796cdb25-0885-4219-a0f9-bdedb3e37a0d": {
+   "leaf_id": "796cdb25-0885-4219-a0f9-bdedb3e37a0d",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978954.668731,
+   "finished_at": 1791978957.6694937,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4d197469-b5e8-4bff-bae7-211a4f83f140": {
+   "leaf_id": "4d197469-b5e8-4bff-bae7-211a4f83f140",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978966.6784515,
+   "finished_at": 1791978969.6791365,
+   "ratelimit_wait_sec": 0.0
+  },
+  "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1": {
+   "leaf_id": "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978918.6350527,
+   "finished_at": 1791978921.6357584,
+   "ratelimit_wait_sec": 0.0
+  },
+  "77d8f917-a53e-4374-8eaa-c24fa70186e2": {
+   "leaf_id": "77d8f917-a53e-4374-8eaa-c24fa70186e2",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978939.653313,
+   "finished_at": 1791978942.6542578,
+   "ratelimit_wait_sec": 0.0
+  },
+  "95520bb4-2c5d-4469-975a-569e1ab76cd4": {
+   "leaf_id": "95520bb4-2c5d-4469-975a-569e1ab76cd4",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978996.7031267,
+   "finished_at": 1791978999.7038546,
+   "ratelimit_wait_sec": 0.0
+  },
+  "81246c81-3081-4734-8bdd-b6de2992105a": {
+   "leaf_id": "81246c81-3081-4734-8bdd-b6de2992105a",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978930.6450467,
+   "finished_at": 1791978933.6458611,
+   "ratelimit_wait_sec": 0.0
+  },
+  "53060482-d130-4c4d-ac1c-93e755c7db43": {
+   "leaf_id": "53060482-d130-4c4d-ac1c-93e755c7db43",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978960.6738348,
+   "finished_at": 1791978963.67446,
+   "ratelimit_wait_sec": 0.0
+  },
+  "13a6fa19-3d02-4331-b64e-06930fd29626": {
+   "leaf_id": "13a6fa19-3d02-4331-b64e-06930fd29626",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978990.697874,
+   "finished_at": 1791978993.6984022,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a560cc7a-6ad0-453b-8283-239b981d8754": {
+   "leaf_id": "a560cc7a-6ad0-453b-8283-239b981d8754",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978936.65068,
+   "finished_at": 1791978939.6513586,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a5c85099-0e2e-46c1-bd19-5bedb2d7886a": {
+   "leaf_id": "a5c85099-0e2e-46c1-bd19-5bedb2d7886a",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979011.71374,
+   "finished_at": 1791979014.714289,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2d8d7041-be93-45ae-a6ac-80fa53a49199": {
+   "leaf_id": "2d8d7041-be93-45ae-a6ac-80fa53a49199",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978951.6657264,
+   "finished_at": 1791978954.6666028,
+   "ratelimit_wait_sec": 0.0
+  },
+  "067da205-f599-4a40-92fe-4cfc3f635c41": {
+   "leaf_id": "067da205-f599-4a40-92fe-4cfc3f635c41",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978924.6390934,
+   "finished_at": 1791978927.6397822,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8006761a-19e1-4990-92fa-778b6ee89266": {
+   "leaf_id": "8006761a-19e1-4990-92fa-778b6ee89266",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978921.637088,
+   "finished_at": 1791978924.6375601,
+   "ratelimit_wait_sec": 0.0
+  },
+  "32076d58-8586-4aac-9eb5-8a7570cc45cf": {
+   "leaf_id": "32076d58-8586-4aac-9eb5-8a7570cc45cf",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978972.683339,
+   "finished_at": 1791978975.6840665,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f4ea36de-ac1c-498b-a8db-7616907780cb": {
+   "leaf_id": "f4ea36de-ac1c-498b-a8db-7616907780cb",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978942.6559227,
+   "finished_at": 1791978945.6565752,
+   "ratelimit_wait_sec": 0.0
+  },
+  "42296ab8-386b-4645-9fbf-4cd635f4fd81": {
+   "leaf_id": "42296ab8-386b-4645-9fbf-4cd635f4fd81",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978981.6905394,
+   "finished_at": 1791978984.691439,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5814593-5393-4a6d-80e7-5b85eac9e593": {
+   "leaf_id": "c5814593-5393-4a6d-80e7-5b85eac9e593",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978963.6763382,
+   "finished_at": 1791978966.6768434,
+   "ratelimit_wait_sec": 0.0
+  },
+  "82b1a191-e41c-457b-af57-e036b6be7129": {
+   "leaf_id": "82b1a191-e41c-457b-af57-e036b6be7129",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979029.7293646,
+   "finished_at": 1791979032.730239,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9daf76c9-d2d0-4744-ba70-bbcf82550191": {
+   "leaf_id": "9daf76c9-d2d0-4744-ba70-bbcf82550191",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978999.705238,
+   "finished_at": 1791979002.7057755,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c2fd8c8a-e7c0-4fbd-8bf5-ef4c6108002a": {
+   "leaf_id": "c2fd8c8a-e7c0-4fbd-8bf5-ef4c6108002a",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979014.7160437,
+   "finished_at": 1791979017.7167675,
+   "ratelimit_wait_sec": 0.0
+  },
+  "463c7875-01e8-4e72-8e07-493ee968b0b3": {
+   "leaf_id": "463c7875-01e8-4e72-8e07-493ee968b0b3",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978993.700453,
+   "finished_at": 1791978996.7012494,
+   "ratelimit_wait_sec": 0.0
+  },
+  "77e2711a-6278-4798-978f-d79c3a337d9f": {
+   "leaf_id": "77e2711a-6278-4798-978f-d79c3a337d9f",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979020.7212157,
+   "finished_at": 1791979023.7217364,
+   "ratelimit_wait_sec": 0.0
+  },
+  "abef3d1f-ac05-4b98-a4c4-cdf711863714": {
+   "leaf_id": "abef3d1f-ac05-4b98-a4c4-cdf711863714",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979008.7114544,
+   "finished_at": 1791979011.7119534,
+   "ratelimit_wait_sec": 0.0
+  },
+  "89b080c5-7ddb-4115-ade2-5d5ce9ebed5c": {
+   "leaf_id": "89b080c5-7ddb-4115-ade2-5d5ce9ebed5c",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979023.723549,
+   "finished_at": 1791979026.7242818,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c8acfeae-4a0f-4915-a8f0-e254fd9d664b": {
+   "leaf_id": "c8acfeae-4a0f-4915-a8f0-e254fd9d664b",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979032.7316456,
+   "finished_at": 1791979035.7321365,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5096c429-1bd2-45ef-acf9-edadd7c9286b": {
+   "leaf_id": "5096c429-1bd2-45ef-acf9-edadd7c9286b",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978927.6420245,
+   "finished_at": 1791978930.6429443,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b63359fc-8d24-4473-bed3-d54fe1586b53": {
+   "leaf_id": "b63359fc-8d24-4473-bed3-d54fe1586b53",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978957.6713066,
+   "finished_at": 1791978960.6719441,
+   "ratelimit_wait_sec": 0.0
+  },
+  "39f83549-039d-44b4-85d5-1d66e261baa9": {
+   "leaf_id": "39f83549-039d-44b4-85d5-1d66e261baa9",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979017.7188294,
+   "finished_at": 1791979020.7197344,
+   "ratelimit_wait_sec": 0.0
+  },
+  "db4e4076-436e-4a5a-b441-8d7d876b7f1a": {
+   "leaf_id": "db4e4076-436e-4a5a-b441-8d7d876b7f1a",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979035.733627,
+   "finished_at": 1791979038.7341537,
+   "ratelimit_wait_sec": 0.0
+  },
+  "bd9fa816-1437-4f94-825b-d77b0f11af0c": {
+   "leaf_id": "bd9fa816-1437-4f94-825b-d77b0f11af0c",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791979026.7264636,
+   "finished_at": 1791979029.7272556,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7e05fd91-a2fa-47ce-918f-9626d9b23f75": {
+   "leaf_id": "7e05fd91-a2fa-47ce-918f-9626d9b23f75",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "mock",
+   "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cached_tokens": 0,
+    "calls": 0
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2610925",
+   "started_at": 1791978933.6483877,
+   "finished_at": 1791978936.649146,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}
