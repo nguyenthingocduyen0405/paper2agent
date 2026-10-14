@@ -4,7 +4,7 @@
   data/synthetic_labels/<이름>/   sub_*.json, labels_table.csv         ← 평가 스크립트만 읽는 곳
 build/(정답 코드 원본, 생성 도구)는 풀지 않는다. judge에게 보이면 안 되기 때문이다.
 
-사용: python scripts/import_synthetic.py <zip 파일>...
+사용: python scripts/import_synthetic.py datasets/synthetic_*.zip
 """
 import shutil
 import sys

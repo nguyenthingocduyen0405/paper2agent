@@ -101,6 +101,7 @@ mini-paperbench/
 ├── k8s/              # 쿠버네티스 YAML (6단계)
 ├── scripts/          # 설치, 실행, 수집 스크립트
 ├── data/             # 논문, 루브릭, 제출물. git에 올리지 않는다. scripts/fetch_data.sh로 받는다
+├── datasets/         # 합성 논문 zip 2개 (git에 올린다). scripts/import_synthetic.py로 data/에 푼다
 └── results/          # 실험 결과 JSON. git에 커밋한다
 ```
 

@@ -14,7 +14,8 @@
   - 호출 수가 적다(약 235회). 논문과 제출물이 짧아서 토큰도 적다.
   - 학습 데이터에 없는 가짜 논문이라 모델이 답을 외웠을 수 없다.
 - 한계: 실제 논문보다 짧고 깔끔하다. 점수가 실제보다 좋게 나올 수 있다. 보고서에서는 JudgeEval 결과와 따로 보여준다.
-- 사용법: `scripts/import_synthetic.py <zip>`으로 풀고, `scripts/run_synthetic.sh`로 채점한다.
+- 원본 zip은 `datasets/`에 커밋되어 있다.
+- 사용법: `python scripts/import_synthetic.py datasets/synthetic_*.zip`으로 풀고, `scripts/run_synthetic.sh`로 채점한다.
 - 아래 2~3절(다른 JudgeEval 논문)은 합성 논문 결과를 본 뒤 필요하면 한다.
 
 ---
