@@ -1,0 +1,7 @@
+.env
+data/
+datasets/
+third_party/
+logs/
+results/
+**/__pycache__

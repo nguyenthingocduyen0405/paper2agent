@@ -1,0 +1,30 @@
+# Job 템플릿: 에이전트 P1~P5. 제출물은 /data/agent_runs/<id>/submission에 생긴다.
+# 직접 apply하지 않는다. scripts/k8s_run.sh가 __NAME__, __TAG__, __ARGS__를 채워서 apply한다.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: __NAME__
+  namespace: paperbench
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: agent-run
+          image: paperbench/agent:__TAG__
+          imagePullPolicy: Never
+          command: ["python", "-m", "agent.pipeline"]
+          args: __ARGS__
+          envFrom:
+            - configMapRef: {name: llm-config}
+            - secretRef: {name: llm-keys}
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+            - {name: results, mountPath: /app/results}
+      volumes:
+        - name: data
+          hostPath: {path: /data, type: DirectoryOrCreate}
+        - name: results
+          hostPath: {path: /data/results, type: DirectoryOrCreate}

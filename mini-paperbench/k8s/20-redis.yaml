@@ -1,0 +1,38 @@
+# 큐와 결과 저장소. 디스크에 저장하지 않는다(Pod가 다시 뜨면 큐가 비워진다).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: paperbench
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: redis}
+  template:
+    metadata:
+      labels: {app: redis}
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.4.1-alpine
+          args: ["--save", "", "--appendonly", "no"]
+          ports:
+            - containerPort: 6379
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            periodSeconds: 5
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {memory: 512Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: paperbench
+spec:
+  selector: {app: redis}
+  ports:
+    - port: 6379
+      targetPort: 6379

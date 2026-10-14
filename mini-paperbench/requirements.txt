@@ -1,0 +1,5 @@
+openai==3.31.0
+pydantic==2.14.1
+tenacity==9.2.1
+redis==8.1.0
+python-dotenv==1.2.4

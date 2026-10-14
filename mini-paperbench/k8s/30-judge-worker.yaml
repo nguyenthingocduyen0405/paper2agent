@@ -1,0 +1,38 @@
+# judge 워커. 어떤 run을 처리할지는 RUN_ID로 정한다.
+# scripts/k8s_run.sh가 run마다 `kubectl set env ... RUN_ID=<run>`으로 바꾼다.
+# run이 아직 없으면 워커는 생길 때까지 기다린다.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: judge-worker
+  namespace: paperbench
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: judge-worker}
+  template:
+    metadata:
+      labels: {app: judge-worker}
+    spec:
+      containers:
+        - name: worker
+          image: paperbench/judge-worker:__TAG__
+          imagePullPolicy: Never   # 이미지는 bootstrap.sh가 k3s에 직접 넣는다
+          command: ["python", "-m", "judge.worker"]
+          env:
+            - name: RUN_ID
+              value: "idle"
+          envFrom:
+            - configMapRef: {name: llm-config}
+            - secretRef: {name: llm-keys}
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+            - {name: results, mountPath: /app/results}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {memory: 512Mi}
+      volumes:
+        - name: data
+          hostPath: {path: /data, type: DirectoryOrCreate}
+        - name: results
+          hostPath: {path: /data/results, type: DirectoryOrCreate}

@@ -1,0 +1,30 @@
+# Job 템플릿: 모든 작업이 끝났으면 집계해서 /data/results/<run>.json에 저장한다.
+# 직접 apply하지 않는다. scripts/k8s_run.sh가 __NAME__, __TAG__, __ARGS__를 채워서 apply한다.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: __NAME__
+  namespace: paperbench
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: analyze
+          image: paperbench/judge-worker:__TAG__
+          imagePullPolicy: Never
+          command: ["python", "-m", "judge.analyze"]
+          args: __ARGS__
+          envFrom:
+            - configMapRef: {name: llm-config}
+            - secretRef: {name: llm-keys}
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+            - {name: results, mountPath: /app/results}
+      volumes:
+        - name: data
+          hostPath: {path: /data, type: DirectoryOrCreate}
+        - name: results
+          hostPath: {path: /data/results, type: DirectoryOrCreate}

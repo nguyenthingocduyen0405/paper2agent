@@ -17,7 +17,8 @@
 | 4. JudgeEval F1 | 완료 | A안(리프 77개). F1 0.986, macro-F1 0.893. 더 제대로 하는 계획은 `FUTURE_PLAN.md` |
 | 5. 에이전트 | 완료 | a1(논문만): 0.92. a2(논문+addendum, 호출 13회): 0.92, 틀린 리프는 서로 다름 |
 | 추가. 합성 논문 judge 검증 | 완료 | 2편 × 제출물 5개. F1 0.986, macro-F1 0.972, 0점 47개 모두 맞힘 |
-| 6~7 | 대기 | |
+| 6. 컨테이너·k8s | 파일 완료, VM 실행 대기 | docker 불가라 작성만. 스키마·shellcheck·컨테이너 구조 모의 실행 통과. 사용법은 `k8s/README.md` |
+| 7 | 대기 | |
 
 ---
 
@@ -98,7 +99,9 @@ mini-paperbench/
 ├── .env.example      # 키 이름만 있다. 값은 없다
 ├── judge/            # judge 함수, 워커, 작업 생성기, 집계
 ├── agent/            # 에이전트 P1~P5 (5단계)
-├── k8s/              # 쿠버네티스 YAML (6단계)
+├── docker/           # Dockerfile 2개 (6단계)
+├── k8s/              # 쿠버네티스 YAML과 실행 안내 README (6단계)
+├── requirements.txt  # 컨테이너 이미지용 패키지 (버전 고정)
 ├── scripts/          # 설치, 실행, 수집 스크립트
 ├── data/             # 논문, 루브릭, 제출물. git에 올리지 않는다. scripts/fetch_data.sh로 받는다
 ├── datasets/         # 합성 논문 zip 2개 (git에 올린다). scripts/import_synthetic.py로 data/에 푼다

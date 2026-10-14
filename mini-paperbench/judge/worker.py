@@ -5,6 +5,7 @@
 결과는 리프 ID를 키로 HSET하므로 같은 리프가 두 번 처리돼도 결과는 1개다.
 
 사용: python -m judge.worker --run r1 [--exit-when-done]
+     쿠버네티스에서는 --run 대신 환경 변수 RUN_ID를 쓴다.
 """
 import argparse
 import json
@@ -19,9 +20,11 @@ from judge.judge import judge_leaf
 from judge.ratelimit import RateLimiter
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--run", required=True)
+ap.add_argument("--run", default=os.environ.get("RUN_ID"))
 ap.add_argument("--exit-when-done", action="store_true", help="모든 작업이 끝나면 종료")
 args = ap.parse_args()
+if not args.run:
+    ap.error("--run or RUN_ID is required")
 
 r = connect()
 run = args.run
@@ -29,6 +32,10 @@ stream = k(run, "tasks")
 consumer = f"{socket.gethostname()}-{os.getpid()}"
 limiter = RateLimiter(r, RATE_LIMIT_RPM, RATE_LIMIT_TPM)
 
+# 작업 생성기보다 워커가 먼저 뜰 수 있다(쿠버네티스). run이 생길 때까지 기다린다.
+while not r.exists(k(run, "total")):
+    print(f"waiting for run '{run}' to be created", flush=True)
+    time.sleep(5)
 meta = r.hgetall(k(run, "meta"))
 paper_dir = Path(meta["paper_dir"])
 submission_dir = Path(meta["submission_dir"])

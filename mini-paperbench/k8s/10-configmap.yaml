@@ -1,0 +1,16 @@
+# 비밀이 아닌 설정. 키(LLM_API_KEY)는 Secret llm-keys에 있다(bootstrap.sh가 .env에서 만든다).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-config
+  namespace: paperbench
+data:
+  LLM_BASE_URL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  LLM_MODEL: "gemini-3.5-flash-lite"
+  RATE_LIMIT_RPM: "15"
+  RATE_LIMIT_TPM: "250000"
+  CLAIM_IDLE_SEC: "120"
+  MAX_DELIVERIES: "3"
+  MOCK_JUDGE: "0"
+  MOCK_DELAY_SEC: "3"
+  REDIS_URL: "redis://redis:6379/0"
