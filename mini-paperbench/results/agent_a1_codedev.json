@@ -1,0 +1,886 @@
+{
+ "run": "agent_a1_codedev",
+ "label": "50 tasks, 2 workers",
+ "total": 50,
+ "completed": 50,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-1152991": 24,
+  "gpu7-1152990": 26
+ },
+ "wall_time_sec": 492.94,
+ "mean_task_sec": 12.86,
+ "retries": 5,
+ "failures": 5,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 463.75,
+ "leaves_started_more_than_once": [
+  "b63359fc-8d24-4473-bed3-d54fe1586b53",
+  "0dffe1c8-da0c-4829-9bb6-033512baada3",
+  "9daf76c9-d2d0-4744-ba70-bbcf82550191",
+  "c8acfeae-4a0f-4915-a8f0-e254fd9d664b",
+  "ad259ecf-0a1e-40a3-8d74-7b46f400301e"
+ ],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 50,
+  "input_tokens": 1839321,
+  "output_tokens": 6428,
+  "cached_tokens": 1693966
+ },
+ "score_mean": 0.92,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/agent_runs/a1/submission",
+ "leaves": {
+  "abef3d1f-ac05-4b98-a4c4-cdf711863714": {
+   "leaf_id": "abef3d1f-ac05-4b98-a4c4-cdf711863714",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and addendum specify that an answer extraction method must parse the final answer from each of the k generated reasoning paths/responses. In the submission, the file src/generator.py defines the static method extract_answer(response_text: str, dataset_type: str) which handles multiple choice, boolean, and numeric datasets by searching for patterns like 'the answer is' or trailing values/numbers. In src/evaluation.py, this method is called in a list comprehension or loop over the generated rationales (answers = [generator.extract_answer(rat, dataset_type) for rat in rationales]), ensuring that the parsing extraction approach is applied to each of the k responses. Thus, the criterion is fully met.",
+   "usage": {
+    "input_tokens": 36822,
+    "output_tokens": 167,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980887.8812432,
+   "finished_at": 1791980889.8540745,
+   "ratelimit_wait_sec": 0.0
+  },
+  "32076d58-8586-4aac-9eb5-8a7570cc45cf": {
+   "leaf_id": "32076d58-8586-4aac-9eb5-8a7570cc45cf",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and rubric specify that the regularization parameter `nu` for the One-Class Support Vector Machine outlier removal method should be set to 0.01. Checking `src/config.py`, under `SVM_PARAMS`, the `nu` parameter is explicitly defined as `\"nu\": 0.01`, which correctly implements the requirement.",
+   "usage": {
+    "input_tokens": 36766,
+    "output_tokens": 88,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980768.435995,
+   "finished_at": 1791980770.6768126,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7e05fd91-a2fa-47ce-918f-9626d9b23f75": {
+   "leaf_id": "7e05fd91-a2fa-47ce-918f-9626d9b23f75",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "The criterion specifies that all models use top-p=1 (and notes that the default value for top-p through the OpenAI API is 1). In `src/generator.py`, when generating responses using the OpenAI API, top_p is explicitly set as `top_p=0.95` rather than 1. Additionally, for local models, `top_p=TOP_P` is used where `TOP_P = 50` is defined in `src/config.py`. Therefore, the models do not use top-p=1.",
+   "usage": {
+    "input_tokens": 36661,
+    "output_tokens": 135,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980648.8235352,
+   "finished_at": 1791980650.6945422,
+   "ratelimit_wait_sec": 0.0
+  },
+  "77d8f917-a53e-4374-8eaa-c24fa70186e2": {
+   "leaf_id": "77d8f917-a53e-4374-8eaa-c24fa70186e2",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and addendum state that when evaluated on AQuA-RAT, models must use the 4-shot prompt provided in Table 21 of the Chain-of-Thought prompting paper. Examining the submission file `src/config.py`, the constant `AQUARAT_4_SHOT_PROMPT` is defined with the exact four few-shot examples specified in the addendum (John found that the average of 15 numbers is 40..., If a/b = 3/4..., A person is traveling at 20 km/hr..., How many keystrokes are needed...). Furthermore, `src/data_loader.py` assigns `prompt: AQUARAT_4_SHOT_PROMPT` to all AQuA-RAT samples. Thus, the implementation correctly meets the criterion.",
+   "usage": {
+    "input_tokens": 36762,
+    "output_tokens": 182,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980650.6966617,
+   "finished_at": 1791980707.1479106,
+   "ratelimit_wait_sec": 49.35
+  },
+  "42296ab8-386b-4645-9fbf-4cd635f4fd81": {
+   "leaf_id": "42296ab8-386b-4645-9fbf-4cd635f4fd81",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion requires that for SVAMP, AQuA-RAT, and StrategyQA, given a response, the string immediately following 'The answer is' is parsed as the answer after stripping whitespace, full stops, and parentheses. Looking at `src/generator.py`, the `extract_answer` method implements regular expressions such as `re.search(r'the answer is\\s*\\(?([a-eA-E])\\)?', text, re.IGNORECASE)` and `re.search(r'the answer is\\s*(-?\\\\$?\\\\d+\\\\.?\\\\d*)', text, re.IGNORECASE)` which correctly target the string following 'the answer is'. Furthermore, evaluation logic and dataset evaluations correctly invoke this parser. Thus the implementation matches the requirement.",
+   "usage": {
+    "input_tokens": 36757,
+    "output_tokens": 181,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980770.840048,
+   "finished_at": 1791980824.1919887,
+   "ratelimit_wait_sec": 49.21
+  },
+  "ad259ecf-0a1e-40a3-8d74-7b46f400301e": {
+   "leaf_id": "ad259ecf-0a1e-40a3-8d74-7b46f400301e",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper states in Section 3.2 and Table 1 that SciBERT is employed as the featurizer for the AQuA-RAT dataset. Reviewing the submission, specifically `src/featurizer.py`, the `RationaleFeaturizer` class checks the dataset name and assigns SciBERT (`allenai/scibert_scivocab_uncased`) for all datasets except StrategyQA (which correctly uses RoBERTa). Therefore, evaluations on the AQuA-RAT benchmark correctly use SciBERT to produce embeddings.",
+   "usage": {
+    "input_tokens": 36756,
+    "output_tokens": 120,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791981131.437613,
+   "finished_at": 1791981133.9338245,
+   "ratelimit_wait_sec": 0.0
+  },
+  "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7": {
+   "leaf_id": "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and addendum specify that a linear kernel should be used for One-Class SVM (kernel argument set to 'linear'). Checking the submission's configuration file `src/config.py`, under `SVM_PARAMS`, the 'kernel' parameter is explicitly set to 'linear' (`'kernel': 'linear'`), and this parameter is passed to `OneClassSVM` in `src/outlier_detection.py` (`kernel=SVM_PARAMS['kernel']`), which fully satisfies the criterion.",
+   "usage": {
+    "input_tokens": 36712,
+    "output_tokens": 114,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980766.4552944,
+   "finished_at": 1791980768.4343255,
+   "ratelimit_wait_sec": 0.0
+  },
+  "95520bb4-2c5d-4469-975a-569e1ab76cd4": {
+   "leaf_id": "95520bb4-2c5d-4469-975a-569e1ab76cd4",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion specifies that given a question, the model generates k=10 responses by sampling with temperature=0.8. In the provided submission, src/config.py defines `DEFAULT_TEMPERATURE = 0.8` and `NUM_SAMPLES = 10`. Furthermore, src/generator.py implements `generate_samples` which accepts `num_samples=num_samples` (defaulting to NUM_SAMPLES=10) and `temperature=DEFAULT_TEMPERATURE` (0.8), passing them correctly to both the OpenAI API and local Hugging Face model generation functions. Thus, the implementation correctly fulfills the requirement.",
+   "usage": {
+    "input_tokens": 36759,
+    "output_tokens": 148,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980828.3080947,
+   "finished_at": 1791980830.3655794,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4d197469-b5e8-4bff-bae7-211a4f83f140": {
+   "leaf_id": "4d197469-b5e8-4bff-bae7-211a4f83f140",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and addendum specify that for the Isolation Forest outlier removal method, the number of samples to draw from the training data to train each base estimator should be set to min(256, n_samples), or max_samples='auto' if using the sklearn implementation of IsolationForest. Examining `src/config.py`, we find the dictionary `IFOREST_PARAMS = { 'n_estimators': 200, 'contamination': 'auto', 'max_samples': 'auto' }`. Furthermore, `src/outlier_detection.py` passes these parameters directly to `IsolationForest(n_estimators=IFOREST_PARAMS[\"n_estimators\"], contamination=IFOREST_PARAMS[\"contamination\"], max_samples=IFOREST_PARAMS[\"max_samples\"], random_state=42)`. Thus, the code correctly sets `max_samples` to 'auto'.",
+   "usage": {
+    "input_tokens": 36795,
+    "output_tokens": 211,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980766.32875,
+   "finished_at": 1791980768.587113,
+   "ratelimit_wait_sec": 0.0
+  },
+  "77e2711a-6278-4798-978f-d79c3a337d9f": {
+   "leaf_id": "77e2711a-6278-4798-978f-d79c3a337d9f",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper specifies in Section 4.1.1 that weights are assigned inversely proportional to their normalized distances: weights[i] = 1.0 / normalized_distances[i]. In the submission file src/weighting.py under the function centroid_proximity_weighting, the code computes normalized distances and assigns weights as `weights[i] = 1.0 / normalized_distances[i]`, which directly matches the mathematical definition and the evaluation criterion.",
+   "usage": {
+    "input_tokens": 36932,
+    "output_tokens": 112,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980894.3282104,
+   "finished_at": 1791980946.7287958,
+   "ratelimit_wait_sec": 45.72
+  },
+  "81246c81-3081-4734-8bdd-b6de2992105a": {
+   "leaf_id": "81246c81-3081-4734-8bdd-b6de2992105a",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission includes full code support for `gpt-4o-mini` in `src/config.py` as `GPT_4O_MINI = \"gpt-4o-mini\"` and handles it correctly through the OpenAI API integration in `src/generator.py` since the name contains 'gpt'. Thus, inference can be performed on gpt-4o-mini.",
+   "usage": {
+    "input_tokens": 36672,
+    "output_tokens": 91,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980647.725843,
+   "finished_at": 1791980649.5002286,
+   "ratelimit_wait_sec": 0.0
+  },
+  "53060482-d130-4c4d-ac1c-93e755c7db43": {
+   "leaf_id": "53060482-d130-4c4d-ac1c-93e755c7db43",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and config files specify that the Isolation Forest outlier removal method should use n_estimators=200. In the submission file 'src/config.py', under IFOREST_PARAMS, 'n_estimators' is explicitly set to 200 ('\"n_estimators\": 200'). Thus, the criterion has been correctly implemented.",
+   "usage": {
+    "input_tokens": 36710,
+    "output_tokens": 90,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980710.5845683,
+   "finished_at": 1791980766.4539323,
+   "ratelimit_wait_sec": 49.46
+  },
+  "ba28ab4e-4b8b-4359-bbac-9bb8753e3d84": {
+   "leaf_id": "ba28ab4e-4b8b-4359-bbac-9bb8753e3d84",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly implements model answer generation and evaluation for the AQuA-RAT dataset. Specifically, src/data_loader.py contains the function load_aquarat_dataset which loads AQuA-RAT, formats the choices and prompt correctly as specified in the paper and addendum, and sets the dataset type to 'multiple_choice'. Furthermore, src/generator.py implements rationale generation and extract_answer with a robust regex matcher specifically handling multiple choice options (extracting 'a', 'b', 'c', etc.), and src/evaluation.py implements evaluate_sample_prediction to correctly compare predicted multiple-choice options against the gold standard.",
+   "usage": {
+    "input_tokens": 36732,
+    "output_tokens": 149,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791981009.0267777,
+   "finished_at": 1791981011.2131433,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5814593-5393-4a6d-80e7-5b85eac9e593": {
+   "leaf_id": "c5814593-5393-4a6d-80e7-5b85eac9e593",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly sets the contamination parameter to 'auto' for the Isolation Forest outlier removal method in `src/config.py` where `IFOREST_PARAMS` is defined (`\"contamination\": \"auto\"`), matching the specification from the paper and addendum.",
+   "usage": {
+    "input_tokens": 36742,
+    "output_tokens": 70,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980753.492978,
+   "finished_at": 1791980766.327551,
+   "ratelimit_wait_sec": 6.56
+  },
+  "8028e26f-9cc7-482f-b648-02be6d130e53": {
+   "leaf_id": "8028e26f-9cc7-482f-b648-02be6d130e53",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper states that SciBERT is used for the AQuA-RAT and SVAMP datasets for featurization. Looking at `src/featurizer.py`, the `RationaleFeaturizer` class checks the dataset name, and if it is not StrategyQA / SQA (i.e. for SVAMP and AQuA-RAT), it initializes `SCIBERT_MODEL = \"allenai/scibert_scivocab_uncased\"`. Thus, all evaluations on the SVAMP benchmark correctly use SciBERT as the featurizer.",
+   "usage": {
+    "input_tokens": 36795,
+    "output_tokens": 126,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791981053.6803958,
+   "finished_at": 1791981064.0908167,
+   "ratelimit_wait_sec": 6.37
+  },
+  "8519dd43-eaf9-42dd-b96e-cda00b737479": {
+   "leaf_id": "8519dd43-eaf9-42dd-b96e-cda00b737479",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper specifies the use of RoBERTa for the StrategyQA dataset (Section 3.2), and the addendum confirms the use of RoBERTa base (125 million parameters). In the submission files, specifically in `src/config.py`, ROBERTA_MODEL is defined as 'roberta-base'. Furthermore, `src/featurizer.py` implements the RationaleFeaturizer class which loads this model using HuggingFace's AutoModel and AutoTokenizer and computes vector embeddings for input text strings (rationales) via transformer representations. Thus, the implementation correctly fulfills the criterion.",
+   "usage": {
+    "input_tokens": 36690,
+    "output_tokens": 142,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980768.588385,
+   "finished_at": 1791980770.8379622,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c2fd8c8a-e7c0-4fbd-8bf5-ef4c6108002a": {
+   "leaf_id": "c2fd8c8a-e7c0-4fbd-8bf5-ef4c6108002a",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper states in Section 4.1.1 that the centroid is computed as centroid = (1/N) * sum_{i=1}^N data_embedding[i], and distances are calculated as distances[i] = ||data_embeddings[i] - centroid|| (euclidean distance). In the submission file src/weighting.py, under the function centroid_proximity_weighting, the centroid is correctly computed using np.mean(embeddings, axis=0) and the distance of each vector from the centroid is calculated using np.linalg.norm(embeddings - centroid, axis=1), which computes the Euclidean distance norm. Therefore, the implementation meets the criterion.",
+   "usage": {
+    "input_tokens": 36867,
+    "output_tokens": 157,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980889.8561573,
+   "finished_at": 1791980892.1212788,
+   "ratelimit_wait_sec": 0.0
+  },
+  "796cdb25-0885-4219-a0f9-bdedb3e37a0d": {
+   "leaf_id": "796cdb25-0885-4219-a0f9-bdedb3e37a0d",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper specifies that K-nearest neighbor uses Euclidean distance. In the submission file src/config.py, the KNN_PARAMS dictionary defines 'metric': 'euclidean', and src/outlier_detection.py passes this metric directly to sklearn's NearestNeighbors implementation. This satisfies the requirement for using the Euclidean metric.",
+   "usage": {
+    "input_tokens": 36784,
+    "output_tokens": 82,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980708.883768,
+   "finished_at": 1791980710.5825667,
+   "ratelimit_wait_sec": 0.0
+  },
+  "bd9fa816-1437-4f94-825b-d77b0f11af0c": {
+   "leaf_id": "bd9fa816-1437-4f94-825b-d77b0f11af0c",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and addendum specify that k=10 responses are generated by sampling with temperature=0.8. Examining `src/config.py`, we see `DEFAULT_TEMPERATURE = 0.8` and `NUM_SAMPLES = 10`. Examining `src/generator.py`, the `generate_samples` method accepts `num_samples: int = 10` and `temperature: float = DEFAULT_TEMPERATURE`, and correctly loops or calls the API/local generation `num_samples` times with the specified `temperature`. Thus, the requirement has been correctly implemented in code.",
+   "usage": {
+    "input_tokens": 36829,
+    "output_tokens": 140,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980946.744924,
+   "finished_at": 1791980948.872486,
+   "ratelimit_wait_sec": 0.0
+  },
+  "13a6fa19-3d02-4331-b64e-06930fd29626": {
+   "leaf_id": "13a6fa19-3d02-4331-b64e-06930fd29626",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion 'Given a question, the model generates a single response using greedy decoding' corresponds to the 'top_prob' generation method in the evaluation pipeline. In `src/evaluation.py`, when the method is set to 'top_prob', the code extracts the first answer from the generated samples (`pred_ans = answers[0] if answers else 'unknown'`), which corresponds to the top probability prediction / single generation path. Furthermore, the generation script supports this evaluation method. Thus, the submission properly implements this component.",
+   "usage": {
+    "input_tokens": 36737,
+    "output_tokens": 124,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980826.4872313,
+   "finished_at": 1791980828.759156,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0eb8c4c9-c562-4c74-8153-6632e91eccc6": {
+   "leaf_id": "0eb8c4c9-c562-4c74-8153-6632e91eccc6",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly implements the Isolation Forest outlier removal method in `src/outlier_detection.py` via `filter_isolation_forest`, using `IsolationForest` from `scikit-learn` with parameters matching Section 4.2 and config settings. It successfully integrates this filter into the evaluation pipeline in `src/evaluation.py` where filtered answers are passed to the standard self-consistency majority vote (`standard_self_consistency_vote`).",
+   "usage": {
+    "input_tokens": 36892,
+    "output_tokens": 109,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791981006.5174773,
+   "finished_at": 1791981008.7028086,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9daf76c9-d2d0-4744-ba70-bbcf82550191": {
+   "leaf_id": "9daf76c9-d2d0-4744-ba70-bbcf82550191",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly implements the parsing extraction approach in `src/generator.py` via the `extract_answer` static method. This method handles multiple-choice, boolean, and numeric dataset types, specifically searching for answer patterns (such as 'the answer is ...') across each of the generated responses as required by the paper and addendum.",
+   "usage": {
+    "input_tokens": 36777,
+    "output_tokens": 85,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980948.8744264,
+   "finished_at": 1791980951.6957502,
+   "ratelimit_wait_sec": 0.0
+  },
+  "89b080c5-7ddb-4115-ade2-5d5ce9ebed5c": {
+   "leaf_id": "89b080c5-7ddb-4115-ade2-5d5ce9ebed5c",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion requires that for each group of embeddings sharing the same extracted answer, their respective Centroid Proximity Weights (CPW) are summed together, and the final answer is selected as the one with the highest total weight. Inspecting `src/weighting.py` under the `centroid_proximity_weighting` function, we find the exact implementation: 'answer_weights = {}' followed by looping over `answers` and `weights`, summing the weights for each unique answer ('answer_weights[ans] = answer_weights.get(ans, 0.0) + float(w)'), and finally selecting the answer via 'max(answer_weights, key=answer_weights.get)'. This correctly and fully implements the required summation and selection step.",
+   "usage": {
+    "input_tokens": 36967,
+    "output_tokens": 175,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980946.7309637,
+   "finished_at": 1791980948.9191394,
+   "ratelimit_wait_sec": 0.0
+  },
+  "489ab4d9-1501-4f01-ad35-75f35f1f174b": {
+   "leaf_id": "489ab4d9-1501-4f01-ad35-75f35f1f174b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly implements model answer generation and grading for the StrategyQA benchmark. Specifically, `src/data_loader.py` implements `load_strategyqa_dataset` using the correct Hugging Face dataset name and extracts boolean yes/no answers. `src/config.py` provides the exact few-shot prompt specified in the paper and addendum for StrategyQA. `src/generator.py` correctly implements rationale generation and answer extraction for boolean tasks (checking for 'yes' or 'no' keywords near the end of the response), and `src/evaluation.py` implements `evaluate_sample_prediction` to correctly grade boolean answers (comparing gold 'yes'/'no' against predicted 'yes'/'no'). Furthermore, `src/featurizer.py` correctly configures RoBERTa as the featurizer for StrategyQA as specified in Section 3.2.",
+   "usage": {
+    "input_tokens": 36813,
+    "output_tokens": 192,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791981064.0920055,
+   "finished_at": 1791981066.514471,
+   "ratelimit_wait_sec": 0.0
+  },
+  "eb67f3e3-fc60-4ba0-97cb-a1e97cdab8e5": {
+   "leaf_id": "eb67f3e3-fc60-4ba0-97cb-a1e97cdab8e5",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission implements the One-Class SVM outlier removal method in `src/outlier_detection.py` using `OneClassSVM` from scikit-learn with the parameters specified in `src/config.py`. Furthermore, `src/evaluation.py` integrates the SVM outlier removal method into the pipeline by filtering the generated embeddings and answers before applying standard self-consistency majority voting. The CLI and reproduction script also support invoking this method.",
+   "usage": {
+    "input_tokens": 36942,
+    "output_tokens": 106,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791981008.7044003,
+   "finished_at": 1791981010.5916405,
+   "ratelimit_wait_sec": 0.0
+  },
+  "50fe90ba-39a2-4b00-8e52-edb99448ca7b": {
+   "leaf_id": "50fe90ba-39a2-4b00-8e52-edb99448ca7b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion specifies that the number of neighbours (`n_neighbors`) used in the k-nearest neighbor method should be set to 5. Examining the codebase in `src/config.py`, under `KNN_PARAMS`, the dictionary explicitly sets `'n_neighbors': 5`. Therefore, the implementation matches the requirement.",
+   "usage": {
+    "input_tokens": 36708,
+    "output_tokens": 81,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980707.1499228,
+   "finished_at": 1791980708.882527,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a09d85b6-e400-42bf-9958-def3b4311d9d": {
+   "leaf_id": "a09d85b6-e400-42bf-9958-def3b4311d9d",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "The criterion requires that when generating answers for AQuA-RAT, only generations where an answer could be extracted should be considered when computing the various metrics. Looking at the code in `src/evaluation.py` and `src/weighting.py`, although answer filtering/skipping ('unknown') is handled during majority voting and weighting (e.g., ignoring answers equal to 'unknown'), there is no explicit check filtering out generations where an answer could not be extracted specifically for AQuA-RAT prior to computing metrics or across all rationale samples as mandated by the addendum. Therefore, the specific criterion for AQuA-RAT answer extraction filtering is not fully implemented as required.",
+   "usage": {
+    "input_tokens": 36824,
+    "output_tokens": 155,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980824.1933553,
+   "finished_at": 1791980826.4942722,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b63359fc-8d24-4473-bed3-d54fe1586b53": {
+   "leaf_id": "b63359fc-8d24-4473-bed3-d54fe1586b53",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion specifies that all input points are sorted by average distance to their neighbours, and the 10% of inputs to the KNN method with the largest average distances are filtered out. Examining `src/outlier_detection.py`, the KNN filter computes `mean_distances = np.mean(distances, axis=1)` and filters based on a threshold percentile: `threshold = np.percentile(mean_distances, KNN_PARAMS['threshold'] * 100)` where `KNN_PARAMS['threshold']` is set to `0.90` in `src/config.py`. However, the masking logic uses `mask = mean_distances <= threshold`, which keeps the 90% of points with the *smallest* distances and filters out (discards) the 10% with the *largest* average distances. This correctly implements the 10% outlier removal requirement for KNN.",
+   "usage": {
+    "input_tokens": 36817,
+    "output_tokens": 205,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980872.342033,
+   "finished_at": 1791980887.880054,
+   "ratelimit_wait_sec": 7.71
+  },
+  "067da205-f599-4a40-92fe-4cfc3f635c41": {
+   "leaf_id": "067da205-f599-4a40-92fe-4cfc3f635c41",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper states in Appendix L: 'Specifically, for SVAMP, we utilize the train and test split comprising 1000 samples'. Looking at `src/data_loader.py`, the function `load_svamp_dataset` loads the dataset via `load_dataset('ChilleD/SVAMP', split='test')`. The HuggingFace `ChilleD/SVAMP` dataset only has a 'test' split containing 1000 samples (which actually comprises all samples from both original train/test splits of SVAMP). Thus, the full SVAMP dataset of 1000 samples is successfully loaded and used.",
+   "usage": {
+    "input_tokens": 36674,
+    "output_tokens": 145,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980645.732976,
+   "finished_at": 1791980647.7236812,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f4ea36de-ac1c-498b-a8db-7616907780cb": {
+   "leaf_id": "f4ea36de-ac1c-498b-a8db-7616907780cb",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "The paper and addendum specify that when evaluated on StrategyQA, models should use the 6-shot prompt provided in Table 25 of the Chain-of-Thought Prompting paper. Looking at `src/config.py`, the `STRATEGYQA_PROMPT` variable contains 3 examples rather than the required 6-shot prompt from Table 25 of the CoT paper. Therefore, the implementation does not match the prompt requirement.",
+   "usage": {
+    "input_tokens": 36802,
+    "output_tokens": 104,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980656.949638,
+   "finished_at": 1791980706.9430218,
+   "ratelimit_wait_sec": 43.1
+  },
+  "a5c85099-0e2e-46c1-bd19-5bedb2d7886a": {
+   "leaf_id": "a5c85099-0e2e-46c1-bd19-5bedb2d7886a",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper specifies that embeddings are created for each of the k responses by passing them through the associated featurizer to obtain vector representations summarizing their meaning. In the submission, 'src/featurizer.py' implements the RationaleFeaturizer which tokenizes batches of rationales using AutoTokenizer and processes them through the transformer model (SciBERT or RoBERTa). Specifically, it extracts model outputs and accesses `outputs.pooler_output` or mean pooling over the sequence representations, properly obtaining embeddings for each rationale. Thus, the implementation correctly fulfills the requirement.",
+   "usage": {
+    "input_tokens": 36854,
+    "output_tokens": 130,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980888.6452851,
+   "finished_at": 1791980891.426916,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8006761a-19e1-4990-92fa-778b6ee89266": {
+   "leaf_id": "8006761a-19e1-4990-92fa-778b6ee89266",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly implements loading the StrategyQA test dataset using the Hugging Face `datasets` library in `src/data_loader.py` via `load_dataset(\"strategy_qa\", split=\"test\")` with a fallback option. This directly satisfies the requirement for making the test split of the StrategyQA dataset available for use.",
+   "usage": {
+    "input_tokens": 36648,
+    "output_tokens": 79,
+    "cached_tokens": 32576,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980641.0079083,
+   "finished_at": 1791980646.6999292,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a560cc7a-6ad0-453b-8283-239b981d8754": {
+   "leaf_id": "a560cc7a-6ad0-453b-8283-239b981d8754",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly specifies the maximum new tokens for each dataset in src/config.py under the MAX_TOKENS dictionary ('SVAMP': 250, 'AQuA-RAT': 400, 'StrategyQA': 450), and these values are appropriately utilized during the text generation process in src/generator.py.",
+   "usage": {
+    "input_tokens": 36698,
+    "output_tokens": 82,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980649.5013895,
+   "finished_at": 1791980656.9475143,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d": {
+   "leaf_id": "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion requires that all models use the 8-shot math prompt provided in Table 20 of 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models' when evaluated on SVAMP. Examining `src/config.py`, the variable `MATH_8_SHOT_PROMPT` contains the exact 8-shot prompt corresponding to Table 20 of the original Chain-of-Thought paper (starting with 'Q: There are 15 trees in the grove...' and containing the correct 8 examples). Furthermore, `src/data_loader.py` assigns `MATH_8_SHOT_PROMPT` to the prompt field for SVAMP dataset samples. Therefore, the implementation correctly meets the criterion.",
+   "usage": {
+    "input_tokens": 36843,
+    "output_tokens": 168,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980706.9454973,
+   "finished_at": 1791980708.7118096,
+   "ratelimit_wait_sec": 0.0
+  },
+  "be2d3c6c-efbd-477e-97fe-a616f6fc3bf1": {
+   "leaf_id": "be2d3c6c-efbd-477e-97fe-a616f6fc3bf1",
+   "category": "Code Development",
+   "score": 0,
+   "reason": "The addendum states that when evaluating the 'top prob' method for all datasets, generations are only considered in metric computation if an answer could be extracted. Looking at `src/evaluation.py`, the 'top prob' method evaluates `pred_ans = answers[0] if answers else 'unknown'` without filtering out cases where `answers[0]` is 'unknown' from metric computation (unlike self-consistency counting valid votes). Therefore, the requirement that only generations with successfully extracted answers are considered for top prob is not implemented.",
+   "usage": {
+    "input_tokens": 36790,
+    "output_tokens": 118,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980813.4417715,
+   "finished_at": 1791980826.486122,
+   "ratelimit_wait_sec": 6.61
+  },
+  "39f83549-039d-44b4-85d5-1d66e261baa9": {
+   "leaf_id": "39f83549-039d-44b4-85d5-1d66e261baa9",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly implements Centroid Proximity Weighting (CPW) in `src/weighting.py`. Specifically, it computes the centroid via `np.mean(embeddings, axis=0)`, calculates the distance of each embedding vector from the centroid using `np.linalg.norm(embeddings - centroid, axis=1)`, and normalizes these distances by dividing by the sum of distances (`normalized_distances = distances / dist_sum`). This fully satisfies the requirement of computing the normalized distance from each of the k embeddings to the centroid.",
+   "usage": {
+    "input_tokens": 36887,
+    "output_tokens": 126,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980892.1233678,
+   "finished_at": 1791980946.7429976,
+   "ratelimit_wait_sec": 47.93
+  },
+  "c066870b-543b-4935-a936-3560101fbb13": {
+   "leaf_id": "c066870b-543b-4935-a936-3560101fbb13",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission successfully implements the k-Nearest Neighbors (KNN) outlier removal method in `src/outlier_detection.py` using `sklearn.neighbors.NearestNeighbors`, which computes neighbor distances, sets a threshold percentile (e.g., 90%), and filters out outlier reasoning paths. Furthermore, `src/evaluation.py` integrates this filter by taking the filtered answers and applying standard self-consistency majority voting to obtain the final answer as required by the criteria.",
+   "usage": {
+    "input_tokens": 36840,
+    "output_tokens": 112,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791981006.440309,
+   "finished_at": 1791981009.02511,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2d8d7041-be93-45ae-a6ac-80fa53a49199": {
+   "leaf_id": "2d8d7041-be93-45ae-a6ac-80fa53a49199",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion specifies that the K-nearest neighbour outlier removal method uses the ball tree algorithm ('algorithm' argument set to 'ball_tree' using sklearn). Checking `src/config.py`, we find `KNN_PARAMS` defined with 'algorithm': 'ball_tree'. Checking `src/outlier_detection.py`, the `NearestNeighbors` class is initialized using `algorithm=KNN_PARAMS['algorithm']`, which correctly sets it to 'ball_tree'. Thus, the requirement is fully met.",
+   "usage": {
+    "input_tokens": 36740,
+    "output_tokens": 120,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980708.7130969,
+   "finished_at": 1791980710.5344732,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5096c429-1bd2-45ef-acf9-edadd7c9286b": {
+   "leaf_id": "5096c429-1bd2-45ef-acf9-edadd7c9286b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission includes full code implementing inference on gpt-3.5-turbo (and other models) using the standard OpenAI Python SDK client in `src/generator.py`. The config file `src/config.py` correctly references `gpt-3.5-turbo`, and the reproduction script `reproduce.sh` successfully executes inference tasks using it.",
+   "usage": {
+    "input_tokens": 36654,
+    "output_tokens": 84,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980646.701624,
+   "finished_at": 1791980648.821356,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c08b029c-fa6d-475b-b201-6b43dcd14c5e": {
+   "leaf_id": "c08b029c-fa6d-475b-b201-6b43dcd14c5e",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The criterion requires that the final answer is selected as the modal answer from the k answers extracted from the k responses (standard self-consistency baseline). Inspecting the file `src/weighting.py`, the function `standard_self_consistency_vote(answers: List[str]) -> str` implements a majority vote (modal answer) by counting occurrences of each extracted answer and returning the one with the maximum count (`max(counts, key=counts.get)`). This correctly implements the selection of the modal answer.",
+   "usage": {
+    "input_tokens": 36797,
+    "output_tokens": 122,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980830.3676805,
+   "finished_at": 1791980886.5652544,
+   "ratelimit_wait_sec": 49.68
+  },
+  "1c671c6e-e97e-4897-82fd-ec21dc80e744": {
+   "leaf_id": "1c671c6e-e97e-4897-82fd-ec21dc80e744",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper specifies in Section 3.2 and Table 1 that RoBERTa is employed as the featurizer for the StrategyQA dataset. Reviewing the submission files, specifically 'src/featurizer.py', the code checks if 'strategy' or 'sqa' is in the dataset name and assigns `self.model_name = ROBERTA_MODEL` (which is defined in 'src/config.py' as `roberta-base`). Therefore, StrategyQA evaluations correctly use RoBERTa to produce embeddings.",
+   "usage": {
+    "input_tokens": 36835,
+    "output_tokens": 126,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791981066.5160131,
+   "finished_at": 1791981069.0832481,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0b270d60-8ac8-4102-933d-cc9eddedd22d": {
+   "leaf_id": "0b270d60-8ac8-4102-933d-cc9eddedd22d",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission correctly implements model answer generation and grading for the SVAMP benchmark. Specifically, `src/data_loader.py` implements `load_svamp_dataset` which loads the SVAMP dataset (using the ChilleD/SVAMP test split), combines the body and question fields, sets the type to 'numeric', and uses the 8-shot math prompt specified in the addendum. `src/generator.py` correctly handles generation and implements `extract_answer` for numeric answers by extracting the number immediately following 'the answer is' or falling back to the last number in the text. `src/evaluation.py` implements `evaluate_sample_prediction` to correctly compare numeric answers with tolerance (abs(gold - pred) < 1e-4).",
+   "usage": {
+    "input_tokens": 36774,
+    "output_tokens": 177,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791981011.214732,
+   "finished_at": 1791981067.0284579,
+   "ratelimit_wait_sec": 48.83
+  },
+  "82b1a191-e41c-457b-af57-e036b6be7129": {
+   "leaf_id": "82b1a191-e41c-457b-af57-e036b6be7129",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and addendum specify that the final answer is extracted from each of the k generated responses (e.g., parsing the string following 'the answer is'). Examining `src/evaluation.py` and `src/generator.py`, the submission correctly implements `generator.extract_answer(rat, dataset_type)` across all generated rationales (`answers = [generator.extract_answer(rat, dataset_type) for rat in rationales]`) before passing them to the baseline, weighting, or outlier methods.",
+   "usage": {
+    "input_tokens": 36847,
+    "output_tokens": 123,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980948.921191,
+   "finished_at": 1791980951.6199288,
+   "ratelimit_wait_sec": 0.0
+  },
+  "463c7875-01e8-4e72-8e07-493ee968b0b3": {
+   "leaf_id": "463c7875-01e8-4e72-8e07-493ee968b0b3",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The submission implements the parsing extraction approach via the `extract_answer` static method in `src/generator.py`, which correctly handles multiple choice, boolean, and numeric answers by searching for patterns like 'the answer is' and extracting the final decision as required by the paper and addendum.",
+   "usage": {
+    "input_tokens": 36753,
+    "output_tokens": 69,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980826.4954169,
+   "finished_at": 1791980828.3063662,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b4ec7fec-fe79-4cfc-a15e-c2e43db21c2b": {
+   "leaf_id": "b4ec7fec-fe79-4cfc-a15e-c2e43db21c2b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper specifies generating $k=10$ responses by sampling with temperature=0.8. In the submission, `src/config.py` defines `DEFAULT_TEMPERATURE = 0.8` and `NUM_SAMPLES = 10`. Furthermore, `src/generator.py` utilizes these parameters in `generate_samples` to generate $k=num\\_samples$ responses using the specified temperature. Thus, the implementation correctly reflects the requirement.",
+   "usage": {
+    "input_tokens": 36804,
+    "output_tokens": 112,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980886.5667088,
+   "finished_at": 1791980888.644168,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e84e0360-1818-41c0-884a-8714732a11fd": {
+   "leaf_id": "e84e0360-1818-41c0-884a-8714732a11fd",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "In `src/weighting.py`, the function `semantic_consensus_weighting` correctly implements the requirement: for each embedding, cosine similarity scores are aggregated and then summed based on their corresponding extracted answer decision (`answer_scores[ans] = answer_scores.get(ans, 0.0) + float(score)`), and the final answer is selected as the one with the highest total score (`max(answer_scores, key=answer_scores.get)`).",
+   "usage": {
+    "input_tokens": 36938,
+    "output_tokens": 111,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980995.179972,
+   "finished_at": 1791981006.438112,
+   "ratelimit_wait_sec": 4.87
+  },
+  "c8acfeae-4a0f-4915-a8f0-e254fd9d664b": {
+   "leaf_id": "c8acfeae-4a0f-4915-a8f0-e254fd9d664b",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and addendum specify that an embedding is created for each of the k responses by passing it through the associated featurizer and getting the embedding at the first ('[CLS]') token. Looking at `src/featurizer.py`, the code tokenizes the rationales and passes them through the BERT/SciBERT/RoBERTa model. Specifically, it extracts the `pooler_output` or uses the first token / hidden state representation appropriately (or mean pooling fallback). However, `pooler_output` from HuggingFace BERT models corresponds directly to the representation of the [CLS] token (processed through the pooler). Thus, the submission properly implements embedding generation for each response using the featurizer.",
+   "usage": {
+    "input_tokens": 36879,
+    "output_tokens": 157,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791981073.0769448,
+   "finished_at": 1791981075.5424745,
+   "ratelimit_wait_sec": 0.0
+  },
+  "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1": {
+   "leaf_id": "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper and addendum specify that the test split of AQuA-RAT includes the full set of 254 examples. Examining `src/data_loader.py`, the function `load_aquarat_dataset` loads the dataset using `load_dataset(\"aqua_rat\", \"raw\", split=\"test\")`, which correctly retrieves the standard test split containing 254 examples. Therefore, the test split of AQuA-RAT is properly implemented and available for use.",
+   "usage": {
+    "input_tokens": 36627,
+    "output_tokens": 112,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980640.997441,
+   "finished_at": 1791980645.7316303,
+   "ratelimit_wait_sec": 0.0
+  },
+  "db4e4076-436e-4a5a-b441-8d7d876b7f1a": {
+   "leaf_id": "db4e4076-436e-4a5a-b441-8d7d876b7f1a",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper specifies Semantic Consensus Weighting (SCW) where for each embedding, the cosine similarity with every other embedding in N is summed to produce an aggregated score (S_{n_e} = sum_{n_i in N} cosine_similarity(n_e, n_i)). Inspecting the submission file `src/weighting.py`, the function `semantic_consensus_weighting` computes the pairwise cosine similarity matrix using `cosine_similarity(embeddings)`, sums the similarity scores across axis 1 (`consensus_scores = np.sum(sim_matrix, axis=1)`), and then aggregates them based on answer decisions. This correctly implements the requirement.",
+   "usage": {
+    "input_tokens": 36903,
+    "output_tokens": 148,
+    "cached_tokens": 34613,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152991",
+   "started_at": 1791980951.6977463,
+   "finished_at": 1791981006.515265,
+   "ratelimit_wait_sec": 48.35
+  },
+  "0dffe1c8-da0c-4829-9bb6-033512baada3": {
+   "leaf_id": "0dffe1c8-da0c-4829-9bb6-033512baada3",
+   "category": "Code Development",
+   "score": 1,
+   "reason": "The paper specifies using SciBERT as the featurizer for mathematical reasoning tasks (AQuA-RAT and SVAMP). In the submission files, specifically in `src/config.py`, SCIBERT_MODEL is defined as 'allenai/scibert_scivocab_uncased' (which is the standard 110-million parameter SciBERT model). Furthermore, `src/featurizer.py` correctly implements the `RationaleFeaturizer` class which loads this model and tokenizer using HuggingFace's transformers (`AutoModel.from_pretrained`), and provides the `embed_rationales` method to generate semantic vector embeddings for input strings. Thus, SciBERT is correctly implemented to generate embedding vectors.",
+   "usage": {
+    "input_tokens": 36714,
+    "output_tokens": 166,
+    "cached_tokens": 34612,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1152990",
+   "started_at": 1791980891.4292326,
+   "finished_at": 1791980894.326893,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

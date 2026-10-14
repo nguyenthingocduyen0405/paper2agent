@@ -1,0 +1,66 @@
+{
+ "run_id": "a1",
+ "model": "gemini-3.5-flash-lite",
+ "calls": 17,
+ "call_limit": 50,
+ "input_tokens": 483189,
+ "output_tokens": 15200,
+ "cached_tokens": 376166,
+ "llm_sec": 78.9,
+ "wall_sec_last_invocation": 9.5,
+ "by_step": {
+  "P1": {
+   "calls": 1,
+   "input_tokens": 22259,
+   "output_tokens": 2164,
+   "cached_tokens": 0,
+   "sec": 6.84
+  },
+  "P2": {
+   "calls": 2,
+   "input_tokens": 48828,
+   "output_tokens": 946,
+   "cached_tokens": 22258,
+   "sec": 4.96
+  },
+  "P5": {
+   "calls": 6,
+   "input_tokens": 177123,
+   "output_tokens": 2898,
+   "cached_tokens": 145245,
+   "sec": 16.020000000000003
+  },
+  "P3": {
+   "calls": 8,
+   "input_tokens": 234979,
+   "output_tokens": 9192,
+   "cached_tokens": 208663,
+   "sec": 51.07
+  }
+ },
+ "truncated_outputs": 0,
+ "p4": {
+  "rounds": [
+   {
+    "compile_errors": [],
+    "missing": []
+   }
+  ],
+  "final_compile_errors": [],
+  "final_missing": []
+ },
+ "submission_dir": "data/agent_runs/a1/submission",
+ "files": [
+  "README.md",
+  "reproduce.sh",
+  "requirements.txt",
+  "src/config.py",
+  "src/data_loader.py",
+  "src/evaluation.py",
+  "src/featurizer.py",
+  "src/generator.py",
+  "src/main.py",
+  "src/outlier_detection.py",
+  "src/weighting.py"
+ ]
+}

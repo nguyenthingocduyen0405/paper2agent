@@ -3,13 +3,14 @@
 # 사용: scripts/run_local.sh <run이름> <작업 수> <워커 수> [kill_after_sec]
 #   kill_after_sec를 주면 그 시간 뒤 처리 중인 워커 1개를 kill -9 한다(장애 복구 확인용).
 # MOCK_JUDGE, MOCK_DELAY_SEC, CLAIM_IDLE_SEC, RATE_LIMIT_* 는 환경 변수로 넘긴다.
+# GEN_ARGS: 작업 생성기에 더 줄 인자. 예: GEN_ARGS="--submission-dir data/agent_runs/a1/submission --category 'Code Development'"
 set -euo pipefail
 cd "$(dirname "$0")/.."
 RUN=$1; N=$2; W=$3; KILL_AFTER=${4:-}
 export CUDA_VISIBLE_DEVICES=""
 LOG=logs/$RUN; mkdir -p "$LOG"
 
-python -m judge.generate_tasks --run "$RUN" --limit "$N"
+eval python -m judge.generate_tasks --run "$RUN" --limit "$N" ${GEN_ARGS:-}
 pids=()
 for i in $(seq 1 "$W"); do
   python -m judge.worker --run "$RUN" --exit-when-done > "$LOG/w$i.log" 2>&1 &
