@@ -14,7 +14,7 @@
 | 1. 환경 | 완료 | 모델을 `gemini-3.5-flash-lite`로 바꿈(2.5는 신규 사용자에게 종료됨) |
 | 2. judge | 완료 | 경로 B(간이 judge). JSON 스키마 출력으로 형식 오류 0% |
 | 3. 큐와 워커 | 완료 | MOCK 테스트 3개 통과. 결과는 `results/t*.json` |
-| 4. JudgeEval F1 | 진행 중 | A안: 논문 1편, 리프 77개. 더 제대로 하는 계획은 `FUTURE_PLAN.md` |
+| 4. JudgeEval F1 | 완료 | A안(리프 77개). F1 0.986, macro-F1 0.893. 더 제대로 하는 계획은 `FUTURE_PLAN.md` |
 | 5~7 | 대기 | |
 
 ---
