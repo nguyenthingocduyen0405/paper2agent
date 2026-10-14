@@ -1,0 +1,359 @@
+{
+ "run": "q7b_1974_core_nn_sub_partial",
+ "label": "18 tasks, 6 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 5,
+ "tasks_per_worker": {
+  "gpu7-3003818": 3,
+  "gpu7-3003816": 4,
+  "gpu7-3003809": 4,
+  "gpu7-3003817": 5,
+  "gpu7-3003805": 2
+ },
+ "wall_time_sec": 603.83,
+ "mean_task_sec": 8.6,
+ "retries": 2,
+ "failures": 2,
+ "parse_retries": 1,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [
+  "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720"
+ ],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 19,
+  "input_tokens": 51429,
+  "output_tokens": 5452,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.3889,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1974_core_nn/submissions/sub_partial",
+ "leaves": {
+  "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa": {
+   "leaf_id": "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa",
+   "category": "Code Development",
+   "requirements": "The training tape is read exactly once, in its original order.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the training tape should be read exactly once, in its original order. This means that the training procedure should iterate over the training data exactly once, and use the original sequence of the data. In the code, I would expect to see a loop that processes the training data in the exact order it is provided, without any shuffling or reordering of the data. Reality: The `src/train.py` file contains a loop that iterates over the training data (`for x, y in zip(X_tr, y_tr):`). The `X_tr` and `y_tr` arrays are loaded from the `data.py` file, and they correspond to the first 1,500 numerals of the training set. There is no indication in the code that the data is shuffled or reordered. The loop processes the data in the order it is provided, which matches the original sequence of the training data. Score: 1",
+   "usage": {
+    "input_tokens": 2844,
+    "output_tokens": 207,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003818",
+   "started_at": 1791989647.472314,
+   "finished_at": 1791989653.526904,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23": {
+   "leaf_id": "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23",
+   "category": "Code Development",
+   "requirements": "A prototype stored fewer than 50 training numerals ago cannot be evicted.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a prototype stored fewer than 50 training numerals ago cannot be evicted. This means that the implementation should include a check that ensures no prototype stored less than 50 numerals ago is evicted. Specifically, the `CoreMemory` class should include logic to protect prototypes based on their tenure. Reality: In the `src/memory.py` file, there is no explicit check or logic to protect prototypes based on their tenure. The `nearest` and `classify` methods focus on finding the nearest prototype and classifying new inputs, but there is no mechanism to enforce the tenure-based protection. The `read` method does not include any checks related to the tenure of the prototypes. Therefore, the submission does not meet the requirement as specified in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2791,
+    "output_tokens": 178,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003816",
+   "started_at": 1791989644.9718478,
+   "finished_at": 1791989650.1611876,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d5c62b5b-bcdc-5d40-b748-e6410be98db7": {
+   "leaf_id": "d5c62b5b-bcdc-5d40-b748-e6410be98db7",
+   "category": "Code Development",
+   "requirements": "For each training numeral (when core is not empty), the consultation count of the nearest prototype is increased by one, whether or not its class is correct.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, for each training numeral (when core is not empty), the consultation count of the nearest prototype is increased by one, regardless of whether its class is correct. I expect to see code in `src/memory.py` that increments the consultation count of the nearest prototype after checking its class against the training numeral's class. \n\nReality: In `src/memory.py`, the `nearest` method finds the closest prototype, and the `read` method checks the class of the nearest prototype and increments the consultation count if the classes differ. However, the `read` method does not unconditionally increment the consultation count even when the classes match. Specifically, the `read` method has the following logic:\n```python\ndef read(self, x, y):\n    if not self.protos:\n        self.protos.append({",
+   "usage": {
+    "input_tokens": 2726,
+    "output_tokens": 193,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003809",
+   "started_at": 1791989640.2852013,
+   "finished_at": 1791989645.9302294,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e82ece3d-be3d-5e85-898c-8176e93ed401": {
+   "leaf_id": "e82ece3d-be3d-5e85-898c-8176e93ed401",
+   "category": "Code Development",
+   "requirements": "The accuracies of both recognizers, the number of evictions and the final number of stored prototypes are printed and saved to a results file.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the accuracies of both recognizers, the number of evictions, and the final number of stored prototypes should be printed and saved to a results file. Specifically, these values should be printed to the console and saved to a file named 'results/results.json'.\n\nReality: The submission contains a `train.py` script that trains the core-economical nearest-neighbour recognizer and evaluates its performance. However, there is no evidence that the results are printed to the console or saved to a file named 'results/results.json'. The `train.py` script only prints the test accuracy to the console, and there is no code that saves the results to a file.\n\nScore: 0",
+   "usage": {
+    "input_tokens": 2711,
+    "output_tokens": 161,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003809",
+   "started_at": 1791989652.7016203,
+   "finished_at": 1791989657.2020953,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91f03e82-947e-56dc-97ec-5b462304fa31": {
+   "leaf_id": "91f03e82-947e-56dc-97ec-5b462304fa31",
+   "category": "Code Development",
+   "requirements": "A full 1-NN recognizer that stores all 1,500 training numerals and uses the city-block distance is evaluated for comparison.",
+   "score": 0,
+   "reason": "Expectations: The full 1-NN recognizer described in the paper is expected to store all 1,500 training numerals and use the city-block distance. Specifically, I expect to see code that reads all 1,500 training numerals, stores them as prototypes, and uses the city-block distance to classify test numerals. The implementation should not have any restrictions on the number of prototypes or eviction policies. Reality: The `src/data.py` file loads the first 1,500 training numerals, but the `src/memory.py` file does not store these prototypes. Instead, the `CoreMemory` class in `src/memory.py` only stores up to 64 prototypes and uses a different eviction policy. The `src/train.py` file only trains the core-economical recognizer and does not include a full 1-NN recognizer. The submission does not implement the full 1-NN recognizer as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2683,
+    "output_tokens": 214,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003816",
+   "started_at": 1791989650.1626348,
+   "finished_at": 1791989656.3066807,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b28a98ed-0594-5b3d-aae2-9d8933d35f56": {
+   "leaf_id": "b28a98ed-0594-5b3d-aae2-9d8933d35f56",
+   "category": "Code Development",
+   "requirements": "The first 1,500 numerals, in original order, form the training tape and the last 297 form the test tape.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the first 1,500 numerals form the training tape and the last 297 form the test tape. I expect the code to correctly split the dataset into these two parts and use them appropriately. Specifically, I would look for code that loads the digits dataset, splits it into the specified training and test sets, and ensures that the test set contains the last 297 numerals. Reality: The `src/data.py` file contains the function `load_tapes()` which correctly splits the dataset into the training and test tapes. The function `X_tr, y_tr, X_te, y_te = load_tapes()` returns the first 1,500 numerals and their labels for training, and the last 297 numerals and their labels for testing. This matches the expectations from the paper. Score: 1",
+   "usage": {
+    "input_tokens": 2678,
+    "output_tokens": 195,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003818",
+   "started_at": 1791989633.7887335,
+   "finished_at": 1791989639.8537152,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d438b632-c9ee-5d32-9ef4-3d70facef6c6": {
+   "leaf_id": "d438b632-c9ee-5d32-9ef4-3d70facef6c6",
+   "category": "Code Development",
+   "requirements": "Core holds at most 64 prototypes.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the core should hold at most 64 prototypes. I will look for a CoreMemory class that enforces this constraint and limits the number of prototypes to 64. Reality: In the `src/memory.py` file, the CoreMemory class is defined with a capacity of 64, and the `read` method checks if the core is full before adding a new prototype. However, there is no explicit check to ensure that the core does not exceed 64 prototypes after evictions. The `nearest` method returns the index of the nearest prototype, and the `classify` method uses this index to classify new numerals. There is no mechanism to enforce the maximum capacity after evictions. Score: 0",
+   "usage": {
+    "input_tokens": 2694,
+    "output_tokens": 166,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003816",
+   "started_at": 1791989640.0721416,
+   "finished_at": 1791989644.9701967,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c": {
+   "leaf_id": "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c",
+   "category": "Code Development",
+   "requirements": "Every 500 training numerals (after numerals 500 and 1,000), all consultation counts are halved with integer division (rounding down).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, every 500 training numerals (after numerals 500 and 1,000), the consultation counts of all stored prototypes should be halved with integer division (rounding down). I will look for a mechanism in the code that performs this operation at the specified intervals. Reality: In the `src/memory.py` file, there is no explicit logic to halve the consultation counts of the prototypes every 500 training numerals. The `CoreMemory` class does not have any method or attribute related to consultation count halving. Additionally, there is no code in the `train.py` file that handles this operation. The `read` method only updates the consultation count when a new prototype is added or when the nearest prototype's class differs from the numeral's class. The `train.py` script simply trains the model and evaluates it on the test set without any consultation count management. The `reproduce.sh` script and `requirements.txt` do not contain any additional logic to implement this feature. Score: 0",
+   "usage": {
+    "input_tokens": 2830,
+    "output_tokens": 233,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003809",
+   "started_at": 1791989645.9314127,
+   "finished_at": 1791989652.7001276,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45": {
+   "leaf_id": "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45",
+   "category": "Code Development",
+   "requirements": "When a new prototype must be stored and core is full, the prototype with the smallest consultation count is evicted first, with ties broken by evicting the oldest.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, when core is full and a new prototype must be stored, the prototype with the smallest consultation count is evicted first. In case of a tie, the oldest prototype is evicted. I should look for a mechanism in the code that identifies the prototype with the smallest consultation count and handles ties by selecting the oldest prototype. Reality: In the `src/memory.py` file, the `CoreMemory` class does not explicitly handle the eviction of prototypes based on consultation count. Instead, it seems to rely on the Python list's inherent behavior of storing the most recent elements when the list size exceeds the capacity. There is no method in the `CoreMemory` class that directly manages the eviction process according to the specified rules. The `nearest` method finds the nearest prototype, and the `read` method adds a new prototype if the core is not full or if the nearest prototype has a different class. However, there is no logic to remove the prototype with the smallest consultation count. Score: 0",
+   "usage": {
+    "input_tokens": 2773,
+    "output_tokens": 220,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003817",
+   "started_at": 1791989644.2907798,
+   "finished_at": 1791989650.7905693,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5c15278-f70f-5c50-be80-947f9a1fde47": {
+   "leaf_id": "c5c15278-f70f-5c50-be80-947f9a1fde47",
+   "category": "Code Development",
+   "requirements": "A numeral is given the class of the single nearest stored prototype (1-NN), not a vote among several neighbours.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a numeral is given the class of the single nearest stored prototype (1-NN), not a vote among several neighbours. This means that even if multiple prototypes have the same smallest distance, the one stored earliest is chosen. In the code, this decision rule should be implemented correctly, meaning the prototype stored earliest should be returned if there is a tie in distances. Reality: In the `src/memory.py` file, the `nearest` method returns the index of the closest prototype, and the `classify` method uses this index to get the class of the closest prototype. However, the code does not explicitly handle ties by returning the prototype stored earliest. Instead, it simply returns the first prototype found with the smallest distance. There is no mechanism to break ties by preferring the prototype stored earliest. The `src/train.py` file does not show any additional logic to handle ties either. Score: 0",
+   "usage": {
+    "input_tokens": 2673,
+    "output_tokens": 200,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003816",
+   "started_at": 1791989633.8027794,
+   "finished_at": 1791989640.0708363,
+   "ratelimit_wait_sec": 0.0
+  },
+  "33ff429e-7042-5507-ae93-53ea99b72a58": {
+   "leaf_id": "33ff429e-7042-5507-ae93-53ea99b72a58",
+   "category": "Code Development",
+   "requirements": "If several prototypes are at the same smallest distance, the one stored earliest is used.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, if several prototypes are at the same smallest distance, the one stored earliest should be used. I will look for a condition in the code that checks for ties in distances and selects the prototype with the earliest storage time. Reality: In the `src/memory.py` file, the `nearest` method does find the nearest prototype based on city-block distance, but there is no additional logic to handle ties. Specifically, the method simply returns the index of the closest prototype without considering the storage order. The `classify` method also does not involve checking for ties or using the earliest stored prototype. The `read` method only appends new prototypes without considering the tie-breaking rule. Score: 0",
+   "usage": {
+    "input_tokens": 2691,
+    "output_tokens": 158,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003805",
+   "started_at": 1791989633.8042626,
+   "finished_at": 1791989638.7652338,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4330fce1-9811-5a67-9c45-1b6bb7d5b290": {
+   "leaf_id": "4330fce1-9811-5a67-9c45-1b6bb7d5b290",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn digits dataset (1,797 numerals of 8x8 picture elements, 10 classes).",
+   "score": 1,
+   "reason": "Expectations: The paper describes using the 'digits' dataset from the scikit-learn library, which contains 1,797 numerals, each with 8x8 picture elements, and 10 classes. I expect the code to load this dataset correctly and split it into training and test sets as described in the paper. Specifically, the first 1,500 numerals should be used for training, and the last 297 for testing. The submission should include a file named `data.py` that correctly loads and splits the dataset according to these specifications. Reality: The `data.py` file provided in the submission does indeed load the 'digits' dataset from scikit-learn and split it into training and test sets as expected. The `load_tapes()` function correctly returns the first 1,500 numerals and their labels for training, and the last 297 numerals and their labels for testing. The code matches the description in the paper. Score: 1",
+   "usage": {
+    "input_tokens": 2628,
+    "output_tokens": 221,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003817",
+   "started_at": 1791989633.7491486,
+   "finished_at": 1791989640.776046,
+   "ratelimit_wait_sec": 0.0
+  },
+  "1b0e445a-934e-5d6a-82c1-77cbd2a514fd": {
+   "leaf_id": "1b0e445a-934e-5d6a-82c1-77cbd2a514fd",
+   "category": "Code Development",
+   "requirements": "A new prototype starts with a consultation count of zero.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, a new prototype starts with a consultation count of zero. I should find code that initializes the consultation count of a new prototype to zero in the `CoreMemory` class in `src/memory.py`. Reality: In `src/memory.py`, the `read` method handles the addition of a new prototype. It does not explicitly initialize the consultation count to zero; instead, it appends a dictionary with the prototype's data and sets the consultation count to zero implicitly by default. This matches the expectation. Score: 1",
+   "usage": {
+    "input_tokens": 2738,
+    "output_tokens": 123,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003817",
+   "started_at": 1791989640.7777984,
+   "finished_at": 1791989644.28934,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b198c3ce-3c77-585b-8bd9-a434b3a6ef79": {
+   "leaf_id": "b198c3ce-3c77-585b-8bd9-a434b3a6ef79",
+   "category": "Code Development",
+   "requirements": "Picture elements are used as integers from 0 to 16, without scaling.",
+   "score": 0,
+   "reason": "Expectations: The paper states that each picture element is an integer from 0 to 16 and is used 'as is, without scaling'. Therefore, I expect the code to load the digits dataset and ensure that the picture elements are treated as integers in the range [0, 16]. Specifically, I will check if the `load_digits` function from scikit-learn is used and if the data is converted to integers with values in the specified range.\n\nReality: In the `src/data.py` file, the `load_digits` function is used to load the dataset. However, no explicit check or conversion to ensure the picture elements are integers in the range [0, 16] is performed. The loaded data is simply cast to integers using `astype(int)`, but the range validation is not done. This means that the code does not strictly adhere to the requirement stated in the paper.\n\nScore: 0",
+   "usage": {
+    "input_tokens": 2646,
+    "output_tokens": 205,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003809",
+   "started_at": 1791989633.7616518,
+   "finished_at": 1791989640.283928,
+   "ratelimit_wait_sec": 0.0
+  },
+  "808ecc14-73e4-5ed1-a949-f1d04ab7b520": {
+   "leaf_id": "808ecc14-73e4-5ed1-a949-f1d04ab7b520",
+   "category": "Code Development",
+   "requirements": "A training numeral is stored as a new prototype only if the nearest stored prototype has a different class; correctly classified numerals are not stored.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, a training numeral is stored as a new prototype only if the nearest stored prototype has a different class; correctly classified numerals are not stored. In the code, I expect to see a condition checking if the nearest prototype's class is different from the current numeral's class before storing the numeral as a new prototype. Specifically, I should find this condition in the `read` method of the `CoreMemory` class in `src/memory.py'.\n\nReality: In the `src/memory.py` file, the `read` method checks if the nearest prototype's class is different from the current numeral's class and only adds the numeral as a new prototype if they differ. The relevant part of the code is: `if self.classify(x) != y and len(self.protos) < self.capacity:`. This condition ensures that only numerals with a different class than the nearest prototype are stored as new prototypes.\n\nScore: The code in the submission meets the criteria. The condition in the `read` method of the `CoreMemory` class correctly implements the requirement that a training numeral is stored as a new prototype only if the nearest stored prototype has a different class.",
+   "usage": {
+    "input_tokens": 2684,
+    "output_tokens": 256,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003818",
+   "started_at": 1791989639.8551905,
+   "finished_at": 1791989647.4710357,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ba28a982-861e-5f70-be58-26c43ccae9c4": {
+   "leaf_id": "ba28a982-861e-5f70-be58-26c43ccae9c4",
+   "category": "Code Development",
+   "requirements": "Accuracy is computed on the 297 numerals of the test tape.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the accuracy should be computed on the 297 numerals of the test tape. I will specifically look for a section in the code that loads the test data and calculates the accuracy of the model on these 297 numerals. \n\nReality: In the `src/train.py` file, the code loads the training and test tapes but only evaluates the model on the test set after training. However, the `main()` function in `src/train.py` does not explicitly compute the accuracy on the test set. It only prints the test accuracy at the end, but it is not clear if this is done after evaluating the model on the entire test set. \n\nScore: The submission does not meet the criteria because the accuracy is not explicitly computed on the 297 numerals of the test tape. The test accuracy is printed, but it is not clear if this is the result of evaluating the model on the entire test set.",
+   "usage": {
+    "input_tokens": 2681,
+    "output_tokens": 213,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003817",
+   "started_at": 1791989650.7924476,
+   "finished_at": 1791989656.8107934,
+   "ratelimit_wait_sec": 0.0
+  },
+  "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720": {
+   "leaf_id": "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720",
+   "category": "Code Development",
+   "requirements": "The distance between two numerals is the city-block (L1) distance, the sum of absolute differences over the 64 picture elements.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the distance between two numerals is the city-block (L1) distance, which is the sum of absolute differences over the 64 picture elements. I will look for code that explicitly calculates this distance using the sum of absolute differences for each of the 64 picture elements. Reality: In the `src/memory.py` file, the `nearest` method in the `CoreMemory` class calculates the distance between a given numeral and the prototypes in the core memory. It does this by iterating over the prototypes and calculating the city-block distance using the formula `d = int(np.abs(p[",
+   "usage": {
+    "input_tokens": 2648,
+    "output_tokens": 145,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3003817",
+   "started_at": 1791990233.96793,
+   "finished_at": 1791990237.5829678,
+   "ratelimit_wait_sec": 0.0
+  },
+  "bd74fc79-676a-511f-bdd5-0476c75e0de7": {
+   "leaf_id": "bd74fc79-676a-511f-bdd5-0476c75e0de7",
+   "category": "Code Development",
+   "requirements": "When core is empty, the training numeral is stored as a prototype.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, when core is empty, the training numeral should be stored as a prototype. I will look for code that checks if the core is empty and then adds the training numeral as a prototype. Reality: In the `src/memory.py` file, the `read` method checks if the core is empty and adds the training numeral as a prototype if it is. Specifically, the following lines of code implement this behavior: ```python if not self.protos: self.protos.append({",
+   "usage": {
+    "input_tokens": 5310,
+    "output_tokens": 2164,
+    "cached_tokens": 0,
+    "calls": 2
+   },
+   "parse_retries": 1,
+   "worker": "gpu7-3003805",
+   "started_at": 1791989638.7666192,
+   "finished_at": 1791989696.3174608,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

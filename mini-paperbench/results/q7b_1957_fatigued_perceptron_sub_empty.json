@@ -1,0 +1,358 @@
+{
+ "run": "q7b_1957_fatigued_perceptron_sub_empty",
+ "label": "18 tasks, 6 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-1015421": 3,
+  "gpu7-1015424": 3,
+  "gpu7-1015423": 3,
+  "gpu7-1015420": 3,
+  "gpu7-1015422": 3,
+  "gpu7-1015425": 3
+ },
+ "wall_time_sec": 16.14,
+ "mean_task_sec": 4.84,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 18,
+  "input_tokens": 39861,
+  "output_tokens": 2859,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1957_fatigued_perceptron/submissions/sub_empty",
+ "leaves": {
+  "b33da8c0-a7cf-5443-8c28-ffb602ad013c": {
+   "leaf_id": "b33da8c0-a7cf-5443-8c28-ffb602ad013c",
+   "category": "Code Development",
+   "requirements": "The machine answers +1 only if w . x is strictly greater than zero, and -1 otherwise (including when w . x is exactly zero).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the machine should respond with +1 if the dot product of the weights (w) and the input (x) is strictly greater than zero, and -1 otherwise. Specifically, the machine should not respond with +1 if the dot product is exactly zero. In the code, I would expect to see a condition that checks if the dot product is greater than zero and returns +1 if true, and -1 if false or zero. Reality: The provided 'reproduce.sh' script simply prints 'not implemented', indicating that no code has been written to implement the machine's response logic. The README.md file does not mention any implementation details either. There are no other files in the submission that appear to contain the necessary code. Since no code has been provided to implement the machine's response logic, the submission fails to meet the criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2159,
+    "output_tokens": 193,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015421",
+   "started_at": 1791989142.0385103,
+   "finished_at": 1791989148.0659328,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5c1d5135-cad6-513c-93df-264470e8c9e8": {
+   "leaf_id": "5c1d5135-cad6-513c-93df-264470e8c9e8",
+   "category": "Code Development",
+   "requirements": "A photocell is set to 1 if its pixel value is 8 or more (on the 0-16 scale) and to 0 otherwise.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a photocell is set to 1 if its pixel value is 8 or more on the 0-16 scale, and to 0 otherwise. I would expect to see code or logic in the submission that implements this condition for determining the state of the photocells. Reality: The provided submission consists of a README.md file stating that the Fatigued Perceptron has not been implemented yet, and a reproduce.sh script that simply prints 'not implemented'. There is no code or logic in the submission that implements the determination of photocell states based on pixel values. Score: 0",
+   "usage": {
+    "input_tokens": 2173,
+    "output_tokens": 140,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015424",
+   "started_at": 1791989138.2831774,
+   "finished_at": 1791989142.842606,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e0424b3c-0106-5a4c-8a4b-d5f30eae8e18": {
+   "leaf_id": "e0424b3c-0106-5a4c-8a4b-d5f30eae8e18",
+   "category": "Code Development",
+   "requirements": "At most 7 reels (passes over the training deck) are run.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training process runs for at most 7 reels, where each reel represents a pass over the training deck. The criterion requires that the code correctly limits the number of reels to 7. I will look for a loop that iterates over the reels and ensures that it does not exceed 7 passes. Reality: The provided `reproduce.sh` script simply echoes 'not implemented', indicating that no actual code has been written to run the training process. There are no files that implement the training loop or limit the number of reels. Since the script does not execute any of the training logic, it cannot possibly meet the requirement of running at most 7 reels. Score: 0",
+   "usage": {
+    "input_tokens": 2306,
+    "output_tokens": 157,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015423",
+   "started_at": 1791989146.607273,
+   "finished_at": 1791989151.3847492,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ea9183d1-2d58-504d-9359-cdc3961c1a15": {
+   "leaf_id": "ea9183d1-2d58-504d-9359-cdc3961c1a15",
+   "category": "Code Development",
+   "requirements": "A conventional perceptron is trained that updates w <- w + 1.0 * t * x whenever the answer is wrong, with no fatigue, no end-stops and no coffee drift.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the conventional perceptron should update the weights (w) by w <- w + 1.0 * t * x whenever the answer is wrong, with no fatigue, no end-stops and no coffee drift. I expect to see a Python script or function that performs this update correctly based on the inputs (weights, target, and input vector). Reality: The provided submission includes a README.md file indicating that the reproduction is not yet implemented and a reproduce.sh script that simply prints 'not implemented'. Neither of these files contains any code implementing the conventional perceptron as described in the paper. The README.md and reproduce.sh files do not provide any relevant code or instructions to implement the conventional perceptron. Score: 0",
+   "usage": {
+    "input_tokens": 2182,
+    "output_tokens": 164,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015420",
+   "started_at": 1791989147.715607,
+   "finished_at": 1791989152.4854872,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d9925473-7cd9-540c-9e8c-9ebb8ef600b4": {
+   "leaf_id": "d9925473-7cd9-540c-9e8c-9ebb8ef600b4",
+   "category": "Code Development",
+   "requirements": "After every 100 presentations, counted continuously across reels (after presentations 100, 200, 300, ...), every weight is multiplied by 0.9.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after every 100 presentations (counted continuously across reels), every weight should be multiplied by 0.9 due to coffee drift. This means there should be a loop or conditional statement in the code that multiplies the weights by 0.9 after every 100 presentations. Reality: The provided `reproduce.sh` script simply prints 'not implemented', indicating that no actual implementation exists. There are no Python scripts or other files that appear to handle the coffee drift. The README.md file also mentions that the Fatigued Perceptron has not been implemented yet. Therefore, the submission fails to meet the criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2272,
+    "output_tokens": 153,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015422",
+   "started_at": 1791989142.9240654,
+   "finished_at": 1791989147.500086,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2179875d-a260-54df-b609-631a8c398661": {
+   "leaf_id": "2179875d-a260-54df-b609-631a8c398661",
+   "category": "Code Development",
+   "requirements": "Immediately after each adjustment, every weight is limited to the range -3 to +3 on both sides.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, immediately after each adjustment, every weight (potentiometer value) should be limited to the range -3 to +3. This means that if a weight exceeds these limits, it should be set to the nearest limit. Specifically, if a weight is greater than +3, it should be set to +3, and if it is less than -3, it should be set to -3. Reality: The provided submission includes a `reproduce.sh` script that simply prints 'not implemented'. There is no actual code that implements the adjustment procedure, let alone the weight limitation step. The README.md file also indicates that the reproduction has not been implemented yet. Since there is no actual code to check, and the provided scripts do not implement the required functionality, the criteria has not been met. Score: 0",
+   "usage": {
+    "input_tokens": 2202,
+    "output_tokens": 184,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015424",
+   "started_at": 1791989142.8440251,
+   "finished_at": 1791989148.5513265,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6f216a59-35db-5ecd-93c1-45768b4eeb48": {
+   "leaf_id": "6f216a59-35db-5ecd-93c1-45768b4eeb48",
+   "category": "Code Development",
+   "requirements": "A 65th bias input that is always 1 is appended to the 64 photocell inputs.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a 65th bias input that is always 1 should be appended to the 64 photocell inputs. I would look for code or configuration that sets up a vector of 65 elements where the last element is always 1, representing the bias cell. Reality: The provided submission consists of a README.md file stating 'not implemented' and a reproduce.sh script that simply echoes 'not implemented'. There is no code or configuration that sets up the 65th bias input. The submission fails to implement the required aspect of the retina setup as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2197,
+    "output_tokens": 142,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015422",
+   "started_at": 1791989138.2852151,
+   "finished_at": 1791989142.9225092,
+   "ratelimit_wait_sec": 0.0
+  },
+  "daa39906-92e8-5996-a198-11b28c861168": {
+   "leaf_id": "daa39906-92e8-5996-a198-11b28c861168",
+   "category": "Code Development",
+   "requirements": "After each adjustment the relay is fatigued for the next 2 presentations, during which no adjustment is made whatever the answer.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after each adjustment the relay is fatigued for the next 2 presentations, during which no adjustment is made regardless of the answer. I should find code that implements this behavior in the `reproduce.sh` script or any other relevant files. Reality: The `reproduce.sh` script provided is empty and simply echoes 'not implemented'. There are no other files that appear to contain the logic for adjusting the weights or handling relay fatigue. This means there is no implementation of the relay fatigue mechanism. Score: 0",
+   "usage": {
+    "input_tokens": 2229,
+    "output_tokens": 124,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015423",
+   "started_at": 1791989142.8452659,
+   "finished_at": 1791989146.6056476,
+   "ratelimit_wait_sec": 0.0
+  },
+  "256eef17-9a40-5bf8-a753-da2c9194318a": {
+   "leaf_id": "256eef17-9a40-5bf8-a753-da2c9194318a",
+   "category": "Code Development",
+   "requirements": "The fraction of right answers is computed on the 120 cards of the test deck.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the Fatigued Perceptron should be evaluated on the 120 cards of the test deck, and the fraction of right answers should be computed. Specifically, the code should load the test deck, apply the machine's decision rule, and compute the accuracy based on the test deck results. Reality: The submission includes a README.md file stating that the Fatigued Perceptron is not implemented yet and a reproduce.sh script that simply prints 'not implemented'. There are no files indicating that the test deck has been loaded or evaluated, nor any computation of the accuracy on the test deck. The reproduce.sh script does not contain any logic to perform the evaluation. Score: 0",
+   "usage": {
+    "input_tokens": 2173,
+    "output_tokens": 158,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015424",
+   "started_at": 1791989148.5529094,
+   "finished_at": 1791989152.9735765,
+   "ratelimit_wait_sec": 0.0
+  },
+  "47ff8001-3e5a-58fb-8be0-0b9abd6ea85c": {
+   "leaf_id": "47ff8001-3e5a-58fb-8be0-0b9abd6ea85c",
+   "category": "Code Development",
+   "requirements": "Only the figures with labels 0 and 1 are taken from the scikit-learn digits dataset (360 figures), kept in their original order.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the figures with labels 0 and 1 are taken from the scikit-learn digits dataset, and these figures are kept in their original order. I would expect to see code in the submission that loads the scikit-learn digits dataset, filters out only the figures with labels 0 and 1, and keeps them in their original order. Reality: The submission includes a README.md file and a reproduce.sh script. The README.md file states that the Fatigued Perceptron has not been implemented yet, and the reproduce.sh script simply prints 'not implemented'. There is no code that loads the scikit-learn digits dataset or processes the figures as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2139,
+    "output_tokens": 162,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015425",
+   "started_at": 1791989138.2689471,
+   "finished_at": 1791989143.6969125,
+   "ratelimit_wait_sec": 0.0
+  },
+  "231d6c4f-b528-5eea-982c-4bd442a172ba": {
+   "leaf_id": "231d6c4f-b528-5eea-982c-4bd442a172ba",
+   "category": "Code Development",
+   "requirements": "All 65 weights are initialized to zero.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the Fatigued Perceptron has 65 weights (potentiometers) initialized to zero before the first presentation. I will look for initialization code or explicit assignment of weights to zero in the provided files. Reality: The README.md file states 'not implemented', and the reproduce.sh script simply prints 'not implemented'. There is no code provided to initialize the weights to zero. The files do not contain any implementation of the Fatigued Perceptron, let alone the initialization of weights. Score: 0",
+   "usage": {
+    "input_tokens": 2128,
+    "output_tokens": 124,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015420",
+   "started_at": 1791989138.3307343,
+   "finished_at": 1791989142.3566215,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cd42179e-7841-5edd-b3a1-383ec19eebe4": {
+   "leaf_id": "cd42179e-7841-5edd-b3a1-383ec19eebe4",
+   "category": "Code Development",
+   "requirements": "The desired answer is +1 for the figure ONE (label 1) and -1 for NOUGHT (label 0).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the desired answer is +1 for the figure ONE (label 1) and -1 for NOUGHT (label 0). I should find code or logic in the submission that explicitly sets the desired answer based on the label of the figure. Reality: The submission contains a README.md file that states 'Not implemented yet' and a reproduce.sh script that simply echoes 'not implemented'. Neither of these files contain any code that implements the desired answer logic. Score: 0",
+   "usage": {
+    "input_tokens": 2224,
+    "output_tokens": 115,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015421",
+   "started_at": 1791989138.2912421,
+   "finished_at": 1791989142.037051,
+   "ratelimit_wait_sec": 0.0
+  },
+  "59fb35bf-0094-52cd-8573-f0c461b3f672": {
+   "leaf_id": "59fb35bf-0094-52cd-8573-f0c461b3f672",
+   "category": "Code Development",
+   "requirements": "When the relay is not fatigued and the answer is wrong, the weights are updated as w <- w + 0.25 * t * x; no update is made when the answer is right, as in Eq. (1).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, when the relay is not fatigued and the answer is wrong, the weights (w) should be updated using the formula w <- w + 0.25 * t * x. No update should occur when the answer is right. I will look for this exact update in the codebase, particularly in the part handling the adjustment procedure. Reality: The submission includes a `reproduce.sh` script that simply echoes 'not implemented'. There is no actual codebase or implementation of the Fatigued Perceptron, let alone the specific weight update logic described in the paper. The README.md file also mentions that the implementation is not yet done. Given that there is no actual code or implementation, the submission fails to meet the criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2180,
+    "output_tokens": 174,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015420",
+   "started_at": 1791989142.3580863,
+   "finished_at": 1791989147.714027,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8b69f134-f0d3-5959-9cba-a55816ec8eeb": {
+   "leaf_id": "8b69f134-f0d3-5959-9cba-a55816ec8eeb",
+   "category": "Code Development",
+   "requirements": "Within every reel, the training deck is presented in its original order without shuffling.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training deck is presented in its original order without shuffling. Therefore, the code should ensure that the training data is processed in the exact sequence as specified in the paper. Specifically, the code should load and process the training deck in the order of the first 240 figures as mentioned in Section II. Reality: The provided submission includes a `README.md` and a `reproduce.sh` script. The `README.md` indicates that the Fatigued Perceptron has not been implemented yet, and the `reproduce.sh` script simply prints 'not implemented'. There is no evidence of code that processes the training deck in the required order. The submission fails to implement any aspect of the Fatigued Perceptron, including the order in which the training deck is processed. Score: 0",
+   "usage": {
+    "input_tokens": 2290,
+    "output_tokens": 184,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015425",
+   "started_at": 1791989143.6983097,
+   "finished_at": 1791989149.2206936,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b43738cf-faeb-542d-a2a1-5a39fe4e1d73": {
+   "leaf_id": "b43738cf-faeb-542d-a2a1-5a39fe4e1d73",
+   "category": "Code Development",
+   "requirements": "The conventional machine uses the same decks, presentation order, zero initial weights, response rule, maximum number of reels and early-stopping rule as the Fatigued Perceptron.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the conventional machine should use the same decks, presentation order, zero initial weights, response rule, maximum number of reels, and early-stopping rule as the Fatigued Perceptron. Specifically, the conventional machine should use the same 360 training and 120 test figures from the digits collection, the same presentation order, initial weights set to zero, the same response rule (sum strictly greater than zero), the same maximum of 7 reels, and the same early-stopping rule (stopping after any reel with no wrong answers). The submission should include code that implements these aspects of the conventional machine. Reality: The submission includes a README.md and a reproduce.sh script, but neither contains any actual implementation of the conventional machine. The README.md states 'Not implemented yet', and the reproduce.sh script simply echoes 'not implemented'. There is no code that implements the conventional machine as described in the paper. The submission fails to meet the expectations. Score: 0",
+   "usage": {
+    "input_tokens": 2219,
+    "output_tokens": 218,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015421",
+   "started_at": 1791989148.067189,
+   "finished_at": 1791989154.115534,
+   "ratelimit_wait_sec": 0.0
+  },
+  "16daeec4-1f5c-5358-bb32-f6482238f967": {
+   "leaf_id": "16daeec4-1f5c-5358-bb32-f6482238f967",
+   "category": "Code Development",
+   "requirements": "Training stops early after any reel in which the machine gave no wrong answer (wrong answers given while fatigued count).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, training should stop early after any reel where the machine gave no wrong answers, even if those wrong answers were due to fatigue. Specifically, I would look for code that checks for this condition and halts the training loop accordingly. Reality: The provided `reproduce.sh` script contains only the line 'echo 'not implemented''. There is no actual code implementing the training loop or checking for the stopping condition. The README.md file does not mention any implementation details either. Since there is no actual code to check the stopping condition, the criterion is not met. Score: 0",
+   "usage": {
+    "input_tokens": 2331,
+    "output_tokens": 135,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015422",
+   "started_at": 1791989147.5011737,
+   "finished_at": 1791989151.599505,
+   "ratelimit_wait_sec": 0.0
+  },
+  "84dee2d9-2622-533c-9bca-8d17a7021d97": {
+   "leaf_id": "84dee2d9-2622-533c-9bca-8d17a7021d97",
+   "category": "Code Development",
+   "requirements": "The test results of both machines and the total number of adjustments made by the Fatigued Perceptron are printed and saved to a results file.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the Fatigued Perceptron and the conventional machine were trained and evaluated, and the results, including the fraction of right answers and the total number of adjustments made by the Fatigued Perceptron, were printed and saved to a results file. Specifically, the results file should contain lines like 'Conventional machine: 97.5 %' and 'Fatigued Perceptron: 95.8 %' and 'Total adjustments: 9'. Reality: The submission includes a README.md and a reproduce.sh script. The README.md states that the Fatigued Perceptron has not been implemented yet, and the reproduce.sh script simply echoes 'not implemented'. There is no evidence of the machines being trained, evaluated, or results being printed and saved to a file. The submission fails to meet the expectations. Score: 0",
+   "usage": {
+    "input_tokens": 2204,
+    "output_tokens": 193,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015425",
+   "started_at": 1791989149.2219236,
+   "finished_at": 1791989154.4072766,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ed1b353e-3d54-513b-ac41-a50e06fa3d4c": {
+   "leaf_id": "ed1b353e-3d54-513b-ac41-a50e06fa3d4c",
+   "category": "Code Development",
+   "requirements": "The first 240 figures form the training deck and the last 120 figures form the test deck, without shuffling.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the first 240 figures should form the training deck and the last 120 figures should form the test deck, without shuffling. I would expect to see code or configuration files that define these decks and ensure they are not shuffled. Reality: The provided submission contains a README.md and a reproduce.sh script, both indicating that the reproduction has not been implemented yet. There are no files that define the training and test decks, nor any code that ensures they are not shuffled. The reproduce.sh script does not contain any logic related to creating or managing these decks. Score: 0",
+   "usage": {
+    "input_tokens": 2253,
+    "output_tokens": 139,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1015423",
+   "started_at": 1791989138.302174,
+   "finished_at": 1791989142.8439784,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

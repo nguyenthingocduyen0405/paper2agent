@@ -1,0 +1,466 @@
+{
+ "run": "q7b_procrastigd_sub_empty",
+ "label": "24 tasks, 6 workers",
+ "total": 24,
+ "completed": 24,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-687213": 4,
+  "gpu7-687206": 4,
+  "gpu7-687212": 4,
+  "gpu7-687200": 4,
+  "gpu7-687211": 4,
+  "gpu7-687214": 4
+ },
+ "wall_time_sec": 20.21,
+ "mean_task_sec": 4.65,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 24,
+  "input_tokens": 57848,
+  "output_tokens": 3634,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/procrastigd/submissions/sub_empty",
+ "leaves": {
+  "16e23ed3-28fc-58be-9a43-8a94bc1fa458": {
+   "leaf_id": "16e23ed3-28fc-58be-9a43-8a94bc1fa458",
+   "category": "Code Development",
+   "requirements": "The base learning rate of ProcrastiGD is 0.77.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the base learning rate of ProcrastiGD is 0.77. I would expect to see this value hard-coded or defined somewhere in the codebase, likely in a configuration file or within the optimizer implementation. Reality: The submission includes a `README.md` file and a `reproduce.sh` script. The `README.md` file states 'Not implemented yet' and does not mention anything related to the base learning rate. The `reproduce.sh` script simply echoes 'not implemented'. There are no files provided that define or implement the base learning rate. Since the base learning rate is a critical part of the ProcrastiGD optimizer, its absence means that the optimizer cannot be correctly implemented. Score: 0",
+   "usage": {
+    "input_tokens": 2351,
+    "output_tokens": 167,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687213",
+   "started_at": 1791991153.4947858,
+   "finished_at": 1791991158.6670866,
+   "ratelimit_wait_sec": 0.0
+  },
+  "07025f87-369d-555e-8858-b174bc19d93e": {
+   "leaf_id": "07025f87-369d-555e-8858-b174bc19d93e",
+   "category": "Code Development",
+   "requirements": "For a fresh pile, the deadline is reached when the pile contains 9 gradients.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, for a fresh pile, the deadline is reached when the pile contains 9 gradients. I should find code that checks if the step counter (n) reaches 9 and then proceeds accordingly. Reality: The provided `reproduce.sh` script is empty and does not implement any part of the ProcrastiGD algorithm. There is no `README.md` file that provides any details on how to reproduce the paper. No relevant files were found that contain the logic for checking the deadline. The `reproduce.sh` script simply prints 'not implemented'. Score: 0",
+   "usage": {
+    "input_tokens": 2384,
+    "output_tokens": 134,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687206",
+   "started_at": 1791991148.1184573,
+   "finished_at": 1791991152.2135756,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3791e245-f059-53e7-a00b-d7f68fd6b77c": {
+   "leaf_id": "3791e245-f059-53e7-a00b-d7f68fd6b77c",
+   "category": "Code Development",
+   "requirements": "Without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the first 1,500 samples should be used for training and the last 297 samples for testing. I would expect to see code that explicitly splits the dataset accordingly. Reality: There is no actual code provided in the submission that handles the dataset split. The README.md mentions that the reproduction is not implemented yet, and the reproduce.sh script only contains a placeholder message. No files or scripts are provided that handle the dataset splitting as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2377,
+    "output_tokens": 119,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687212",
+   "started_at": 1791991143.9695184,
+   "finished_at": 1791991147.7925982,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a8dd2f24-26df-585c-ba58-fcfaa5576775": {
+   "leaf_id": "a8dd2f24-26df-585c-ba58-fcfaa5576775",
+   "category": "Code Development",
+   "requirements": "A baseline is trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the baseline is trained using plain mini-batch SGD with a constant learning rate of 0.1, updating the parameters at every step. I would expect to see code that initializes the model, sets the learning rate, and iterates through the training data, updating the parameters based on the gradients at each step. Reality: The provided `reproduce.sh` script contains the text 'not implemented', indicating that the baseline has not been implemented. There are no relevant files or scripts that actually train the baseline. The `README.md` file only states that the baseline has not been implemented yet. Since there is no actual code that implements the required baseline, the submission fails to meet the criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2390,
+    "output_tokens": 163,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687206",
+   "started_at": 1791991158.1556268,
+   "finished_at": 1791991162.9016628,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7c676973-fd0b-513e-8fde-702db173e5f2": {
+   "leaf_id": "7c676973-fd0b-513e-8fde-702db173e5f2",
+   "category": "Code Development",
+   "requirements": "At a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, at a deadline, an excuse is triggered when the global L2 norm of the pile is below 1.3. I would expect to see code that computes the L2 norm of the gradient pile and checks if it is less than 1.3 to determine if an excuse is made. Reality: The provided submission consists of a README file indicating that the ProcrastiGD reproduction is not implemented yet and a reproduce.sh script that simply echoes 'not implemented'. Neither of these files contains any code that implements the L2 norm computation or the excuse mechanism. The reproduce.sh script does not even attempt to run any code related to ProcrastiGD. Score: 0",
+   "usage": {
+    "input_tokens": 2416,
+    "output_tokens": 155,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687200",
+   "started_at": 1791991148.156081,
+   "finished_at": 1791991152.8967936,
+   "ratelimit_wait_sec": 0.0
+  },
+  "62249178-c2b4-5089-9f0f-28833623614a": {
+   "leaf_id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "requirements": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, before the update, the pile is divided by the actual number of gradients it contains (12 after an excuse), not by the constant 9. This means that the code should correctly handle the division based on the current number of gradients in the pile, not a fixed value of 9. In the submission, the file `reproduce.sh` is empty and does not contain any code for implementing the ProcrastiGD optimizer. The README.md file only mentions that the implementation is not yet done. Reality: The `reproduce.sh` script is empty and does not contain any implementation of the ProcrastiGD optimizer. There is no evidence that the division by the actual number of gradients in the pile is being handled correctly. The `README.md` file only indicates that the implementation is not yet complete, which is a warning sign. Score: 0",
+   "usage": {
+    "input_tokens": 2529,
+    "output_tokens": 193,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687206",
+   "started_at": 1791991152.2150407,
+   "finished_at": 1791991158.1545267,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8a8a206a-7682-5367-b62e-a07094cc00b2": {
+   "leaf_id": "8a8a206a-7682-5367-b62e-a07094cc00b2",
+   "category": "Code Development",
+   "requirements": "Pixel values are divided by 16 so that they lie in [0, 1].",
+   "score": 0,
+   "reason": "Expectations: According to the paper, pixel values should be divided by 16 to ensure they lie in the range [0, 1]. This normalization should be part of the data loading process as described in Section 3. Reality: In the provided submission, there is no actual code that implements the data loading or normalization process. The README.md file states 'not implemented', and the reproduce.sh script does not contain any code related to data loading or normalization. There are no Python scripts or other files that appear to handle the data loading and normalization. Score: 0",
+   "usage": {
+    "input_tokens": 2345,
+    "output_tokens": 128,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687206",
+   "started_at": 1791991143.9542818,
+   "finished_at": 1791991148.1171894,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e1cac884-8232-5557-9ac0-04ebce46a335": {
+   "leaf_id": "e1cac884-8232-5557-9ac0-04ebce46a335",
+   "category": "Code Development",
+   "requirements": "The baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the baseline should use the same model, zero initialization, data split, batch size, number of epochs, and shuffling seed as ProcrastiGD. Specifically, the baseline should have a model with a single linear layer from 64 inputs to 10 outputs with a bias, initialized to zero. The data should be split into the first 1,500 samples as the training set and the last 297 samples as the test set. The baseline should have a batch size of 30, train for 12 epochs, and shuffle the training samples using a NumPy random generator seeded with 13. Reality: The submission does not contain any code for implementing the baseline. The README.md file states that the baseline is not implemented yet, and the reproduce.sh script only contains a placeholder message saying 'not implemented'. There are no files or scripts that implement the baseline as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2420,
+    "output_tokens": 212,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687200",
+   "started_at": 1791991158.1827466,
+   "finished_at": 1791991164.1536787,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c": {
+   "leaf_id": "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c",
+   "category": "Code Development",
+   "requirements": "The pile, the step counter and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the pile, the step counter, and the excuse flag should not be reset or applied at epoch boundaries; unfinished work should carry over into the next epoch. This means that the number of gradients in the pile (step counter) and the excuse flag should persist across epochs, and the pile itself should not be reset. Reality: The provided `reproduce.sh` script contains only a placeholder message stating 'not implemented'. There are no actual scripts or code implementing the ProcrastiGD optimizer, nor are there any files that show the persistence of the pile, step counter, and excuse flag across epochs. The `README.md` file also mentions that the reproduction is not implemented yet. Given these observations, the submission fails to implement the required functionality. Score: 0",
+   "usage": {
+    "input_tokens": 2600,
+    "output_tokens": 173,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687200",
+   "started_at": 1791991152.8980455,
+   "finished_at": 1791991158.1815052,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c7112918-6155-53bc-a1dc-bc1f02fec899": {
+   "leaf_id": "c7112918-6155-53bc-a1dc-bc1f02fec899",
+   "category": "Code Development",
+   "requirements": "During epochs 5 and 10 (1-based epoch numbers divisible by 5) the learning rate is halved, and it returns to 0.77 in the following epoch.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the learning rate should be 0.77 for most epochs, but it should be halved to 0.385 every 5th epoch (1-based, i.e., epochs 5 and 10). This means the learning rate should change based on the epoch number. Specifically, the code should check the epoch number and adjust the learning rate accordingly. Reality: In the provided submission, there is no actual implementation of the learning rate change logic. The `reproduce.sh` script simply echoes 'not implemented', and there is no `README.md` providing any instructions or code for implementing the learning rate changes. There are no Python scripts or other files that appear to implement the learning rate changes. Score: 0",
+   "usage": {
+    "input_tokens": 2391,
+    "output_tokens": 169,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687211",
+   "started_at": 1791991153.495848,
+   "finished_at": 1791991158.7234805,
+   "ratelimit_wait_sec": 0.0
+  },
+  "456c62ee-8e51-5550-8445-603e582e7454": {
+   "leaf_id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "requirements": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, at a deadline that is not excused, the parameters should be updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2): θ ← θ − η · panic · (P / n). The submission should contain a piece of code implementing this equation. Reality: The submission consists of a README.md and a reproduce.sh script, neither of which contain any actual code implementing the ProcrastiGD optimizer. The reproduce.sh script only prints 'not implemented'. There is no code provided that implements the parameter update step as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2571,
+    "output_tokens": 151,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687212",
+   "started_at": 1791991152.843217,
+   "finished_at": 1791991157.4755046,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cb355b56-51d1-51fd-9c2d-4ed33e642b4a": {
+   "leaf_id": "cb355b56-51d1-51fd-9c2d-4ed33e642b4a",
+   "category": "Code Development",
+   "requirements": "All weights and biases are initialized to zero.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, all weights and biases of the model should be initialized to zero. I would look for code that initializes the weights and biases of the model to zero in the submission. Reality: In the provided submission, there is no actual code that initializes the weights and biases to zero. The README.md file states 'Not implemented yet', and the reproduce.sh script only contains a placeholder message 'not implemented'. There are no files that contain the actual implementation of the model or its initialization. Therefore, the submission does not meet the criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2373,
+    "output_tokens": 128,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687200",
+   "started_at": 1791991144.0890772,
+   "finished_at": 1791991148.1545253,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ac82eb5c-ce5a-5b3d-898d-1525f76d225c": {
+   "leaf_id": "ac82eb5c-ce5a-5b3d-898d-1525f76d225c",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn handwritten digits dataset (load_digits, 1,797 images of 8x8 pixels, 10 classes).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the code should load the scikit-learn handwritten digits dataset with 1,797 images of 8x8 pixels and 10 classes. Specifically, the function `load_digits` should be called with the appropriate parameters. Reality: The provided submission does not contain any code related to loading the dataset. The `README.md` file mentions that the reproduction is not implemented yet, and the `reproduce.sh` script simply echoes 'not implemented'. There is no actual code in the submission that attempts to load the dataset. Score: 0",
+   "usage": {
+    "input_tokens": 2325,
+    "output_tokens": 132,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687213",
+   "started_at": 1791991143.9423409,
+   "finished_at": 1791991148.2755754,
+   "ratelimit_wait_sec": 0.0
+  },
+  "55ed0e31-c221-5408-b0ce-16cc3eb0b223": {
+   "leaf_id": "55ed0e31-c221-5408-b0ce-16cc3eb0b223",
+   "category": "Code Development",
+   "requirements": "Training uses a batch size of 30.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training configuration described in Section 3 specifies a batch size of 30. In the code, we would expect to see a parameter or setting for the batch size that is explicitly set to 30. Reality: The provided files do not contain any implementation details related to training or batch size. The README.md mentions that the reproduction is not implemented yet, and the reproduce.sh script simply prints 'not implemented'. There is no actual code that sets the batch size to 30. Score: 0",
+   "usage": {
+    "input_tokens": 2358,
+    "output_tokens": 123,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687214",
+   "started_at": 1791991153.7529645,
+   "finished_at": 1791991157.2633495,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6e5df9ef-1c07-54de-95c1-0645c1c528e0": {
+   "leaf_id": "6e5df9ef-1c07-54de-95c1-0645c1c528e0",
+   "category": "Code Development",
+   "requirements": "At most one excuse is allowed per pile; at the postponed deadline the update happens regardless of the norm of the pile.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, an excuse can be triggered only once per pile, and even if an excuse is used, the update still happens at the postponed deadline regardless of the norm of the pile. Specifically, I would look for code that enforces these rules: limiting the number of excuses to one per pile and ensuring the update occurs regardless of the norm when an excuse is used. Reality: The provided submission includes a `README.md` and `reproduce.sh` file, neither of which contain any actual implementation of the ProcrastiGD optimizer. The `reproduce.sh` script simply prints 'not implemented'. Since there is no actual implementation of the optimizer, there is no way to verify if the rules regarding excuses are correctly enforced. Score: 0",
+   "usage": {
+    "input_tokens": 2458,
+    "output_tokens": 167,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687214",
+   "started_at": 1791991148.5687253,
+   "finished_at": 1791991153.751268,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3cc9fc18-1c15-54ce-af88-aac3e919e4e1": {
+   "leaf_id": "3cc9fc18-1c15-54ce-af88-aac3e919e4e1",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, should be printed and saved to a results file. I would expect to see a file named 'results' or similar containing these values. Additionally, the code should implement the ProcrastiGD optimizer, training loop, and evaluation as described in the paper. Reality: The submission includes a README.md indicating that the code has not been implemented yet, and a reproduce.sh script that simply prints 'not implemented'. There is no actual code that implements the ProcrastiGD optimizer or the training process. As a result, no results file containing the required information can exist. The provided files do not meet the expectations. Score: 0",
+   "usage": {
+    "input_tokens": 2419,
+    "output_tokens": 168,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687211",
+   "started_at": 1791991158.7254584,
+   "finished_at": 1791991163.3881543,
+   "ratelimit_wait_sec": 0.0
+  },
+  "36ef7c46-c373-5009-a7a4-80011d94703d": {
+   "leaf_id": "36ef7c46-c373-5009-a7a4-80011d94703d",
+   "category": "Code Development",
+   "requirements": "The panic factor is 1 + 0.42 * (n - 9), where n is the number of gradients in the pile, as in Eq. (1).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the panic factor is calculated as 1 + 0.42 * (n - 9), where n is the number of gradients in the pile. I would expect to see this formula implemented in the code, possibly as part of the update step in the ProcrastiGD optimizer. Reality: The provided files do not contain any implementation of the ProcrastiGD optimizer or any related calculations. The README.md states that the reproduction is not implemented yet, and the reproduce.sh script simply prints 'not implemented'. There is no code in the provided files that implements the panic factor calculation or any part of the ProcrastiGD optimizer. Score: 0",
+   "usage": {
+    "input_tokens": 2496,
+    "output_tokens": 153,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687211",
+   "started_at": 1791991148.9406462,
+   "finished_at": 1791991153.4944534,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747": {
+   "leaf_id": "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747",
+   "category": "Code Development",
+   "requirements": "An excuse postpones the deadline by exactly 3 steps without changing the parameters.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, when an excuse is triggered at a deadline, the due count is increased by exactly 3 steps without changing the parameters. This means the code should increment the step counter by 3 when an excuse is made and ensure the parameters are not updated. Reality: The submission includes a README.md and a reproduce.sh script, both of which indicate that the implementation is not yet complete. The reproduce.sh script only contains a placeholder message 'not implemented'. There is no code provided that implements the ProcrastiGD optimizer, let alone the specific behavior of increasing the step counter by 3 when an excuse is triggered. Since the core components of the optimizer, including the excuse mechanism, are not implemented, the submission fails to meet the criterion. Score: 0",
+   "usage": {
+    "input_tokens": 2433,
+    "output_tokens": 170,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687213",
+   "started_at": 1791991148.276772,
+   "finished_at": 1791991153.49348,
+   "ratelimit_wait_sec": 0.0
+  },
+  "684c42e6-5122-5cf7-adcd-7274018d4b1c": {
+   "leaf_id": "684c42e6-5122-5cf7-adcd-7274018d4b1c",
+   "category": "Code Development",
+   "requirements": "At the start of every epoch the training samples are shuffled with a NumPy random generator that is created once with seed 13.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, at the start of every epoch, the training samples should be shuffled using a NumPy random generator that is created once with a seed of 13. This means that the same shuffle order should be used for each epoch. Reality: The provided submission does not contain any code related to shuffling the training samples. The README.md file states that the reproduction is not implemented yet, and the reproduce.sh script only prints 'not implemented'. There are no Python files or scripts that implement the shuffling of training samples. Since there is no code that implements this requirement, the submission fails to meet the criterion. Score: 0",
+   "usage": {
+    "input_tokens": 2395,
+    "output_tokens": 145,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687212",
+   "started_at": 1791991157.4766445,
+   "finished_at": 1791991161.8702438,
+   "ratelimit_wait_sec": 0.0
+  },
+  "85b53814-adb8-5b68-b0b4-e3a24078f58c": {
+   "leaf_id": "85b53814-adb8-5b68-b0b4-e3a24078f58c",
+   "category": "Code Development",
+   "requirements": "At every step the gradient is added to a to-do pile as a plain sum (not an average or a moving average), the parameters are not changed on steps that are not deadlines, and the pile is emptied after each update.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, at every training step, the gradient should be added to a to-do pile as a plain sum, the parameters should not change on steps that are not deadlines, and the pile should be emptied after each update. I would look for code that adds gradients to a to-do pile, checks if the current step is a deadline, and empties the pile after updating the parameters. Reality: The submission consists of a README.md file stating 'not implemented' and a reproduce.sh script that prints 'not implemented'. There are no files containing the implementation of the ProcrastiGD optimizer as described in the paper. The README.md and reproduce.sh do not contain any code that implements the required functionality. Score: 0",
+   "usage": {
+    "input_tokens": 2366,
+    "output_tokens": 162,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687212",
+   "started_at": 1791991147.7940156,
+   "finished_at": 1791991152.8419628,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e952e7e8-32fe-5b26-b26e-ca0da289b886": {
+   "leaf_id": "e952e7e8-32fe-5b26-b26e-ca0da289b886",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 297 test samples.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the test accuracy should be computed on the 297 test samples. I would expect to see code that loads the test set and computes the accuracy using the trained model. Reality: The provided submission includes a README.md file stating 'not implemented' and a reproduce.sh script that echoes 'not implemented'. There is no actual code for computing test accuracy. The submission fails to implement the evaluation described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2387,
+    "output_tokens": 107,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687213",
+   "started_at": 1791991158.668086,
+   "finished_at": 1791991161.791387,
+   "ratelimit_wait_sec": 0.0
+  },
+  "242f0f9f-5f00-5b47-a082-98bb0a6ab68b": {
+   "leaf_id": "242f0f9f-5f00-5b47-a082-98bb0a6ab68b",
+   "category": "Code Development",
+   "requirements": "The training loss is softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training loss is the softmax cross-entropy averaged over the mini-batch, and the gradients are calculated based on this loss. Specifically, I would expect to see code that computes the softmax cross-entropy loss and then calculates the gradients of this loss with respect to the model parameters. Reality: The provided submission consists of a README file indicating that the implementation is not yet complete, and a reproduce.sh script that simply prints 'not implemented'. Neither of these files contain any code that implements the required loss function or gradients. The lack of actual code implementing the training loss and gradients means that the criterion is not met. Score: 0",
+   "usage": {
+    "input_tokens": 2363,
+    "output_tokens": 147,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687211",
+   "started_at": 1791991144.015237,
+   "finished_at": 1791991148.9394515,
+   "ratelimit_wait_sec": 0.0
+  },
+  "90b6f5ec-308d-54e1-ab74-b0512d5f7eae": {
+   "leaf_id": "90b6f5ec-308d-54e1-ab74-b0512d5f7eae",
+   "category": "Code Development",
+   "requirements": "Training runs for 12 epochs.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training should run for 12 epochs. I would expect to see code that explicitly controls the number of epochs and ensures that the training loop runs exactly 12 times. Reality: The provided `reproduce.sh` script contains the message 'not implemented' and does not contain any code that runs the training loop for 12 epochs. There is no `README.md` file that provides any instructions or code for running the training. The lack of any actual implementation means that the training does not run for 12 epochs. Score: 0",
+   "usage": {
+    "input_tokens": 2367,
+    "output_tokens": 132,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687214",
+   "started_at": 1791991157.2644026,
+   "finished_at": 1791991161.3925152,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd": {
+   "leaf_id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "requirements": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "score": 0,
+   "reason": "Expectations: The multinomial logistic regression model described in the paper should consist of a single linear layer with 64 inputs and 10 outputs, followed by a softmax activation function. I would expect to see code defining this model structure, including the linear layer and the softmax function, and ensuring that the bias term is included. Reality: The provided files do not contain any actual implementation of the model. The README.md file states that the model is not implemented yet, and the reproduce.sh script only echoes 'not implemented'. There are no Python files or other code that define the model architecture. Score: 0",
+   "usage": {
+    "input_tokens": 2334,
+    "output_tokens": 136,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-687214",
+   "started_at": 1791991143.9727142,
+   "finished_at": 1791991148.5672424,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

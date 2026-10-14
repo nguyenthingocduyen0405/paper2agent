@@ -1,0 +1,360 @@
+{
+ "run": "q7b_1974_core_nn_sub_correct",
+ "label": "18 tasks, 6 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-1094164": 4,
+  "gpu7-1094170": 3,
+  "gpu7-1094181": 4,
+  "gpu7-1094175": 4,
+  "gpu7-1094184": 2,
+  "gpu7-1094165": 1
+ },
+ "wall_time_sec": 308.86,
+ "mean_task_sec": 11.49,
+ "retries": 1,
+ "failures": 1,
+ "parse_retries": 2,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [
+  "1b0e445a-934e-5d6a-82c1-77cbd2a514fd"
+ ],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 20,
+  "input_tokens": 61946,
+  "output_tokens": 7345,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.6667,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1974_core_nn/submissions/sub_correct",
+ "leaves": {
+  "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720": {
+   "leaf_id": "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720",
+   "category": "Code Development",
+   "requirements": "The distance between two numerals is the city-block (L1) distance, the sum of absolute differences over the 64 picture elements.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the distance between two numerals is calculated as the city-block (L1) distance, which is the sum of absolute differences over the 64 picture elements. I expect to see a function or method in the code that computes this distance using the L1 metric. Specifically, I would look for a function that takes two 64-dimensional vectors (representing the numerals) and returns their L1 distance. Reality: In the `src/memory.py` file, there is a function called `nearest` that calculates the distance between a given numeral and the stored prototypes. However, this function does not explicitly use the L1 distance as defined in the paper. Instead, it calculates the sum of absolute differences, which is equivalent to the L1 distance. Additionally, there is no explicit mention of the L1 distance in the code. The `nearest` function in `src/memory.py` contains the following code snippet: ```python def nearest(self, x): best, best_d = None, None for i, p in enumerate(self.protos): d = int(np.abs(p[",
+   "usage": {
+    "input_tokens": 3034,
+    "output_tokens": 243,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094164",
+   "started_at": 1791989157.8852081,
+   "finished_at": 1791989165.981674,
+   "ratelimit_wait_sec": 0.0
+  },
+  "808ecc14-73e4-5ed1-a949-f1d04ab7b520": {
+   "leaf_id": "808ecc14-73e4-5ed1-a949-f1d04ab7b520",
+   "category": "Code Development",
+   "requirements": "A training numeral is stored as a new prototype only if the nearest stored prototype has a different class; correctly classified numerals are not stored.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a training numeral is stored as a new prototype only if the nearest stored prototype has a different class; correctly classified numerals are not stored. I will specifically look for the logic in `src/memory.py` where the training numeral is evaluated against the stored prototypes to determine if it should be stored as a new prototype. \n\nReality: In `src/memory.py`, the `read` method checks the nearest prototype and increases its consultation count. If the nearest prototype's class differs from the numeral's class, the numeral is stored as a new prototype. However, there is no explicit check to ensure that a correctly classified numeral is not stored. The condition `if self.protos[i][",
+   "usage": {
+    "input_tokens": 3070,
+    "output_tokens": 160,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094170",
+   "started_at": 1791989162.9874358,
+   "finished_at": 1791989167.9469914,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e82ece3d-be3d-5e85-898c-8176e93ed401": {
+   "leaf_id": "e82ece3d-be3d-5e85-898c-8176e93ed401",
+   "category": "Code Development",
+   "requirements": "The accuracies of both recognizers, the number of evictions and the final number of stored prototypes are printed and saved to a results file.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the results should include the test accuracy of both recognizers, the number of evictions, and the final number of stored prototypes. These results should be printed and saved to a results file. Specifically, the `train.py` file should handle the printing and saving of these results. Reality: In the `train.py` file, the results are indeed calculated and printed. The `main()` function calculates the test accuracy for both the core-economical recognizer and the full 1-NN recognizer, the number of evictions, and the final number of stored prototypes. It then prints these results and saves them to a JSON file named `results.json`. This matches the expectations from the paper. Additionally, the `reproduce.sh` script runs the necessary commands to execute the code, ensuring that the results are produced. Score: 1",
+   "usage": {
+    "input_tokens": 3097,
+    "output_tokens": 188,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094181",
+   "started_at": 1791989172.7420056,
+   "finished_at": 1791989178.1038325,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91f03e82-947e-56dc-97ec-5b462304fa31": {
+   "leaf_id": "91f03e82-947e-56dc-97ec-5b462304fa31",
+   "category": "Code Development",
+   "requirements": "A full 1-NN recognizer that stores all 1,500 training numerals and uses the city-block distance is evaluated for comparison.",
+   "score": 0,
+   "reason": "Expectations: The paper describes a full 1-NN recognizer that stores all 1,500 training numerals and uses the city-block distance. I expect to see a Python implementation of this recognizer in the `src` directory, likely in a file named `memory.py` or similar. Specifically, I expect to see a class that stores the training data, a method to compute the city-block distance, and a method to classify test data based on the nearest prototype. Reality: The `src/memory.py` file contains a class `CoreMemory` that stores prototypes, but it does not seem to be a full 1-NN recognizer. Instead, it manages a limited number of prototypes and evicts the least used ones. There is no evidence of storing all 1,500 training numerals or using the city-block distance. The `train.py` file contains the logic for training and evaluating the recognizer, but it does not appear to implement the full 1-NN recognizer as described. The `data.py` file loads the training and test tapes, but again, it does not implement the full 1-NN recognizer. Score: 0. The submission does not contain a correct implementation of the full 1-NN recognizer that stores all 1,500 training numerals and uses the city-block distance.",
+   "usage": {
+    "input_tokens": 3069,
+    "output_tokens": 285,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094164",
+   "started_at": 1791989170.9877982,
+   "finished_at": 1791989179.063484,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b28a98ed-0594-5b3d-aae2-9d8933d35f56": {
+   "leaf_id": "b28a98ed-0594-5b3d-aae2-9d8933d35f56",
+   "category": "Code Development",
+   "requirements": "The first 1,500 numerals, in original order, form the training tape and the last 297 form the test tape.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the first 1,500 numerals form the training tape and the last 297 form the test tape. I expect to see code in `data.py` that splits the loaded dataset accordingly. Reality: In `src/data.py`, the function `load_tapes` correctly loads the digits dataset and splits it into training and test tapes as expected. Specifically, the lines `X[:1500], y[:1500], X[1500:], y[1500:]` ensure that the first 1,500 numerals are used for training and the last 297 for testing. The implementation matches the paper's description. Score: 1",
+   "usage": {
+    "input_tokens": 3064,
+    "output_tokens": 166,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094181",
+   "started_at": 1791989157.8756728,
+   "finished_at": 1791989163.6185715,
+   "ratelimit_wait_sec": 0.0
+  },
+  "bd74fc79-676a-511f-bdd5-0476c75e0de7": {
+   "leaf_id": "bd74fc79-676a-511f-bdd5-0476c75e0de7",
+   "category": "Code Development",
+   "requirements": "When core is empty, the training numeral is stored as a prototype.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, when core is empty, the training numeral should be stored as a prototype. I will look for code that explicitly checks if the core is empty and then stores the numeral as a prototype. Reality: In the `src/memory.py` file, the `read` method checks if the core is empty and stores the numeral as a prototype if it is. Specifically, the code `if not self.protos:` followed by `_store(x, y)` ensures that the numeral is stored when the core is empty. This matches the expectation. Score: 1",
+   "usage": {
+    "input_tokens": 3041,
+    "output_tokens": 130,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094175",
+   "started_at": 1791989162.6901548,
+   "finished_at": 1791989166.818667,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d438b632-c9ee-5d32-9ef4-3d70facef6c6": {
+   "leaf_id": "d438b632-c9ee-5d32-9ef4-3d70facef6c6",
+   "category": "Code Development",
+   "requirements": "Core holds at most 64 prototypes.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, core should hold at most 64 prototypes. I should see a mechanism in the code that enforces this constraint. Specifically, I should find a condition that checks the number of prototypes in the core memory and stops storing new ones once the limit is reached. Reality: In the `src/memory.py` file, I find the `CoreMemory` class which has a `capacity` attribute set to 64. However, I do not see any explicit check or enforcement of this limit in the `read` method where prototypes are added to the core memory. Instead, the `_evict` method handles evictions based on consultation counts and tenure. There is no direct check to ensure that the core does not exceed 64 prototypes. Score: 0",
+   "usage": {
+    "input_tokens": 3080,
+    "output_tokens": 173,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094181",
+   "started_at": 1791989163.620249,
+   "finished_at": 1791989168.9280646,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c": {
+   "leaf_id": "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c",
+   "category": "Code Development",
+   "requirements": "Every 500 training numerals (after numerals 500 and 1,000), all consultation counts are halved with integer division (rounding down).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, every 500 training numerals (after numerals 500 and 1,000), the consultation counts of all stored prototypes should be halved with integer division (rounding down). I expect to see a mechanism in the code that checks these conditions and applies the halving operation accordingly. Specifically, I would look for a place where the consultation counts are updated, and a condition that triggers the halving operation after every 500th numeral, excluding the first 500 and the next 500 numerals. Reality: In the `src/memory.py` file, I did not find any mechanism that explicitly halves the consultation counts every 500 training numerals. The `_evict` method handles evictions based on consultation counts and tenure, but it does not include the halving operation. Similarly, the `train.py` file does not contain any logic for halving the consultation counts. The only place where consultation counts are updated is in the `read` method, but it does not include the halving operation. The `src/data.py` file only contains the data loading functions and does not involve consultation counts. Score: 0. The code in the submission does not include the mechanism to halve the consultation counts every 500 training numerals, as required by the paper.",
+   "usage": {
+    "input_tokens": 3216,
+    "output_tokens": 293,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094170",
+   "started_at": 1791989167.9487326,
+   "finished_at": 1791989176.4787834,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45": {
+   "leaf_id": "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45",
+   "category": "Code Development",
+   "requirements": "When a new prototype must be stored and core is full, the prototype with the smallest consultation count is evicted first, with ties broken by evicting the oldest.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, when core is full and a new prototype must be stored, the prototype with the smallest consultation count is evicted first. In case of ties, the oldest prototype (stored earliest) is evicted. I will specifically look for the logic in `src/memory.py` that handles the eviction process, particularly the `_evict` method, to ensure it correctly identifies and removes the prototype with the smallest consultation count, breaking ties by selecting the oldest one.\n\nReality: In the `src/memory.py` file, the `_evict` method is implemented as follows:\n```python\ndef _evict(self):\n    eligible = [i for i, p in enumerate(self.protos) if self.seen - p[",
+   "usage": {
+    "input_tokens": 3159,
+    "output_tokens": 168,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094164",
+   "started_at": 1791989165.982907,
+   "finished_at": 1791989170.9861271,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4330fce1-9811-5a67-9c45-1b6bb7d5b290": {
+   "leaf_id": "4330fce1-9811-5a67-9c45-1b6bb7d5b290",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn digits dataset (1,797 numerals of 8x8 picture elements, 10 classes).",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the dataset used consists of 1,797 numerals, each with 8x8 picture elements, and 10 classes. Specifically, the first 1,500 numerals form the training set, and the last 297 form the test set. The code should load this dataset from scikit-learn and split it into training and test sets as described. Reality: In the `src/data.py` file, the `load_tapes()` function correctly loads the dataset using `sklearn.datasets.load_digits()`, which returns the entire dataset. It then splits the dataset into training and test sets as specified. The function does not explicitly mention the split, but it follows the structure of the paper. Score: 1",
+   "usage": {
+    "input_tokens": 3014,
+    "output_tokens": 172,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094184",
+   "started_at": 1791989157.8626046,
+   "finished_at": 1791989163.8668578,
+   "ratelimit_wait_sec": 0.0
+  },
+  "33ff429e-7042-5507-ae93-53ea99b72a58": {
+   "leaf_id": "33ff429e-7042-5507-ae93-53ea99b72a58",
+   "category": "Code Development",
+   "requirements": "If several prototypes are at the same smallest distance, the one stored earliest is used.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, if several prototypes are at the same smallest distance, the one stored earliest should be used. I expect to see code that checks the distances and, if there is a tie, selects the prototype that was stored earliest. Reality: In the `src/memory.py` file, the `nearest` method returns the index of the nearest prototype, but it does not handle ties. There is no logic in the code to break ties by selecting the prototype stored earliest. The `classify` method then uses this index to return the class of the nearest prototype, but again, it does not address the tie-breaking rule. Score: 0",
+   "usage": {
+    "input_tokens": 3077,
+    "output_tokens": 145,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094170",
+   "started_at": 1791989157.9230368,
+   "finished_at": 1791989162.985952,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5c15278-f70f-5c50-be80-947f9a1fde47": {
+   "leaf_id": "c5c15278-f70f-5c50-be80-947f9a1fde47",
+   "category": "Code Development",
+   "requirements": "A numeral is given the class of the single nearest stored prototype (1-NN), not a vote among several neighbours.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, a numeral is given the class of the single nearest stored prototype (1-NN), not a vote among several neighbours. This means that the classifier should always choose the class of the nearest prototype and not consider multiple nearest prototypes. In the code, I expect to see logic that selects the class of the single nearest prototype based on the city-block distance. Reality: In the `src/memory.py` file, the `classify` method of the `CoreMemory` class contains the following code: ```python def classify(self, x): return self.protos[self.nearest(x)][",
+   "usage": {
+    "input_tokens": 3059,
+    "output_tokens": 137,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094175",
+   "started_at": 1791989157.9195013,
+   "finished_at": 1791989162.6888082,
+   "ratelimit_wait_sec": 0.0
+  },
+  "1b0e445a-934e-5d6a-82c1-77cbd2a514fd": {
+   "leaf_id": "1b0e445a-934e-5d6a-82c1-77cbd2a514fd",
+   "category": "Code Development",
+   "requirements": "A new prototype starts with a consultation count of zero.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, a new prototype should start with a consultation count of zero. I will look for initialization of the consultation count to zero in the code. Reality: In the `src/memory.py` file, the `_store` method initializes the consultation count to zero: `self.protos.append({",
+   "usage": {
+    "input_tokens": 3124,
+    "output_tokens": 82,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094164",
+   "started_at": 1791989464.6212237,
+   "finished_at": 1791989466.7239487,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b198c3ce-3c77-585b-8bd9-a434b3a6ef79": {
+   "leaf_id": "b198c3ce-3c77-585b-8bd9-a434b3a6ef79",
+   "category": "Code Development",
+   "requirements": "Picture elements are used as integers from 0 to 16, without scaling.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the picture elements should be used as integers from 0 to 16 without scaling. I will look for code that ensures the picture elements are loaded as integers in the range [0, 16] without any scaling operations. Reality: In the file `src/data.py`, the `load_tapes` function loads the digits dataset and casts the data to integers using `astype(int)`. However, there is no explicit check or constraint to ensure that the values are within the range [0, 16]. The file does not include any scaling operations, which is good, but it does not explicitly verify that the values are within the specified range. Score: 0. While the code does not scale the data, it fails to ensure that the picture elements are within the required range [0, 16].",
+   "usage": {
+    "input_tokens": 3032,
+    "output_tokens": 187,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094165",
+   "started_at": 1791989157.874469,
+   "finished_at": 1791989164.3501556,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23": {
+   "leaf_id": "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23",
+   "category": "Code Development",
+   "requirements": "A prototype stored fewer than 50 training numerals ago cannot be evicted.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, a prototype stored fewer than 50 training numerals ago cannot be evicted. This means that the code should implement a mechanism to protect prototypes based on their age. Specifically, the code should ensure that a prototype is only evicted if the difference between the current numeral and the numeral where the prototype was stored is greater than or equal to 50. The relevant part of the code is in `src/memory.py` in the `_evict` method. Reality: In `src/memory.py`, the `_evict` method checks if a prototype is eligible for eviction based on its age. It does this by filtering out prototypes whose age (seen - born) is less than the tenure (50). The relevant part of the code is: ```python eligible = [i for i, p in enumerate(self.protos) if self.seen - p[",
+   "usage": {
+    "input_tokens": 3177,
+    "output_tokens": 200,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094175",
+   "started_at": 1791989166.8199346,
+   "finished_at": 1791989172.6991198,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa": {
+   "leaf_id": "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa",
+   "category": "Code Development",
+   "requirements": "The training tape is read exactly once, in its original order.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the training tape should be read exactly once, in its original order. I will look for evidence that the training data is processed sequentially and not repeated or shuffled. Reality: In the `src/train.py` file, the training data is iterated over using `zip(X_tr, y_tr)`, which processes the training data in the original order. The `load_tapes()` function in `src/data.py` correctly loads the training and test tapes according to the specified order. The code does not shuffle or repeat the data. Score: 1",
+   "usage": {
+    "input_tokens": 3230,
+    "output_tokens": 130,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094181",
+   "started_at": 1791989168.9294124,
+   "finished_at": 1791989172.7405276,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ba28a982-861e-5f70-be58-26c43ccae9c4": {
+   "leaf_id": "ba28a982-861e-5f70-be58-26c43ccae9c4",
+   "category": "Code Development",
+   "requirements": "Accuracy is computed on the 297 numerals of the test tape.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the test accuracy should be computed on the 297 numerals of the test tape after the training procedure. I should see the correct implementation of the test set prediction and the calculation of the test accuracy in the code. Specifically, I expect to see the loading of the test set, the prediction of the test set using the trained model, and the calculation of the test accuracy. Reality: In the `src/train.py` file, the test set is loaded using `X_te, y_te = load_tapes()[2:]`, which correctly loads the test set. The test predictions are made using the `CoreMemory` model's `classify` method in the loop: `core_preds = np.array([core.classify(x) for x in X_te])`. The test accuracy is then calculated correctly as `100.0 * float((core_preds == y_te).mean())`. There is no output log provided, but based on the code, it seems the accuracy is printed and saved to `results/results.json`. Score: 1",
+   "usage": {
+    "input_tokens": 3067,
+    "output_tokens": 232,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1094175",
+   "started_at": 1791989172.701105,
+   "finished_at": 1791989179.246189,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d5c62b5b-bcdc-5d40-b748-e6410be98db7": {
+   "leaf_id": "d5c62b5b-bcdc-5d40-b748-e6410be98db7",
+   "category": "Code Development",
+   "requirements": "For each training numeral (when core is not empty), the consultation count of the nearest prototype is increased by one, whether or not its class is correct.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, when core is not empty, the consultation count of the nearest prototype should be incremented by one, regardless of whether the class is correct or not. I should find this functionality implemented in the `CoreMemory` class, specifically in the `read` method. Reality: In the `src/memory.py` file, the `read` method contains the logic to increment the consultation count of the nearest prototype. However, this increment occurs after checking if the nearest prototype's class is different from the current numeral's class. If they are the same, the numeral is not stored as a new prototype, but the consultation count is still incremented. This matches the expectation from the paper. Score: 1",
+   "usage": {
+    "input_tokens": 9336,
+    "output_tokens": 4254,
+    "cached_tokens": 0,
+    "calls": 3
+   },
+   "parse_retries": 2,
+   "worker": "gpu7-1094184",
+   "started_at": 1791989163.8684704,
+   "finished_at": 1791989274.8235688,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

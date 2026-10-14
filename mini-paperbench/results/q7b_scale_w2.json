@@ -1,0 +1,750 @@
+{
+ "run": "q7b_scale_w2",
+ "label": "40 tasks, 2 workers",
+ "total": 40,
+ "completed": 40,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-3554356": 17,
+  "gpu7-3554357": 23
+ },
+ "wall_time_sec": 442.69,
+ "mean_task_sec": 20.92,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 8,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 48,
+  "input_tokens": 1587018,
+  "output_tokens": 27128,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.525,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/judge_eval/semantic-self-consistency/0/submission",
+ "leaves": {
+  "95520bb4-2c5d-4469-975a-569e1ab76cd4": {
+   "leaf_id": "95520bb4-2c5d-4469-975a-569e1ab76cd4",
+   "category": "Code Development",
+   "requirements": "Given a question, the model generates k=10 responses by sampling with temperature=0.8",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the model should generate 10 responses for each question with a temperature of 0.8. This is relevant to the sampling methods described in Section 4, particularly the CPW, SCW, and self-consistency methods. I expect to see the implementation of the `GreedySampling`, `SCSampling`, and `CPWSampling` classes in the `sampling.py` file, with the temperature parameter correctly set to 0.8 for each sampling method. Additionally, the `answer_extraction` function in `eval.py` should correctly parse the answers from the generated responses. Reality: The `sampling.py` file contains the implementation of the `GreedySampling`, `SCSampling`, and `CPWSampling` classes. Each of these classes has a `sample_answer` method that generates k=10 responses with the correct temperature of 0.8. The `answer_extraction` function in `eval.py` is also implemented to correctly parse the answers from the generated responses. The `get_max_tokens` function in `lm_datasets.py` specifies the maximum number of new tokens to generate for each dataset, which is relevant but not directly related to the temperature setting. The `reproduce.sh` script also correctly sets the temperature parameter to 0.8 when running the evaluation. Score: 1. The code in the submission meets the criteria for generating 10 responses with a temperature of 0.8. The `sampling.py` file contains the correct implementations of the sampling methods, and the `eval.py` file contains the correct answer extraction function. The `reproduce.sh` script also ensures that the temperature parameter is set to 0.8 during evaluation.",
+   "usage": {
+    "input_tokens": 33040,
+    "output_tokens": 360,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994146.7501884,
+   "finished_at": 1791994157.9926655,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8519dd43-eaf9-42dd-b96e-cda00b737479": {
+   "leaf_id": "8519dd43-eaf9-42dd-b96e-cda00b737479",
+   "category": "Code Development",
+   "requirements": "RoBERTa base (125 million parameters version) can be used to generate an embedding vector for an input string",
+   "score": 0,
+   "reason": "Expectations: According to the paper, RoBERTa base (125 million parameters) is used as a featurizer for the AQuA-RAT and SVAMP datasets. I expect the code to correctly instantiate and use the RoBERTa base model to generate embedding vectors for input strings. Specifically, I would look for the instantiation of the RoBERTa model and the generation of embeddings using the correct model and tokenizer settings as described in the paper. Reality: The `models.py` file contains the function `load_hf_model_and_tokenizer` which handles the loading of the RoBERTa base model. However, the function `load_model_and_tokenizer` calls this function only for models other than 'gpt' models, and for 'gpt' models, it simply returns the model name without loading the tokenizer. The `lm_datasets.py` file prepares the datasets and sets the keys ",
+   "usage": {
+    "input_tokens": 32974,
+    "output_tokens": 201,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994114.7054803,
+   "finished_at": 1791994121.1483278,
+   "ratelimit_wait_sec": 0.0
+  },
+  "13a6fa19-3d02-4331-b64e-06930fd29626": {
+   "leaf_id": "13a6fa19-3d02-4331-b64e-06930fd29626",
+   "category": "Code Development",
+   "requirements": "Given a question, the model generates a single response using greedy decoding",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the greedy decoding method should generate a single response for each question. This involves selecting the most probable token at each step of the generation process until the maximum number of new tokens is reached. I should look for a function in the code that uses greedy decoding to generate a single response for each question, following the exact formatting as demonstrated in the examples provided in the paper. Reality: In the `sampling.py` file, the `GreedySampling` class is defined, which implements the greedy decoding method. The `sample_single_answer` method within this class returns a single answer by generating text and extracting the answer using the `answer_extraction` function. The `sample_answer` method of the `GreedySampling` class also returns a single answer. The `eval.py` file calls the `GreedySampling` class with the correct parameters. The `constants.py` file contains the few-shot prompts for each dataset, which are used to format the input for the model. The `lm_datasets.py` file prepares the datasets for evaluation. Score: 1. The code in the submission correctly implements the greedy decoding method to generate a single response for each question, as described in the paper.",
+   "usage": {
+    "input_tokens": 33019,
+    "output_tokens": 257,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994141.4773815,
+   "finished_at": 1791994149.6357317,
+   "ratelimit_wait_sec": 0.0
+  },
+  "067da205-f599-4a40-92fe-4cfc3f635c41": {
+   "leaf_id": "067da205-f599-4a40-92fe-4cfc3f635c41",
+   "category": "Code Development",
+   "requirements": "The full SVAMP dataset (1000 samples including both the train and test split) is available for use.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the SVAMP dataset is used for evaluation and contains 1000 samples, including both the train and test split. I should expect the code to correctly prepare and load the SVAMP dataset, including both the train and test splits, as specified in the paper.\n\nReality: The `lm_datasets.py` file contains code for loading the SVAMP dataset, but it only loads the combined train and test split, not the separate splits. Specifically, the relevant code is:\n```python\nelif dataset == ",
+   "usage": {
+    "input_tokens": 32953,
+    "output_tokens": 128,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791993956.9218125,
+   "finished_at": 1791993961.0342267,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c08b029c-fa6d-475b-b201-6b43dcd14c5e": {
+   "leaf_id": "c08b029c-fa6d-475b-b201-6b43dcd14c5e",
+   "category": "Code Development",
+   "requirements": "The final answer is selected as the modal answer from the k answers extracted from the k responses",
+   "score": 1,
+   "reason": "Expectations: Based on the paper, the final answer should be selected as the modal answer from the k (10 in this case) answers extracted from the k (10) responses generated by the model. This means that the code should implement a function that collects the answers from the k responses and then selects the answer that appears most frequently. The expectation is that the code will use the `answer_extraction` function to parse the answers and then use a `Counter` to find the mode of the answers. Reality: The `eval.py` file contains a function called `evaluate` that takes the model, dataset, sampling method, and answer extraction function as inputs. Within this function, the code collects answers from the k responses and then checks if an answer could be extracted using the `answer_extraction` function. If no answer could be extracted, the answer is skipped. The code then uses a `Counter` to find the most common answer among the extracted answers. This matches the expectation. The `answer_extraction` function in `eval.py` is used to extract the answer from the generated text, and the `SCSampling`, `CPWSampling`, and `SCWSampling` classes in `sampling.py` are responsible for collecting the answers and selecting the modal answer. Score: 1",
+   "usage": {
+    "input_tokens": 33078,
+    "output_tokens": 273,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994151.8211172,
+   "finished_at": 1791994160.39491,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0dffe1c8-da0c-4829-9bb6-033512baada3": {
+   "leaf_id": "0dffe1c8-da0c-4829-9bb6-033512baada3",
+   "category": "Code Development",
+   "requirements": "SciBERT (110 million parameters version) can be used to generate an embedding vector for an input string",
+   "score": 0,
+   "reason": "Expectations: According to the paper, SciBERT is used for the AQuA-RAT and SVAMP datasets, which are focused on mathematical reasoning. SciBERT is expected to generate an embedding vector for input strings, which will be used in the methodology to compare and filter model outputs. I should look for code that loads and uses SciBERT to generate embeddings for input strings, particularly for the AQuA-RAT and SVAMP datasets. Reality: The `lm_datasets.py` file contains code for loading datasets and formatting them to include few-shot examples. It specifies the use of SciBERT for the AQuA-RAT and SVAMP datasets. Specifically, `get_featurizer_model_name` function returns 'allenai/scibert_scivocab_uncased' for these datasets, which is SciBERT. The `load_model_and_tokenizer` function in `models.py` handles loading SciBERT for these datasets, and `eval.py` uses the loaded model to generate embeddings. However, there is no explicit code in any of the files that demonstrates the actual embedding generation process for input strings. The `eval.py` file calls the `sampling` methods, but it does not show how the embeddings are actually generated or used. Score: 0. Although the necessary model is loaded and specified for the relevant datasets, the submission lacks the actual code that generates embedding vectors for input strings using SciBERT, which is a critical part of the implementation.",
+   "usage": {
+    "input_tokens": 32998,
+    "output_tokens": 304,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994121.149568,
+   "finished_at": 1791994130.6818025,
+   "ratelimit_wait_sec": 0.0
+  },
+  "53060482-d130-4c4d-ac1c-93e755c7db43": {
+   "leaf_id": "53060482-d130-4c4d-ac1c-93e755c7db43",
+   "category": "Code Development",
+   "requirements": "The number of base estimators in the ensemble is set to 200 (the \"n_estimators\" arg is set to 200 if using the sklearn implementation of IsolationForest\")",
+   "score": 1,
+   "reason": "Expectations: Based on the paper, the isolation forest method is one of the outlier detection techniques used. Specifically, the number of base estimators in the ensemble is set to 200. In the submission, this expectation translates to ensuring that the 'n_estimators' argument in the IsolationForest model is set to 200 when using the sklearn implementation. I will check the 'sampling.py' file for the correct instantiation of the IsolationForest model to verify this.\n\nReality: In the 'sampling.py' file, the IsolationForest model is instantiated as follows:\n```python\nclass IsolationForestOutlierRemoval(OutlierRemoval):\n    def __call__(self, embeddings: torch.Tensor) -> torch.Tensor:\n        iforest = IsolationForest(n_estimators=200, contamination=\"auto\", max_samples=\"auto\")\n        iforest.fit(embeddings.detach().cpu().numpy())\n        mask = iforest.predict(embeddings.detach().cpu().numpy()) == -1\n        return mask\n``` The instantiation of the IsolationForest model includes the argument `n_estimators=200`, which meets the expectation. There is no mention of the isolation forest being instantiated differently elsewhere in the codebase.\n\nScore: 1",
+   "usage": {
+    "input_tokens": 32994,
+    "output_tokens": 278,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994079.8694148,
+   "finished_at": 1791994088.5024867,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9daf76c9-d2d0-4744-ba70-bbcf82550191": {
+   "leaf_id": "9daf76c9-d2d0-4744-ba70-bbcf82550191",
+   "category": "Code Development",
+   "requirements": "The parsing extraction approach is applied to extract the answer from each of the k responses",
+   "score": 1,
+   "reason": "Expectations: The paper mentions that the parsing extraction approach is used to extract answers from the generated responses, following the method used in the self-consistency paper. Specifically, the answer is expected to be parsed as the string immediately following the phrase ",
+   "usage": {
+    "input_tokens": 33058,
+    "output_tokens": 65,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994149.6374617,
+   "finished_at": 1791994151.819028,
+   "ratelimit_wait_sec": 0.0
+  },
+  "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7": {
+   "leaf_id": "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7",
+   "category": "Code Development",
+   "requirements": "A linear kernel is used (the \"kernel\" arg is set to\"linear\" if using the sklearn implementation of OneClassSVM\")",
+   "score": 1,
+   "reason": "Expectations: According to the paper, for the Support Vector Machines (SVM) method, the kernel type should be set to 'linear'. This is a key detail for ensuring the correct implementation of the SVM outlier removal method. I will specifically look for the line where the SVM is instantiated and check if the kernel argument is set to 'linear' in the `SVMOutlierRemoval` class in `sampling.py'.\n\nReality: In the `SVMOutlierRemoval` class within `sampling.py`, the following line is present:\n```python\nsvm = OneClassSVM(kernel=\"linear\", nu=0.01)\n```\nThe kernel argument is indeed set to 'linear', which matches the expectation.\n\nScore: The criterion has been met.",
+   "usage": {
+    "input_tokens": 32996,
+    "output_tokens": 173,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994103.6410859,
+   "finished_at": 1791994109.211185,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f4ea36de-ac1c-498b-a8db-7616907780cb": {
+   "leaf_id": "f4ea36de-ac1c-498b-a8db-7616907780cb",
+   "category": "Code Development",
+   "requirements": "All models use the 6-shot prompt provided in Table 25 of \"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models\" when evaluated on StrategyQA",
+   "score": 0,
+   "reason": "Expectations: The paper specifies a 6-shot prompt for evaluating models on StrategyQA, which is provided in Table 25 of 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models'. This prompt is expected to be used in the submission's code to ensure that the models are evaluated with the correct context. Specifically, I would look for the prompt being included in the `lm_datasets.py` file where the datasets are loaded, and the `constants.py` file which contains the few-shot prompts for each dataset. Reality: The `constants.py` file contains the few-shot prompts for AQuA-RAT, SVAMP, and StrategyQA, but it does not include the 6-shot prompt for StrategyQA. The `lm_datasets.py` file, however, only includes the 4-shot prompts for AQuA-RAT and the few-shot prompts for SVAMP and StrategyQA without specifying the number of shots. There is no mention of the 6-shot prompt in the provided files. Score: 0",
+   "usage": {
+    "input_tokens": 33083,
+    "output_tokens": 222,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994009.7686517,
+   "finished_at": 1791994016.8346324,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a560cc7a-6ad0-453b-8283-239b981d8754": {
+   "leaf_id": "a560cc7a-6ad0-453b-8283-239b981d8754",
+   "category": "Code Development",
+   "requirements": "All models generate up to 250 max new tokens on SVAMP, 400 on AQuA-RAT, and 450 on StrategyQA",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the maximum number of new tokens generated for SVAMP is 250, for AQuA-RAT is 400, and for StrategyQA is 450. This is specified in the experimental settings and is crucial for the correct evaluation of the models on the respective datasets. I will look for the correct implementation of these token limits in the code, specifically in the `lm_datasets.py` and `eval.py` files, as these handle the loading and evaluation of the datasets and models respectively. Reality: In the `lm_datasets.py` file, the `get_max_tokens` function is defined to return the correct number of tokens based on the dataset. For SVAMP, it correctly returns 250, for AQuA-RAT it returns 400, and for StrategyQA it returns 450. This matches the expectations. In the `eval.py` file, the `--max-new-tokens` argument is passed to the `evaluation` function, which is used to generate the answers. The argument is set to the correct values for each dataset, as specified in the `get_max_tokens` function. For instance, for SVAMP, the `max_new_tokens` is set to 250, for AQuA-RAT to 400, and for StrategyQA to 450. This also matches the expectations. Score: 1",
+   "usage": {
+    "input_tokens": 32982,
+    "output_tokens": 307,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791993992.1354098,
+   "finished_at": 1791994001.832204,
+   "ratelimit_wait_sec": 0.0
+  },
+  "796cdb25-0885-4219-a0f9-bdedb3e37a0d": {
+   "leaf_id": "796cdb25-0885-4219-a0f9-bdedb3e37a0d",
+   "category": "Code Development",
+   "requirements": "Euclidean distance is used (the \"metric\" argument is set to \"minkowski\" if using the sklearn implementation of KNeighborsClassifier, note \"minkowski\" is the default value of this argument)",
+   "score": 0,
+   "reason": "Expectations: Based on the paper, the K-nearest neighbor outlier removal method is used in the experiments. According to the addendum, the Euclidean distance metric is expected to be used for this method, as the 'metric' argument is set to 'minkowski' by default, which is the Euclidean distance for p=2. Reality: In the file 'sampling.py', the KNNOutlierRemoval class is defined, and it uses the 'NearestNeighbors' class from scikit-learn with the 'metric' argument set to 'minkowski'. The code specifies the use of the 'ball_tree' algorithm for the nearest neighbors search. However, the 'metric' argument is not explicitly set to 'euclidean'. It defaults to 'minkowski', which is the Euclidean distance. The implementation is close but not exactly as specified in the addendum. Score: 0",
+   "usage": {
+    "input_tokens": 33066,
+    "output_tokens": 197,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994054.7288055,
+   "finished_at": 1791994061.0960686,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b4ec7fec-fe79-4cfc-a15e-c2e43db21c2b": {
+   "leaf_id": "b4ec7fec-fe79-4cfc-a15e-c2e43db21c2b",
+   "category": "Code Development",
+   "requirements": "Given a question, the model generates k=10 responses by sampling with temperature=0.8",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the model should generate 10 responses by sampling with a temperature of 0.8. This is relevant to the sections discussing the sampling methods, particularly the implementation of the Centroid Proximity Weighting (CPW) and Semantic Consensus Weighting (SCW) methods. I expect to see the code setting the temperature parameter to 0.8 and generating exactly 10 responses for each sampling method.\n\nReality: In the `sampling.py` file, I found the `SCSampling`, `CPWSampling`, and `SCWSampling` classes that handle the sampling methods. For instance, in the `SCSampling` class, the `generation_kwargs` dictionary passed to the `sample_single_answer` method contains a `temperature` key set to 0.8. Similarly, in the `CPWSampling` and `SCWSampling` classes, the temperature parameter is also set to 0.8. Additionally, in the `eval.py` file, the `--temperature` argument is used to pass the temperature value to the sampling methods, confirming that the temperature is indeed set to 0.8 during the evaluation process.\n\nScore: Based on the findings, the submission meets the criteria of generating 10 responses with a temperature of 0.8 for each sampling method. Therefore, the score is 1.",
+   "usage": {
+    "input_tokens": 33083,
+    "output_tokens": 294,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994157.9945495,
+   "finished_at": 1791994167.1968057,
+   "ratelimit_wait_sec": 0.0
+  },
+  "32076d58-8586-4aac-9eb5-8a7570cc45cf": {
+   "leaf_id": "32076d58-8586-4aac-9eb5-8a7570cc45cf",
+   "category": "Code Development",
+   "requirements": "The upper bound on the fraction of training errors and the lower bound of the fraction of support vectors parameter is set to 0.01 (the \"nu\" arg is set to 0.01 if using the sklearn implementation of OneClassSVM)",
+   "score": 1,
+   "reason": "Expectations: Based on the paper, the criterion is to ensure that the upper bound on the fraction of training errors and the lower bound of the fraction of support vectors parameter is set to 0.01 for the OneClassSVM outlier removal method. This is specifically relevant to the SVMOutlierRemoval class in the sampling.py file. I expect to see the parameter 'nu' set to 0.01 in the instantiation of OneClassSVM in the code. Reality: In the sampling.py file, the SVMOutlierRemoval class is defined as follows: ```python class SVMOutlierRemoval(OutlierRemoval): def __call__(self, embeddings: torch.Tensor) -> torch.Tensor: svm = OneClassSVM(kernel=",
+   "usage": {
+    "input_tokens": 33050,
+    "output_tokens": 170,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994109.2126682,
+   "finished_at": 1791994114.7036388,
+   "ratelimit_wait_sec": 0.0
+  },
+  "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1": {
+   "leaf_id": "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1",
+   "category": "Code Development",
+   "requirements": "The test split of the AQuA-RAT dataset (254 samples) is available for use.",
+   "score": 0,
+   "reason": "Expectations: The paper mentions that the AQuA-RAT dataset test split (254 samples) is used for evaluation. I expect to see the actual test split of the AQuA-RAT dataset in the submission, as this is crucial for reproducing the results reported in the paper. Specifically, I would look for a file containing the test split of the AQuA-RAT dataset or a script that loads and prepares the test split dataset correctly.\n\nReality: In the `lm_datasets.py` file, there is a function `load_hf_dataset` that loads the AQuA-RAT dataset and appends the few-shot examples to it. However, the file does not explicitly contain the test split of the AQuA-RAT dataset. Instead, it concatenates the train and test splits to form a single dataset. The `reproduce.sh` script and `eval.py` do not mention or load a separate test split file. The `constants.py` file contains few-shot prompts for AQuA-RAT, but not the test split itself.\n\nScore: The submission does not meet the criteria because it does not provide the test split of the AQuA-RAT dataset separately. The `lm_datasets.py` script concatenates the train and test splits, but this is not the same as having the test split available for use. Therefore, the score is 0.",
+   "usage": {
+    "input_tokens": 32908,
+    "output_tokens": 297,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791993947.5204327,
+   "finished_at": 1791993956.920254,
+   "ratelimit_wait_sec": 0.0
+  },
+  "abef3d1f-ac05-4b98-a4c4-cdf711863714": {
+   "leaf_id": "abef3d1f-ac05-4b98-a4c4-cdf711863714",
+   "category": "Code Development",
+   "requirements": "The parsing extraction approach is applied to extract the answer from each of the k responses",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the parsing extraction approach is used to extract answers from generated responses. Specifically, the answer is expected to be the string immediately following the substring 'the answer is', with any additional characters like full stops, parentheses, and whitespace removed. This approach is used for all datasets and is critical for evaluating the accuracy of the model's responses. I will look for code that implements this logic in the `eval.py` file and verify that it is applied to all k responses generated for each dataset and model combination.\n\nReality: The `eval.py` file contains a function called `answer_extraction`, which is responsible for extracting the answer from the generated response. This function correctly implements the logic described in the expectations, including handling of full stops, parentheses, and whitespace, and converting the answer to lowercase for comparison. The function is applied to each generated response within the `evaluate` function, and the logic is consistent across all datasets and models. The `lm_datasets.py` and `models.py` files do not contain any relevant code for answer extraction, as their roles are to prepare the datasets and load the models, respectively. The `constants.py` file contains the few-shot prompts for each dataset, which are used to generate responses but do not contain the extraction logic.\n\nScore: 1. The submission meets the criteria for applying the parsing extraction approach to extract answers from the generated responses. The `answer_extraction` function in `eval.py` correctly implements the logic described in the paper and is applied to all k responses for each dataset and model combination.",
+   "usage": {
+    "input_tokens": 33101,
+    "output_tokens": 331,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994160.3966517,
+   "finished_at": 1791994170.7251215,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5814593-5393-4a6d-80e7-5b85eac9e593": {
+   "leaf_id": "c5814593-5393-4a6d-80e7-5b85eac9e593",
+   "category": "Code Development",
+   "requirements": "The threshold is determined as in the original paper (the \"contamination\" arg is set to \"auto\" if using the sklearn implementation of IsolationForest\")",
+   "score": 1,
+   "reason": "Expectations: In the paper, the isolation forest method is used for outlier removal, and the contamination parameter is set to 'auto'. The 'auto' setting for contamination allows the Isolation Forest to automatically estimate the proportion of outliers in the data. The code should reflect this setting to ensure the correct implementation of the isolation forest method as described in the paper. Reality: In the file `sampling.py`, the IsolationForestOutlierRemoval class is defined, and it initializes the IsolationForest with the contamination parameter set to 'auto'. The relevant line is: ```python is_forest = IsolationForest(n_estimators=200, contamination='auto', max_samples='auto') ``` This line matches the expectation from the paper. The contamination parameter is correctly set to 'auto', which aligns with the requirement to determine the threshold as in the original paper. Score: 1",
+   "usage": {
+    "input_tokens": 33027,
+    "output_tokens": 191,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994088.504286,
+   "finished_at": 1791994094.587832,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a09d85b6-e400-42bf-9958-def3b4311d9d": {
+   "leaf_id": "a09d85b6-e400-42bf-9958-def3b4311d9d",
+   "category": "Code Development",
+   "requirements": "When generating answers for AQuA-RAT, only generations where an answer could be extracted should be considered when computing the various metrics in each of the experiments.",
+   "score": 1,
+   "reason": "Expectations: The paper specifies that for the top prob method, only generations where an answer could be extracted should be considered when computing the various metrics in each of the experiments. This means that the code should implement a function to parse the generated text and only count the generations where a valid answer is extracted. Reality: The `eval.py` file contains a function called `answer_extraction` which is designed to parse the generated text and extract the answer. This function checks if the generated text contains 'the answer is' and removes whitespace, fullstops, and parentheses before comparing it to the correct answer. This function is used in the `evaluate` function to filter out generations where no answer could be extracted. The `lm_datasets.py` and `models.py` files do not contain any code relevant to this criterion. The `reproduce.sh` script also does not contain any code that would affect this specific parsing logic. The `constants.py` file only contains the few-shot prompts for the datasets and does not contain any code. Score: 1. The `eval.py` file contains the correct implementation of the `answer_extraction` function, which ensures that only generations with a valid answer are considered in the metric computation. This meets the expectation of the criterion.",
+   "usage": {
+    "input_tokens": 33105,
+    "output_tokens": 264,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994136.8099146,
+   "finished_at": 1791994145.0904436,
+   "ratelimit_wait_sec": 0.0
+  },
+  "463c7875-01e8-4e72-8e07-493ee968b0b3": {
+   "leaf_id": "463c7875-01e8-4e72-8e07-493ee968b0b3",
+   "category": "Code Development",
+   "requirements": "The parsing extraction approach is applied to extract the models answer from the response",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the parsing extraction approach is used to extract the answer from the generated response, which is the string immediately following the phrase ",
+   "usage": {
+    "input_tokens": 33035,
+    "output_tokens": 47,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994145.0919867,
+   "finished_at": 1791994146.746377,
+   "ratelimit_wait_sec": 0.0
+  },
+  "77d8f917-a53e-4374-8eaa-c24fa70186e2": {
+   "leaf_id": "77d8f917-a53e-4374-8eaa-c24fa70186e2",
+   "category": "Code Development",
+   "requirements": "All models use the 4-shot prompt provided in Table 21 of \"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models\" when evaluated on AQuA-RAT",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the 4-shot prompt from Table 21 of 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models' should be used when evaluating on AQuA-RAT. Specifically, this prompt is expected to be used for sampling methods 'sc', 'cpw', and 'scw'. Reality: Upon reviewing the files, I did not find any mention or implementation of the 4-shot prompt from Table 21 of 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models' in the codebase. The `lm_datasets.py` file contains a few-shot prompt for AQuA-RAT, but it is not the 4-shot prompt from the specified paper. Instead, it is a different prompt that includes the full few-shot examples for the dataset. The `constants.py` file defines the few-shot prompts for AQuA-RAT, SVAMP, and StrategyQA, but none of these are the 4-shot prompt. The `eval.py` file handles the evaluation process, but it does not incorporate the specific 4-shot prompt from the paper. Score: 0",
+   "usage": {
+    "input_tokens": 33044,
+    "output_tokens": 250,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994001.8342526,
+   "finished_at": 1791994009.766649,
+   "ratelimit_wait_sec": 0.0
+  },
+  "81246c81-3081-4734-8bdd-b6de2992105a": {
+   "leaf_id": "81246c81-3081-4734-8bdd-b6de2992105a",
+   "category": "Code Development",
+   "requirements": "Inference can be performed on gpt-4o-mini (any version)",
+   "score": 1,
+   "reason": "Expectations: The paper mentions that gpt-4o-mini is a new OpenAI model that can be queried using the standard OpenAI API. Therefore, the submission should include the ability to perform inference on this model using the provided `eval.py` script and the `reproduce.sh` script should include this model in the evaluation process. Specifically, the `eval.py` script should handle the `gpt-4o-mini` model and the `reproduce.sh` script should include the correct command to run this model for inference. Reality: The `eval.py` script contains a conditional block to handle the `gpt-4o-mini` model, which checks if the model name contains 'gpt'. The `reproduce.sh` script also correctly includes the `gpt-4o-mini` model in the evaluation process. However, the `requirements.txt` file does not explicitly mention the `gpt-4o-mini` model, though it is indirectly included in the `eval.py` script. There is no explicit mention of the model in the `models.py` file. The `reproduce.sh` script correctly runs the `eval.py` script with the `gpt-4o-mini` model. Score: 1. Although the `requirements.txt` file does not explicitly mention the `gpt-4o-mini` model, the submission correctly handles the model in the `eval.py` and `reproduce.sh` scripts. This meets the criteria for performing inference on the gpt-4o-mini model.",
+   "usage": {
+    "input_tokens": 32956,
+    "output_tokens": 324,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791993971.9317873,
+   "finished_at": 1791993981.9619377,
+   "ratelimit_wait_sec": 0.0
+  },
+  "89b080c5-7ddb-4115-ade2-5d5ce9ebed5c": {
+   "leaf_id": "89b080c5-7ddb-4115-ade2-5d5ce9ebed5c",
+   "category": "Code Development",
+   "requirements": "For each of the groups of embeddings with the same answer, the weights are summed together, and the final answer is selected as the answer that has the highest associated weight",
+   "score": 1,
+   "reason": "Expectations: According to the paper, for each group of embeddings with the same answer, the weights are summed together, and the final answer is selected as the answer that has the highest associated weight. This process is part of the Semantic Consensus Weighting (SCW) method, which involves comparing the cosine similarity of embeddings and aggregating scores based on their answer decisions. I expect to see code that implements this summation of weights for each answer group and selects the answer with the highest weight.\n\nReality: The `SCWSampling` class in the `sampling.py` file implements the SCW method. The `sample_answer` method of `SCWSampling` computes embeddings for each of the k responses, calculates cosine similarities between the embeddings, and sums the scores for each unique answer. This aligns with the expectation. Specifically, the code snippet below shows the relevant implementation:\n```python\n# Apply SCW\nembeddings = torch.tensor([], device=self.featurizer.device)\nfor generated_text in generated_texts:\n    # Tokenize generated text\n    tokenized_featurizer = self.featurizer_tokenizer(generated_text, return_tensors=",
+   "usage": {
+    "input_tokens": 33249,
+    "output_tokens": 253,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994250.0957463,
+   "finished_at": 1791994257.9897337,
+   "ratelimit_wait_sec": 0.0
+  },
+  "50fe90ba-39a2-4b00-8e52-edb99448ca7b": {
+   "leaf_id": "50fe90ba-39a2-4b00-8e52-edb99448ca7b",
+   "category": "Code Development",
+   "requirements": "The number of neighbours used is set to 5 (the \"n_neighbors\" argument is set to 6 if using the sklearn implementation of KNeighborsClassifier to return the 5 nearest neighbours, note 5 is the default value of this argument)",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the K-nearest neighbor (KNN) outlier removal method is used with 5 neighbors (n_neighbors=5). The KNN algorithm is used to identify outliers based on the proximity of each point to its nearest neighbors. If a point has more than half of its nearest neighbors as outliers, it is considered an outlier. The expectation is that the code should correctly implement this with n_neighbors set to 5, and for the KNN algorithm, it should use the ball_tree algorithm as specified in the code. Reality: In the `sampling.py` file, the KNN outlier removal method is implemented with the following code: ```python KNNOutlierRemoval(nn=NearestNeighbors(n_neighbors=6, algorithm='ball_tree', metric=",
+   "usage": {
+    "input_tokens": 32991,
+    "output_tokens": 175,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994044.078477,
+   "finished_at": 1791994049.6645389,
+   "ratelimit_wait_sec": 0.0
+  },
+  "bd9fa816-1437-4f94-825b-d77b0f11af0c": {
+   "leaf_id": "bd9fa816-1437-4f94-825b-d77b0f11af0c",
+   "category": "Code Development",
+   "requirements": "Given a question, the model generates k=10 responses by sampling with temperature=0.8",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the model should generate 10 responses for each question with a temperature of 0.8. This is to ensure that the responses are diverse and not deterministic. I will specifically look for the following in the code: (1) A loop or function that generates exactly 10 responses, (2) The use of a temperature parameter set to 0.8, and (3) The method of generating responses should align with the chain-of-thought prompting as described in the paper. Reality: The `eval.py` file contains a function called `evaluate` that takes `temperature` as a parameter and sets it to 0.8 when necessary. The `main` function in `eval.py` calls this `evaluate` function with the correct temperature value. Additionally, the `sampling.py` file contains classes for different sampling methods (`GreedySampling`, `SCSampling`, `CPWSampling`, `SCWSampling`) that all accept a `temperature` parameter and use it in the generation process. The `lm_datasets.py` file sets up the datasets and ensures that the few-shot examples are included as required. The `reproduce.sh` script also specifies the correct `temperature` value of 0.8 for the evaluation process. The `constants.py` file defines the few-shot prompts for the datasets, which are used in the generation process. Score: 1",
+   "usage": {
+    "input_tokens": 66216,
+    "output_tokens": 2347,
+    "cached_tokens": 0,
+    "calls": 2
+   },
+   "parse_retries": 1,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994257.9910128,
+   "finished_at": 1791994330.6822278,
+   "ratelimit_wait_sec": 0.0
+  },
+  "77e2711a-6278-4798-978f-d79c3a337d9f": {
+   "leaf_id": "77e2711a-6278-4798-978f-d79c3a337d9f",
+   "category": "Code Development",
+   "requirements": "Each of the k embeddings has an associated weight inversely proportional to their normalized distance to the centroid of all the embeddings. The weight for embedding i is computed as one divided by the normalized distance from embedding i to the centroid",
+   "score": 0,
+   "reason": "Expectations: According to the paper, each of the k embeddings should have an associated weight inversely proportional to their normalized distance to the centroid of all the embeddings. Specifically, the weight for embedding i is computed as one divided by the normalized distance from embedding i to the centroid. I will look for this calculation in the code, particularly in the CPWSampling class where Centroid Proximity Weighting is implemented.\n\nReality: In the CPWSampling class within the sampling.py file, the centroid is computed as the mean of the embeddings, and the normalized distance is calculated as the Euclidean norm of the difference between each embedding and the centroid. However, the weight for each embedding is not computed as one divided by the normalized distance. Instead, the weights are normalized and then inverted. The relevant part of the code is as follows:\n\n```python\ncentroid = embeddings.mean(dim=0)\ndistances = torch.norm(embeddings - centroid.unsqueeze(0), dim=1)\nnormalized_distances = distances / distances.sum()\nweights = (1 / (normalized_distances + 1e-8)).unsqueeze(1)  # (k, 1)\n```\n\nThe weight calculation is not exactly as specified in the paper, but it is close. The code normalizes the distances first and then inverts them, which is not the same as taking the inverse of the normalized distances directly. This deviation from the exact specification in the paper is a minor discrepancy but does not fully meet the criteria.\n\nScore: 0",
+   "usage": {
+    "input_tokens": 66428,
+    "output_tokens": 2375,
+    "cached_tokens": 0,
+    "calls": 2
+   },
+   "parse_retries": 1,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994241.5342445,
+   "finished_at": 1791994314.830567,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4d197469-b5e8-4bff-bae7-211a4f83f140": {
+   "leaf_id": "4d197469-b5e8-4bff-bae7-211a4f83f140",
+   "category": "Code Development",
+   "requirements": "The number of samples to draw from the training data to train each base estimator is set to min(256, n_samples) (the \"max_samples\" arg is set to \"auto\" if using the sklearn implementation of IsolationForest\")",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the number of samples to draw from the training data to train each base estimator in the isolation forest should be set to min(256, n_samples), where 'n_samples' is the number of samples to evaluate on. This is specifically mentioned in the 'Isolation Forest' section of the paper. I will look for this specific implementation in the code, particularly in the 'IsolationForestOutlierRemoval' class in the 'sampling.py' file, and any relevant setup in the 'reproduce.sh' script or 'eval.py' file. Reality: In the 'sampling.py' file, the 'IsolationForestOutlierRemoval' class is defined, but there is no explicit mention or implementation of the 'min(256, n_samples)' rule. The constructor of the class takes 'n_estimators', 'contamination', and 'max_samples' as arguments, but 'max_samples' is set to 'auto' without any conditional logic for 'n_samples'. In the 'reproduce.sh' and 'eval.py' files, there is no specific setup or argument passing that would enforce the 'min(256, n_samples)' rule. The 'max_samples' argument is set to 'auto' for all outlier removal methods, which does not meet the requirement. Score: 0",
+   "usage": {
+    "input_tokens": 33078,
+    "output_tokens": 288,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994094.5894275,
+   "finished_at": 1791994103.6387382,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c2fd8c8a-e7c0-4fbd-8bf5-ef4c6108002a": {
+   "leaf_id": "c2fd8c8a-e7c0-4fbd-8bf5-ef4c6108002a",
+   "category": "Code Development",
+   "requirements": "The centroid for the k embeddings is computed using euclidean distance",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the centroid proximity weighting method computes the centroid of the embeddings and assigns weights inversely proportional to the normalized distance from each embedding to the centroid. The centroid is computed using Euclidean distance. The expectation is that the code will correctly implement this step, including the computation of the centroid using Euclidean distance and the normalization of distances to assign weights to the embeddings.\n\nReality: In the `sampling.py` file, the `CPWSampling` class contains the method `_compute_centroid` which computes the centroid of the embeddings using the `mean` function, and the `sample_answer` method uses this centroid to compute the normalized distances and assign weights. However, the centroid computation is not explicitly named as `_compute_centroid`, and the Euclidean distance calculation is not directly shown. Instead, the centroid is computed using the `mean` function, which is a valid way to compute the centroid in a vector space, and the distances are computed using `torch.norm` with p=2, which is the Euclidean norm.\n\nScore: 1. The code correctly computes the centroid using the mean of the embeddings and assigns weights inversely proportional to the normalized Euclidean distances from the centroid. Although the Euclidean distance calculation is not explicitly named as such, the use of `torch.norm` with p=2 is a correct implementation of Euclidean distance.",
+   "usage": {
+    "input_tokens": 33148,
+    "output_tokens": 293,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994170.7263124,
+   "finished_at": 1791994179.866741,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a5c85099-0e2e-46c1-bd19-5bedb2d7886a": {
+   "leaf_id": "a5c85099-0e2e-46c1-bd19-5bedb2d7886a",
+   "category": "Code Development",
+   "requirements": "An embedding is created for each of the k responses by passing it through the associated featurizer and getting the embedding at the first (\"[CLS]\") token",
+   "score": 1,
+   "reason": "Expectations: According to the paper, an embedding is created for each of the k responses by passing them through the associated featurizer and obtaining the embedding at the first ('[CLS]') token. This is necessary for semantic self-consistency methods like centroid proximity weighting and semantic consensus weighting, as described in Sections 4.1.1 and 4.1.2. I would look for specific code that tokenizes the responses, passes them through the featurizer, and extracts the '[CLS]' token embedding for each response. Reality: In the `sampling.py` file, there is a method called `CPWSampling` that computes the embeddings for each response by passing them through the featurizer and extracting the '[CLS]' token embedding. Here is the relevant part of the code:\n\n```python\n    async def sample_answer(\n        self,\n        model: str,\n        X: str,\n        answer_extraction_fn: callable,\n        generation_kwargs: dict | None = None,\n        verbose: bool = False,\n    ) -> str:\n        tasks = [\n            self.sample_single_answer(model, X, answer_extraction_fn, generation_kwargs, verbose)\n            for _ in range(self.k)\n        ]\n        results = await asyncio.gather(*tasks)\n        generated_texts, answers = zip(*results)\n        generated_texts = list(generated_texts)\n        answers = list(answers)\n\n        # Compute embeddings sequentially\n        embeddings = torch.tensor([], device=self.featurizer.device)\n        for generated_text in generated_texts:\n            # Tokenize generated text\n            tokenized_featurizer = self.featurizer_tokenizer(generated_text, return_tensors=",
+   "usage": {
+    "input_tokens": 66268,
+    "output_tokens": 2418,
+    "cached_tokens": 0,
+    "calls": 2
+   },
+   "parse_retries": 1,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994167.1983988,
+   "finished_at": 1791994241.5331361,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2d8d7041-be93-45ae-a6ac-80fa53a49199": {
+   "leaf_id": "2d8d7041-be93-45ae-a6ac-80fa53a49199",
+   "category": "Code Development",
+   "requirements": "The method uses the ball tree algorithm (the \"algorithm\" argument is set to \"ball_tree\" if using the sklearn implementation of KNeighborsClassifier)",
+   "score": 1,
+   "reason": "Expectations: Based on the paper, the K-nearest neighbor (KNN) outlier removal method should use the ball tree algorithm for computing nearest neighbors. This is specified in the method description and the addendum. I expect to see the 'algorithm' argument set to 'ball_tree' in the KNNOutlierRemoval class implementation in the sampling.py file. Reality: In the sampling.py file, the KNNOutlierRemoval class is implemented as follows: ```python class KNNOutlierRemoval(OutlierRemoval): def __call__(self, embeddings: torch.Tensor) -> torch.Tensor: nn = NearestNeighbors(n_neighbors=6, algorithm='ball_tree', metric=",
+   "usage": {
+    "input_tokens": 33022,
+    "output_tokens": 159,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994049.6660104,
+   "finished_at": 1791994054.726913,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8006761a-19e1-4990-92fa-778b6ee89266": {
+   "leaf_id": "8006761a-19e1-4990-92fa-778b6ee89266",
+   "category": "Code Development",
+   "requirements": "The test split of the StrategyQA dataset (687 samples) is available for use.",
+   "score": 0,
+   "reason": "Expectations: The paper mentions that the StrategyQA dataset is used for evaluation, and specifically states that the test split contains 687 samples. I expect the submission to include the test split of the StrategyQA dataset, which is available for use as per the NeurIPS paper checklist. Reality: The file `lm_datasets.py` contains the code for loading the StrategyQA dataset and appending few-shot examples to the test split. However, the test split of StrategyQA is not explicitly mentioned as being available for use. The file `constants.py` defines the few-shot prompts for the StrategyQA dataset. The `reproduce.sh` script runs evaluations on the StrategyQA dataset, but does not seem to download or prepare the test split. The `eval.py` script is used to evaluate the models, but it does not include the test split of the StrategyQA dataset. Score: 0",
+   "usage": {
+    "input_tokens": 98784,
+    "output_tokens": 4288,
+    "cached_tokens": 0,
+    "calls": 3
+   },
+   "parse_retries": 2,
+   "worker": "gpu7-3554356",
+   "started_at": 1791993947.5589237,
+   "finished_at": 1791994079.8679898,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5096c429-1bd2-45ef-acf9-edadd7c9286b": {
+   "leaf_id": "5096c429-1bd2-45ef-acf9-edadd7c9286b",
+   "category": "Code Development",
+   "requirements": "Inference can be performed on gpt-3.5-turbo (any version)",
+   "score": 0,
+   "reason": "Expectations: The paper aims to enhance the reasoning capabilities of language models by incorporating semantic self-consistency. For gpt-3.5-turbo, the submission should include a correct implementation to perform inference, which involves setting up the model and running the evaluation script with the specified parameters. Specifically, the code should handle the gpt-3.5-turbo model correctly and pass the required few-shot prompts to it for inference. Reality: The `models.py` file contains a function to load the gpt-3.5-turbo model, and the `eval.py` file includes the `evaluate` function that handles the sampling and evaluation process. The `reproduce.sh` script correctly specifies the use of gpt-3.5-turbo in the evaluation process. However, the `models.py` file has a placeholder comment for gpt-3.5-turbo, and the `eval.py` file does not explicitly mention gpt-3.5-turbo. The `lm_datasets.py` and `sampling.py` files do not reference gpt-3.5-turbo either. The `requirements.txt` file lists gpt-3.5-turbo as a dependency, which is a good sign. Nevertheless, the actual implementation in the code files is not explicitly verified for gpt-3.5-turbo. Score: 0. While the dependencies are correctly specified and the script attempts to include gpt-3.5-turbo, the actual implementation in the code files does not explicitly verify handling of gpt-3.5-turbo, which is a critical part of the submission.",
+   "usage": {
+    "input_tokens": 32939,
+    "output_tokens": 351,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791993961.0358565,
+   "finished_at": 1791993971.930631,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b63359fc-8d24-4473-bed3-d54fe1586b53": {
+   "leaf_id": "b63359fc-8d24-4473-bed3-d54fe1586b53",
+   "category": "Code Development",
+   "requirements": "All input points are sorted by average distance to their neighbours, and the 10% of inputs to the KNN method with the largest average distances are filtered out",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the K-nearest neighbor (KNN) outlier removal method should filter out the 10% of inputs with the largest average distances to their neighbors. This involves calculating the average distance of each input point to its nearest neighbors and then sorting these distances to filter out the top 10%. The code should implement this step as part of the KNNOutlierRemoval class in the sampling.py file.\n\nReality: The KNNOutlierRemoval class in the sampling.py file is implemented as expected. It calculates the average distance of each input point to its nearest neighbors using the NearestNeighbors class from scikit-learn. The class does not explicitly sort the distances and filter out the top 10%, but instead checks if the average distance is the maximum for each point, which implicitly filters out points that are farthest from their neighbors. This is done in the following line: `avg_distances = distances.mean(axis=1)` and `mask = avg_distances == max_distance`, where `distances` is the array of distances to the nearest neighbors and `max_distance` is the maximum average distance. However, the implementation does not sort the distances and take the top 10%, which is the specific requirement of the criterion.\n\nScore: 0. The submission does not meet the criterion as it does not explicitly sort the distances and filter out the top 10% of the inputs. Instead, it filters based on the maximum average distance, which is a different approach.",
+   "usage": {
+    "input_tokens": 66202,
+    "output_tokens": 2371,
+    "cached_tokens": 0,
+    "calls": 2
+   },
+   "parse_retries": 1,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994061.0982978,
+   "finished_at": 1791994134.5462627,
+   "ratelimit_wait_sec": 0.0
+  },
+  "be2d3c6c-efbd-477e-97fe-a616f6fc3bf1": {
+   "leaf_id": "be2d3c6c-efbd-477e-97fe-a616f6fc3bf1",
+   "category": "Code Development",
+   "requirements": "When generating answers using the top prob method, only generations where an answer could be extracted should be considered when computing the various metrics in each of the experiments.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the top prob method only considers generations where an answer could be extracted. This means that the code should implement a filtering mechanism to exclude generations without valid answers before computing metrics. Specifically, I expect to see a function or method that checks for the presence of 'The answer is' and extracts the answer string, removing unnecessary characters. Reality: In the `eval.py` file, I found the `answer_extraction` function, which indeed performs the extraction of answers from generated responses. The function looks for 'The answer is' and removes whitespace, fullstops, and parentheses, aligning with the expectation. However, the `evaluate` function does not explicitly mention or use this filtering mechanism for the top prob method. Instead, it evaluates all generated answers, even if they do not contain a valid answer. This means that the top prob method is not correctly implemented to only consider valid answers. The `lm_datasets.py` and `models.py` files do not contain any relevant filtering logic. Score: 0",
+   "usage": {
+    "input_tokens": 33072,
+    "output_tokens": 221,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994134.5477674,
+   "finished_at": 1791994141.4759455,
+   "ratelimit_wait_sec": 0.0
+  },
+  "39f83549-039d-44b4-85d5-1d66e261baa9": {
+   "leaf_id": "39f83549-039d-44b4-85d5-1d66e261baa9",
+   "category": "Code Development",
+   "requirements": "The normalized distance from each of the k embeddings to the centroid of the k embeddings is computed",
+   "score": 0,
+   "reason": "Expectations: The paper describes the Centroid Proximity Weighting (CPW) method, which involves computing the normalized distance from each of the k embeddings to the centroid of the k embeddings. Specifically, the distance of each vector from the centroid is calculated, normalized, and then the weight assigned to each vector is inversely proportional to its normalized distance. The method is detailed in Section 4.1.1 and the normalization step is crucial for the weighting process. Reality: In the file `sampling.py`, the `CPWSampling` class implements the CPW method. Within the `sample_answer` method, the embeddings are computed and the centroid is calculated. However, the normalization step to compute the normalized distances and weights is not explicitly implemented. The relevant part of the code is as follows:\n\n```python\n# Compute embeddings sequentially\nembeddings = torch.tensor([], device=self.featurizer.device)\nfor generated_text in generated_texts:\n    # Tokenize generated text\n    tokenized_featurizer = self.featurizer_tokenizer(generated_text, return_tensors=",
+   "usage": {
+    "input_tokens": 66336,
+    "output_tokens": 2282,
+    "cached_tokens": 0,
+    "calls": 2
+   },
+   "parse_retries": 1,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994179.868727,
+   "finished_at": 1791994250.0937383,
+   "ratelimit_wait_sec": 0.0
+  },
+  "db4e4076-436e-4a5a-b441-8d7d876b7f1a": {
+   "leaf_id": "db4e4076-436e-4a5a-b441-8d7d876b7f1a",
+   "category": "Code Development",
+   "requirements": "For each embedding, the cosine similarity between it and every other embedding is summed to produce a score for such embedding",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the Semantic Consensus Weighting (SCW) method involves calculating the cosine similarity between each embedding and every other embedding, and summing these scores to produce a final score for each embedding. This score is then used to rank the embeddings and select the most likely answer. I will specifically look for the implementation of cosine similarity calculation and the summation of these scores in the code.\n\nReality: In the file `sampling.py`, I found the implementation of the SCWSampling class which is responsible for applying the Semantic Consensus Weighting method. The `sample_answer` method contains the logic for computing cosine similarities and summing them up. Here is the relevant snippet:\n```python\n    async def sample_answer(\n        self,\n        model: str,\n        X: str,\n        answer_extraction_fn: callable,\n        generation_kwargs: dict | None = None,\n        verbose: bool = False,\n    ) -> str:\n        tasks = [\n            self.sample_single_answer(model, X, answer_extraction_fn, generation_kwargs, verbose)\n            for _ in range(self.k)\n        ]\n        results = await asyncio.gather(*tasks)\n        generated_texts, answers = zip(*results)\n        generated_texts = list(generated_texts)\n        answers = list(answers)\n\n        # Compute embeddings sequentially\n        embeddings = torch.tensor([], device=self.featurizer.device)\n        for generated_text in generated_texts:\n            # Tokenize generated text\n            tokenized_featurizer = self.featurizer_tokenizer(generated_text, return_tensors=",
+   "usage": {
+    "input_tokens": 33183,
+    "output_tokens": 353,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994330.6835742,
+   "finished_at": 1791994341.6477337,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7e05fd91-a2fa-47ce-918f-9626d9b23f75": {
+   "leaf_id": "7e05fd91-a2fa-47ce-918f-9626d9b23f75",
+   "category": "Code Development",
+   "requirements": "All models use top-p=1. Note, the default value for top-p through the OpenAI API is 1",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the default value for top-p through the OpenAI API is 1. Therefore, in the implementation, we expect the code to set top-p to 1 for all model generations. Specifically, we should see the argument `top_p: 1` being passed in the `generation_kwargs` dictionary for the `GreedySampling` class, and similarly for other sampling methods that use the `openai` API.\n\nReality: In the `sampling.py` file, the `GreedySampling` class is defined as follows:\n```python\nclass GreedySampling(SamplingMethod):\n    async def sample_answer(\n        self,\n        *args,\n        **kwargs,\n    ) -> str:\n        _, answer = await self.sample_single_answer(*args, **kwargs)\n        return answer\n``` \nThere is no mention of `top_p` being set to 1 anywhere in the code. Moreover, the `generation_kwargs` dictionary in the `sample_single_answer` method of the `SamplingMethod` class is initialized with `top_p: 1`, but this is not explicitly carried over to the `GreedySampling` class. For the `SCSampling`, `CPWSampling`, and `SCWSampling` classes, the `top_p` parameter is also not explicitly set to 1. The `evaluation.py` script also does not override or set the `top_p` parameter to 1.\n\nScore: 0",
+   "usage": {
+    "input_tokens": 32945,
+    "output_tokens": 321,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791993981.9640074,
+   "finished_at": 1791993992.133708,
+   "ratelimit_wait_sec": 0.0
+  },
+  "82b1a191-e41c-457b-af57-e036b6be7129": {
+   "leaf_id": "82b1a191-e41c-457b-af57-e036b6be7129",
+   "category": "Code Development",
+   "requirements": "The parsing extraction approach is applied to extract the answer from each of the k responses",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the parsing extraction approach is used to extract the answer from each of the k responses. The approach should find the substring starting with 'the answer is' and remove any surrounding characters, spaces, and punctuation. The answer should then be converted to lowercase for comparison purposes. Reality: The `constants.py` file contains predefined few-shot prompts for AQuA-RAT, StrategyQA, and SVAMP datasets, but does not include any code for parsing answers. The `eval.py` file includes a function called `answer_extraction`, which attempts to implement the parsing extraction approach. However, the implementation is incomplete and does not fully match the expectations. Specifically, the function does not handle the case where the answer is in a different format (e.g., with parentheses or multiple spaces), and it does not convert the answer to lowercase. The `lm_datasets.py` and `models.py` files are irrelevant to the parsing extraction approach. The `reproduce.sh` script runs the evaluation script `eval.py`, which uses the `answer_extraction` function, but the output logs do not indicate successful parsing. Score: 0",
+   "usage": {
+    "input_tokens": 33126,
+    "output_tokens": 243,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994314.8317926,
+   "finished_at": 1791994322.629098,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c8acfeae-4a0f-4915-a8f0-e254fd9d664b": {
+   "leaf_id": "c8acfeae-4a0f-4915-a8f0-e254fd9d664b",
+   "category": "Code Development",
+   "requirements": "An embedding is creating for each of the k responses by passing it through the associated featurizer and getting the embedding at the first (\"[CLS]\") token",
+   "score": 0,
+   "reason": "Expectations: According to the paper, an embedding is created for each of the k responses by passing them through the associated featurizer and obtaining the embedding at the first ('[CLS]') token. This is crucial for the semantic self-consistency methods, as it allows for the comparison and aggregation of responses based on their semantic content. I would specifically look for code that tokenizes the responses and passes them through the featurizer to obtain the embeddings, and then selects the embedding of the '[CLS]' token for each response.\n\nReality: In the `sampling.py` file, the code for generating embeddings is present. Specifically, for both `CPWSampling` and `SCWSampling`, the generated responses are tokenized and passed through the featurizer to obtain embeddings. However, the code does not explicitly select the embedding of the '[CLS]' token, but rather concatenates all hidden states and then selects the first one as the embedding. This is not exactly what the paper describes, as the '[CLS]' token embedding is typically used for capturing the overall semantic content of a sequence. The `sampling.py` file also includes the implementation of the outlier removal methods, which correctly use the embeddings generated by the featurizer.\n\nScore: 0. Although the code in `sampling.py` generates embeddings for the responses, it does not explicitly select the '[CLS]' token embedding as described in the paper. Instead, it uses the embedding of the first token, which might not capture the overall semantic content as accurately as the '[CLS]' token embedding.",
+   "usage": {
+    "input_tokens": 66318,
+    "output_tokens": 2376,
+    "cached_tokens": 0,
+    "calls": 2
+   },
+   "parse_retries": 1,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994322.63068,
+   "finished_at": 1791994390.2143588,
+   "ratelimit_wait_sec": 0.0
+  },
+  "42296ab8-386b-4645-9fbf-4cd635f4fd81": {
+   "leaf_id": "42296ab8-386b-4645-9fbf-4cd635f4fd81",
+   "category": "Code Development",
+   "requirements": "For SVAMP, AQuA_RAT and StrategyQA, given a response, the full string answer after the model generates \"The answer is\" is parsed as the answer, after removing for whitespace, fullstops, and parentheses",
+   "score": 1,
+   "reason": "Expectations: According to the paper, for SVAMP, AQuA_RAT, and StrategyQA, the answer is parsed as the string immediately following 'the answer is', removing any whitespace, fullstops, and parentheses. The submission should implement this parsing logic in the `answer_extraction` function in `eval.py`. The function should correctly handle the extraction of answers from generated responses for the specified datasets. Reality: The `answer_extraction` function in `eval.py` is implemented and matches the description provided in the addendum. It correctly extracts the answer string by checking for 'the answer is', removing whitespace, fullstops, and parentheses. The function is used in the evaluation loop, and the addendum specifies that this function is applied to all generated responses for the datasets. The implementation in `eval.py` and the addendum confirm that the submission meets the parsing criteria. Score: 1",
+   "usage": {
+    "input_tokens": 33040,
+    "output_tokens": 193,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554356",
+   "started_at": 1791994130.6829844,
+   "finished_at": 1791994136.8081193,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d": {
+   "leaf_id": "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d",
+   "category": "Code Development",
+   "requirements": "All models use the 8-shot math prompt provided in Table 20 of \"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models\" when evaluated on SVAMP",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the SVAMP dataset should use the 8-shot math prompt provided in Table 20 of 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models'. This prompt should be used to generate the few-shot examples for the SVAMP dataset. Reality: Upon reviewing the files provided, the `lm_datasets.py` file contains the relevant code for loading the SVAMP dataset. Specifically, the `load_hf_dataset` function for SVAMP includes the following line: ```python ds = concatenate_datasets([ds[",
+   "usage": {
+    "input_tokens": 33123,
+    "output_tokens": 888,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3554357",
+   "started_at": 1791994016.8361938,
+   "finished_at": 1791994044.0770798,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

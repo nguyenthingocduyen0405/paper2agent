@@ -1,0 +1,358 @@
+{
+ "run": "q7b_1957_fatigued_perceptron_sub_partial",
+ "label": "18 tasks, 6 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-816750": 3,
+  "gpu7-816746": 3,
+  "gpu7-816747": 3,
+  "gpu7-816748": 3,
+  "gpu7-816745": 3,
+  "gpu7-816749": 3
+ },
+ "wall_time_sec": 20.5,
+ "mean_task_sec": 6.52,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 18,
+  "input_tokens": 49617,
+  "output_tokens": 3941,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.3889,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1957_fatigued_perceptron/submissions/sub_partial",
+ "leaves": {
+  "5c1d5135-cad6-513c-93df-264470e8c9e8": {
+   "leaf_id": "5c1d5135-cad6-513c-93df-264470e8c9e8",
+   "category": "Code Development",
+   "requirements": "A photocell is set to 1 if its pixel value is 8 or more (on the 0-16 scale) and to 0 otherwise.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, a photocell is set to 1 if its pixel value is 8 or more (on the 0-16 scale) and to 0 otherwise. I will specifically look for a line of code in the `data.py` file that checks the pixel value and sets the photocell value accordingly. Reality: In the `src/data.py` file, the following line of code correctly implements the requirement: `X = (digits.data[keep] >= 8).astype(float)`. This line creates a boolean array where each element is True if the corresponding pixel value is 8 or more, and False otherwise. The `astype(float)` function then converts this boolean array into a float array where True values are 1 and False values are 0. The implementation matches the description in the paper. Score: 1",
+   "usage": {
+    "input_tokens": 2715,
+    "output_tokens": 187,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816750",
+   "started_at": 1791989088.8841872,
+   "finished_at": 1791989094.7784486,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b33da8c0-a7cf-5443-8c28-ffb602ad013c": {
+   "leaf_id": "b33da8c0-a7cf-5443-8c28-ffb602ad013c",
+   "category": "Code Development",
+   "requirements": "The machine answers +1 only if w . x is strictly greater than zero, and -1 otherwise (including when w . x is exactly zero).",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the machine should answer +1 only if the dot product of the weight vector (w) and the input vector (x) is strictly greater than zero, and -1 otherwise. Specifically, this means that the response function should return +1 when the sum of the weighted inputs is greater than zero, and -1 when it is less than or equal to zero. In the code, I expect to see the `respond` method in the `FatiguedPerceptron` class implementing this logic using a strict inequality for the positive response condition. Reality: In the `src/machine.py` file, the `respond` method is defined as follows: ```python def respond(self, x): return 1 if self.w @ x > 0 else -1 ``` This implementation correctly uses a strict inequality (`>`), which aligns with the description in the paper. The `@` operator is used for matrix multiplication, which is equivalent to the dot product in this context. The method returns +1 when the dot product is strictly greater than zero and -1 otherwise, matching the expected behavior. Score: 1",
+   "usage": {
+    "input_tokens": 2701,
+    "output_tokens": 245,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816746",
+   "started_at": 1791989093.325681,
+   "finished_at": 1791989100.5584598,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e0424b3c-0106-5a4c-8a4b-d5f30eae8e18": {
+   "leaf_id": "e0424b3c-0106-5a4c-8a4b-d5f30eae8e18",
+   "category": "Code Development",
+   "requirements": "At most 7 reels (passes over the training deck) are run.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training process runs for at most 7 reels. Each reel consists of presenting the entire training deck in its original order. Therefore, the submission should ensure that the training loop runs for no more than 7 iterations, even if the machine correctly classifies all examples in fewer iterations. Specifically, the code should track the number of reels and stop after 7, or early if no mistakes are made. \n\nReality: The `src/train.py` file contains the training loop, which iterates over the training deck for up to 7 reels. However, the code does not explicitly limit the number of reels to 7. Instead, it runs for as many reels as needed until the machine makes no mistakes in a full pass through the training deck. There is no mechanism to enforce an upper limit of 7 reels. The code only checks for early stopping based on the condition that the machine makes no mistakes in a full pass through the training deck, but does not prevent running more than 7 reels. \n\nScore: The criteria has not been met because the code does not enforce a hard limit of 7 reels. While the code might stop early if the machine performs well, it can still run more than 7 reels if the machine continues to make mistakes.",
+   "usage": {
+    "input_tokens": 2848,
+    "output_tokens": 277,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816746",
+   "started_at": 1791989100.5596542,
+   "finished_at": 1791989108.6040306,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ea9183d1-2d58-504d-9359-cdc3961c1a15": {
+   "leaf_id": "ea9183d1-2d58-504d-9359-cdc3961c1a15",
+   "category": "Code Development",
+   "requirements": "A conventional perceptron is trained that updates w <- w + 1.0 * t * x whenever the answer is wrong, with no fatigue, no end-stops and no coffee drift.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the conventional perceptron should update its weights using the formula w <- w + 1.0 * t * x whenever the answer is wrong, with no fatigue, no end-stops, and no coffee drift. Specifically, I will look for a Python function or method in `src/machine.py` that updates the weights according to this rule, and ensure that there are no fatigue, end-stop, or coffee drift mechanisms in place. Reality: The `src/machine.py` file contains a class `FatiguedPerceptron`, but there is no corresponding class or function for a conventional perceptron. Instead, the `present` method in `FatiguedPerceptron` handles the weight updates. There is no separate implementation of a conventional perceptron as described in the paper. The `train.py` script also does not implement a separate conventional perceptron; it uses the `FatiguedPerceptron` class for both training and evaluation. Score: 0",
+   "usage": {
+    "input_tokens": 2724,
+    "output_tokens": 218,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816747",
+   "started_at": 1791989101.829665,
+   "finished_at": 1791989108.1119282,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d9925473-7cd9-540c-9e8c-9ebb8ef600b4": {
+   "leaf_id": "d9925473-7cd9-540c-9e8c-9ebb8ef600b4",
+   "category": "Code Development",
+   "requirements": "After every 100 presentations, counted continuously across reels (after presentations 100, 200, 300, ...), every weight is multiplied by 0.9.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after every 100 presentations, the potentiometers drift towards zero by multiplying every weight by 0.9. This means that the weights should be adjusted accordingly after every 100th presentation. The implementation should involve a counter that tracks the number of presentations and applies the drift when the counter reaches a multiple of 100. Reality: In the `src/train.py` file, there is no code that implements the weight drift after every 100 presentations. The file only contains the training loop and evaluation, but does not include any logic for the weight drift. The `FatiguedPerceptron` class in `src/machine.py` does not have any method or attribute that handles the weight drift. The `reproduce.sh` script and `requirements.txt` do not affect the implementation of the weight drift. Since the weight drift is not implemented in the code, the submission fails to meet the criterion. Score: 0",
+   "usage": {
+    "input_tokens": 2814,
+    "output_tokens": 215,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816748",
+   "started_at": 1791989096.1786427,
+   "finished_at": 1791989102.6222208,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2179875d-a260-54df-b609-631a8c398661": {
+   "leaf_id": "2179875d-a260-54df-b609-631a8c398661",
+   "category": "Code Development",
+   "requirements": "Immediately after each adjustment, every weight is limited to the range -3 to +3 on both sides.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, immediately after each adjustment, every weight is limited to the range -3 to +3 on both sides. I expect to see this limitation implemented in the code, likely within the `present` method of the `FatiguedPerceptron` class in `src/machine.py`. Specifically, I am looking for a line similar to `self.w = np.clip(self.w, -3, 3)` to ensure that weights are clipped to the specified range after each adjustment. Reality: In the `src/machine.py` file, the `present` method is defined as follows: ```python def present(self, x, t): wrong = self.respond(x) != t if wrong: self.w += self.increment * t * x self.w = np.clip(self.w, -self.end_stop, self.end_stop) return wrong ``` Here, the `np.clip` function is used to limit the weights, but the values are limited to the range -3 to +3 as expected. The `end_stop` variable is set to 3.0, which correctly enforces the weight clipping. Score: 1",
+   "usage": {
+    "input_tokens": 2744,
+    "output_tokens": 245,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816750",
+   "started_at": 1791989094.7798715,
+   "finished_at": 1791989102.1485984,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6f216a59-35db-5ecd-93c1-45768b4eeb48": {
+   "leaf_id": "6f216a59-35db-5ecd-93c1-45768b4eeb48",
+   "category": "Code Development",
+   "requirements": "A 65th bias input that is always 1 is appended to the 64 photocell inputs.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a 65th bias input that is always 1 should be appended to the 64 photocell inputs. I will specifically look for a line of code that sets the bias cell to 1 in the `data.py` file or a similar file that initializes the retina. Reality: In the `src/data.py` file, the line `X = (digits.data[keep] >= 8).astype(float)` correctly sets the values of the photocells. However, there is no explicit mention or setting of a 65th bias cell to 1. Instead, the `src/machine.py` file contains a class `FatiguedPerceptron` where the weights are initialized to zero, but there is no code that explicitly adds a constant bias term. The `train.py` file uses the `@` operator to perform the dot product between the weights and the input features, but it does not include the bias term. Score: 0",
+   "usage": {
+    "input_tokens": 2739,
+    "output_tokens": 216,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816745",
+   "started_at": 1791989088.9013004,
+   "finished_at": 1791989095.6543195,
+   "ratelimit_wait_sec": 0.0
+  },
+  "daa39906-92e8-5996-a198-11b28c861168": {
+   "leaf_id": "daa39906-92e8-5996-a198-11b28c861168",
+   "category": "Code Development",
+   "requirements": "After each adjustment the relay is fatigued for the next 2 presentations, during which no adjustment is made whatever the answer.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after each adjustment, the relay is fatigued for the next 2 presentations, during which no adjustment is made, regardless of the answer. This means that the code should implement a mechanism to track the fatigue state of the relay and prevent adjustments during those periods. Reality: In the `src/machine.py` file, there is no explicit implementation of a fatigue state or any logic to prevent adjustments during the fatigue period. The `present` method only updates the weights if the answer is wrong, but there is no condition to check if the relay is fatigued. Additionally, the `train.py` file does not seem to handle the fatigue period at all. The `reproduce.sh` script simply runs the training process without any additional steps to account for the fatigue period. Score: 0",
+   "usage": {
+    "input_tokens": 2771,
+    "output_tokens": 181,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816745",
+   "started_at": 1791989095.655879,
+   "finished_at": 1791989100.9916565,
+   "ratelimit_wait_sec": 0.0
+  },
+  "47ff8001-3e5a-58fb-8be0-0b9abd6ea85c": {
+   "leaf_id": "47ff8001-3e5a-58fb-8be0-0b9abd6ea85c",
+   "category": "Code Development",
+   "requirements": "Only the figures with labels 0 and 1 are taken from the scikit-learn digits dataset (360 figures), kept in their original order.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, only the figures with labels 0 and 1 from the scikit-learn digits dataset should be used, and they should be kept in their original order. Specifically, the submission should implement the loading of these figures using the `load_digits` function from scikit-learn and filter out only the figures with labels 0 and 1, then keep them in the original order as specified in the dataset. Reality: The `src/data.py` file correctly loads the digits dataset and filters out only the figures with labels 0 and 1. However, there is no explicit mention or implementation of keeping the figures in their original order from the dataset. The loaded dataset is split into training and test decks based on the index, but the order is not preserved as per the paper's description. The `src/train.py` file does not explicitly refer to the order of the dataset, but it uses the filtered dataset for training and testing. Score: 0. Although the submission correctly filters the figures with labels 0 and 1, it fails to ensure that the figures are kept in their original order from the dataset, as required by the paper.",
+   "usage": {
+    "input_tokens": 2681,
+    "output_tokens": 250,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816749",
+   "started_at": 1791989088.8711627,
+   "finished_at": 1791989096.7275476,
+   "ratelimit_wait_sec": 0.0
+  },
+  "231d6c4f-b528-5eea-982c-4bd442a172ba": {
+   "leaf_id": "231d6c4f-b528-5eea-982c-4bd442a172ba",
+   "category": "Code Development",
+   "requirements": "All 65 weights are initialized to zero.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, all 65 weights are initialized to zero. Specifically, the paper states 'All potentiometers are set to zero before the first presentation.' I should look for code that initializes the weights to zero in the `src/machine.py` file. Reality: In the `src/machine.py` file, the initialization of weights is done as follows: ```python self.w = np.zeros(n_inputs) ``` This line clearly initializes the weights to zero. The value of `n_inputs` is 65, which matches the number of weights specified in the paper. Score: 1",
+   "usage": {
+    "input_tokens": 2670,
+    "output_tokens": 138,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816746",
+   "started_at": 1791989088.9343348,
+   "finished_at": 1791989093.3238955,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cd42179e-7841-5edd-b3a1-383ec19eebe4": {
+   "leaf_id": "cd42179e-7841-5edd-b3a1-383ec19eebe4",
+   "category": "Code Development",
+   "requirements": "The desired answer is +1 for the figure ONE (label 1) and -1 for NOUGHT (label 0).",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the desired answer is +1 for the figure ONE (label 1) and -1 for NOUGHT (label 0). I will specifically look for code that correctly assigns +1 to label 1 and -1 to label 0 in the data processing part of the submission. Reality: In the `src/data.py` file, the label assignment is correctly implemented. The line `np.where(digits.target[keep] == 1, 1, -1)` assigns +1 to label 1 and -1 to label 0. This matches the expectation. There is no discrepancy found in the `src/train.py` file as well, since it uses the loaded labels directly. Score: 1",
+   "usage": {
+    "input_tokens": 2766,
+    "output_tokens": 163,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816747",
+   "started_at": 1791989088.9151633,
+   "finished_at": 1791989094.0478818,
+   "ratelimit_wait_sec": 0.0
+  },
+  "59fb35bf-0094-52cd-8573-f0c461b3f672": {
+   "leaf_id": "59fb35bf-0094-52cd-8573-f0c461b3f672",
+   "category": "Code Development",
+   "requirements": "When the relay is not fatigued and the answer is wrong, the weights are updated as w <- w + 0.25 * t * x; no update is made when the answer is right, as in Eq. (1).",
+   "score": 1,
+   "reason": "Expectations: According to the paper, when the relay is not fatigued and the answer is wrong, the weights are updated using the equation w <- w + 0.25 * t * x. No update is made when the answer is correct. I will specifically look for the presence of this exact update rule in the code, particularly in the method `present` of the `FatiguedPerceptron` class in `src/machine.py`. Reality: In the `src/machine.py` file, the `present` method contains the following code: ```python def present(self, x, t): wrong = self.respond(x) != t if wrong: self.w += self.increment * t * x self.w = np.clip(self.w, -self.end_stop, self.end_stop) return wrong ``` Here, the weights are updated only when the answer is wrong, and the update rule matches the expected form: w <- w + 0.25 * t * x. The increment value is set to 0.25, which corresponds to the factor in the paper. There is no update when the answer is correct, as the code block is only executed when `wrong` is True. Score: 1",
+   "usage": {
+    "input_tokens": 2722,
+    "output_tokens": 263,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816747",
+   "started_at": 1791989094.0491025,
+   "finished_at": 1791989101.828051,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8b69f134-f0d3-5959-9cba-a55816ec8eeb": {
+   "leaf_id": "8b69f134-f0d3-5959-9cba-a55816ec8eeb",
+   "category": "Code Development",
+   "requirements": "Within every reel, the training deck is presented in its original order without shuffling.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training deck should be presented in its original order without shuffling. This means that the order of the training data should remain consistent throughout the training process. Specifically, we should see that the training data is loaded in the same order every time the machine is trained. Reality: In the `src/data.py` file, the function `load_decks` loads the data and splits it into training and test sets based on a condition. However, there is no explicit mention or implementation of shuffling the training deck. The `src/train.py` file iterates over the training data in the order it is loaded, but there is no indication that the order is being preserved or enforced. There is no code that explicitly ensures the order of the training deck remains unchanged. Score: 0",
+   "usage": {
+    "input_tokens": 2832,
+    "output_tokens": 177,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816749",
+   "started_at": 1791989096.7295983,
+   "finished_at": 1791989101.8545625,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b43738cf-faeb-542d-a2a1-5a39fe4e1d73": {
+   "leaf_id": "b43738cf-faeb-542d-a2a1-5a39fe4e1d73",
+   "category": "Code Development",
+   "requirements": "The conventional machine uses the same decks, presentation order, zero initial weights, response rule, maximum number of reels and early-stopping rule as the Fatigued Perceptron.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the conventional machine should use the same decks, presentation order, zero initial weights, response rule, maximum number of reels and early-stopping rule as the Fatigued Perceptron. Specifically, it should use the decks loaded from the `data.py` file, follow the same presentation order, initialize weights to zero, use the response rule of responding +1 if the dot product is strictly greater than zero, and have a maximum of 7 reels with early stopping if no wrong answers are given in a reel. It should also have no fatigue, no end-stops, and no coffee drift. Reality: The `train.py` file in the submission does not implement the conventional machine as described. It initializes weights to zero, follows the same decks and presentation order, and uses the same response rule. However, it does not account for the absence of fatigue, end-stops, and coffee drift. The `FatiguedPerceptron` class in `machine.py` does not have methods to handle fatigue, end-stops, and coffee drift, which are not implemented in `train.py` either. Score: 0",
+   "usage": {
+    "input_tokens": 2761,
+    "output_tokens": 247,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816749",
+   "started_at": 1791989101.8561027,
+   "finished_at": 1791989108.884286,
+   "ratelimit_wait_sec": 0.0
+  },
+  "16daeec4-1f5c-5358-bb32-f6482238f967": {
+   "leaf_id": "16daeec4-1f5c-5358-bb32-f6482238f967",
+   "category": "Code Development",
+   "requirements": "Training stops early after any reel in which the machine gave no wrong answer (wrong answers given while fatigued count).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training should stop early if the machine gives no wrong answer in any reel. This means that once the machine correctly classifies all 240 training samples in a reel, the training should halt. We need to ensure that the code checks for this condition and stops training if it is met. \n\nReality: The `train.py` file is responsible for running the training loop. It iterates over the training deck and calls the `present` method of the `FatiguedPerceptron` class for each sample. However, there is no explicit check for the condition where the machine gives no wrong answer in a reel. The loop simply runs for a fixed number of reels, regardless of whether the machine makes any mistakes. \n\nSpecifically, the `main` function in `src/train.py` runs through the training deck for 7 reels, but there is no mechanism to stop early if the machine performs perfectly in a reel. \n\nScore: 0",
+   "usage": {
+    "input_tokens": 2873,
+    "output_tokens": 220,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816745",
+   "started_at": 1791989100.9932473,
+   "finished_at": 1791989107.4371011,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ed1b353e-3d54-513b-ac41-a50e06fa3d4c": {
+   "leaf_id": "ed1b353e-3d54-513b-ac41-a50e06fa3d4c",
+   "category": "Code Development",
+   "requirements": "The first 240 figures form the training deck and the last 120 figures form the test deck, without shuffling.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the first 240 figures form the training deck and the last 120 figures form the test deck without shuffling. Therefore, the code should ensure that the decks are split in this exact manner and that the order of the figures is preserved. Specifically, the `load_decks` function in `data.py` should handle the splitting of the data into training and test sets based on their original order. Reality: The `load_decks` function in `data.py` correctly loads the data and splits it into training and test sets. The function checks the condition `(digits.target == 0) | (digits.target == 1)` to filter out the relevant figures, and then splits the filtered data into training (X[:240], t[:240]) and test (X[240:], t[240:]) sets. This ensures that the first 240 figures are used for training and the last 120 figures are used for testing, maintaining their original order. Score: 1",
+   "usage": {
+    "input_tokens": 2795,
+    "output_tokens": 232,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816748",
+   "started_at": 1791989088.9304457,
+   "finished_at": 1791989096.1774325,
+   "ratelimit_wait_sec": 0.0
+  },
+  "84dee2d9-2622-533c-9bca-8d17a7021d97": {
+   "leaf_id": "84dee2d9-2622-533c-9bca-8d17a7021d97",
+   "category": "Code Development",
+   "requirements": "The test results of both machines and the total number of adjustments made by the Fatigued Perceptron are printed and saved to a results file.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the Fatigued Perceptron and the conventional machine should be evaluated, and the results should be printed to the console and saved to a results file. Specifically, the fraction of right answers on the test deck and the total number of adjustments made by the Fatigued Perceptron should be saved to a results file. \n\nReality: The `src/train.py` file contains the logic for training both machines and evaluating the performance on the test deck. However, the results are only printed to the console and not saved to a file. The `results/results.json` file mentioned in the README.md is not present in the submission. Additionally, the `reproduce.sh` script does not include any command to save the results to a file.\n\nScore: 0. The submission does not save the test results and the total number of adjustments to a results file as required by the paper.",
+   "usage": {
+    "input_tokens": 2746,
+    "output_tokens": 205,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816748",
+   "started_at": 1791989102.62327,
+   "finished_at": 1791989108.3449748,
+   "ratelimit_wait_sec": 0.0
+  },
+  "256eef17-9a40-5bf8-a753-da2c9194318a": {
+   "leaf_id": "256eef17-9a40-5bf8-a753-da2c9194318a",
+   "category": "Code Development",
+   "requirements": "The fraction of right answers is computed on the 120 cards of the test deck.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the Fatigued Perceptron should be evaluated on the 120 cards of the test deck, and the fraction of right answers should be computed. Specifically, the machine should correctly implement the training and testing process as described, and the results should match the expected output of 95.8% right answers for the Fatigued Perceptron. Reality: The submission includes a `train.py` script that loads the decks, trains the machine, and evaluates it on the test deck. The `src/data.py` and `src/machine.py` files correctly implement the retina and machine as described in the paper. However, the `src/train.py` file does not compute the fraction of right answers directly. Instead, it prints the percentage of correct answers but does not save the results to a file as specified in the README. The `reproduce.sh` script runs the training process, but it does not mention saving the results. The `results/results.json` file mentioned in the README is not included in the submission. Score: 0. While the training and evaluation processes are implemented correctly, the submission fails to save the results to a file as specified in the README and the paper.",
+   "usage": {
+    "input_tokens": 2715,
+    "output_tokens": 262,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-816750",
+   "started_at": 1791989102.1502216,
+   "finished_at": 1791989109.372584,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

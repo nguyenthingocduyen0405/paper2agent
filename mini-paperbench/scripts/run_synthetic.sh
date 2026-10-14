@@ -8,6 +8,7 @@ cd "$(dirname "$0")/.."
 P=${1:-syn}
 # 결과 파일 이름에 쓸 모델 이름: 환경 변수가 없으면 .env에서 읽는다
 MODEL=${LLM_MODEL:-$(grep -s '^LLM_MODEL=' .env | cut -d= -f2)}
+MODEL=${MODEL//\//_}   # 'Qwen/Qwen2.5-7B-Instruct' → 'Qwen_Qwen2.5-7B-Instruct' (파일 이름에 / 를 쓸 수 없다)
 pairs=(); checks=()
 PAPERS=${PAPERS:-$(ls data/synthetic)}
 for paper in $PAPERS; do

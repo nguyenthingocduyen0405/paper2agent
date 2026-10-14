@@ -20,6 +20,9 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 load_dotenv()
 
 MAX_PARSE_RETRIES = 3  # JSON 파싱 실패 시 재요청 최대 횟수
+# 출력 길이 상한. 작은 모델은 가끔 같은 문장을 끝없이 반복한다(호출 1번이 6분 넘게 걸린 적이 있다).
+# 잘리면 JSON이 깨져서 재요청된다. Gemini 출력은 100~800 토큰이라 영향이 없다.
+MAX_OUTPUT_TOKENS = 2048
 
 SYSTEM_PROMPT = """You are judging a candidate's attempt to reproduce a research paper.
 
@@ -146,6 +149,7 @@ def _call(client: OpenAI, messages: list[dict]):
     return client.chat.completions.create(
         model=os.environ["LLM_MODEL"],
         messages=messages,
+        max_tokens=MAX_OUTPUT_TOKENS,
         # json_object 모드에서는 reason 안의 따옴표가 이스케이프되지 않아 파싱이 자주 깨졌다.
         # 스키마를 주면 디코딩 단계에서 유효한 JSON이 강제된다.
         response_format={

@@ -1,0 +1,340 @@
+{
+ "run": "q7b_minecraft_steve_sub_empty",
+ "label": "17 tasks, 6 workers",
+ "total": 17,
+ "completed": 17,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-80791": 3,
+  "gpu7-80788": 3,
+  "gpu7-80789": 2,
+  "gpu7-80787": 3,
+  "gpu7-80786": 3,
+  "gpu7-80790": 3
+ },
+ "wall_time_sec": 15.78,
+ "mean_task_sec": 5.13,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 17,
+  "input_tokens": 53131,
+  "output_tokens": 2823,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/minecraft_steve/submissions/sub_empty",
+ "leaves": {
+  "4be4af7e-cf5a-5cac-88c9-e21049022684": {
+   "leaf_id": "4be4af7e-cf5a-5cac-88c9-e21049022684",
+   "category": "Code Development",
+   "requirements": "The accuracy and diamond recall of both methods, and the numbers of survey sections lost to the night, to creepers and to the full chest, are printed and saved to a results file.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the results should include the accuracy and diamond recall of both methods, as well as the number of survey sections lost to the night, to creepers, and to the full chest, which should be printed and saved to a results file. Reality: The submission does not include any actual implementation of the methods or the evaluation process. The README.md file states that the reproduction is not implemented yet, and the reproduce.sh script simply echoes 'not implemented'. There is no evidence of the results being printed or saved to a file. Since the submission does not even attempt to implement the methods or the evaluation, it fails to meet the requirements. Score: 0",
+   "usage": {
+    "input_tokens": 3148,
+    "output_tokens": 150,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80791",
+   "started_at": 1791991004.469339,
+   "finished_at": 1791991008.6803997,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3aa51987-395c-5846-836a-885ba6555c83": {
+   "leaf_id": "3aa51987-395c-5846-836a-885ba6555c83",
+   "category": "Code Development",
+   "requirements": "A section is predicted to contain diamonds only if the diamond score is strictly greater than the no-diamond score; ties predict no diamonds.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a section is predicted to contain diamonds only if the diamond score is strictly greater than the no-diamond score; ties predict no diamonds. This means that in the code, there should be a comparison between the two scores and the decision should be made based on the strict inequality. Reality: The submission includes a `README.md` file stating 'not implemented yet' and a `reproduce.sh` script that simply echoes 'not implemented'. There is no actual code implementing the prediction logic. The `reproduce.sh` script does not even try to run any code related to the prediction process. Score: 0. The submission fails to implement the prediction logic as described in the paper, and thus does not meet the criterion.",
+   "usage": {
+    "input_tokens": 3233,
+    "output_tokens": 164,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80788",
+   "started_at": 1791990999.2046654,
+   "finished_at": 1791991004.21921,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0b005d87-016f-5abb-94ed-62889f8cbb6c": {
+   "leaf_id": "0b005d87-016f-5abb-94ed-62889f8cbb6c",
+   "category": "Code Development",
+   "requirements": "The prior pi[c] is the fraction of the training sections in class c, and log pi[c] is added to the score.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the prior pi[c] is the fraction of the training sections in class c, and log pi[c] is added to the score. This means that the code should calculate the frequency of each class (diamond or no diamond) in the training dataset and then use this frequency to adjust the score for each section. Specifically, the code should compute the class fractions and add log(pi[c]) to the score as defined in Eq. (2) of the paper.\n\nReality: The provided submission does not implement the core functionality of the paper. There is no `reproduce.sh` script that runs the entire process, and the `README.md` simply states that the reproduction is not implemented yet. No actual code is provided to perform the necessary computations, including the calculation of class fractions and their addition to the scores.\n\nScore: 0",
+   "usage": {
+    "input_tokens": 3186,
+    "output_tokens": 190,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80791",
+   "started_at": 1791990998.4859228,
+   "finished_at": 1791991004.4681215,
+   "ratelimit_wait_sec": 0.0
+  },
+  "241646ca-2274-5a66-a309-34d45fa83124": {
+   "leaf_id": "241646ca-2274-5a66-a309-34d45fa83124",
+   "category": "Code Development",
+   "requirements": "Survey sections whose 1-based position in the original survey order is a multiple of 13 (13, 26, 39, ...) are removed.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, every 13th survey section (13, 26, 39, ...) is blown up by a creeper, and thus removed from the dataset. This involves checking the original position of each section in the survey order and removing those that are multiples of 13. The relevant part of the submission should include a script or function that performs this removal correctly. Reality: The provided `reproduce.sh` script simply prints 'not implemented', indicating that no implementation of the creeper loss mechanism is present. The `README.md` file does not contain any instructions or code for implementing this feature. There are no additional files that seem to implement this functionality. Since the script explicitly states that the implementation is not done, and no other files provide the necessary code, the submission fails to meet the requirement. Score: 0",
+   "usage": {
+    "input_tokens": 3082,
+    "output_tokens": 189,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80789",
+   "started_at": 1791990993.490656,
+   "finished_at": 1791990999.70174,
+   "ratelimit_wait_sec": 0.0
+  },
+  "00de04d8-d8c8-5f04-bc22-c795ef5a1d09": {
+   "leaf_id": "00de04d8-d8c8-5f04-bc22-c795ef5a1d09",
+   "category": "Code Development",
+   "requirements": "Of the remaining survey sections, only the first 432 (27 slots x 16 signs) in survey order are kept as the training set.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after removing sections lost due to night, creepers, and the chest, only the first 432 sections in survey order are kept as the training set. This involves filtering the survey sections based on their tick and position in the original survey order, then selecting the first 432 sections from the remaining ones. I would expect to see code that performs these steps and outputs the resulting training set. Reality: The submission includes a README.md file stating that the paper is not yet implemented and a reproduce.sh script that simply prints 'not implemented'. Neither of these files contain any code that implements the required filtering and selection process. The lack of any relevant code means that the training set is not being correctly generated according to the paper's description. Score: 0",
+   "usage": {
+    "input_tokens": 3116,
+    "output_tokens": 174,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80788",
+   "started_at": 1791990993.4920714,
+   "finished_at": 1791990999.203156,
+   "ratelimit_wait_sec": 0.0
+  },
+  "506dd232-ff17-5950-b7b4-9809ca9e191b": {
+   "leaf_id": "506dd232-ff17-5950-b7b4-9809ca9e191b",
+   "category": "Code Development",
+   "requirements": "Only the 8 block counts are used as naive Bayes features; the height y and the tick are not features.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the height y and the tick are not features in the naive Bayes model. The implementation should only use the 8 block counts as features. Specifically, I would look for code that processes only the 8 block counts and ignores the height y and the tick. Reality: The submission does not implement the naive Bayes model at all. The README.md states 'not implemented yet', and the reproduce.sh script simply echoes 'not implemented'. There is no code provided that processes the data or implements the model as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 3066,
+    "output_tokens": 131,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80787",
+   "started_at": 1791990993.5140543,
+   "finished_at": 1791990997.6795049,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f995ca99-8c9c-508b-90f8-5eb07f11480a": {
+   "leaf_id": "f995ca99-8c9c-508b-90f8-5eb07f11480a",
+   "category": "Code Development",
+   "requirements": "Diamond recall is computed as the fraction of test sections that contain diamonds that are predicted as diamond sections.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, diamond recall is computed as the fraction of test sections that contain diamonds that are predicted as diamond sections. This involves implementing the Fortune III Naive Bayes algorithm, predicting the classes for the test sections, and then calculating the recall based on the predictions. Reality: The provided submission includes a README.md file stating that the implementation is not yet done and a reproduce.sh script that simply prints 'not implemented'. There is no actual code or implementation of the Fortune III Naive Bayes algorithm, nor any predictions made for the test sections. The submission does not include any output logs or results indicating that the diamond recall has been calculated. Given these observations, the submission fails to meet the requirements for computing diamond recall. Score: 0",
+   "usage": {
+    "input_tokens": 3109,
+    "output_tokens": 165,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80788",
+   "started_at": 1791991004.2209744,
+   "finished_at": 1791991008.9378455,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a70364ec-2548-5d3a-8403-cbd35999dd73": {
+   "leaf_id": "a70364ec-2548-5d3a-8403-cbd35999dd73",
+   "category": "Code Development",
+   "requirements": "Block probabilities are computed with additive smoothing as theta[c,k] = (count of block k in class c + 1) / (count of all blocks in class c + 8), as in Eq. (1).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the block probabilities should be computed using additive smoothing with alpha = 1, as described in Equation (1): theta[c, k] = (count of block k in class c + 1) / (count of all blocks in class c + 8). This means that for each block type and class, the probability is calculated based on the smoothed counts. Reality: The provided submission does not include any code that computes block probabilities. The README.md file states that the reproduction is not implemented yet, and the reproduce.sh script only echoes 'not implemented'. There are no Python scripts or other files that contain the necessary computation for block probabilities. Since the implementation is entirely missing, the submission fails to meet the criterion. Score: 0",
+   "usage": {
+    "input_tokens": 3112,
+    "output_tokens": 168,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80787",
+   "started_at": 1791990997.6812797,
+   "finished_at": 1791991002.9096737,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f6e4d68a-3bb9-5c2b-8ebb-87c41ddfd560": {
+   "leaf_id": "f6e4d68a-3bb9-5c2b-8ebb-87c41ddfd560",
+   "category": "Code Development",
+   "requirements": "The baseline is trained on the same 432 training sections as Fortune III Naive Bayes.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the baseline method (the librarian villager's method) should be trained on the same 432 training sections as the Fortune III Naive Bayes method. This involves reading the 432 sections stored in the chest, and using the same smoothing (α = 1) and class fractions as the Fortune III Naive Bayes method. Reality: The submission includes a README.md and a reproduce.sh script. The README.md states 'Not implemented yet' and the reproduce.sh script simply echoes 'not implemented'. There is no code or script provided that trains the baseline on the 432 sections. The submission does not meet the expectation of having a correct implementation of the baseline. Score: 0",
+   "usage": {
+    "input_tokens": 3113,
+    "output_tokens": 164,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80786",
+   "started_at": 1791991003.7085104,
+   "finished_at": 1791991008.5738502,
+   "ratelimit_wait_sec": 0.0
+  },
+  "87189776-138f-524f-a7f1-1e49a55b993c": {
+   "leaf_id": "87189776-138f-524f-a7f1-1e49a55b993c",
+   "category": "Code Development",
+   "requirements": "The world generator from Appendix A is used unchanged with world seed 1337 to generate 2,100 cave sections.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the world generator from Appendix A should be used unchanged with world seed 1337 to generate 2,100 cave sections. This involves running a Python script that generates the specified world data and ensuring that the exact code from Appendix A is used without modifications. Reality: The submission includes a README.md and a reproduce.sh script. The README.md states 'not implemented yet', and the reproduce.sh script simply prints 'not implemented'. There is no evidence of running the world generator from Appendix A or generating any cave sections. The attempt fails to meet the criteria as the world generator is neither used nor implemented. Score: 0",
+   "usage": {
+    "input_tokens": 3040,
+    "output_tokens": 148,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80786",
+   "started_at": 1791990993.4554296,
+   "finished_at": 1791990998.2045286,
+   "ratelimit_wait_sec": 0.0
+  },
+  "69a42ae4-3fa1-5ca5-83de-2fe51beeedd0": {
+   "leaf_id": "69a42ae4-3fa1-5ca5-83de-2fe51beeedd0",
+   "category": "Code Development",
+   "requirements": "A plain multinomial naive Bayes baseline is implemented with the same smoothing, class-fraction prior and features, but without the Fortune III term and without the depth gate.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the plain multinomial naive Bayes baseline should have the same smoothing (α = 1), the same class-fraction prior, and the same features as the Fortune III Naive Bayes model, but without the Fortune III term and without the depth gate. Specifically, the baseline should train on the 432 sections in the chest and predict the 600 test sections. Reality: The submission does not contain any code or script that implements the plain multinomial naive Bayes baseline. The README.md file states that the implementation is not yet done, and the reproduce.sh script simply prints 'not implemented'. This clearly indicates that the baseline has not been implemented. Score: 0",
+   "usage": {
+    "input_tokens": 3091,
+    "output_tokens": 159,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80787",
+   "started_at": 1791991002.9113681,
+   "finished_at": 1791991007.7463725,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c266ea9a-70d3-5e0c-b926-532b72f2fc8c": {
+   "leaf_id": "c266ea9a-70d3-5e0c-b926-532b72f2fc8c",
+   "category": "Code Development",
+   "requirements": "The class score uses the multinomial form sum_k n[k] * log theta[c,k], so block counts are weighted by how often they occur (not a presence/absence model), as in Eq. (2).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the class score for Fortune III Naive Bayes should use the multinomial form sum_k n[k] * log theta[c,k], meaning block counts should be weighted by their frequency of occurrence. This is specified in Eq. (2) of the paper. I would look for evidence of this computation in the code, specifically in the calculation of the score for both classes (diamond and no diamond) and the application of the multinomial form. Reality: The submission consists of a README.md stating 'not implemented' and a reproduce.sh script that simply echoes 'not implemented'. There is no actual implementation of the Fortune III Naive Bayes algorithm, let alone the specific scoring mechanism described in the paper. The files provided do not contain any code that performs the required computation. Score: 0",
+   "usage": {
+    "input_tokens": 3158,
+    "output_tokens": 179,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80786",
+   "started_at": 1791990998.2057905,
+   "finished_at": 1791991003.70696,
+   "ratelimit_wait_sec": 0.0
+  },
+  "05e64743-6305-5009-bb34-a5f668b26c9c": {
+   "leaf_id": "05e64743-6305-5009-bb34-a5f668b26c9c",
+   "category": "Code Development",
+   "requirements": "Sections with height y greater than 16 are predicted to contain no diamonds regardless of the scores, while a section at exactly y = 16 is predicted normally.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, sections with height y greater than 16 should be predicted to contain no diamonds regardless of their scores. This means that the implementation should include a check for the height y and apply the depth gate accordingly. Specifically, the implementation should add a condition to the prediction logic to ensure that sections with y > 16 are always classified as containing no diamonds. Reality: The submission includes a `reproduce.sh` script that simply echoes 'not implemented'. There are no files that appear to contain any implementation of the Fortune III Naive Bayes algorithm or the depth gate. The README.md file also mentions that the reproduction is not yet implemented. Since there is no actual code that implements the required functionality, the submission fails to meet the criterion. Score: 0",
+   "usage": {
+    "input_tokens": 3268,
+    "output_tokens": 172,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80789",
+   "started_at": 1791990999.7035038,
+   "finished_at": 1791991005.0224755,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7189b849-1288-5598-b764-62f9a8896cfc": {
+   "leaf_id": "7189b849-1288-5598-b764-62f9a8896cfc",
+   "category": "Code Development",
+   "requirements": "The first 1,500 sections form the survey (training candidates) and the last 600 sections form the test cave.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the first 1,500 sections form the survey (training candidates) and the last 600 sections form the test cave. I would expect to see a script or code that generates these sections and possibly saves them in a specific format or file structure. Reality: The submission includes a README.md and a reproduce.sh script. The README.md states that the paper has not been implemented yet, and the reproduce.sh script simply echoes 'not implemented'. There is no code or script provided that generates the sections or separates them into survey and test cave. The lack of any relevant code or instructions in the provided files means that the sections have not been generated according to the paper's specifications. Score: 0",
+   "usage": {
+    "input_tokens": 3070,
+    "output_tokens": 163,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80790",
+   "started_at": 1791990993.4762776,
+   "finished_at": 1791990998.816434,
+   "ratelimit_wait_sec": 0.0
+  },
+  "875f23b5-188b-5109-a899-51361872234b": {
+   "leaf_id": "875f23b5-188b-5109-a899-51361872234b",
+   "category": "Code Development",
+   "requirements": "Survey sections with a tick of 13,000 or more are removed as night sections.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, survey sections with a tick of 13,000 or more are removed as night sections. This means that the code should filter out any sections where the tick value is 13,000 or higher. Specifically, I would look for a filtering operation in the code that checks the tick value and removes the corresponding sections from the dataset. Reality: The provided submission does not contain any code that processes the tick values or filters out night sections. The README.md file states that the paper has not been reproduced yet, and the reproduce.sh script simply echoes 'not implemented'. There are no relevant files that implement the tick filtering logic. Score: 0",
+   "usage": {
+    "input_tokens": 3046,
+    "output_tokens": 154,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80791",
+   "started_at": 1791990993.490659,
+   "finished_at": 1791990998.4846098,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8b6309b6-6921-51d4-ab61-08f1cff52040": {
+   "leaf_id": "8b6309b6-6921-51d4-ab61-08f1cff52040",
+   "category": "Code Development",
+   "requirements": "log 3 is added to the diamond class score, as in Eq. (3).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, log 3 is added to the diamond class score to implement the Fortune III prior, as described in Equation (3). I would expect to find this addition in the code responsible for calculating the scores for the naive Bayes classifier. Specifically, I would look for a line of code that adds log(3) to the score when the class is diamond. Reality: The submission does not include any code that implements the Fortune III Naive Bayes classifier or any part of the paper's algorithm. The README.md file states 'not implemented yet' and the reproduce.sh script simply prints 'not implemented'. There are no files containing the necessary code to calculate the scores or apply the Fortune III prior. Score: 0",
+   "usage": {
+    "input_tokens": 3205,
+    "output_tokens": 163,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80790",
+   "started_at": 1791990998.8176985,
+   "finished_at": 1791991003.7075362,
+   "ratelimit_wait_sec": 0.0
+  },
+  "05822f77-2925-569e-bd82-452f0bc363bb": {
+   "leaf_id": "05822f77-2925-569e-bd82-452f0bc363bb",
+   "category": "Code Development",
+   "requirements": "Both methods are evaluated on all 600 sections of the test cave without any filtering.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, both methods should be evaluated on all 600 sections of the test cave without any filtering. This means that the code should process the 600 test cave sections and output the accuracy and diamond recall for both methods as described in Section 6. Reality: The submission includes a `README.md` and a `reproduce.sh` script, both of which indicate that the implementation is not complete. Specifically, `reproduce.sh` simply prints 'not implemented'. There are no Python scripts or other files that appear to implement the evaluation process. The `reproduce.log` file does not exist, which suggests that the `reproduce.sh` script was never actually run. Since the evaluation code is not present and the `reproduce.sh` script does not execute the required steps, the criteria has not been met. Score: 0",
+   "usage": {
+    "input_tokens": 3088,
+    "output_tokens": 190,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-80790",
+   "started_at": 1791991003.7090516,
+   "finished_at": 1791991009.233615,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

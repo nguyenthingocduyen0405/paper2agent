@@ -1,0 +1,376 @@
+{
+ "run": "q7b_2000_dotcomboost_sub_empty",
+ "label": "19 tasks, 6 workers",
+ "total": 19,
+ "completed": 19,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-2414562": 3,
+  "gpu7-2414603": 4,
+  "gpu7-2414620": 3,
+  "gpu7-2414572": 3,
+  "gpu7-2414586": 3,
+  "gpu7-2414636": 3
+ },
+ "wall_time_sec": 17.48,
+ "mean_task_sec": 4.61,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 19,
+  "input_tokens": 42553,
+  "output_tokens": 2868,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/2000_dotcomboost/submissions/sub_empty",
+ "leaves": {
+  "eea77cee-8136-53c8-a833-81fe200eb307": {
+   "leaf_id": "eea77cee-8136-53c8-a833-81fe200eb307",
+   "category": "Code Development",
+   "requirements": "After rounding, every example worth more than 10 times the median of the current dollar values is reduced to floor(10 * median).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after rounding the dollars of each example, any example whose value exceeds 10 times the median of the current dollar values should be reduced to ⌊10 * median⌋. I would expect to see code that calculates the median of the current dollar values, checks if any example exceeds 10 times the median, and then reduces those examples to ⌊10 * median⌋. Reality: The submission includes a README.md and a reproduce.sh script, both of which state that the implementation is not yet completed. The reproduce.sh script simply prints 'not implemented'. No actual code implementing the required functionality is present. The lack of any relevant code means that the criterion has not been met. Score: 0",
+   "usage": {
+    "input_tokens": 2333,
+    "output_tokens": 165,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414562",
+   "started_at": 1791990538.2324646,
+   "finished_at": 1791990543.2122865,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2c059ad7-4786-5bb3-87b7-537201cfd5de": {
+   "leaf_id": "2c059ad7-4786-5bb3-87b7-537201cfd5de",
+   "category": "Code Development",
+   "requirements": "Only the digits 3 and 8 are taken from the scikit-learn digits dataset (357 examples), kept in their original order.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the digits 3 and 8 from the scikit-learn digits dataset should be taken and kept in their original order. I would expect to see code in the submission that loads the digits dataset, filters out only the digits 3 and 8, and keeps them in their original order. Reality: There are no files in the submission that implement the loading or filtering of the dataset. The README.md file mentions that the reproduction is not implemented yet, and the reproduce.sh script simply echoes 'not implemented'. The provided files do not contain any code that loads or filters the dataset. Score: 0",
+   "usage": {
+    "input_tokens": 2158,
+    "output_tokens": 141,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414603",
+   "started_at": 1791990529.8057191,
+   "finished_at": 1791990534.4100754,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2e7d0321-0cf8-56f1-8913-2952cb57a2af": {
+   "leaf_id": "2e7d0321-0cf8-56f1-8913-2952cb57a2af",
+   "category": "Code Development",
+   "requirements": "The weighted error is the total dollars of misclassified examples divided by the total dollars of all examples, as in Eq. (2).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the weighted error is calculated as the total dollars of misclassified examples divided by the total dollars of all examples, as defined in Equation (2). I would expect to see code that computes this metric in the provided files. Reality: The submission includes a README.md and a reproduce.sh script, both of which indicate that the implementation is not yet complete. Specifically, the reproduce.sh script simply echoes 'not implemented', and there is no code or logic present in the files to compute the weighted error. This does not meet the expectations as there is no actual implementation of the weighted error calculation. Score: 0",
+   "usage": {
+    "input_tokens": 2202,
+    "output_tokens": 141,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414603",
+   "started_at": 1791990534.4114497,
+   "finished_at": 1791990538.7675295,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e337220d-51a8-58d3-9302-f182816c5fd3": {
+   "leaf_id": "e337220d-51a8-58d3-9302-f182816c5fd3",
+   "category": "Code Development",
+   "requirements": "If the chosen stump has error 0 or error >= 0.5, training stops and that stump is not added.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, if the chosen stump has an error of 0 or greater than or equal to 0.5, training should stop and that stump should not be added. I would expect to see a condition checking the error and stopping the training loop accordingly. Reality: The provided `reproduce.sh` script contains only the comment 'not implemented', indicating that no implementation of the training loop or error checking has been attempted. The `README.md` does not provide any instructions or code snippets related to this criterion. There are no relevant files that implement the stopping condition for the training loop. Score: 0",
+   "usage": {
+    "input_tokens": 2228,
+    "output_tokens": 139,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414620",
+   "started_at": 1791990534.493393,
+   "finished_at": 1791990538.7386007,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a737ea75-1c81-5aa8-9e84-536be95c6a36": {
+   "leaf_id": "a737ea75-1c81-5aa8-9e84-536be95c6a36",
+   "category": "Code Development",
+   "requirements": "The final classifier predicts the sign of sum_t alpha_t * h_t(x), and predicts +1 when the sum is exactly zero.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the final classifier should predict the sign of the sum of alpha_t * h_t(x) for all rounds, and predict +1 if the sum is exactly zero. I would expect to see code that iterates over all rounds, accumulates the weighted predictions, and applies the +1 rule when necessary. Reality: The submission contains a README.md indicating that the implementation is not yet complete, and a reproduce.sh script that simply echoes 'not implemented'. There is no actual code implementing the final prediction step. The attempt fails to produce any relevant files or logs. Score: 0",
+   "usage": {
+    "input_tokens": 2374,
+    "output_tokens": 136,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414603",
+   "started_at": 1791990538.7685528,
+   "finished_at": 1791990542.8122253,
+   "ratelimit_wait_sec": 0.0
+  },
+  "64c7a413-00e9-5878-aaf9-4432f472bd86": {
+   "leaf_id": "64c7a413-00e9-5878-aaf9-4432f472bd86",
+   "category": "Code Development",
+   "requirements": "The first 250 examples are used for training and the remaining 107 for testing.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the first 250 examples should be used for training and the remaining 107 for testing. I would look for code or scripts that split the dataset accordingly. Reality: The provided submission includes a README.md and a reproduce.sh script, both of which are empty or contain placeholder text indicating that the implementation is not complete. There is no actual code that splits the dataset into training and testing sets as specified. Score: 0",
+   "usage": {
+    "input_tokens": 2218,
+    "output_tokens": 108,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414572",
+   "started_at": 1791990529.829884,
+   "finished_at": 1791990533.3913412,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91b69c69-b92d-5260-aded-82fdb000cec2": {
+   "leaf_id": "91b69c69-b92d-5260-aded-82fdb000cec2",
+   "category": "Code Development",
+   "requirements": "Exactly 20 rounds are run unless training stops early.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the algorithm runs exactly 20 rounds unless training stops early due to a stump having an error of 0 or greater than or equal to 0.5. I would expect to see a loop or iterative process in the code that runs the boosting algorithm for exactly 20 iterations or until the stopping condition is met. Reality: The provided `reproduce.sh` script simply echoes 'not implemented', indicating that no actual implementation of the algorithm has been provided. The README.md file does not mention any implementation details either. Since the code is not implemented, it cannot meet the criterion of running exactly 20 rounds unless training stops early. Score: 0",
+   "usage": {
+    "input_tokens": 2346,
+    "output_tokens": 153,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414620",
+   "started_at": 1791990538.7399335,
+   "finished_at": 1791990543.343992,
+   "ratelimit_wait_sec": 0.0
+  },
+  "445244d4-23f0-52d5-b8b1-dc0b20c5c9d3": {
+   "leaf_id": "445244d4-23f0-52d5-b8b1-dc0b20c5c9d3",
+   "category": "Code Development",
+   "requirements": "A stump predicts p if x_j > theta and -p otherwise, for a feature j, threshold theta and polarity p in {+1, -1}, as in Eq. (1).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a stump should predict p if x_j > theta and -p otherwise, where j is a feature index, theta is a threshold, and p can be either +1 or -1. I would look for code that implements this logic, including the handling of feature indices, thresholds, and polarities. Reality: The submission does not contain any code related to implementing stumps. The README.md file states that the implementation is not yet done, and the reproduce.sh script simply echoes 'not implemented'. There is no code in the provided files that implements the stumps as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2183,
+    "output_tokens": 143,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414620",
+   "started_at": 1791990529.8443618,
+   "finished_at": 1791990534.491901,
+   "ratelimit_wait_sec": 0.0
+  },
+  "00867dea-b6c8-529a-8c4a-18a3e2004962": {
+   "leaf_id": "00867dea-b6c8-529a-8c4a-18a3e2004962",
+   "category": "Code Development",
+   "requirements": "Candidate thresholds are all 16 values 0.5, 1.5, ..., 15.5, searched over all 64 features and both polarities.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the decision-stump weak learner is described by a feature j (one of the 64 pixels), a threshold θ, and a polarity p ∈ {+1, −1}. The thresholds are taken from {0.5, 1.5, 2.5, …, 15.5} (16 values, every half-integer between the possible pixel values), for all 64 features and both polarities. I would expect to see code that iterates over all 64 features and both polarities, and tests each combination of feature, threshold, and polarity. Reality: The provided submission consists of a README file stating that the code has not been implemented yet, and a reproduce.sh script that simply echoes 'not implemented'. Neither of these files contain any code implementing the decision-stump weak learner as described in the paper. The script does not perform any of the required operations. Score: 0",
+   "usage": {
+    "input_tokens": 2221,
+    "output_tokens": 211,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414586",
+   "started_at": 1791990529.8843966,
+   "finished_at": 1791990536.5652704,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b37d1b03-e14a-5a0a-9200-42ace66e2b48": {
+   "leaf_id": "b37d1b03-e14a-5a0a-9200-42ace66e2b48",
+   "category": "Code Development",
+   "requirements": "Every example's dollars are multiplied by exp(-alpha * y_i * h(x_i)), as in Eq. (4).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after choosing a stump, every example's dollars are updated by multiplying them with exp(-alpha * y_i * h(x_i)), as in Eq. (4). I would expect to see code that performs this operation on the example's dollars based on the calculated alpha, y_i, and h(x_i) values. Reality: The submission contains a README.md and a reproduce.sh script, both indicating that the implementation is not completed. The reproduce.sh script simply prints 'not implemented'. There is no actual code performing the required operation. Since the implementation is not completed, the criterion is not met. Score: 0",
+   "usage": {
+    "input_tokens": 2282,
+    "output_tokens": 144,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414586",
+   "started_at": 1791990536.5666027,
+   "finished_at": 1791990540.9807425,
+   "ratelimit_wait_sec": 0.0
+  },
+  "fcdc1547-ef6c-5425-a3f1-e54f61465efd": {
+   "leaf_id": "fcdc1547-ef6c-5425-a3f1-e54f61465efd",
+   "category": "Code Development",
+   "requirements": "The stump weight is alpha = 0.5 * ln((1 - eps) / eps), as in Eq. (3).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the stump weight should be calculated as alpha = 0.5 * ln((1 - eps) / eps), where eps is the weighted error as defined in Eq. (2). I would expect to see a function or part of the code that calculates this value based on the weighted error. Reality: The provided submission includes a README.md and a reproduce.sh script, both of which indicate that the implementation is not complete. The README.md states 'Not implemented yet' and the reproduce.sh script contains only the line 'echo 'not implemented''. There is no code that implements the calculation of the stump weight as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2256,
+    "output_tokens": 151,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414636",
+   "started_at": 1791990535.4589717,
+   "finished_at": 1791990540.056954,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f27b019b-e315-5b46-8b97-dd03783a5c54": {
+   "leaf_id": "f27b019b-e315-5b46-8b97-dd03783a5c54",
+   "category": "Code Development",
+   "requirements": "The stump with the smallest weighted error is chosen, with ties broken by lowest feature index, then lowest threshold, then polarity +1 before -1.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the stump with the smallest weighted error is chosen, with ties broken by the lowest feature index, then the lowest threshold, and finally polarity +1 before -1. I would expect to see code that calculates the weighted error for each stump and sorts them accordingly. Reality: The provided files do not contain any implementation of the decision-stump weak learner or the process of selecting the stump with the smallest weighted error. The README.md file states that the reproduction is not implemented yet, and the reproduce.sh script simply echoes 'not implemented'. There is no evidence of any code that implements the required functionality. Score: 0",
+   "usage": {
+    "input_tokens": 2252,
+    "output_tokens": 143,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414572",
+   "started_at": 1791990533.3926508,
+   "finished_at": 1791990537.8010201,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3761ee0c-ebd5-5af1-800b-adb38832ad6a": {
+   "leaf_id": "3761ee0c-ebd5-5af1-800b-adb38832ad6a",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 107 test examples.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the test accuracy should be computed on the 107 test examples using the trained model. I would expect to see code or scripts that run the trained model on the test data and compute the accuracy. Reality: The submission includes a README.md file stating that the implementation is not yet done and a reproduce.sh script that simply prints 'not implemented'. There is no code or script provided to actually compute the test accuracy. The reproduce.sh script does not execute any commands that would train a model or compute accuracy. Score: 0",
+   "usage": {
+    "input_tokens": 2195,
+    "output_tokens": 126,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414586",
+   "started_at": 1791990540.9825869,
+   "finished_at": 1791990544.5329287,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b5b56fd0-0a0f-53c1-905f-a071ea9f1483": {
+   "leaf_id": "b5b56fd0-0a0f-53c1-905f-a071ea9f1483",
+   "category": "Code Development",
+   "requirements": "Standard AdaBoost is trained for comparison, with real-valued weights starting at 1/250 and renormalized to sum to one after every update, no rounding and no cap, the same stumps and stopping rule, and 20 rounds.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the baseline should be a standard AdaBoost algorithm with real-valued weights starting at 1/250 and renormalized to sum to one after every update, no rounding and no cap, the same stumps and stopping rule, and 20 rounds. I would look for code that initializes weights to 1/250, renormalizes them after each update, uses the same decision stumps and stopping rule as DotComBoost, and runs for exactly 20 rounds. Reality: The submission includes a README.md and a reproduce.sh script, both indicating that the implementation is not completed. The reproduce.sh script simply echoes 'not implemented'. There is no actual code implementing the baseline AdaBoost as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2223,
+    "output_tokens": 174,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414636",
+   "started_at": 1791990540.0589018,
+   "finished_at": 1791990544.98779,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b5446ff5-a293-55a5-93a7-a36b7f5d3206": {
+   "leaf_id": "b5446ff5-a293-55a5-93a7-a36b7f5d3206",
+   "category": "Code Development",
+   "requirements": "The label is -1 for a 3 and +1 for an 8.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the label should be -1 for a 3 and +1 for an 8. I would expect to see code or a script that prepares the dataset and assigns these labels to the corresponding digits. Specifically, I would look for a file that loads the scikit-learn digits dataset, filters for digits 3 and 8, and sets the labels as -1 and +1 respectively. Reality: The provided submission contains only a README.md and a reproduce.sh script, both of which indicate that the reproduction process has not been implemented yet. There is no code or script that prepares the dataset or assigns the labels. The README.md does not mention any steps related to preparing the dataset, and the reproduce.sh script simply echoes 'not implemented'. Score: 0",
+   "usage": {
+    "input_tokens": 2176,
+    "output_tokens": 173,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414636",
+   "started_at": 1791990529.8106747,
+   "finished_at": 1791990535.4576201,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cec901fd-0c3b-5a93-b647-8495c3a112b7": {
+   "leaf_id": "cec901fd-0c3b-5a93-b647-8495c3a112b7",
+   "category": "Code Development",
+   "requirements": "Every training example starts with 100 dollars, stored as an integer.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, every training example starts with 100 dollars, stored as an integer. I would expect to see code or logic in the submission that initializes the initial weights of the training examples to 100 dollars. Reality: The submission does not implement the core functionality required by the criterion. There is no actual code that initializes the weights to 100 dollars. The README.md mentions that the reproduction is not implemented yet, and the reproduce.sh script contains only a placeholder message indicating that it is not implemented. Since the implementation of initializing the weights to 100 dollars is missing, the criterion has not been met. Score: 0",
+   "usage": {
+    "input_tokens": 2174,
+    "output_tokens": 150,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414562",
+   "started_at": 1791990533.6624594,
+   "finished_at": 1791990538.2310805,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6f2497b5-2dd1-5039-b2c1-2face9dc9162": {
+   "leaf_id": "6f2497b5-2dd1-5039-b2c1-2face9dc9162",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both DotComBoost and AdaBoost, and the total dollars held by all training examples at the end of training, are printed and saved to a results file.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the test accuracies of both DotComBoost and AdaBoost, and the total dollars held by all training examples at the end of training, should be printed and saved to a results file. I would expect to see a results file containing these values after running the provided `reproduce.sh` script. Reality: The `reproduce.sh` script simply echoes 'not implemented' and does not actually implement the required functionality. There is no `results.txt` or similar file containing the expected output. The `README.md` file mentions that the reproduction is not yet implemented, which aligns with the contents of `reproduce.sh`. Since the script does not perform the necessary computations and save the results to a file, the criterion has not been met. Score: 0",
+   "usage": {
+    "input_tokens": 2233,
+    "output_tokens": 174,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414603",
+   "started_at": 1791990542.8135722,
+   "finished_at": 1791990547.281544,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ddf32999-4ebf-59df-a009-cd07430fbb48": {
+   "leaf_id": "ddf32999-4ebf-59df-a009-cd07430fbb48",
+   "category": "Code Development",
+   "requirements": "After the multiplication, dollars are rounded down to an integer and then raised to at least 1.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after the multiplication of example dollars by exp(-alpha * y_i * h(x_i)) as per Eq. (4), the dollars are expected to be rounded down to an integer and then raised to at least 1 dollar. I will look for these operations in the code, particularly in the script that updates the weights of the examples during each round of boosting. Reality: The provided `reproduce.sh` script simply echoes 'not implemented', indicating that no actual implementation exists. There are no other scripts or files that seem to handle the weight updates or the revaluation of example dollars. The `README.md` does not provide any additional information or pointers to where these operations might be implemented. Since there is no actual implementation of the required operations, the criterion has not been met. Score: 0",
+   "usage": {
+    "input_tokens": 2303,
+    "output_tokens": 181,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414572",
+   "started_at": 1791990537.8024976,
+   "finished_at": 1791990543.292737,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7b185cdd-342b-5af0-b46c-d7869930e6d7": {
+   "leaf_id": "7b185cdd-342b-5af0-b46c-d7869930e6d7",
+   "category": "Code Development",
+   "requirements": "Pixel values are used raw, as integers from 0 to 16, without scaling.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, pixel values should be used raw, as integers from 0 to 16, without scaling. I would expect to see code or a step in the reproduction script that confirms this behavior. Reality: The provided submission does not include any code or steps that handle the pixel values as described. The README.md and reproduce.sh files both indicate that the implementation is not yet completed. There is no evidence of the pixel values being processed as specified in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2196,
+    "output_tokens": 115,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2414562",
+   "started_at": 1791990529.811732,
+   "finished_at": 1791990533.6610796,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

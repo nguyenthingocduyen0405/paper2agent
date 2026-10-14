@@ -1,0 +1,358 @@
+{
+ "run": "q7b_1974_core_nn_sub_empty",
+ "label": "18 tasks, 6 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-1713441": 3,
+  "gpu7-1713445": 3,
+  "gpu7-1713451": 3,
+  "gpu7-1713439": 3,
+  "gpu7-1713447": 3,
+  "gpu7-1713440": 3
+ },
+ "wall_time_sec": 15.01,
+ "mean_task_sec": 4.48,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 18,
+  "input_tokens": 39468,
+  "output_tokens": 2637,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1974_core_nn/submissions/sub_empty",
+ "leaves": {
+  "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720": {
+   "leaf_id": "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720",
+   "category": "Code Development",
+   "requirements": "The distance between two numerals is the city-block (L1) distance, the sum of absolute differences over the 64 picture elements.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the distance between two numerals is the city-block (L1) distance, which is the sum of absolute differences over the 64 picture elements. I would expect to see code implementing this distance calculation in the submission. Reality: The submission includes a README.md file and a reproduce.sh script. The README.md indicates that the reproduction is not yet implemented, and the reproduce.sh script simply prints 'not implemented'. There is no code provided for the distance calculation. Score: 0. The submission does not contain any code that implements the city-block distance as described in the paper.",
+   "usage": {
+    "input_tokens": 2131,
+    "output_tokens": 136,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713441",
+   "started_at": 1791990355.661012,
+   "finished_at": 1791990359.9075963,
+   "ratelimit_wait_sec": 0.0
+  },
+  "808ecc14-73e4-5ed1-a949-f1d04ab7b520": {
+   "leaf_id": "808ecc14-73e4-5ed1-a949-f1d04ab7b520",
+   "category": "Code Development",
+   "requirements": "A training numeral is stored as a new prototype only if the nearest stored prototype has a different class; correctly classified numerals are not stored.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a training numeral is stored as a new prototype only if the nearest stored prototype has a different class; correctly classified numerals are not stored. I will specifically look for code that implements this logic during the training process, ensuring that only misclassified numerals are stored as new prototypes. Reality: The submission includes a README.md file indicating that the reproduction is not yet implemented, and a reproduce.sh script that simply prints 'not implemented'. There is no actual codebase or implementation provided to verify the behavior of storing prototypes based on the classification. The files provided do not contain any implementation of the training process described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2167,
+    "output_tokens": 148,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713441",
+   "started_at": 1791990359.9088726,
+   "finished_at": 1791990364.4942966,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91f03e82-947e-56dc-97ec-5b462304fa31": {
+   "leaf_id": "91f03e82-947e-56dc-97ec-5b462304fa31",
+   "category": "Code Development",
+   "requirements": "A full 1-NN recognizer that stores all 1,500 training numerals and uses the city-block distance is evaluated for comparison.",
+   "score": 0,
+   "reason": "Expectations: The submission should include a full 1-NN recognizer that stores all 1,500 training numerals and uses the city-block distance. Specifically, I would expect to see code that initializes storage for all 1,500 training samples, calculates the city-block distance between test samples and training samples, and makes predictions based on the closest training sample. Reality: The submission includes a README.md and a reproduce.sh script, both indicating that the implementation is not yet complete. The README.md states 'not implemented yet', and the reproduce.sh script simply prints 'not implemented'. There is no actual code or implementation present. Score: 0",
+   "usage": {
+    "input_tokens": 2166,
+    "output_tokens": 146,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713445",
+   "started_at": 1791990364.8119137,
+   "finished_at": 1791990369.0143406,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b28a98ed-0594-5b3d-aae2-9d8933d35f56": {
+   "leaf_id": "b28a98ed-0594-5b3d-aae2-9d8933d35f56",
+   "category": "Code Development",
+   "requirements": "The first 1,500 numerals, in original order, form the training tape and the last 297 form the test tape.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the first 1,500 numerals form the training tape and the last 297 form the test tape. I would expect to see code or scripts in the submission that split the dataset into these two parts. Reality: The README.md and reproduce.sh files do not contain any code that splits the dataset into training and test tapes. The README.md simply states that the reproduction is not yet implemented, and the reproduce.sh script does not implement the required functionality. There is no evidence of the dataset being split into training and test tapes. Score: 0",
+   "usage": {
+    "input_tokens": 2161,
+    "output_tokens": 134,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713451",
+   "started_at": 1791990355.654887,
+   "finished_at": 1791990359.8509123,
+   "ratelimit_wait_sec": 0.0
+  },
+  "bd74fc79-676a-511f-bdd5-0476c75e0de7": {
+   "leaf_id": "bd74fc79-676a-511f-bdd5-0476c75e0de7",
+   "category": "Code Development",
+   "requirements": "When core is empty, the training numeral is stored as a prototype.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, when core is empty, the training numeral should be stored as a prototype. I should see code in the submission that checks if core is empty and then adds the training numeral as a prototype. Reality: The provided `reproduce.sh` script simply prints 'not implemented', indicating that no implementation exists. There are no relevant files or scripts that implement the core-economical nearest-neighbour algorithm. The README.md does not provide any implementation details either. Score: 0",
+   "usage": {
+    "input_tokens": 2138,
+    "output_tokens": 114,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713451",
+   "started_at": 1791990359.8523014,
+   "finished_at": 1791990363.4714525,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d438b632-c9ee-5d32-9ef4-3d70facef6c6": {
+   "leaf_id": "d438b632-c9ee-5d32-9ef4-3d70facef6c6",
+   "category": "Code Development",
+   "requirements": "Core holds at most 64 prototypes.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, core should hold at most 64 prototypes. This means that when the number of prototypes exceeds 64, the oldest or the one with the smallest consultation count should be evicted. I would expect to see code that enforces this limit and implements the eviction logic. Reality: The submission includes a `README.md` and a `reproduce.sh` script, both indicating that the core-economical nearest-neighbour recognizer has not been implemented yet. The `reproduce.sh` script simply prints 'not implemented'. There is no code that enforces the prototype limit or implements the eviction logic. The files provided do not contain any relevant implementation details. Score: 0",
+   "usage": {
+    "input_tokens": 2177,
+    "output_tokens": 156,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713439",
+   "started_at": 1791990360.2480786,
+   "finished_at": 1791990365.1676748,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45": {
+   "leaf_id": "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45",
+   "category": "Code Development",
+   "requirements": "When a new prototype must be stored and core is full, the prototype with the smallest consultation count is evicted first, with ties broken by evicting the oldest.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, when a new prototype must be stored and core is full, the prototype with the smallest consultation count is evicted first, with ties broken by evicting the oldest. I would expect to see code that checks the consultation count of each prototype, identifies the minimum, and handles ties by considering the age of the prototypes. Reality: The provided submission includes a `README.md` and a `reproduce.sh` script. The `README.md` indicates that the reproduction is not implemented yet, and the `reproduce.sh` script simply echoes 'not implemented'. Neither of these files contains any code implementing the eviction logic described in the paper. Therefore, the submission does not meet the expectation. Score: 0",
+   "usage": {
+    "input_tokens": 2256,
+    "output_tokens": 162,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713447",
+   "started_at": 1791990361.290049,
+   "finished_at": 1791990366.2077835,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4330fce1-9811-5a67-9c45-1b6bb7d5b290": {
+   "leaf_id": "4330fce1-9811-5a67-9c45-1b6bb7d5b290",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn digits dataset (1,797 numerals of 8x8 picture elements, 10 classes).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the dataset used is the 'digits' collection from scikit-learn, consisting of 1,797 numerals, each with 8x8 picture elements and 10 classes. I would expect to see code that loads this dataset and verifies the shape and size of the loaded data matches the description in the paper. Reality: The submission does not include any code that attempts to load the dataset. The README.md file states 'not implemented yet', and the reproduce.sh script simply echoes 'not implemented'. There is no code in the provided files that loads or manipulates the dataset. Score: 0",
+   "usage": {
+    "input_tokens": 2111,
+    "output_tokens": 144,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713439",
+   "started_at": 1791990355.617288,
+   "finished_at": 1791990360.2468913,
+   "ratelimit_wait_sec": 0.0
+  },
+  "33ff429e-7042-5507-ae93-53ea99b72a58": {
+   "leaf_id": "33ff429e-7042-5507-ae93-53ea99b72a58",
+   "category": "Code Development",
+   "requirements": "If several prototypes are at the same smallest distance, the one stored earliest is used.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, if several prototypes are at the same smallest distance, the one stored earliest is used. This means the code should implement a tie-breaking mechanism based on the order in which prototypes were stored. I would expect to see logic in the code that compares distances and then checks the storage order in case of ties. Reality: The provided submission does not contain any implementation details or code. The README.md states that the core-economical nearest neighbour reproduction is not implemented yet, and the reproduce.sh script simply echoes 'not implemented'. There is no code provided to implement the tie-breaking mechanism as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2174,
+    "output_tokens": 144,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713445",
+   "started_at": 1791990355.6990314,
+   "finished_at": 1791990360.2968998,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5c15278-f70f-5c50-be80-947f9a1fde47": {
+   "leaf_id": "c5c15278-f70f-5c50-be80-947f9a1fde47",
+   "category": "Code Development",
+   "requirements": "A numeral is given the class of the single nearest stored prototype (1-NN), not a vote among several neighbours.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a numeral is given the class of the single nearest stored prototype (1-NN), not a vote among several neighbours. This means that the code should implement a straightforward 1-nearest neighbour classification where only the closest prototype is considered. I will look for evidence that the code correctly implements this logic, including checking if the decision rule is based on the single nearest prototype rather than a vote among multiple nearest prototypes. Reality: The submission consists of a README.md file and a reproduce.sh script, both of which indicate that the core-economical nearest-neighbour recognizer has not been implemented yet. The README.md states 'not implemented yet', and the reproduce.sh script simply echoes 'not implemented'. There is no actual code that implements the required functionality. Score: 0",
+   "usage": {
+    "input_tokens": 2156,
+    "output_tokens": 173,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713447",
+   "started_at": 1791990355.6771529,
+   "finished_at": 1791990361.2887204,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b198c3ce-3c77-585b-8bd9-a434b3a6ef79": {
+   "leaf_id": "b198c3ce-3c77-585b-8bd9-a434b3a6ef79",
+   "category": "Code Development",
+   "requirements": "Picture elements are used as integers from 0 to 16, without scaling.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the picture elements are integers from 0 to 16, and they are used as is without scaling. I expect to see code that loads the digits dataset and ensures that the picture elements remain as integers without any scaling operations. Reality: The provided `reproduce.sh` script is empty and does not contain any code related to loading the dataset or processing the picture elements. The `README.md` file mentions that the core-economical nearest-neighbour reproduction is not implemented yet. There is no code or instructions that ensure the picture elements are integers from 0 to 16 without scaling. Score: 0",
+   "usage": {
+    "input_tokens": 2129,
+    "output_tokens": 144,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713440",
+   "started_at": 1791990355.642309,
+   "finished_at": 1791990360.28954,
+   "ratelimit_wait_sec": 0.0
+  },
+  "1b0e445a-934e-5d6a-82c1-77cbd2a514fd": {
+   "leaf_id": "1b0e445a-934e-5d6a-82c1-77cbd2a514fd",
+   "category": "Code Development",
+   "requirements": "A new prototype starts with a consultation count of zero.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a new prototype starts with a consultation count of zero. I should find code that initializes the consultation count of a new prototype to zero. Reality: In the provided files, there is no actual code that implements the prototype training procedure, as indicated by the `reproduce.sh` script stating 'not implemented'. There is no `README.md` file with detailed instructions or code snippets. The `reproduce.sh` script does not contain any logic related to initializing consultation counts. Score: 0. The submission fails to implement the core-economical nearest-neighbour recognizer as described in the paper, and thus cannot meet the criterion.",
+   "usage": {
+    "input_tokens": 2221,
+    "output_tokens": 145,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713445",
+   "started_at": 1791990360.2984178,
+   "finished_at": 1791990364.8104842,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa": {
+   "leaf_id": "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa",
+   "category": "Code Development",
+   "requirements": "The training tape is read exactly once, in its original order.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training tape should be read exactly once, in its original order. I should see code that processes the training tape in a sequential manner without repetition. Reality: The provided `reproduce.sh` script contains only a placeholder message stating 'not implemented', and there are no other scripts or files that appear to implement the training process. The `README.md` file does not contain any relevant information either. There is no evidence of a training loop or processing of the training tape in the provided files. Score: 0",
+   "usage": {
+    "input_tokens": 2327,
+    "output_tokens": 123,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713440",
+   "started_at": 1791990364.5223331,
+   "finished_at": 1791990368.2817295,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23": {
+   "leaf_id": "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23",
+   "category": "Code Development",
+   "requirements": "A prototype stored fewer than 50 training numerals ago cannot be evicted.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, a prototype stored fewer than 50 training numerals ago cannot be evicted. I expect to see code that implements this logic, specifically checking the age of the prototype before deciding whether to evict it. Reality: The submission includes a `reproduce.sh` script that simply prints 'not implemented'. There are no files containing the actual implementation of the core-economical nearest-neighbour recognizer, nor any code that handles the eviction process. The README.md file does not contain any information about implementing this feature. Since there is no actual implementation of the eviction process, including the logic to protect prototypes with less than 50 training numeral age, the criteria has not been met. Score: 0",
+   "usage": {
+    "input_tokens": 2274,
+    "output_tokens": 161,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713451",
+   "started_at": 1791990363.4727323,
+   "finished_at": 1791990368.335803,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e82ece3d-be3d-5e85-898c-8176e93ed401": {
+   "leaf_id": "e82ece3d-be3d-5e85-898c-8176e93ed401",
+   "category": "Code Development",
+   "requirements": "The accuracies of both recognizers, the number of evictions and the final number of stored prototypes are printed and saved to a results file.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the results should include the accuracies of both recognizers, the number of evictions, and the final number of stored prototypes. These results should be printed and saved to a results file. I would expect to see a Python script or similar that runs the entire process, including training and testing, and then saves the results to a file. Reality: The provided submission does not include any code that actually implements the required functionality. The README.md file indicates that the reproduction is not yet implemented, and the reproduce.sh script simply prints 'not implemented'. There is no Python script or other executable code provided that would generate the required results. The absence of any actual implementation means that the submission fails to meet the criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2194,
+    "output_tokens": 166,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713447",
+   "started_at": 1791990366.209325,
+   "finished_at": 1791990370.627381,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ba28a982-861e-5f70-be58-26c43ccae9c4": {
+   "leaf_id": "ba28a982-861e-5f70-be58-26c43ccae9c4",
+   "category": "Code Development",
+   "requirements": "Accuracy is computed on the 297 numerals of the test tape.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the accuracy of the core-economical nearest-neighbour recognizer should be computed on the 297 numerals of the test tape. I would expect to see code that loads the test tape, applies the recognizer algorithm, and calculates the accuracy based on the test results. Reality: The provided submission does not contain any implementation of the recognizer algorithm or the test tape evaluation. The README.md file indicates that the reproduction is not implemented yet, and the reproduce.sh script simply prints 'not implemented'. There are no files containing the necessary code to compute the accuracy on the test tape. Score: 0",
+   "usage": {
+    "input_tokens": 2164,
+    "output_tokens": 140,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713439",
+   "started_at": 1791990365.170784,
+   "finished_at": 1791990369.1188989,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d5c62b5b-bcdc-5d40-b748-e6410be98db7": {
+   "leaf_id": "d5c62b5b-bcdc-5d40-b748-e6410be98db7",
+   "category": "Code Development",
+   "requirements": "For each training numeral (when core is not empty), the consultation count of the nearest prototype is increased by one, whether or not its class is correct.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, for each training numeral when core is not empty, the consultation count of the nearest prototype should be increased by one, regardless of whether the class of the nearest prototype matches the training numeral. I would expect to see code that iterates over the training data, finds the nearest prototype, and increments its consultation count. Reality: The submission consists of a README.md stating that the reproduction is not implemented yet and a reproduce.sh script that simply prints 'not implemented'. There is no code implementing the training procedure as described in the paper. Therefore, the submission does not meet the expected criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2209,
+    "output_tokens": 140,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713440",
+   "started_at": 1791990360.2908444,
+   "finished_at": 1791990364.5210278,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c": {
+   "leaf_id": "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c",
+   "category": "Code Development",
+   "requirements": "Every 500 training numerals (after numerals 500 and 1,000), all consultation counts are halved with integer division (rounding down).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, every 500 training numerals (after numerals 500 and 1,000), all consultation counts should be halved with integer division (rounding down). I will look for code or logic that performs this operation on the consultation counts at the specified intervals. Reality: In the provided submission, there is no implementation of the core-economical nearest-neighbour recognizer, as indicated in the README.md and the reproduce.sh script. The README.md states that the reproduction is not implemented yet, and the reproduce.sh script simply echoes 'not implemented'. There is no code that handles the halving of consultation counts or any other part of the training procedure. Score: 0",
+   "usage": {
+    "input_tokens": 2313,
+    "output_tokens": 161,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1713441",
+   "started_at": 1791990364.4962866,
+   "finished_at": 1791990369.2464588,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

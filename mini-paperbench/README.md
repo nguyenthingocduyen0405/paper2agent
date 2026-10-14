@@ -141,7 +141,8 @@ Redis 키 (run 이름이 `r1`일 때):
 | `judge_one.py` | 큐 없이 리프 몇 개만 바로 채점한다 (디버깅용) |
 | `redis.sh` | 로컬 Redis(포트 6380)를 켜고 끈다 |
 | `run_local.sh` | 로컬에서 채점 1번: 작업 생성 → 워커 N개 → 집계. `kill -9` 시험도 된다 |
-| `run_synthetic.sh` | 합성 논문 2편 × 제출물 5개를 채점하고 정답과 비교한다 |
+| `run_synthetic.sh` | 합성 논문 × 제출물 5개를 채점하고 정답과 비교한다. `PAPERS`로 논문을 고른다 |
+| `vllm_server.sh` | 연구실 GPU에 작은 모델(기본 Qwen2.5-7B)을 OpenAI 호환 API로 띄운다. judge 코드는 그대로 쓴다 |
 | `bootstrap.sh` | (VM) k3s 설치부터 배포까지 한 번에. 여러 번 실행해도 안전하다 |
 | `k8s_run.sh` | (VM) 클러스터에서 채점, 에이전트, 워커 수 변경, 워커 삭제 |
 | `collect.sh` | (VM) `/data/results`를 로컬 `results/`로 가져온다 |
@@ -213,6 +214,7 @@ scripts/redis.sh stop
 | JudgeEval (사람 채점 77개) | F1 0.986, macro-F1 0.893 | `results/judgeeval_gemini-3.5-flash-lite.json` |
 | 합성 논문 (정답 188개) | F1 0.986, macro-F1 0.972, 0점 47개 모두 맞힘 | `results/judgeeval_syn_gemini-3.5-flash-lite.json` |
 | 에이전트 제출물 (Code-Dev 50개) | a1 0.92, a2 0.92 | `results/agent_a*_codedev.json` |
+| 로컬 Qwen2.5-7B judge (합성 6편, JudgeEval) | macro-F1 0.703, 0.413. Gemini보다 크게 낮다 | `reports/2026-10-15.md` |
 
 주의할 점
 

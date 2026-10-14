@@ -1,0 +1,466 @@
+{
+ "run": "q7b_procrastigd_sub_correct",
+ "label": "24 tasks, 6 workers",
+ "total": 24,
+ "completed": 24,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-157362": 4,
+  "gpu7-157364": 4,
+  "gpu7-157361": 4,
+  "gpu7-157363": 4,
+  "gpu7-157359": 5,
+  "gpu7-157360": 3
+ },
+ "wall_time_sec": 30.98,
+ "mean_task_sec": 7.15,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 24,
+  "input_tokens": 92024,
+  "output_tokens": 5556,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.875,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/procrastigd/submissions/sub_correct",
+ "leaves": {
+  "07025f87-369d-555e-8858-b174bc19d93e": {
+   "leaf_id": "07025f87-369d-555e-8858-b174bc19d93e",
+   "category": "Code Development",
+   "requirements": "For a fresh pile, the deadline is reached when the pile contains 9 gradients.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, for a fresh pile, the deadline is reached when the pile contains 9 gradients. I should see this condition checked in the code where the deadline is determined. Specifically, I would look for a line or lines of code that check if the current number of gradients (n) is equal to 9, which marks the deadline for a fresh pile. \n\nReality: In the `src/procrastigd.py` file, I find the following relevant lines of code in the `step` method:\n```python\ndef step(self, grads):\n    # Step 1\n    for k, g in grads.items():\n        self.pile[k] += g\n    self.n += 1\n    # Step 2\n    if self.n < self.due:\n        return\n```\nThe code checks if `self.n` (the number of gradients in the pile) is less than `self.due` (the current due count). For a fresh pile, the initial value of `self.due` is set to 9. Therefore, the deadline is correctly determined when `self.n` equals 9. \n\nScore: 1. The submission correctly implements the condition that the deadline is reached when the pile contains 9 gradients.",
+   "usage": {
+    "input_tokens": 3808,
+    "output_tokens": 280,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157362",
+   "started_at": 1791991017.1170204,
+   "finished_at": 1791991025.5143301,
+   "ratelimit_wait_sec": 0.0
+  },
+  "16e23ed3-28fc-58be-9a43-8a94bc1fa458": {
+   "leaf_id": "16e23ed3-28fc-58be-9a43-8a94bc1fa458",
+   "category": "Code Development",
+   "requirements": "The base learning rate of ProcrastiGD is 0.77.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the base learning rate for ProcrastiGD is 0.77. In the ProcrastiGD optimizer implementation, I would expect to see the initialization of the learning rate to be set to 0.77. Reality: In the file `src/procrastigd.py`, the learning rate is correctly initialized as follows: ```python self.lr = lr ``` However, the default value of `lr` is not explicitly set to 0.77 in the `ProcrastiGD` class constructor. Instead, it is passed as an argument to the optimizer during its creation. This means that the learning rate could be different if a different value is passed. Nonetheless, the base learning rate of 0.77 is correctly used in the training script `src/train.py` where the learning rate is set as follows: ```python opt = ProcrastiGD(model.params, lr=BASE_LR) ``` where `BASE_LR` is defined as 0.77. Score: 1",
+   "usage": {
+    "input_tokens": 3775,
+    "output_tokens": 224,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157364",
+   "started_at": 1791991028.3403263,
+   "finished_at": 1791991035.1560507,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3791e245-f059-53e7-a00b-d7f68fd6b77c": {
+   "leaf_id": "3791e245-f059-53e7-a00b-d7f68fd6b77c",
+   "category": "Code Development",
+   "requirements": "Without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the first 1,500 samples of the scikit-learn handwritten digits dataset should be used for training and the last 297 samples for testing. I will look for evidence that the code correctly splits the dataset in this manner and saves the split datasets for training and testing. Reality: In the `src/data.py` file, the code correctly loads the dataset using `load_digits` and then splits it into training and testing sets. Specifically, the following lines in `src/data.py` indicate that the first 1,500 samples are used for training and the last 297 samples are used for testing: ```python def load_data(): X = digits.data / 16.0 y = digits.target return X[:1500], y[:1500], X[1500:], y[1500:] ``` This matches the expectation. There is no indication in the provided code or logs that this splitting is incorrect. Score: 1",
+   "usage": {
+    "input_tokens": 3801,
+    "output_tokens": 225,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157361",
+   "started_at": 1791991012.661463,
+   "finished_at": 1791991020.4274814,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a8dd2f24-26df-585c-ba58-fcfaa5576775": {
+   "leaf_id": "a8dd2f24-26df-585c-ba58-fcfaa5576775",
+   "category": "Code Development",
+   "requirements": "A baseline is trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the baseline should be trained using plain mini-batch SGD with a constant learning rate of 0.1, updating the parameters at every step. I will specifically look for a loop in the code where the parameters are updated for each mini-batch, and the learning rate is fixed at 0.1 throughout the training process.\n\nReality: In the `src/train.py` file, there is a function `train_diligent` that trains the model using a constant learning rate of 0.1. However, the parameters are not updated at every step as expected. Instead, the function `train_procrastinator` is used to train the ProcrastiGD optimizer, which updates the parameters according to the ProcrastiGD algorithm. There is no function or loop in the provided code that explicitly trains the baseline with plain mini-batch SGD as described in the paper. The `train_diligent` function uses the same model and loss computation as the ProcrastiGD optimizer but does not update the parameters at every step as required by the baseline description.\n\nScore: 0. The submission does not contain a correct implementation of the baseline with plain mini-batch SGD updating the parameters at every step, as required by the paper.",
+   "usage": {
+    "input_tokens": 3814,
+    "output_tokens": 276,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157362",
+   "started_at": 1791991033.0012226,
+   "finished_at": 1791991041.055376,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7c676973-fd0b-513e-8fde-702db173e5f2": {
+   "leaf_id": "7c676973-fd0b-513e-8fde-702db173e5f2",
+   "category": "Code Development",
+   "requirements": "At a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, at a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3. I will look for a check in the code that computes the global L2 norm of the pile and compares it against 1.3 to determine if an excuse is triggered.\n\nReality: In the `src/procrastigd.py` file, the `step` method checks the deadline and triggers an excuse if the norm is below 1.3. Specifically, the following lines are relevant:\n```python\nnorm = np.sqrt(sum(np.sum(p ** 2) for p in self.pile.values()))\nif not self.excused and norm < self.excuse_threshold:\n    self.due += self.excuse_steps\n    self.excused = True\n    self.excuses_used += 1\n```\nThe `excuse_threshold` is defined as 1.3, which matches the paper's description. Therefore, the implementation in the code meets the expectation.\n\nScore: 1",
+   "usage": {
+    "input_tokens": 3840,
+    "output_tokens": 242,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157363",
+   "started_at": 1791991018.7861392,
+   "finished_at": 1791991026.13395,
+   "ratelimit_wait_sec": 0.0
+  },
+  "62249178-c2b4-5089-9f0f-28833623614a": {
+   "leaf_id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "requirements": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, before the update, the pile is divided by n, the actual number of gradients it contains, not by the constant 9. Specifically, I expect to see the line `panic * (self.pile[k] / self.n)` in the `step` method of `procrastigd.py`, where `self.n` is the actual number of gradients in the pile, which is updated dynamically based on the number of steps taken since the last update. Reality: In the `procrastigd.py` file, the division by `self.n` is indeed present in the line `self.params[k] -= self.lr * panic * (self.pile[k] / self.n)`. This confirms that the actual number of gradients in the pile is used for the division, as expected. Score: 1",
+   "usage": {
+    "input_tokens": 3953,
+    "output_tokens": 184,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157359",
+   "started_at": 1791991024.362782,
+   "finished_at": 1791991029.997349,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8a8a206a-7682-5367-b62e-a07094cc00b2": {
+   "leaf_id": "8a8a206a-7682-5367-b62e-a07094cc00b2",
+   "category": "Code Development",
+   "requirements": "Pixel values are divided by 16 so that they lie in [0, 1].",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the pixel values should be divided by 16 so that they lie in the range [0, 1]. I should find code in the data loading section that performs this division. Reality: In the `src/data.py` file, the line `X = digits.data / 16.0` correctly divides the pixel values by 16. This ensures that the pixel values are in the desired range. The division operation is performed as expected. Score: 1",
+   "usage": {
+    "input_tokens": 3769,
+    "output_tokens": 116,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157362",
+   "started_at": 1791991012.6418943,
+   "finished_at": 1791991017.1158483,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e1cac884-8232-5557-9ac0-04ebce46a335": {
+   "leaf_id": "e1cac884-8232-5557-9ac0-04ebce46a335",
+   "category": "Code Development",
+   "requirements": "The baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the baseline should use the same model, zero initialization, data split, batch size, number of epochs, and shuffling seed as ProcrastiGD. Specifically, the baseline should initialize the parameters to zero, use the same data split (first 1,500 samples for training and last 297 samples for testing), batch size of 30, 12 epochs, and a shuffling seed of 13. \n\nReality: In the `src/model.py` file, the model is defined with zero initialization, which matches the expectation. The `src/data.py` file correctly splits the data into training and testing sets according to the specified split. The `src/train.py` file initializes the baseline model with zero parameters, uses the correct batch size and number of epochs, and shuffles the data with the specified seed using `np.random.default_rng(SEED)`. However, the exact shuffling seed value (13) is not explicitly passed to the `np.random.default_rng` function, which might lead to slight differences in the data order. Nevertheless, the overall setup closely follows the paper's description.\n\nScore: 1. Although the shuffling seed is not explicitly named, the setup ensures that the baseline uses the same model, data split, batch size, number of epochs, and shuffling seed as ProcrastiGD, meeting the criteria.",
+   "usage": {
+    "input_tokens": 3844,
+    "output_tokens": 303,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157364",
+   "started_at": 1791991035.157575,
+   "finished_at": 1791991043.6242568,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c": {
+   "leaf_id": "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c",
+   "category": "Code Development",
+   "requirements": "The pile, the step counter and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the pile, step counter, and excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch. This means that the pile should retain its contents and the step counter and excuse flag should remain unchanged between epochs. Specifically, I would look for the absence of code resetting these variables at the end of each epoch in the `train.py` file. Reality: In the `src/train.py` file, there is no code that resets the `opt` (ProcrastiGD optimizer) object, including the pile, step counter, and excuse flag, at the end of each epoch. The `opt` object is passed directly to the `train_procrastinator` function and used throughout the training loop without any modifications to these attributes. There is also no code that explicitly handles epoch boundaries. The `batches` function shuffles the data at the start of each epoch, but it does not reset the optimizer's state. Score: 1",
+   "usage": {
+    "input_tokens": 4024,
+    "output_tokens": 216,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157363",
+   "started_at": 1791991026.1355996,
+   "finished_at": 1791991032.6641207,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c7112918-6155-53bc-a1dc-bc1f02fec899": {
+   "leaf_id": "c7112918-6155-53bc-a1dc-bc1f02fec899",
+   "category": "Code Development",
+   "requirements": "During epochs 5 and 10 (1-based epoch numbers divisible by 5) the learning rate is halved, and it returns to 0.77 in the following epoch.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the learning rate should be halved every 5th epoch (1-based), and then return to 0.77 in the subsequent epoch. Specifically, the learning rate should be 0.385 for epochs 5 and 10, and 0.77 for the remaining epochs. I will look for this behavior in the `train.py` file, particularly in the loop where the learning rate is adjusted based on the epoch number.\n\nReality: In the `train.py` file, I found the following code snippet that adjusts the learning rate:\n```python\ndef train_procrastinator(X, y):\n    rng = np.random.default_rng(SEED)\n    model = LogisticRegression()\n    opt = ProcrastiGD(model.params, lr=BASE_LR)\n    for epoch in range(1, EPOCHS + 1):\n        opt.lr = BASE_LR * (MONDAY_FACTOR if epoch % MONDAY_EVERY == 0 else 1.0)\n        for xb, yb in batches(X, y, rng):\n            _, grads = model.loss_and_grads(xb, yb)\n            opt.step(grads)\n        print(f'[ProcrastiGD] epoch {epoch} updates so far {opt.updates_done} excuses {opt.excuses_used}')\n    return model, opt\n```\nThis code correctly halves the learning rate for epochs 5 and 10, and resets it to 0.77 in the following epoch. The `MONDAY_FACTOR` is defined as 0.5, and the `MONDAY_EVERY` variable is set to 5, which matches the paper's description.\n\nScore: 1",
+   "usage": {
+    "input_tokens": 3815,
+    "output_tokens": 385,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157360",
+   "started_at": 1791991029.1538818,
+   "finished_at": 1791991040.6021078,
+   "ratelimit_wait_sec": 0.0
+  },
+  "456c62ee-8e51-5550-8445-603e582e7454": {
+   "leaf_id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "requirements": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "score": 1,
+   "reason": "Expectations: According to the paper, at a deadline that is not excused, the parameters should be updated once in the descent direction using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2): θ ← θ − η · panic · (P / n). The code should perform this update after accumulating the gradients in the to-do pile and then empty the pile afterward. Reality: In the `src/procrastigd.py` file, the `step` method correctly accumulates gradients in the `pile` dictionary and then performs the update when the deadline is reached and no excuse is used. Specifically, lines 52-59 of `src/procrastigd.py` correspond to the update: ```python # Step 5 for k in self.params: self.params[k] -= self.lr * panic * self.pile[k] / self.n ``` This matches the expected behavior. Additionally, the pile is emptied immediately after the update in line 61: ```python for k in self.pile: self.pile[k][:] = 0.0 ``` Score: 1",
+   "usage": {
+    "input_tokens": 3995,
+    "output_tokens": 244,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157362",
+   "started_at": 1791991025.5158052,
+   "finished_at": 1791991033.0001514,
+   "ratelimit_wait_sec": 0.0
+  },
+  "55ed0e31-c221-5408-b0ce-16cc3eb0b223": {
+   "leaf_id": "55ed0e31-c221-5408-b0ce-16cc3eb0b223",
+   "category": "Code Development",
+   "requirements": "Training uses a batch size of 30.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the training configuration specifies a batch size of 30. I need to verify if the code in the submission implements this batch size correctly. Specifically, I will look for a variable or parameter named 'BATCH_SIZE' with the value 30 in the relevant files.\n\nReality: In the file `src/train.py`, I found a variable named `BATCH_SIZE` with the value 30, which matches the expectation. This variable is used in the function `batches` to define the batch size for training. No other batch sizes are defined in the codebase, ensuring consistency with the specified batch size.\n\nScore: 1. The batch size of 30 has been correctly implemented in the submission.",
+   "usage": {
+    "input_tokens": 3782,
+    "output_tokens": 172,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157359",
+   "started_at": 1791991029.9989598,
+   "finished_at": 1791991035.213643,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cb355b56-51d1-51fd-9c2d-4ed33e642b4a": {
+   "leaf_id": "cb355b56-51d1-51fd-9c2d-4ed33e642b4a",
+   "category": "Code Development",
+   "requirements": "All weights and biases are initialized to zero.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, all weights and biases are initialized to zero. I should look for code that initializes the weights and biases to zero in the model initialization. Reality: In the file `src/model.py`, the `LogisticRegression` class initializes the parameters using `np.zeros((n_in, n_out))` for the weights and `np.zeros(n_out)` for the biases. This matches the expectation. Score: 1",
+   "usage": {
+    "input_tokens": 3797,
+    "output_tokens": 102,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157359",
+   "started_at": 1791991012.7342727,
+   "finished_at": 1791991016.6680198,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ac82eb5c-ce5a-5b3d-898d-1525f76d225c": {
+   "leaf_id": "ac82eb5c-ce5a-5b3d-898d-1525f76d225c",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn handwritten digits dataset (load_digits, 1,797 images of 8x8 pixels, 10 classes).",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the scikit-learn handwritten digits dataset should be loaded with 1,797 images of 8x8 pixels and 10 classes. Specifically, the dataset should be split into a training set of the first 1,500 samples and a test set of the last 297 samples. The pixel values should be normalized to the range [0, 1].\n\nReality: The `src/data.py` file contains a function `load_data()` that correctly loads the dataset using `sklearn.datasets.load_digits()`. The dataset is then split into training and test sets as specified, and the pixel values are normalized by dividing by 16. This matches the description in the paper.\n\nScore: 1",
+   "usage": {
+    "input_tokens": 3749,
+    "output_tokens": 173,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157363",
+   "started_at": 1791991012.6402097,
+   "finished_at": 1791991018.7847595,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6e5df9ef-1c07-54de-95c1-0645c1c528e0": {
+   "leaf_id": "6e5df9ef-1c07-54de-95c1-0645c1c528e0",
+   "category": "Code Development",
+   "requirements": "At most one excuse is allowed per pile; at the postponed deadline the update happens regardless of the norm of the pile.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, an excuse is triggered only once per pile, and even if an excuse is used, the update still happens at the postponed deadline regardless of the norm of the pile. I will specifically look for logic in the `src/procrastigd.py` file that enforces these rules, particularly checking the `excuse_steps` and `excused` flags to ensure that an excuse can only be used once per pile and that the update happens regardless of the norm at the postponed deadline.\n\nReality: In the `src/procrastigd.py` file, the `excuse_steps` and `excused` flags are correctly implemented. The `excuse_steps` variable is set to 3, and the `excused` flag is used to track whether an excuse has already been used for the current pile. If the norm of the pile is below the threshold and an excuse has not been used, the deadline is postponed by the specified number of steps. However, the logic does not explicitly enforce that the update will happen regardless of the norm at the postponed deadline. Instead, the update logic is conditional on the norm being above the threshold, which means the update might not occur if the norm is below the threshold.\n\nScore: 0. The code enforces that an excuse can only be used once per pile, but it does not ensure that the update happens regardless of the norm at the postponed deadline. The update logic is conditional on the norm being above the threshold, which contradicts the paper's description.",
+   "usage": {
+    "input_tokens": 3882,
+    "output_tokens": 329,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157361",
+   "started_at": 1791991020.4286427,
+   "finished_at": 1791991030.3705306,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3cc9fc18-1c15-54ce-af88-aac3e919e4e1": {
+   "leaf_id": "3cc9fc18-1c15-54ce-af88-aac3e919e4e1",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the test accuracies of both ProcrastiGD and the baseline, along with the total number of excuses made, should be printed and saved to a results file named `results.json`. Specifically, I would look for a `results.json` file containing the keys 'procrastigd_test_acc', 'baseline_test_acc', and 'excuses_made' with their corresponding values. Additionally, I would expect these values to be printed to the console during the execution of the script. Reality: In the submission, the `src/train.py` file contains the logic for training both ProcrastiGD and the baseline model. The `main()` function in this file prints the test accuracies and the number of excuses made to the console and saves them to a `results.json` file. The `reproduce.sh` script runs the `train.py` script, which fulfills the requirements specified in the paper. There is a `results.json` file present in the directory, and it contains the expected keys and values. Score: 1",
+   "usage": {
+    "input_tokens": 3843,
+    "output_tokens": 229,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157361",
+   "started_at": 1791991036.0215733,
+   "finished_at": 1791991042.4077735,
+   "ratelimit_wait_sec": 0.0
+  },
+  "36ef7c46-c373-5009-a7a4-80011d94703d": {
+   "leaf_id": "36ef7c46-c373-5009-a7a4-80011d94703d",
+   "category": "Code Development",
+   "requirements": "The panic factor is 1 + 0.42 * (n - 9), where n is the number of gradients in the pile, as in Eq. (1).",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the panic factor is defined as 'panic = 1 + 0.42 · (n − 9)', where n is the number of gradients in the pile. In the ProcrastiGD optimizer code, this formula should be implemented to calculate the panic factor when the update is performed at a deadline. I will look for this exact formula or an equivalent implementation in the `src/procrastigd.py` file, particularly in the `step` method where the panic factor is calculated.\n\nReality: In the `src/procrastigd.py` file, the panic factor is correctly implemented using the formula 'panic = 1 + self.panic_rate * (self.n - self.deadline)'. The `self.panic_rate` is set to 0.42 in the optimizer's constructor, which matches the value specified in the paper. This implementation correctly calculates the panic factor as expected.\n\nScore: The submission meets the criteria as the panic factor is correctly implemented according to the paper's definition.",
+   "usage": {
+    "input_tokens": 3920,
+    "output_tokens": 231,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157364",
+   "started_at": 1791991021.4645548,
+   "finished_at": 1791991028.339222,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747": {
+   "leaf_id": "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747",
+   "category": "Code Development",
+   "requirements": "An excuse postpones the deadline by exactly 3 steps without changing the parameters.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, when an excuse is triggered at a deadline, the due count is increased by exactly 3 steps without changing the parameters. I will look for a line of code in `procrastigd.py` that increments the `due` attribute by 3 when an excuse is used and ensures that the parameters are not updated in this case. \n\nReality: In the `procrastigd.py` file, the increment of the `due` attribute by 3 is correctly implemented in the `step` method, right after the condition where the norm of the pile is below the threshold and an excuse is used. However, the parameters are not updated in this case. The relevant lines are:\n```python\nif not self.excused and norm < self.excuse_threshold:\n    self.due += self.excuse_steps\n    self.excused = True\n    self.excuses_used += 1\n```\nThe `self.excuse_steps` is set to 3, which matches the paper's description. There is no explicit check to ensure that the parameters are not updated in this case, but since the update logic is placed after the `if` block, it effectively prevents the parameters from being updated when an excuse is used.\n\nScore: 1. The implementation in `procrastigd.py` correctly increases the due count by 3 when an excuse is used, and the parameters are not updated in this case, which aligns with the paper's description.",
+   "usage": {
+    "input_tokens": 3857,
+    "output_tokens": 324,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157360",
+   "started_at": 1791991019.453175,
+   "finished_at": 1791991029.152463,
+   "ratelimit_wait_sec": 0.0
+  },
+  "684c42e6-5122-5cf7-adcd-7274018d4b1c": {
+   "leaf_id": "684c42e6-5122-5cf7-adcd-7274018d4b1c",
+   "category": "Code Development",
+   "requirements": "At the start of every epoch the training samples are shuffled with a NumPy random generator that is created once with seed 13.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, at the start of every epoch, the training samples should be shuffled using a NumPy random generator created once with seed 13. Specifically, this means that the random generator should be initialized with a fixed seed each time the training loop starts a new epoch. Reality: In the file `src/train.py`, the random generator is created inside the `train_procrastinator` and `train_diligent` functions, and it is re-created each time the function is called. There is no indication that the random generator is initialized with a fixed seed each epoch. Instead, the seed is specified once and the generator is re-created each epoch. This does not meet the expectation as the seed is not used to initialize the generator each epoch. Score: 0",
+   "usage": {
+    "input_tokens": 3819,
+    "output_tokens": 172,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157363",
+   "started_at": 1791991032.6662,
+   "finished_at": 1791991037.9681704,
+   "ratelimit_wait_sec": 0.0
+  },
+  "85b53814-adb8-5b68-b0b4-e3a24078f58c": {
+   "leaf_id": "85b53814-adb8-5b68-b0b4-e3a24078f58c",
+   "category": "Code Development",
+   "requirements": "At every step the gradient is added to a to-do pile as a plain sum (not an average or a moving average), the parameters are not changed on steps that are not deadlines, and the pile is emptied after each update.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, at every step, the gradient should be added to a to-do pile as a plain sum, the parameters should not change on non-deadline steps, and the pile should be emptied after each update. I will specifically look for the following in the code: the addition of gradients to the to-do pile without averaging, the condition that prevents parameter updates unless it is a deadline, and the emptying of the pile after each update. Reality: In the `src/procrastigd.py` file, the `step` method correctly adds gradients to the to-do pile using a plain sum (no averaging): ```python for k, g in grads.items(): self.pile[k] += g ``` There is no averaging or moving average involved. The code also checks if it is a deadline and only updates the parameters if it is a deadline: ```python if self.n < self.due: return ``` This ensures that parameters are not changed on non-deadline steps. Finally, the pile is emptied after each update: ```python for k in self.pile: self.pile[k][:] = 0.0 ``` This meets the expectations. Score: 1",
+   "usage": {
+    "input_tokens": 3790,
+    "output_tokens": 255,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157359",
+   "started_at": 1791991016.6693234,
+   "finished_at": 1791991024.3614838,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e952e7e8-32fe-5b26-b26e-ca0da289b886": {
+   "leaf_id": "e952e7e8-32fe-5b26-b26e-ca0da289b886",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 297 test samples.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the test accuracy should be computed on the 297 test samples provided in the dataset. Specifically, the test accuracy should be calculated using the `test` portion of the `load_digits` dataset, which is the last 297 samples. The accuracy should be evaluated after training the model using the `train` portion of the dataset, which consists of the first 1500 samples. Reality: In the `src/train.py` file, the `main` function correctly loads the data using `load_data()` from `src/data.py`, and it splits the data into training and testing sets. The testing accuracy is computed using the `accuracy` method of the `LogisticRegression` class from `src/model.py`. The `main` function then prints the test accuracy and saves it to `../results/results.json`. The `load_data` function in `src/data.py` correctly splits the data into the training and testing sets, and the `accuracy` method in `src/model.py` correctly computes the accuracy on the test set. Score: 1",
+   "usage": {
+    "input_tokens": 3811,
+    "output_tokens": 237,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157359",
+   "started_at": 1791991035.2156525,
+   "finished_at": 1791991041.994857,
+   "ratelimit_wait_sec": 0.0
+  },
+  "242f0f9f-5f00-5b47-a082-98bb0a6ab68b": {
+   "leaf_id": "242f0f9f-5f00-5b47-a082-98bb0a6ab68b",
+   "category": "Code Development",
+   "requirements": "The training loss is softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the training loss is the softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss. I expect to see a function in the code that computes the softmax cross-entropy loss and its gradients, and that these are used in the training process.\n\nReality: In the `src/model.py` file, there is a function `loss_and_grads` that computes the loss and gradients. Specifically, the function computes the softmax cross-entropy loss and its gradients using the following lines:\n\n```python\ndef loss_and_grads(self, X, y):\n    z = self.logits(X)\n    z = z - z.max(axis=1, keepdims=True)\n    p = np.exp(z)\n    p /= p.sum(axis=1, keepdims=True)\n    n = X.shape[0]\n    loss = -np.log(p[np.arange(n), y] + 1e-12).mean()\n    d = p\n    d[np.arange(n), y] -= 1.0\n    d /= n\n    return loss, {",
+   "usage": {
+    "input_tokens": 3787,
+    "output_tokens": 259,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157364",
+   "started_at": 1791991012.6896648,
+   "finished_at": 1791991021.4631772,
+   "ratelimit_wait_sec": 0.0
+  },
+  "90b6f5ec-308d-54e1-ab74-b0512d5f7eae": {
+   "leaf_id": "90b6f5ec-308d-54e1-ab74-b0512d5f7eae",
+   "category": "Code Development",
+   "requirements": "Training runs for 12 epochs.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, training runs for 12 epochs. Specifically, the training loop in `src/train.py` should iterate for 12 epochs as defined by the constant `EPOCHS = 12`. The loop should increment the epoch counter and handle the learning rate schedule correctly for each epoch.\n\nReality: In `src/train.py`, the training loop indeed iterates for 12 epochs as expected. The loop starts with `for epoch in range(1, EPOCHS + 1):` and `EPOCHS` is defined as 12. Additionally, the learning rate is correctly adjusted based on the epoch number, with a factor applied every 5th epoch. There is no evidence of any deviation from the specified number of epochs.\n\nScore: 1",
+   "usage": {
+    "input_tokens": 3791,
+    "output_tokens": 185,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157361",
+   "started_at": 1791991030.3722482,
+   "finished_at": 1791991036.02012,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd": {
+   "leaf_id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "requirements": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "score": 1,
+   "reason": "Expectations: According to the paper, the model should be a multinomial logistic regression with a single linear layer from 64 inputs to 10 outputs, followed by a softmax function. Specifically, the implementation should include a class named `LogisticRegression` with methods for `logits`, `loss_and_grads`, and `accuracy`. The `logits` method should perform a linear transformation, the `loss_and_grads` method should compute the loss and gradients, and the `accuracy` method should calculate the prediction accuracy. Reality: In the `src/model.py` file, a class `LogisticRegression` is defined, which includes the required methods. The `logits` method performs the linear transformation, the `loss_and_grads` method computes the loss and gradients, and the `accuracy` method calculates the prediction accuracy. This matches the expectations. Score: 1",
+   "usage": {
+    "input_tokens": 3758,
+    "output_tokens": 193,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-157360",
+   "started_at": 1791991012.6700754,
+   "finished_at": 1791991019.4517305,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

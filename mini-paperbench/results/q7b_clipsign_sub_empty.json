@@ -1,0 +1,448 @@
+{
+ "run": "q7b_clipsign_sub_empty",
+ "label": "23 tasks, 6 workers",
+ "total": 23,
+ "completed": 23,
+ "errors": 0,
+ "workers": 6,
+ "tasks_per_worker": {
+  "gpu7-3707952": 4,
+  "gpu7-3707951": 4,
+  "gpu7-3707949": 4,
+  "gpu7-3707954": 4,
+  "gpu7-3707950": 4,
+  "gpu7-3707953": 3
+ },
+ "wall_time_sec": 18.19,
+ "mean_task_sec": 4.51,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 23,
+  "input_tokens": 47702,
+  "output_tokens": 3382,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/clipsign/submissions/sub_empty",
+ "leaves": {
+  "8fe35afb-514a-5004-a941-f0b464856145": {
+   "leaf_id": "8fe35afb-514a-5004-a941-f0b464856145",
+   "category": "Code Development",
+   "requirements": "Training uses a batch size of 128.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the batch size for training should be 128. I would expect to see code or configuration settings that explicitly set the batch size to 128 in the training loop or setup. Reality: The provided submission includes a README.md and a reproduce.sh script, but neither contains any code or configuration related to setting the batch size. The reproduce.sh script simply echoes 'not implemented', indicating that no implementation exists. There are no other files provided that might contain such settings. Score: 0",
+   "usage": {
+    "input_tokens": 2017,
+    "output_tokens": 120,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707952",
+   "started_at": 1791990863.0233073,
+   "finished_at": 1791990866.6271849,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0dd52301-b664-5d7b-bc3b-a151209c07f2": {
+   "leaf_id": "0dd52301-b664-5d7b-bc3b-a151209c07f2",
+   "category": "Code Development",
+   "requirements": "The momentum buffer is initialized to zeros before the first update.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the momentum buffer should be initialized to zeros before the first update. I will specifically look for initialization code in the reproduction script or any relevant files that ensure the momentum buffer starts as zeros. Reality: The `reproduce.sh` script simply prints 'not implemented' and does not contain any actual implementation or initialization of the momentum buffer. The `README.md` file mentions that the reproduction is not yet implemented, which indicates that no code has been written to initialize the momentum buffer. Since there is no actual implementation or initialization code found in the provided files, the criterion has not been met. Score: 0",
+   "usage": {
+    "input_tokens": 2223,
+    "output_tokens": 141,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707952",
+   "started_at": 1791990858.745161,
+   "finished_at": 1791990863.0218337,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a8d6c1a9-4e88-5474-8eee-444d205d8072": {
+   "leaf_id": "a8d6c1a9-4e88-5474-8eee-444d205d8072",
+   "category": "Code Development",
+   "requirements": "ReLU activations are applied after each of the two hidden layers, and not after the output layer.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the MLP should have ReLU activations after the two hidden layers, but not after the output layer. I would look for a section in the code where the activation functions are defined for each layer of the network. Specifically, I would expect to see ReLU applied to the second and third layers, but not to the fourth layer (the output layer). Reality: The submission does not contain any actual code related to the implementation of the MLP. The README.md file mentions that the implementation is not yet completed, and the reproduce.sh script simply echoes 'not implemented'. There are no files containing the definition of the neural network or the activation functions. Therefore, it is impossible to verify whether the ReLU activations are correctly applied after the two hidden layers and not after the output layer. Score: 0",
+   "usage": {
+    "input_tokens": 2019,
+    "output_tokens": 179,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707952",
+   "started_at": 1791990852.91518,
+   "finished_at": 1791990858.7437806,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e32d5e1f-4816-5548-b789-91a3f5d0930c": {
+   "leaf_id": "e32d5e1f-4816-5548-b789-91a3f5d0930c",
+   "category": "Code Development",
+   "requirements": "Images are normalized with mean 0.1307 and standard deviation 0.3081.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the MNIST images need to be normalized with a mean of 0.1307 and a standard deviation of 0.3081. I would expect to see code that performs this normalization on the dataset. Reality: The provided submission does not contain any code that normalizes the MNIST images. The README.md and reproduce.sh files indicate that the reproduction is not implemented yet, and the reproduce.sh script simply prints 'not implemented'. There is no code that processes the MNIST dataset or performs the specified normalization. Score: 0",
+   "usage": {
+    "input_tokens": 2003,
+    "output_tokens": 131,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707951",
+   "started_at": 1791990852.887352,
+   "finished_at": 1791990857.0453713,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d7c5017b-08b5-5c84-b082-2f59c59ee3f6": {
+   "leaf_id": "d7c5017b-08b5-5c84-b082-2f59c59ee3f6",
+   "category": "Code Development",
+   "requirements": "Parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the parameter update should be done using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5): θ <- θ - η · m. I will specifically look for a line of code implementing this exact update in the submission's files.\n\nReality: The README.md file states that the reproduction is not implemented yet, and the reproduce.sh script simply prints 'not implemented'. There is no actual implementation of the optimizer, including the parameter update step. Therefore, there is no code that correctly implements the parameter update as specified in the paper.\n\nScore: 0",
+   "usage": {
+    "input_tokens": 2258,
+    "output_tokens": 145,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707949",
+   "started_at": 1791990861.5537546,
+   "finished_at": 1791990865.9932292,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9f2c10ae-af4e-5872-be5a-60978acd1c12": {
+   "leaf_id": "9f2c10ae-af4e-5872-be5a-60978acd1c12",
+   "category": "Code Development",
+   "requirements": "Code loads the MNIST training set (60,000 images) and the official test set (10,000 images).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the code should load the MNIST training set (60,000 images) and the official test set (10,000 images). I would expect to see code that imports necessary libraries, downloads the datasets, and splits them into training and testing sets. Reality: The provided `reproduce.sh` script simply prints 'not implemented', indicating that no code was written to load the datasets. There is no actual code in any of the provided files that handles dataset loading. The README.md does not contain any relevant information about dataset loading either. Score: 0",
+   "usage": {
+    "input_tokens": 1979,
+    "output_tokens": 137,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707954",
+   "started_at": 1791990852.858905,
+   "finished_at": 1791990857.2599602,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3": {
+   "leaf_id": "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3",
+   "category": "Code Development",
+   "requirements": "The learning rate is increased linearly over the first 200 optimizer steps, reaching the base learning rate at step 200.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the learning rate should increase linearly over the first 200 optimizer steps, reaching the base learning rate of 0.004 at step 200. I would expect to see code or logic in the submission that implements this learning rate schedule. Reality: The provided `reproduce.sh` script simply prints 'not implemented', indicating that the learning rate schedule has not been implemented. There are no other files or scripts that appear to implement the learning rate schedule. Since the learning rate schedule is not implemented, the submission does not meet the criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2040,
+    "output_tokens": 138,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707950",
+   "started_at": 1791990862.5719903,
+   "finished_at": 1791990866.8915024,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f44e80e3-0663-5012-bbbb-740df2e69328": {
+   "leaf_id": "f44e80e3-0663-5012-bbbb-740df2e69328",
+   "category": "Code Development",
+   "requirements": "After warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after the warmup period, the learning rate should be multiplied by exactly 1/3 at the end of every 5 epochs. I would expect to see a piece of code in the `reproduce.sh` or within the `clipsign_sgd.py` (or similar) file that adjusts the learning rate accordingly. Specifically, I would look for a loop that iterates over the epochs, checks if the epoch is a multiple of 5, and then multiplies the learning rate by 1/3 if it is. Reality: The `reproduce.sh` file simply contains a message stating 'not implemented'. There are no scripts or files that actually implement the learning rate schedule. The `README.md` does not provide any instructions or code snippets that address this requirement. There is no `clipsign_sgd.py` or similar file provided in the submission. Score: 0",
+   "usage": {
+    "input_tokens": 2065,
+    "output_tokens": 199,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707953",
+   "started_at": 1791990862.838875,
+   "finished_at": 1791990868.9057188,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3bfed980-88c1-5ca3-a2c7-6f88da688853": {
+   "leaf_id": "3bfed980-88c1-5ca3-a2c7-6f88da688853",
+   "category": "Code Development",
+   "requirements": "Training runs for 15 epochs.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the training runs for 15 epochs. I would look for a script or code that explicitly sets the number of epochs to 15 during the training process. Reality: The provided `reproduce.sh` script contains only the line `echo 'not implemented'`, indicating that no actual training has been performed. There are no files that indicate the number of epochs or any training process being executed. Since the script does not implement the training process, it fails to meet the requirement of running for 15 epochs. Score: 0",
+   "usage": {
+    "input_tokens": 2026,
+    "output_tokens": 128,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707954",
+   "started_at": 1791990863.617573,
+   "finished_at": 1791990867.5054352,
+   "ratelimit_wait_sec": 0.0
+  },
+  "82f0bfc6-4e95-5937-a5e4-3ec906d21429": {
+   "leaf_id": "82f0bfc6-4e95-5937-a5e4-3ec906d21429",
+   "category": "Code Development",
+   "requirements": "Gradient components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not set to zero, as in Eq. (3).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, for each component i of the gradient tensor, if |g_i| is strictly less than the threshold τ, it should be set to zero. If |g_i| is exactly equal to τ, it should not be set to zero. I would expect to see code that checks the condition |g_i| < τ and sets the component to zero if true, without modifying the components where |g_i| == τ.\n\nReality: The submission includes a README.md and a reproduce.sh script, but neither contains any actual implementation of the optimizer or the gradient processing logic. The README.md states that the reproduction is not implemented yet, and the reproduce.sh script simply prints 'not implemented'. There is no code that processes the gradients according to the specified rules.\n\nScore: Given that the submission does not contain any implementation of the gradient processing logic as described in the paper, the criteria has not been met.",
+   "usage": {
+    "input_tokens": 2119,
+    "output_tokens": 203,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707954",
+   "started_at": 1791990857.2611036,
+   "finished_at": 1791990863.6164317,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0e096d1e-467b-51de-a7af-e04409b560fa": {
+   "leaf_id": "0e096d1e-467b-51de-a7af-e04409b560fa",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both ClipSign-SGD and the baseline are printed and saved to a results file.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, after training, the test accuracy for both ClipSign-SGD and the baseline should be computed and saved to a results file. I would expect to see a file named 'results.txt' or similar containing the test accuracies of both optimizers. Reality: The submission contains a README.md file that states 'not implemented' and a reproduce.sh script that echoes 'not implemented'. There is no evidence of any training or testing having been performed. Therefore, there is no results file with the test accuracies. Score: 0",
+   "usage": {
+    "input_tokens": 2073,
+    "output_tokens": 125,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707954",
+   "started_at": 1791990867.5074277,
+   "finished_at": 1791990870.9445333,
+   "ratelimit_wait_sec": 0.0
+  },
+  "603b8d9e-ab01-5cc2-b246-d11c2499d5aa": {
+   "leaf_id": "603b8d9e-ab01-5cc2-b246-d11c2499d5aa",
+   "category": "Code Development",
+   "requirements": "The last 5,000 images of the training set are held out as a validation set, and the first 55,000 images are used for training.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the last 5,000 images of the 60,000-image training set should be held out as a validation set, and the first 55,000 images should be used for training. I would expect to see code or comments indicating that this partitioning is being done correctly. Reality: The submission includes a README.md and a reproduce.sh script, neither of which indicate any code or commands for loading or partitioning the dataset. The reproduce.sh script only contains a comment stating 'not implemented'. There are no other files provided that suggest any data loading or preprocessing steps. Score: 0",
+   "usage": {
+    "input_tokens": 2041,
+    "output_tokens": 147,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707950",
+   "started_at": 1791990852.913385,
+   "finished_at": 1791990857.7183917,
+   "ratelimit_wait_sec": 0.0
+  },
+  "df8d4a33-16e4-50c0-b36d-fff7ddbc7169": {
+   "leaf_id": "df8d4a33-16e4-50c0-b36d-fff7ddbc7169",
+   "category": "Code Development",
+   "requirements": "Coupled weight decay with lambda = 0.0013 is added to the gradient (g <- g + lambda * theta) before the threshold is computed, as in Eq. (1). Decoupled weight decay applied directly to the parameters does not satisfy this requirement.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, coupled weight decay with lambda = 0.0013 should be added to the gradient before computing the threshold. Specifically, the gradient (g) should be updated as g <- g + 0.0013 * theta. I would look for this exact operation in the codebase, particularly in the function or script responsible for applying the ClipSign-SGD optimizer. Reality: The submission includes a README.md and a reproduce.sh script, neither of which contains any code implementing the optimizer or the necessary operations. The reproduce.sh script simply echoes 'not implemented', indicating that the full reproduction process is not completed. There is no evidence of the coupled weight decay operation being performed. Score: 0",
+   "usage": {
+    "input_tokens": 2034,
+    "output_tokens": 162,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707953",
+   "started_at": 1791990852.9576817,
+   "finished_at": 1791990858.2322645,
+   "ratelimit_wait_sec": 0.0
+  },
+  "648b5277-726e-5dc6-822a-0c6e499069f8": {
+   "leaf_id": "648b5277-726e-5dc6-822a-0c6e499069f8",
+   "category": "Code Development",
+   "requirements": "A baseline is trained on the same MLP using PyTorch's SGD optimizer with momentum 0.9.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the baseline is trained using PyTorch's SGD optimizer with momentum 0.9. I would expect to see a script or function that sets up the optimizer with these parameters and trains the model accordingly. Reality: The README.md and reproduce.sh files provided indicate that the submission is not implemented yet. The reproduce.sh script simply echoes 'not implemented'. There is no actual code to train the baseline using PyTorch's SGD optimizer with momentum 0.9. Score: 0",
+   "usage": {
+    "input_tokens": 2041,
+    "output_tokens": 117,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707951",
+   "started_at": 1791990866.2017856,
+   "finished_at": 1791990869.6968076,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5de949d9-09b6-5237-b49d-6e963b43f3fd": {
+   "leaf_id": "5de949d9-09b6-5237-b49d-6e963b43f3fd",
+   "category": "Code Development",
+   "requirements": "The model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 that takes flattened 784-dimensional images as input.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the model should be an MLP with layer sizes 784 -> 256 -> 128 -> 10 that takes flattened 784-dimensional images as input. I would look for a neural network implementation with these exact specifications. Reality: There are no relevant files provided in the submission that implement the model described in the paper. The README.md states 'not implemented yet', and the reproduce.sh script does not contain any relevant commands or logic to implement the model. Score: 0. The submission fails to provide any implementation of the model as specified in the paper.",
+   "usage": {
+    "input_tokens": 1999,
+    "output_tokens": 139,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707949",
+   "started_at": 1791990852.913864,
+   "finished_at": 1791990857.4219232,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a4812f82-641e-5374-8bab-8b36f8de8eea": {
+   "leaf_id": "a4812f82-641e-5374-8bab-8b36f8de8eea",
+   "category": "Code Development",
+   "requirements": "The momentum coefficient beta is set to 0.73.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the momentum coefficient beta should be set to 0.73. I will specifically look for a line of code or configuration setting that explicitly sets the momentum coefficient to 0.73 in the reproduction script or the optimizer implementation.\n\nReality: The submission includes a `reproduce.sh` script that only contains the line `echo 'not implemented'`. There is no actual code that implements the optimizer or sets the momentum coefficient. The `README.md` file also indicates that the reproduction is not yet implemented.\n\nScore: 0. The submission does not contain any actual code that implements the optimizer with the specified momentum coefficient, as evidenced by the lack of relevant code in the provided files.",
+   "usage": {
+    "input_tokens": 2162,
+    "output_tokens": 161,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707950",
+   "started_at": 1791990857.719746,
+   "finished_at": 1791990862.5705824,
+   "ratelimit_wait_sec": 0.0
+  },
+  "23cc028d-490a-5b15-a137-b840902c9fb5": {
+   "leaf_id": "23cc028d-490a-5b15-a137-b840902c9fb5",
+   "category": "Code Development",
+   "requirements": "The momentum buffer is updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector from Eq. (3) and not the raw gradient, as in Eq. (4).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the momentum buffer should be updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector, not the raw gradient. I will specifically look for the presence of this update equation in the code, particularly in the part responsible for updating the momentum buffer. Reality: The provided submission includes a README.md file indicating that the reproduction is not implemented yet and a reproduce.sh script that simply echoes 'not implemented'. Neither of these files contains any actual code implementing the optimizer or the momentum update. Therefore, the submission fails to meet the expectation of correctly implementing the momentum update as described in the paper. Score: 0",
+   "usage": {
+    "input_tokens": 2210,
+    "output_tokens": 152,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707953",
+   "started_at": 1791990858.233711,
+   "finished_at": 1791990862.8371973,
+   "ratelimit_wait_sec": 0.0
+  },
+  "355d898d-7e6e-5013-98d2-efc5bbc5e8be": {
+   "leaf_id": "355d898d-7e6e-5013-98d2-efc5bbc5e8be",
+   "category": "Code Development",
+   "requirements": "The base learning rate of ClipSign-SGD is 0.004.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the base learning rate of ClipSign-SGD is 0.004. I would expect to see this value hardcoded in the code, particularly in the learning rate schedule implementation. Reality: The provided `reproduce.sh` script is empty and does not contain any code related to the learning rate. The `README.md` file only states that the reproduction is not implemented yet. There is no evidence of the learning rate being set to 0.004 or any other learning rate schedule being implemented. Score: 0",
+   "usage": {
+    "input_tokens": 2010,
+    "output_tokens": 127,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707951",
+   "started_at": 1791990862.2544396,
+   "finished_at": 1791990866.200347,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5fe40f3c-0821-5c17-96ee-2975304fedad": {
+   "leaf_id": "5fe40f3c-0821-5c17-96ee-2975304fedad",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 10,000-image MNIST test set.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the test accuracy should be computed on the 10,000-image MNIST test set after training. I would expect to see a script or code that trains the model and then computes the test accuracy. Specifically, I would look for a file that contains the training loop and another file or part of the script that evaluates the model on the test set. Reality: The provided `reproduce.sh` script simply echoes 'not implemented', and there is no README or other file indicating that the training or evaluation has been implemented. There is no evidence of a training loop or test accuracy computation in the provided files. Score: 0",
+   "usage": {
+    "input_tokens": 2050,
+    "output_tokens": 148,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707950",
+   "started_at": 1791990866.8925972,
+   "finished_at": 1791990871.0217028,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2e897b3b-fe65-5f3d-bda7-43b2e08f9527": {
+   "leaf_id": "2e897b3b-fe65-5f3d-bda7-43b2e08f9527",
+   "category": "Code Development",
+   "requirements": "The baseline uses a constant learning rate of 0.05 with no warmup and no decay.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the SGD baseline should use a constant learning rate of 0.05 with no warmup and no decay. I would expect to see a script or function that initializes the learning rate to 0.05 and does not change it during training. Additionally, there should be no implementation of a warmup period or decay schedule. Reality: The provided files do not contain any implementation of the SGD baseline. The README.md file states that the implementation is not done yet, and the reproduce.sh script only contains a placeholder comment 'not implemented'. There is no code or script that sets the learning rate to 0.05 or handles the training process. Score: 0",
+   "usage": {
+    "input_tokens": 2063,
+    "output_tokens": 156,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707952",
+   "started_at": 1791990866.6293614,
+   "finished_at": 1791990871.0481248,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9a83d9b5-e834-52b6-9443-e26a17137ab4": {
+   "leaf_id": "9a83d9b5-e834-52b6-9443-e26a17137ab4",
+   "category": "Code Development",
+   "requirements": "Random seed 7 is set for PyTorch and for Python's random module.",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the random seed should be set to 7 for both PyTorch and Python's random module. I would expect to see code in the `reproduce.sh` script or within the training loop that explicitly sets these seeds. Reality: The `reproduce.sh` script provided simply contains the line `echo 'not implemented'`, indicating that no implementation has been attempted. There are no files or scripts provided that set the random seeds. Therefore, the submission does not meet the criteria. Score: 0",
+   "usage": {
+    "input_tokens": 2044,
+    "output_tokens": 121,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707949",
+   "started_at": 1791990865.994311,
+   "finished_at": 1791990869.6715012,
+   "ratelimit_wait_sec": 0.0
+  },
+  "87045acc-5353-5951-99e6-d3b1f903a471": {
+   "leaf_id": "87045acc-5353-5951-99e6-d3b1f903a471",
+   "category": "Code Development",
+   "requirements": "The threshold is computed separately for each parameter tensor as tau = 0.37 times the mean absolute value of the (weight-decayed) gradient components of that tensor, as in Eq. (2).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the threshold (tau) should be computed separately for each parameter tensor as tau = 0.37 times the mean absolute value of the weight-decayed gradient components of that tensor. I would expect to see code that computes the mean absolute value of the gradient components for each tensor and then multiplies it by 0.37 to get the threshold. Reality: The submission includes a README.md file stating that the reproduction is not implemented yet and a reproduce.sh script that simply echoes 'not implemented'. There are no files that contain any implementation of the ClipSign-SGD optimizer or the threshold computation. Since the submission does not even attempt to implement the optimizer or compute the threshold, it fails to meet the requirements. Score: 0",
+   "usage": {
+    "input_tokens": 2078,
+    "output_tokens": 169,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707951",
+   "started_at": 1791990857.04703,
+   "finished_at": 1791990862.2530253,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0a5724f2-203f-54b3-89ee-2430e142470f": {
+   "leaf_id": "0a5724f2-203f-54b3-89ee-2430e142470f",
+   "category": "Code Development",
+   "requirements": "Gradient components that are not set to zero are replaced by the sign of the gradient, sign(g_i), as in Eq. (3).",
+   "score": 0,
+   "reason": "Expectations: According to the paper, the components of the gradient that are not set to zero are replaced by the sign of the gradient, as defined in Eq. (3). I will look for code that implements this replacement logic. Reality: The provided `reproduce.sh` script simply prints 'not implemented', and there are no other files that seem to contain any implementation of the optimizer or gradient processing. The README.md file also indicates that the reproduction has not been implemented yet. Given these findings, the submission does not contain any code that implements the replacement of non-zero gradient components with their signs. Score: 0",
+   "usage": {
+    "input_tokens": 2148,
+    "output_tokens": 137,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3707949",
+   "started_at": 1791990857.4233527,
+   "finished_at": 1791990861.5522115,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}
