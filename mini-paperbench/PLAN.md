@@ -48,7 +48,7 @@ PaperBench(arXiv 2504.01848)의 흐름을 작게 재현한다.
 | 변수 | 1순위: Gemini | 2순위: OpenAI |
 | --- | --- | --- |
 | `LLM_BASE_URL` | `https://generativelanguage.googleapis.com/v1beta/openai/` | `https://api.openai.com/v1` |
-| `LLM_MODEL` | `gemini-2.5-flash-lite` | `gpt-5-nano` |
+| `LLM_MODEL` | `gemini-3.5-flash-lite` | `gpt-5-nano` |
 | `LLM_API_KEY` | Gemini 키 | OpenAI 키 |
 
 - 모델 이름과 엔드포인트는 실행 전에 실제로 1회 호출해서 확인한다(지원 종료된 모델일 수 있음).
