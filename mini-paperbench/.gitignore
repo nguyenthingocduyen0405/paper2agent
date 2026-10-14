@@ -6,3 +6,7 @@ __pycache__/
 .pytest_cache/
 *.rdb
 logs/
+
+# 개인 작업 지시서 (로컬에만 둔다)
+PLAN.md
+CLAUDE.md
