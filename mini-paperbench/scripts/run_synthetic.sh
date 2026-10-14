@@ -5,6 +5,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 P=${1:-syn}
+# 결과 파일 이름에 쓸 모델 이름: 환경 변수가 없으면 .env에서 읽는다
+MODEL=${LLM_MODEL:-$(grep -s '^LLM_MODEL=' .env | cut -d= -f2)}
 pairs=(); checks=()
 for paper in clipsign procrastigd; do
   for sub in sub_correct sub_subtle sub_partial sub_wrong_method sub_empty; do
@@ -18,4 +20,4 @@ for paper in clipsign procrastigd; do
     if [ "$sub" = sub_empty ]; then checks+=(--check "$run=$label"); else pairs+=(--pair "$run=$label"); fi
   done
 done
-python -m judge.judgeeval --name "${P}_${LLM_MODEL}" "${pairs[@]}" "${checks[@]}"
+python -m judge.judgeeval --name "${P}_${MODEL:-model}" "${pairs[@]}" "${checks[@]}"
