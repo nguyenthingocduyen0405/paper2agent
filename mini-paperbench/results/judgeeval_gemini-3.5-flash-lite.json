@@ -1,8 +1,6 @@
 {
- "model": "gemini-3.5-flash-lite",
- "run": "je_gemini-3.5-flash-lite",
+ "name": "gemini-3.5-flash-lite",
  "graded": 77,
- "skipped_errors": 0,
  "overall": {
   "n": 77,
   "confusion": {
@@ -14,9 +12,26 @@
   "f1": 0.9861,
   "precision": 0.9861,
   "recall": 0.9861,
+  "recall_score0": 0.8,
   "f1_score0": 0.8,
   "macro_f1": 0.8931,
   "accuracy": 0.974
+ },
+ "baseline_always_1": {
+  "n": 77,
+  "confusion": {
+   "tp": 72,
+   "fp": 5,
+   "fn": 0,
+   "tn": 0
+  },
+  "f1": 0.9664,
+  "precision": 0.9351,
+  "recall": 1.0,
+  "recall_score0": 0.0,
+  "f1_score0": 0.0,
+  "macro_f1": 0.4832,
+  "accuracy": 0.9351
  },
  "by_category": {
   "Code Development": {
@@ -30,6 +45,7 @@
    "f1": 0.9899,
    "precision": 1.0,
    "recall": 0.98,
+   "recall_score0": null,
    "f1_score0": null,
    "macro_f1": null,
    "accuracy": 0.98
@@ -45,6 +61,7 @@
    "f1": 1.0,
    "precision": 1.0,
    "recall": 1.0,
+   "recall_score0": null,
    "f1_score0": null,
    "macro_f1": null,
    "accuracy": 1.0
@@ -60,33 +77,50 @@
    "f1": 0.6667,
    "precision": 0.5,
    "recall": 1.0,
+   "recall_score0": 0.8,
    "f1_score0": 0.8889,
    "macro_f1": 0.7778,
    "accuracy": 0.8333
   }
  },
- "baseline_always_1": {
-  "n": 77,
-  "confusion": {
-   "tp": 72,
-   "fp": 5,
-   "fn": 0,
-   "tn": 0
-  },
-  "f1": 0.9664,
-  "precision": 0.9351,
-  "recall": 1.0,
-  "f1_score0": 0.0,
-  "macro_f1": 0.4832,
-  "accuracy": 0.9351
+ "by_run": {
+  "je_gemini-3.5-flash-lite": {
+   "n": 77,
+   "confusion": {
+    "tp": 71,
+    "fp": 1,
+    "fn": 1,
+    "tn": 4
+   },
+   "f1": 0.9861,
+   "precision": 0.9861,
+   "recall": 0.9861,
+   "recall_score0": 0.8,
+   "f1_score0": 0.8,
+   "macro_f1": 0.8931,
+   "accuracy": 0.974
+  }
  },
- "wall_time_sec": 610.13,
- "workers": 2,
- "retries": 0,
- "failures": 0,
- "parse_retries": 0,
- "ratelimit_wait_sec": 741.66,
- "usage": {
+ "checks": {},
+ "runs": {
+  "je_gemini-3.5-flash-lite": {
+   "wall_time_sec": 610.13,
+   "workers": 2,
+   "retries": 0,
+   "failures": 0,
+   "parse_retries": 0,
+   "ratelimit_wait_sec": 741.66,
+   "usage": {
+    "calls": 77,
+    "input_tokens": 2640306,
+    "output_tokens": 9394,
+    "cached_tokens": 2250927
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/judge_eval/semantic-self-consistency/0/submission"
+  }
+ },
+ "usage_total": {
   "calls": 77,
   "input_tokens": 2640306,
   "output_tokens": 9394,
@@ -94,637 +128,795 @@
  },
  "disagreements": [
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "b63359fc-8d24-4473-bed3-d54fe1586b53",
    "category": "Code Development",
    "criterion": "All input points are sorted by average distance to their neighbours, and the 10% of inputs to the KNN method with the largest average distances are filtered out",
    "judge": 0,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that k-nearest neighbor outlier removal sorts or isolates inputs based on distance to neighbors and filters out points (e.g. top 10% of inputs with the largest average distances). In sampling.py, the KNNOutlierRemoval class implements KNN with n_neighbors=6, ball_tree algorithm, and minkowski metric, computes average distances to the 5 nearest neighbors, but identifies outliers using `mask = avg_distances == max_distance` instead of filtering out the top 10% of inputs with the largest average distances."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "c042db31-9804-4360-9ec8-037e70847fc0",
    "category": "Result Analysis",
    "criterion": "On average across models, CPW outperforms the SC baseline on the AQuA-RAT and SVAMP, but has a negative effect on StrategyQA.",
    "judge": 1,
-   "human": 0,
+   "label": 0,
+   "label_why": "",
    "reason": "The criterion specifies that on average across models, CPW should outperform the SC baseline on AQuA-RAT and SVAMP, but have a negative effect on StrategyQA. Looking at Table 1 in the paper, CPW improves accuracy on AQuA-RAT (+3.14% on average) and SVAMP (+0.97% on average), but decreases performance on StrategyQA (-1.63% on average). Checking the submitted reproduction results in `table1.csv`: for AQuA-RAT, gpt-3.5-turbo goes from 0.677 (SC) to 0.702 (CPW) and gpt-4o-mini goes from 0.834 (SC) to 0.850 (CPW). For SVAMP, gpt-3.5-turbo goes from 0.827 to 0.837, and gpt-4o-mini goes from 0.920 to 0.919 (very slight drop, but averaged with gpt-3.5-turbo it's positive). For StrategyQA, gpt-3.5-turbo goes from 0.721 to 0.721 (0 change), and gpt-4o-mini goes from 0.805 to 0.797 (negative effect). Overall, the reproduced results align with the paper's claims regarding CPW performance across datasets."
   }
  ],
  "leaves": [
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "e17cff0a-859f-4718-a752-8b0b73d37e47",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the SVAMP benchmark using the SCW method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission script reproduce.sh and evaluation code eval.py successfully run the evaluation for the SVAMP benchmark using the SCW (Semantic Consensus Weighting) method on SciBERT embeddings for the required models (gpt-3.5-turbo and gpt-4o-mini, as specified in the addendum where open-source models are not required). The execution logs confirm successful completion without errors."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "c8acfeae-4a0f-4915-a8f0-e254fd9d664b",
    "category": "Code Development",
    "criterion": "An embedding is creating for each of the k responses by passing it through the associated featurizer and getting the embedding at the first (\"[CLS]\") token",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper specifies that each generated rationale is featurized into a vector embedding using fine-tuned BERT models (like SciBERT or RoBERTa), taking the representation for the entire reasoning path. In the submission, the file `sampling.py` contains implementations for SCSampling, CPWSampling, and SCWSampling which pass each generated text through the featurizer tokenizer and model, retrieve the output hidden states (`out.hidden_states[-1]`), and extract the embedding at the first token (`[0, 0, :]`, corresponding to the [CLS] token in BERT/RoBERTa models). Therefore, the requirement of creating an embedding for each of the k responses using the associated featurizer and getting the embedding at the [CLS] token has been correctly implemented."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "39c1c9c5-c0e1-4d3c-a5ce-5cf7e951b3e7",
    "category": "Code Development",
    "criterion": "A linear kernel is used (the \"kernel\" arg is set to\"linear\" if using the sklearn implementation of OneClassSVM\")",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and rubric state that for One-Class SVM outlier removal, a linear kernel should be used. Inspecting 'sampling.py', the `SVMOutlierRemoval` class defines the OneClassSVM instantiation as `svm = OneClassSVM(kernel=\"linear\", nu=0.01)`, which correctly uses the linear kernel."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "6b95e4e0-0339-4e5c-948a-698f6386f0f9",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the StrategyQA benchmark using the CPW method on RoBERTa embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "According to the addendum and instructions, results involving Llama 2 7B, Mistral 7B, and Llama 3 8B are not required for replication; only gpt-3.5-turbo and gpt-4o-mini are required. The reproduce.sh script executes evaluation on StrategyQA using the CPW method with RoBERTa embeddings for both gpt-3.5-turbo and gpt-4o-mini, and the logs confirm successful execution."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "e8174d6c-a1f7-4266-8e47-8369fde0461f",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the StrategyQA benchmark using top prob sampling.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify evaluating models on the StrategyQA benchmark using top prob sampling (referred to as greedy sampling or top prob sample in evaluation script and logs). According to the addendum, only gpt-3.5-turbo and gpt-4o-mini are required for reproduction. The reproduce.sh script successfully executed evaluation on StrategyQA using greedy sampling for both gpt-3.5-turbo and gpt-4o-mini, as confirmed by the logs."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "9daf76c9-d2d0-4744-ba70-bbcf82550191",
    "category": "Code Development",
    "criterion": "The parsing extraction approach is applied to extract the answer from each of the k responses",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that answers should be extracted from each of the $k$ generated responses. In the submission, 'eval.py' and 'sampling.py' implement the extraction function `answer_extraction` and apply it to each generated text response during sampling methods (SCSampling, CPWSampling, SCWSSampling, etc.) across the $k$ generated responses."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "c08b029c-fa6d-475b-b201-6b43dcd14c5e",
    "category": "Code Development",
    "criterion": "The final answer is selected as the modal answer from the k answers extracted from the k responses",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The criterion requires that the final answer is selected as the modal answer from the k answers extracted from the k responses for the self-consistency baseline method. In the submission, `sampling.py` contains the `SCSampling` class implementing `sample_answer`, where it gathers $k$ responses, extracts answers, and selects the most common answer using `Counter(answers).most_common(1)[0][0]`. This correctly identifies the modal answer."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "a560cc7a-6ad0-453b-8283-239b981d8754",
    "category": "Code Development",
    "criterion": "All models generate up to 250 max new tokens on SVAMP, 400 on AQuA-RAT, and 450 on StrategyQA",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper specifies that generation limits are set appropriately for each dataset. In the submission's reproduce.sh script, the get_max_tokens function correctly returns 250 for ChilleD/SVAMP, 400 for deepmind/aqua_rat, and 450 for ChilleD/StrategyQA, and passes these values as the --max-new-tokens argument during evaluation. This fully satisfies the criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "abef3d1f-ac05-4b98-a4c4-cdf711863714",
    "category": "Code Development",
    "criterion": "The parsing extraction approach is applied to extract the answer from each of the k responses",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission implements the answer extraction approach in `eval.py` via the `answer_extraction` function, which correctly extracts the answer immediately following the string 'the answer is' (case-insensitively) and removes whitespace, fullstops, and parentheses, matching the paper's and addendum's requirements. This function is applied to each of the generated responses during evaluation across all sampling methods."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "32076d58-8586-4aac-9eb5-8a7570cc45cf",
    "category": "Code Development",
    "criterion": "The upper bound on the fraction of training errors and the lower bound of the fraction of support vectors parameter is set to 0.01 (the \"nu\" arg is set to 0.01 if using the sklearn implementation of OneClassSVM)",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "In the submission, looking at `sampling.py`, the `SVMOutlierRemoval` class uses `OneClassSVM(kernel=\"linear\", nu=0.01)` where the `nu` parameter is correctly set to 0.01 as specified by the criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "ad259ecf-0a1e-40a3-8d74-7b46f400301e",
    "category": "Code Development",
    "criterion": "All evaluations on the AQuA-RAT benchmark use SciBERT as the featurizer to produce embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly uses SciBERT (`allenai/scibert_scivocab_uncased`) as the featurizer for the AQuA-RAT dataset, as verified in `eval.py` where `get_featurizer_model_name` maps `deepmind/aqua_rat` to `allenai/scibert_scivocab_uncased`."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "729f1e41-1435-4323-97d1-a1e6f2abac8d",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the AQuA-RAT benchmark using the Isolation Forest outlier removal method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The reproduction script correctly iterates over the required models (gpt-3.5-turbo and gpt-4o-mini, as specified in the addendum where Llama and Mistral models are not required) and datasets (deepmind/aqua_rat), and evaluates them using the self-consistency sampling method with the Isolation Forest outlier removal method ('iforest') on SciBERT embeddings. The output logs confirm successful execution of these evaluation runs."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "ba28ab4e-4b8b-4359-bbac-9bb8753e3d84",
    "category": "Code Development",
    "criterion": "Code for model answer generation and grading is implemented correctly for the AQuA-RAT benchmark.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly implements model answer generation, few-shot prompting, and answer extraction for the AQuA-RAT dataset. Specifically, lm_datasets.py correctly applies the AQuA-RAT prompt and formats options as specified in the addendum, eval.py provides the evaluation loop with appropriate answer extraction, and sampling.py handles generation and multi-sample semantic weighting/outlier methods using the OpenAI API."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "e84e0360-1818-41c0-884a-8714732a11fd",
    "category": "Code Development",
    "criterion": "For each of the groups of embeddings with the same answer, the scores are summed together, and the final answer is selected as the answer that has the highest associated score",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "In sampling.py under the SCWSampling class, the implementation computes pairwise cosine similarities across all embeddings (similarities = F.cosine_similarity(e1, e2, dim=2)), aggregates them (similarities_agg = similarities.sum(dim=1)), and then iterates over unique answers, summing the similarity scores for each specific answer group (filtered_sum = filtered_similarities.sum()) before selecting the answer with the highest summed score. This correctly implements Semantic Consensus Weighting as specified in the paper."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "866d7330-a9f7-4ee5-a2b2-f62ed843d522",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the AQuA-RAT benchmark using the KNN outlier removal method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly implements the KNN outlier removal method on SciBERT embeddings and runs it across the specified models (gpt-3.5-turbo and gpt-4o-mini) and datasets (including AQuA-RAT) as evidenced by the script in reproduce.sh and the execution log in reproduce.log."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "970e42e4-8be9-4d3b-a167-f7704065bd35",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the StrategyQA benchmark using the SCW method on RoBERTa embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission successfully implements and evaluates the StrategyQA benchmark using the Semantic Consensus Weighting (SCW) method with RoBERTa embeddings as specified in the paper and addendum. The reproduce.sh script executes the evaluation pipeline for the required models (gpt-3.5-turbo and gpt-4o-mini) on StrategyQA with scw, and the evaluation log confirms successful execution without errors."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "b63359fc-8d24-4473-bed3-d54fe1586b53",
    "category": "Code Development",
    "criterion": "All input points are sorted by average distance to their neighbours, and the 10% of inputs to the KNN method with the largest average distances are filtered out",
    "judge": 0,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that k-nearest neighbor outlier removal sorts or isolates inputs based on distance to neighbors and filters out points (e.g. top 10% of inputs with the largest average distances). In sampling.py, the KNNOutlierRemoval class implements KNN with n_neighbors=6, ball_tree algorithm, and minkowski metric, computes average distances to the 5 nearest neighbors, but identifies outliers using `mask = avg_distances == max_distance` instead of filtering out the top 10% of inputs with the largest average distances."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "43f23e0e-2c5b-4a2b-80ab-6cc9c62723f1",
    "category": "Code Development",
    "criterion": "The test split of the AQuA-RAT dataset (254 samples) is available for use.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum state that for AQuA-RAT, the full test set of 254 examples is used. Looking at lm_datasets.py, the script calls load_dataset(\"deepmind/aqua_rat\") and accesses ds[\"test\"], which corresponds to the standard HuggingFace split for AQuA-RAT containing exactly 254 test samples."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "eb67f3e3-fc60-4ba0-97cb-a1e97cdab8e5",
    "category": "Code Development",
    "criterion": "Model answer generation with the SVM outlier removal method has been implemented. Given k generated samples for a question, the SVM method is applied to filter out some samples, then standard self-consistency is applied to the remaining samples to compute the final answer",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission successfully implements the Support Vector Machine (SVM) outlier removal method using `OneClassSVM` from scikit-learn within `sampling.py`, where given $k$ generated samples, the method fits a linear one-class SVM on the embeddings and filters out outliers (where predict == -1), after which standard self-consistency majority voting is applied to the remaining samples. Furthermore, `eval.py` and `reproduce.sh` correctly hook up and invoke this SVM outlier removal method."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "2d8d7041-be93-45ae-a6ac-80fa53a49199",
    "category": "Code Development",
    "criterion": "The method uses the ball tree algorithm (the \"algorithm\" argument is set to \"ball_tree\" if using the sklearn implementation of KNeighborsClassifier)",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper specifies the use of K-nearest neighbor for outlier removal. In the submission's 'sampling.py' file, under the implementation of KNNOutlierRemoval, NearestNeighbors is instantiated with algorithm='ball_tree' (nn = NearestNeighbors(n_neighbors=6, algorithm='ball_tree', metric=\"minkowski\")). Thus, the submission correctly implements the ball tree algorithm as required."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "53060482-d130-4c4d-ac1c-93e755c7db43",
    "category": "Code Development",
    "criterion": "The number of base estimators in the ensemble is set to 200 (the \"n_estimators\" arg is set to 200 if using the sklearn implementation of IsolationForest\")",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The criterion specifies that the number of base estimators in the Isolation Forest ensemble is set to 200 (i.e., n_estimators=200 in the sklearn implementation). Looking at `sampling.py`, under `IsolationForestOutlierRemoval`, the code instantiates `IsolationForest(n_estimators=200, contamination=\"auto\", max_samples=\"auto\")`. This correctly implements the requirement."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "8028e26f-9cc7-482f-b648-02be6d130e53",
    "category": "Code Development",
    "criterion": "All evaluations on the SVAMP benchmark use SciBERT as the featurizer to produce embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper states that SciBERT is employed for the AQuA-RAT and SVAMP datasets. In the submission, eval.py contains the function `get_featurizer_model_name` which checks if `dataset_name == \"ChilleD/SVAMP\"` and returns \"allenai/scibert_scivocab_uncased\" (SciBERT), which is correctly used as the featurizer for SVAMP."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "bd9fa816-1437-4f94-825b-d77b0f11af0c",
    "category": "Code Development",
    "criterion": "Given a question, the model generates k=10 responses by sampling with temperature=0.8",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper states that k=10 responses are generated with a temperature of 0.8 for the semantic self-consistency methods and self-consistency baseline. In eval.py, when sampling methods like 'sc', 'cpw', or 'scw' are used, temperature is explicitly set to 0.8. Furthermore, reproduce.sh executes these evaluation scripts with `--k 10`. In sampling.py, the sampling methods loop `self.k` times to generate `k=10` responses. Thus, the criterion is fully met."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "860a913a-0f9c-4ea7-927d-bebb039b7cb3",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the SVAMP benchmark using the self-consistency baseline.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The candidate's reproduction script successfully executes evaluation on the SVAMP benchmark using the self-consistency baseline (via sampling-method 'sc') across the required models (gpt-3.5-turbo and gpt-4o-mini, as per the addendum stating that Llama and Mistral are not required). The logs confirm the execution for ChilleD/SVAMP with sampling method 'sc'."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "0eb8c4c9-c562-4c74-8153-6632e91eccc6",
    "category": "Code Development",
    "criterion": "Model answer generation with the Isolation Forest outlier removal method has been implemented. Given k generated samples for a question, the Isolation Forest method is applied to filter out some samples, then standard self-consistency is applied to the remaining samples to compute the final answer",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission successfully implements the Isolation Forest outlier removal method in `sampling.py` through the `IsolationForestOutlierRemoval` class, which uses `sklearn.ensemble.IsolationForest` to fit on the featurized embeddings and filter out outliers. This is integrated into the `SCSampling` class and invoked correctly during evaluation when `--outlier-method iforest` is specified."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "0535160a-b056-4dfa-a29f-511f1abf6ff8",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the AQuA-RAT benchmark using the SCW method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission successfully implements the SCW (Semantic Consensus Weighting) method using SciBERT embeddings for the AQuA-RAT dataset, as evidenced by the code in eval.py and sampling.py, and executes it via reproduce.sh using gpt-3.5-turbo and gpt-4o-mini as indicated by the successful execution logs."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "a09d85b6-e400-42bf-9958-def3b4311d9d",
    "category": "Code Development",
    "criterion": "When generating answers for AQuA-RAT, only generations where an answer could be extracted should be considered when computing the various metrics in each of the experiments.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The addendum states: 'For the \"top prob\" method for all datasets, generations are only considered in metric computation if an answer could be extracted. This is the same for all generations methods for AQuA-RAT; only generations where an answer could be extracted are considered.' In `eval.py`, the evaluation loop checks `if (isinstance(sampling_method, GreedySampling) and answer == \"\") or (dataset.info.splits[\"test\"].dataset_name == \"aqua_rat\" and answer == \"\"): num_skipped += 1; continue`, which correctly implements skipping generations where an answer could not be extracted for AQuA-RAT across all sampling methods."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "c2fd8c8a-e7c0-4fbd-8bf5-ef4c6108002a",
    "category": "Code Development",
    "criterion": "The centroid for the k embeddings is computed using euclidean distance",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "In sampling.py, under the CPWSampling class, the centroid is correctly computed using embeddings.mean(dim=0), and the distances of each vector from the centroid are computed using torch.norm(embeddings - centroid.unsqueeze(0), dim=1), which correctly implements the Euclidean distance calculation as described in Section 4.1.1 of the paper."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "77e2711a-6278-4798-978f-d79c3a337d9f",
    "category": "Code Development",
    "criterion": "Each of the k embeddings has an associated weight inversely proportional to their normalized distance to the centroid of all the embeddings. The weight for embedding i is computed as one divided by the normalized distance from embedding i to the centroid",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "In sampling.py under CPWSampling.sample_answer, the submission computes the centroid of embeddings, calculates the euclidean distances, normalizes them, and computes the weights as weights = (1 / (normalized_distances + 1e-8)).unsqueeze(1), which directly matches the criterion that the weight for embedding i is inversely proportional to its normalized distance (one divided by the normalized distance)."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "81246c81-3081-4734-8bdd-b6de2992105a",
    "category": "Code Development",
    "criterion": "Inference can be performed on gpt-4o-mini (any version)",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper specifies the use of GPT-4o mini for evaluation. In the submission, the code in `eval.py` and `reproduce.sh` directly accepts and utilizes `gpt-4o-mini` as an argument for the model parameter. The model name is passed to the OpenAI API client calls in `sampling.py`, allowing inference to be performed correctly on gpt-4o-mini."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "42296ab8-386b-4645-9fbf-4cd635f4fd81",
    "category": "Code Development",
    "criterion": "For SVAMP, AQuA_RAT and StrategyQA, given a response, the full string answer after the model generates \"The answer is\" is parsed as the answer, after removing for whitespace, fullstops, and parentheses",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission's answer_extraction function in eval.py correctly implements the logic to parse the answer following 'the answer is' (case-insensitively), and removes whitespace, full stops, and parentheses as specified."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "5e1af65d-a62a-4779-bb5f-196983a75c7e",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the AQuA-RAT benchmark using the self-consistency baseline.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify evaluating models on the AQuA-RAT benchmark using the self-consistency baseline (sampling method 'sc'). The submission script 'reproduce.sh' iterates over the required models (gpt-3.5-turbo and gpt-4o-mini, as per addendum) and datasets (including deepmind/aqua_rat), running 'eval.py' with '--sampling-method sc'. The output log 'reproduce.log' confirms that these evaluation jobs for AQuA-RAT using the self-consistency baseline successfully executed without errors."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "50fe90ba-39a2-4b00-8e52-edb99448ca7b",
    "category": "Code Development",
    "criterion": "The number of neighbours used is set to 5 (the \"n_neighbors\" argument is set to 6 if using the sklearn implementation of KNeighborsClassifier to return the 5 nearest neighbours, note 5 is the default value of this argument)",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The criterion specifies that the number of neighbours used should be set to 5, which means setting `n_neighbors=6` when using sklearn's NearestNeighbors so that the point itself is excluded and 5 nearest neighbours are considered. In `sampling.py`, under `KNNOutlierRemoval`, the submission instantiates NearestNeighbors with `n_neighbors=6`, matching the requirement."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "a5c85099-0e2e-46c1-bd19-5bedb2d7886a",
    "category": "Code Development",
    "criterion": "An embedding is created for each of the k responses by passing it through the associated featurizer and getting the embedding at the first (\"[CLS]\") token",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that an embedding is created for each of the k responses by passing it through the associated featurizer and obtaining the embedding at the first ('[CLS]') token. In the submission's `sampling.py`, specifically inside `SCSampling._filter_outliers`, `CPWSampling.sample_answer`, and `SCWSampling.sample_answer`, the code tokenizes each generated text, passes it through the featurizer model with `output_hidden_states=True`, and extracts the embedding at the first token (`cls_embedding = out.hidden_states[-1][0, 0, :]`), which corresponds to the [CLS] token representation for BERT-based models like RoBERTa and SciBERT. Therefore, the implementation correctly fulfills the criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "796cdb25-0885-4219-a0f9-bdedb3e37a0d",
    "category": "Code Development",
    "criterion": "Euclidean distance is used (the \"metric\" argument is set to \"minkowski\" if using the sklearn implementation of KNeighborsClassifier, note \"minkowski\" is the default value of this argument)",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The criterion specifies that Euclidean distance (or Minkowski distance, which defaults to Euclidean when p=2) is used as the metric argument in the K-nearest neighbor implementation for outlier removal. Checking the `sampling.py` file in the submission, the KNNOutlierRemoval class initializes NearestNeighbors with `metric='minkowski'`, which matches the requirement and default behavior. Therefore, the criterion is met."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "77d8f917-a53e-4374-8eaa-c24fa70186e2",
    "category": "Code Development",
    "criterion": "All models use the 4-shot prompt provided in Table 21 of \"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models\" when evaluated on AQuA-RAT",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly implements the 4-shot prompt for AQuA-RAT as specified in the addendum and the referenced Chain-of-Thought paper. In `constants.py`, the `AQUA_RAT_FEW_SHOT` variable contains the exact four questions and answers for AQuA-RAT as mandated by the instructions and addendum."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "1c671c6e-e97e-4897-82fd-ec21dc80e744",
    "category": "Code Development",
    "criterion": "All evaluations on the StrategyQA benchmark use RoBERTa as the featurizer to produce embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly implements the featurizer selection for the StrategyQA benchmark in eval.py via the function get_featurizer_model_name, which maps 'ChilleD/StrategyQA' to 'FacebookAI/roberta-base'."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "8006761a-19e1-4990-92fa-778b6ee89266",
    "category": "Code Development",
    "criterion": "The test split of the StrategyQA dataset (687 samples) is available for use.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper states that for StrategyQA, the complete test split consisting of 687 samples is employed. In the submission, `lm_datasets.py` loads the dataset using `load_dataset('ChilleD/StrategyQA')`, which loads the standard StrategyQA dataset (where the test split contains 687 samples). Therefore, the test split of StrategyQA is correctly made available and used."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "20e068b7-9f3c-4df2-8c37-91e7640d33b4",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the SVAMP benchmark using the CPW method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission includes the reproduction script 'reproduce.sh', evaluation script 'eval.py', and 'sampling.py' which implements the Centroid Proximity Weighting (CPW) method using the SciBERT featurizer for the SVAMP benchmark. According to the logs in 'reproduce.log', the script successfully executed the CPW method on the SVAMP dataset for the required models (gpt-3.5-turbo and gpt-4o-mini)."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "9e88e0f1-e7ee-443c-b64a-e6d835e08f1d",
    "category": "Code Development",
    "criterion": "All models use the 8-shot math prompt provided in Table 20 of \"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models\" when evaluated on SVAMP",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that when evaluated on SVAMP, models should use the 8-shot math prompt provided in Table 20 of \"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models\". In the submission, constants.py defines `SVAMP_FEW_SHOT`, which contains exactly 8 few-shot examples (starting with \"Q: There are 15 trees in the grove...\" and ending with \"Q: Olivia has $23. She bought five bagels...\"), exactly matching Table 20 referenced in the addendum."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "95520bb4-2c5d-4469-975a-569e1ab76cd4",
    "category": "Code Development",
    "criterion": "Given a question, the model generates k=10 responses by sampling with temperature=0.8",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper specifies that $k=10$ responses are sampled with a temperature of $0.8$ for methods like self-consistency, CPW, and SCW. Looking at `reproduce.sh`, `--k 10` is passed to `eval.py`. In `eval.py`, the temperature is explicitly set to `0.8` for `sc`, `cpw`, and `scw` sampling methods. Furthermore, `sampling.py` implements the sampling loop to gather $k$ responses asynchronously (`for _ in range(self.k)`). Thus, the requirement for generating $k=10$ responses by sampling with temperature=0.8 is fully met in the code."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "4d197469-b5e8-4bff-bae7-211a4f83f140",
    "category": "Code Development",
    "criterion": "The number of samples to draw from the training data to train each base estimator is set to min(256, n_samples) (the \"max_samples\" arg is set to \"auto\" if using the sklearn implementation of IsolationForest\")",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "In the submission, specifically in the file 'sampling.py', the IsolationForest class uses 'max_samples=\"auto\"' when initializing sklearn's IsolationForest: 'iforest = IsolationForest(n_estimators=200, contamination=\"auto\", max_samples=\"auto\")'. This matches the requirement to set the max_samples argument to 'auto' for the sklearn implementation."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "fbdcd693-b8d5-493f-8475-d05c390e27d1",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the StrategyQA benchmark using the self-consistency baseline.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The candidate's submission includes scripts (`eval.py`, `reproduce.sh`, `sampling.py`, `lm_datasets.py`) that successfully implement evaluation on the StrategyQA dataset using the self-consistency baseline with the required models (gpt-3.5-turbo and gpt-4o-mini, as per the addendum for required models). The execution log in `reproduce.log` confirms that the evaluation script was successfully run for StrategyQA using the self-consistency ('sc') sampling method."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "463c7875-01e8-4e72-8e07-493ee968b0b3",
    "category": "Code Development",
    "criterion": "The parsing extraction approach is applied to extract the models answer from the response",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper specifies parsing answers from generated responses following the baseline self-consistency method (e.g., extracting the string after 'the answer is'). In the candidate's implementation in eval.py, the `answer_extraction` function implements this exact logic: locating 'the answer is', handling yes/no mappings to true/false, and cleaning up whitespace and punctuation. Thus, the criterion is met."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "b4ec7fec-fe79-4cfc-a15e-c2e43db21c2b",
    "category": "Code Development",
    "criterion": "Given a question, the model generates k=10 responses by sampling with temperature=0.8",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper specifies that k=10 responses are generated with temperature=0.8 for the semantic self-consistency methods. In the submission's `eval.py` and `reproduce.sh`, the parameter `--k 10` is passed, and `sampling.py` sets `temperature = 0.8` for all methods except greedy sampling. This correctly implements the requirement."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "63aa239f-9288-462e-85f2-c4019768a6f7",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the SVAMP benchmark using the Isolation Forest outlier removal method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The reproduce.sh script successfully executes the evaluation for gpt-3.5-turbo and gpt-4o-mini on the ChilleD/SVAMP dataset using self-consistency with the Isolation Forest outlier removal method combined with SciBERT embeddings, as evidenced by the successful log output showing 'Model: gpt-3.5-turbo, Dataset: ChilleD/SVAMP, Sampling Method: sc, Outlier Method: iforest' and similarly for gpt-4o-mini."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "f9d830a5-dd0a-4b66-90d7-66fd1035ff29",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the SVAMP benchmark using the KNN outlier removal method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The reproduce.sh script executes evaluation on the SVAMP dataset using the KNN outlier removal method for both gpt-3.5-turbo and gpt-4o-mini models, as evidenced in the reproduction log. Therefore, the criterion has been successfully met."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "c066870b-543b-4935-a936-3560101fbb13",
    "category": "Code Development",
    "criterion": "Model answer generation with the k-Nearest Neighbours outlier removal method has been implemented. Given k generated samples for a question, the k-Nearest Neighbours method is applied to filter out some samples, then standard self-consistency is applied to the remaining samples to compute the final answer",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission implements the k-Nearest Neighbours outlier removal method in `sampling.py` under the `KNNOutlierRemoval` class, using `NearestNeighbors` from scikit-learn with `n_neighbors=6`, `algorithm='ball_tree'`, and `metric='minkowski'`. It computes average distances to nearest neighbors and filters points based on the maximum average distance. Furthermore, `eval.py` and `sampling.py` integrate this within self-consistency (`SCSampling`) to filter samples before taking a majority vote to determine the final answer, matching the expected implementation."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "8519dd43-eaf9-42dd-b96e-cda00b737479",
    "category": "Code Development",
    "criterion": "RoBERTa base (125 million parameters version) can be used to generate an embedding vector for an input string",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly implements RoBERTa base loading and embedding extraction. In models.py, 'FacebookAI/roberta-base' is loaded using AutoModel.from_pretrained and AutoTokenizer.from_pretrained. Furthermore, eval.py specifies 'FacebookAI/roberta-base' as the featurizer for the StrategyQA dataset, and sampling.py extracts hidden states (e.g., cls embedding from the last hidden states) from the featurizer model to compute text embeddings."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "89b080c5-7ddb-4115-ade2-5d5ce9ebed5c",
    "category": "Code Development",
    "criterion": "For each of the groups of embeddings with the same answer, the weights are summed together, and the final answer is selected as the answer that has the highest associated weight",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper specifies that for Centroid Proximity Weighting (CPW), the total weight for each unique output is computed by summing the weights of all individual embeddings corresponding to that answer, and the output with the highest total weight is selected. Looking at `sampling.py`, specifically inside the `CPWSampling` class, the implementation loops over each unique answer, creates a boolean mask for the embeddings corresponding to that answer, extracts the filtered weights (`filtered_weights = weights[mask]`), sums them (`filtered_sum = filtered_weights.sum()`), and tracks the answer with the largest sum of weights (`if filtered_sum > largest_weight: ... best_answer = answer`). This correctly implements the summation of weights for each group of embeddings sharing the same answer and selects the highest-weighted answer."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "10516a66-aec7-437c-9966-7dc0d7fcefc0",
    "category": "Result Analysis",
    "criterion": "The SC baseline outperforms the top prob sampling baseline in all cases.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The criterion states that the SC (self-consistency) baseline outperforms the top prob sampling baseline in all cases. In Table 1 of the paper, we can see that across all model and dataset pairs, the SC baseline accuracy is higher than the Top prob sample accuracy. Looking at the provided submission files (such as table1.csv or the evaluation logs), the reproduced results also follow this trend, where self-consistency outperforms greedy/top-prob decoding across the evaluated models and datasets. Thus, the criterion is met."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "be2d3c6c-efbd-477e-97fe-a616f6fc3bf1",
    "category": "Code Development",
    "criterion": "When generating answers using the top prob method, only generations where an answer could be extracted should be considered when computing the various metrics in each of the experiments.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that when evaluating the top prob sample (greedy baseline) method across datasets, generations are only considered in metric computation if an answer could be extracted. Looking at `eval.py` around line 49, the evaluation loop explicitly checks: `if (isinstance(sampling_method, GreedySampling) and answer == \"\") or (dataset.info.splits[\"test\"].dataset_name == \"aqua_rat\" and answer == \"\"): num_skipped += 1; continue`. This correctly skips unextractable answers for greedy sampling and AQuA-RAT, fulfilling the criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "c5814593-5393-4a6d-80e7-5b85eac9e593",
    "category": "Code Development",
    "criterion": "The threshold is determined as in the original paper (the \"contamination\" arg is set to \"auto\" if using the sklearn implementation of IsolationForest\")",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission uses the sklearn IsolationForest implementation in sampling.py, where contamination is explicitly set to 'auto' as required by the criterion (`IsolationForest(n_estimators=200, contamination='auto', max_samples='auto')`)."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "82b1a191-e41c-457b-af57-e036b6be7129",
    "category": "Code Development",
    "criterion": "The parsing extraction approach is applied to extract the answer from each of the k responses",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that answers should be extracted from generated responses using a specific parsing function (e.g., extracting the text immediately following 'the answer is', handling case insensitivity, stripping whitespace, parentheses, and fullstops). In the submission, `eval.py` defines `answer_extraction(x: str)` which correctly locates 'the answer is', strips out periods, parentheses, and whitespaces, and extracts the answer string. This function is passed to `sampling_method.sample_answer` and subsequently applied to each of the generated responses within the sampling classes in `sampling.py`. Therefore, the criterion is fully met."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "d5734891-24a1-4df0-82cf-483d1397eb46",
    "category": "Result Analysis",
    "criterion": "GPT-3.5 generally has much higher performance relative to the SC baseline for all removal methods in all 3 dataset settings",
    "judge": 0,
-   "human": 0,
+   "label": 0,
+   "label_why": "",
    "reason": "The criterion states that GPT-3.5 generally has much higher performance relative to the SC baseline for all removal methods in all 3 dataset settings. Looking at table2.csv and table1.csv for gpt-3.5-turbo, the SC baseline accuracy for AQuA-RAT is 0.677, whereas KNN gives 0.603 (worse), SVM gives 0.695 (small gain), and Isolation Forest gives 0.734 (gain). For SVAMP, SC baseline is 0.827, and removal methods give 0.83 (knn), 0.827 (svm), 0.827 (iforest), showing virtually no gain or negligible difference. For StrategyQA, SC baseline is 0.721, while KNN is 0.72, SVM is 0.719, and Isolation Forest is 0.706, which are all lower or equal. Therefore, the reproduction results do not show that GPT-3.5 generally has much higher performance relative to the SC baseline for all removal methods across all 3 datasets."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "879fdf86-cc40-404e-93a9-20d80574f790",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the StrategyQA benchmark using the One-class SVM outlier removal method on RoBERTa embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission script `reproduce.sh` successfully executes `eval.py` for both `gpt-3.5-turbo` and `gpt-4o-mini` on the `ChilleD/StrategyQA` dataset using the `sc` sampling method with the One-class SVM outlier removal method (`--outlier_method svm`), as logged in `reproduce.log`. Therefore, the models have been evaluated on the StrategyQA benchmark using the One-class SVM outlier removal method on RoBERTa embeddings."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "c042db31-9804-4360-9ec8-037e70847fc0",
    "category": "Result Analysis",
    "criterion": "On average across models, CPW outperforms the SC baseline on the AQuA-RAT and SVAMP, but has a negative effect on StrategyQA.",
    "judge": 1,
-   "human": 0,
+   "label": 0,
+   "label_why": "",
    "reason": "The criterion specifies that on average across models, CPW should outperform the SC baseline on AQuA-RAT and SVAMP, but have a negative effect on StrategyQA. Looking at Table 1 in the paper, CPW improves accuracy on AQuA-RAT (+3.14% on average) and SVAMP (+0.97% on average), but decreases performance on StrategyQA (-1.63% on average). Checking the submitted reproduction results in `table1.csv`: for AQuA-RAT, gpt-3.5-turbo goes from 0.677 (SC) to 0.702 (CPW) and gpt-4o-mini goes from 0.834 (SC) to 0.850 (CPW). For SVAMP, gpt-3.5-turbo goes from 0.827 to 0.837, and gpt-4o-mini goes from 0.920 to 0.919 (very slight drop, but averaged with gpt-3.5-turbo it's positive). For StrategyQA, gpt-3.5-turbo goes from 0.721 to 0.721 (0 change), and gpt-4o-mini goes from 0.805 to 0.797 (negative effect). Overall, the reproduced results align with the paper's claims regarding CPW performance across datasets."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "7e05fd91-a2fa-47ce-918f-9626d9b23f75",
    "category": "Code Development",
    "criterion": "All models use top-p=1",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that top-p=1 should be used for all models (and note that the default value for top-p through the OpenAI API is 1). Examining the sampling implementation in `sampling.py`, specifically inside `sample_single_answer`, we can see the code explicitly sets `oai_generation_kwargs = {\"top_p\": 1}` before calling the OpenAI API. Therefore, the implementation correctly satisfies the criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "13a6fa19-3d02-4331-b64e-06930fd29626",
    "category": "Code Development",
    "criterion": "Given a question, the model generates a single response using greedy decoding",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum outline the need to generate a single response using greedy decoding for the baseline/top probability comparison. In the submission, eval.py handles the evaluation loop and sets temperature = 0.0 when the sampling method is 'greedy'. Furthermore, GreedySampling in sampling.py invokes sample_single_answer with the generation parameters, resulting in a greedy decode generation. The implementation is complete and correct."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "067da205-f599-4a40-92fe-4cfc3f635c41",
    "category": "Code Development",
    "criterion": "The full SVAMP dataset (1000 samples including both the train and test split) is available for use.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper states in Appendix L: 'Specifically, for SVAMP, we utilize the train and test split comprising 1,000 samples to achieve a less noisy evaluation.' In the submission, the file `lm_datasets.py` handles loading the SVAMP dataset (`ChilleD/SVAMP`) by concatenating both the train and test splits (`ds = concatenate_datasets([ds[\"train\"], ds[\"test\"]])`), resulting in 1,000 samples. Therefore, the implementation correctly meets the criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "77a472fc-c8c9-4316-93a0-ecaa32677a32",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the StrategyQA benchmark using the Isolation Forest outlier removal method on RoBERTa embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission script reproduce.sh and evaluation code eval.py successfully run the evaluation for gpt-3.5-turbo and gpt-4o-mini on StrategyQA using the self-consistency baseline combined with the Isolation Forest outlier removal method on RoBERTa embeddings, as verified by the reproduce.log."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "39f83549-039d-44b4-85d5-1d66e261baa9",
    "category": "Code Development",
    "criterion": "The normalized distance from each of the k embeddings to the centroid of the k embeddings is computed",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that for Centroid Proximity Weighting (CPW), the normalized distance of each embedding vector to the centroid should be computed. Looking at the implementation in sampling.py under the CPWSampling class, the code computes the centroid, calculates the distances via torch.norm(embeddings - centroid.unsqueeze(0), dim=1), and normalizes these distances by dividing by distances.sum(). This directly matches the formula and expectation in Section 4.1.1 and the rubric criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "f4ea36de-ac1c-498b-a8db-7616907780cb",
    "category": "Code Development",
    "criterion": "All models use the 6-shot prompt provided in Table 25 of \"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models\" when evaluated on StrategyQA",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that StrategyQA should use the 6-shot prompt provided in Table 25 of the Chain-of-Thought Prompting paper. Looking at the `constants.py` file in the submission, the variable `STRATEGYQA_FEW_SHOT` contains exactly the 6 few-shot examples specified in Table 25 of the CoT paper (starting with 'Do hamsters provide food for any animals?' and ending with 'Would a pear sink in water?'), and this constant is correctly loaded and formatted in `lm_datasets.py` for StrategyQA evaluation. Thus, the criterion has been fully met."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "838cb78c-aade-4c63-8790-35f316e21765",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the SVAMP benchmark using top prob sampling.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The evaluation requires running top prob sampling (referred to as greedy sampling in eval.py) on the SVAMP benchmark for the required models (gpt-3.5-turbo and gpt-4o-mini). Examining reproduce.sh, eval.py, and reproduce.log confirms that the script correctly loops over the required models and datasets (including ChilleD/SVAMP) with the greedy sampling method, and successfully executes the evaluation as logged."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "db4e4076-436e-4a5a-b441-8d7d876b7f1a",
    "category": "Code Development",
    "criterion": "For each embedding, the cosine similarity between it and every other embedding is summed to produce a score for such embedding",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper describes Semantic Consensus Weighting (SCW) where the cosine similarity between each embedding and every other embedding in the set is computed and aggregated: S_{n_e} = sum_{n_i in N} cosine_similarity(n_e, n_i). Looking at sampling.py in the SCWSampling class, the submission computes embeddings and then calculates: e1 = embeddings.unsqueeze(0), e2 = embeddings.unsqueeze(1), similarities = F.cosine_similarity(e1, e2, dim=2), similarities_agg = similarities.sum(dim=1). This correctly calculates the sum of cosine similarities between each embedding and every other embedding, satisfying the criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "489ab4d9-1501-4f01-ad35-75f35f1f174b",
    "category": "Code Development",
    "criterion": "Code for model answer generation and grading is implemented correctly for the StrategyQA benchmark.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly implements the StrategyQA benchmark evaluation, including dataset preparation in lm_datasets.py using the correct few-shot examples and answer mapping, answer extraction in eval.py, and embedding generation using the RoBERTa-base featurizer as specified in the paper and addendum."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "9d8bb6a7-080b-4e15-a710-dec1da026131",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the AQuA-RAT benchmark using top prob sampling.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The paper and addendum specify that models should be evaluated on the AQuA-RAT benchmark using top prob sampling (referred to as greedy or top prob sample). Examining `eval.py` and `reproduce.sh`, the evaluation pipeline includes running `greedy` sampling on `deepmind/aqua_rat` for the required models (gpt-3.5-turbo and gpt-4o-mini), satisfying the criterion."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "02b21e96-830c-4b3b-b399-018f569f4861",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the AQuA-RAT benchmark using the CPW method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The candidate's reproduction script (reproduce.sh) and evaluation code (eval.py, sampling.py) successfully implement and execute the Centroid Proximity Weighting (CPW) method using SciBERT embeddings on the AQuA-RAT dataset ('deepmind/aqua_rat') for the specified models ('gpt-3.5-turbo' and 'gpt-4o-mini'). The output log confirms that the evaluation for this exact configuration completed successfully."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "2322564b-cb87-40b7-931b-1afc876baf55",
    "category": "Result Analysis",
    "criterion": "gpt-4o-mini generally achieves a very small performance gain over the SC baseline for all removal methods in all 3 dataset settings",
    "judge": 0,
-   "human": 0,
+   "label": 0,
+   "label_why": "",
    "reason": "The criterion states that gpt-4o-mini generally achieves a very small performance gain over the SC baseline for all removal methods in all 3 dataset settings. Examining `table2.csv` for gpt-4o-mini across deepmind/aqua_rat, ChilleD/SVAMP, and ChilleD/StrategyQA, we can compare the SC baseline (which can be found in table1.csv as 0.834, 0.920, and 0.805 respectively) against the outlier removal methods (knn, svm, iforest). For instance, on aqua_rat, SC baseline is 0.834, while knn is 0.817, svm is 0.849, and iforest is 0.806. On SVAMP, SC baseline is 0.920, while knn is 0.920, svm is 0.918, and iforest is 0.917. On StrategyQA, SC baseline is 0.805, while knn is 0.80, svm is 0.814, and iforest is 0.803. In many cases, the outlier removal methods actually underperform or show mixed/negligible changes rather than consistently achieving a very small performance gain over the SC baseline across all settings. Thus, the criterion is not met."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "0dffe1c8-da0c-4829-9bb6-033512baada3",
    "category": "Code Development",
    "criterion": "SciBERT (110 million parameters version) can be used to generate an embedding vector for an input string",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly implements the use of SciBERT (allenai/scibert_scivocab_uncased) as a featurizer to generate embedding vectors from input strings. Specifically, in `eval.py`, `get_featurizer_model_name()` maps `deepmind/aqua_rat` and `ChilleD/SVAMP` to `allenai/scibert_scivocab_uncased`, and loads the model and tokenizer via `load_model_and_tokenizer()`. In `sampling.py`, the tokenized text is passed through the model and hidden states are extracted to compute the embeddings used for CPW, SCW, and outlier removal."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "0b270d60-8ac8-4102-933d-cc9eddedd22d",
    "category": "Code Development",
    "criterion": "Code for model answer generation and grading is implemented correctly for the SVAMP benchmark.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission correctly implements model answer generation and grading for the SVAMP benchmark. Specifically, lm_datasets.py loads the SVAMP dataset (ChilleD/SVAMP), appends the exact few-shot prompt specified in the addendum, formats the inputs, and maps the correct answers. eval.py and sampling.py implement sampling, extraction via answer_extraction (removing full stops, parentheses, whitespaces, and case-insensitivity as specified), and evaluation against the ground truth labels."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "5335dc2c-5cc8-4cfa-8bd5-e123af878f06",
    "category": "Result Analysis",
    "criterion": "The One-class SVM outlier removal method outperforms the SC baseline on StrategyQA most of the time across all models.",
    "judge": 0,
-   "human": 0,
+   "label": 0,
+   "label_why": "",
    "reason": "According to Table 2 of the paper, the SC baseline accuracy on StrategyQA for GPT-3.5 is 66.81%, while One-class SVM is 68.73%. For GPT-4o mini, the SC baseline is 79.18%, while One-class SVM is 81.02%. In both cases, One-class SVM outperforms the SC baseline on StrategyQA. Looking at the submission's table2.csv, for gpt-3.5-turbo on StrategyQA, SC baseline is 0.721 (from table1.csv) and One-class SVM is 0.719 (which is slightly lower); for gpt-4o-mini on StrategyQA, SC baseline is 0.805 and One-class SVM is 0.814 (higher). However, the instruction states that results involving Llama 2 7B, Mistral 7B, and Llama 3 8B are not required, and only gpt-3.5-turbo and gpt-4o-mini are required. Since One-class SVM outperforms the SC baseline on StrategyQA for gpt-4o-mini (81.4% vs 80.5%), but not for gpt-3.5-turbo in the submission (71.9% vs 72.1%), it does not outperform the baseline 'most of the time' across the required models in the submission's reproduced numbers."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "8ac54105-5705-4e70-9fda-51c8363bdb44",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the AQuA-RAT benchmark using the One-class SVM outlier removal method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The reproduce.sh script successfully executes the evaluation for gpt-3.5-turbo and gpt-4o-mini on the AQuA-RAT dataset using the One-class SVM outlier removal method on SciBERT embeddings (using the eval.py script with --sampling-method sc and --outlier-method svm). The reproduction log confirms that this evaluation completed successfully for both required models."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "c5380fee-79a6-4d19-b0af-a67f252d73c7",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the SVAMP benchmark using the One-class SVM outlier removal method on SciBERT embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The reproduce.sh script successfully executes evaluation on the SVAMP benchmark using the SC sampling method combined with the One-class SVM outlier removal method on SciBERT embeddings for the required models (gpt-3.5-turbo and gpt-4o-mini). The reproduce.log confirms that these specific jobs were run successfully."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "e3023d1b-c9d1-4234-8855-d7ee84bf5243",
    "category": "Result Analysis",
    "criterion": "Across models and datasets, the SCW method outperforms the SC baseline in almost all cases.",
    "judge": 0,
-   "human": 0,
+   "label": 0,
+   "label_why": "",
    "reason": "According to the paper and its results (Table 1), Semantic Consensus Weighting (SCW) generally outperforms the Self-Consistency (SC) baseline across models and datasets. Examining the submission's generated result file table1.csv, for gpt-3.5-turbo on AQuA-RAT, SCW has an accuracy of 0.691 vs SC 0.677; however, on SVAMP, SCW is 0.836 vs SC 0.827, and on StrategyQA, SCW is 0.710 vs SC 0.721 (worse). For gpt-4o-mini on SVAMP, SCW is 0.93 vs SC 0.92, on StrategyQA, SCW is 0.8 vs SC 0.805 (worse), and on AQuA-RAT, SCW is 0.819 vs SC 0.834 (worse). Thus, in table1.csv, SCW does not consistently outperform the SC baseline in almost all cases (it underperforms in several configurations). Therefore, the condition that SCW outperforms the SC baseline in almost all cases is not reflected in the produced results."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "5096c429-1bd2-45ef-acf9-edadd7c9286b",
    "category": "Code Development",
    "criterion": "Inference can be performed on gpt-3.5-turbo (any version)",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission includes code in sampling.py that uses the OpenAI AsyncOpenAI client to make calls to models, and eval.py allows passing model names via command line arguments. Additionally, reproduce.sh calls eval.py specifying 'gpt-3.5-turbo' as the model, confirming that inference can be performed on gpt-3.5-turbo."
   },
   {
+   "run": "je_gemini-3.5-flash-lite",
    "id": "e4829498-53f5-434e-a683-47cbc0aced86",
    "category": "Code Execution",
    "criterion": "All models have been evaluated on the StrategyQA benchmark using the KNN outlier removal method on RoBERTa embeddings.",
    "judge": 1,
-   "human": 1,
+   "label": 1,
+   "label_why": "",
    "reason": "The submission script `reproduce.sh` successfully loops over all required models (gpt-3.5-turbo and gpt-4o-mini as specified in the addendum) and datasets (including ChilleD/StrategyQA), executing the evaluation script `eval.py` with the `knn` outlier method on RoBERTa embeddings (via the featurizer loaded for StrategyQA). The `reproduce.log` confirms that the evaluation for StrategyQA using the KNN outlier removal method on RoBERTa embeddings was successfully executed and logged for all required models."
   }
  ]

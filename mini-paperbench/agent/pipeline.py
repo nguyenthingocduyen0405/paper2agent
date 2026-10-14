@@ -25,7 +25,7 @@ from pydantic import BaseModel, Field
 from agent.llm import LLM, MAX_CALLS
 
 SYSTEM = """You are an expert ML research engineer. Your job is to reproduce a research paper by writing a complete, runnable codebase.
-You cannot run code or browse the web. You only have the paper.
+You cannot run code or browse the web. You only have the paper (and its addendum, if given).
 Write real, working implementations, not placeholders or TODOs. Follow the paper's details exactly (datasets, models, prompts, hyperparameters, metrics)."""
 
 MAX_FILES = 12  # P2가 제안할 수 있는 src 파일 수 상한
@@ -53,19 +53,23 @@ def extract_block(text: str) -> str:
 
 
 class Agent:
-    def __init__(self, run_dir: Path, paper_md: str):
+    def __init__(self, run_dir: Path, paper_md: str, addendum: str | None):
         self.run_dir = run_dir
         self.sub = run_dir / "submission"
         self.sub.mkdir(parents=True, exist_ok=True)
         self.paper_md = paper_md
+        self.addendum = addendum
         self.llm = LLM(run_dir)
 
-    # 모든 호출의 앞부분: 시스템 + 논문 (같은 내용이라 캐시된다)
+    # 모든 호출의 앞부분: 시스템 + 논문 + addendum (같은 내용이라 캐시된다)
     def _prefix(self) -> list[dict]:
-        return [
+        msgs = [
             {"role": "system", "content": SYSTEM},
             {"role": "user", "content": f"The paper is below:\n<paper>\n{self.paper_md}\n</paper>"},
         ]
+        if self.addendum:
+            msgs.append({"role": "user", "content": f"The addendum below clarifies the paper and the scope of the reproduction. Follow it:\n<addendum>\n{self.addendum}\n</addendum>"})
+        return msgs
 
     def _context(self) -> list[dict]:
         """P2 이후 호출의 공통 맥락: 분석 + 설계 + 지금까지 쓴 파일."""
@@ -220,7 +224,10 @@ def main() -> None:
 
     run_dir = Path("data/agent_runs") / args.run_id
     run_dir.mkdir(parents=True, exist_ok=True)
-    agent = Agent(run_dir, (Path(args.paper_dir) / "paper.md").read_text())
+    # PaperBench와 같이 addendum.md는 에이전트에게 준다. judge.addendum.md는 judge 전용이라 주지 않는다.
+    paper_dir = Path(args.paper_dir)
+    addendum = (paper_dir / "addendum.md").read_text() if (paper_dir / "addendum.md").exists() else None
+    agent = Agent(run_dir, (paper_dir / "paper.md").read_text(), addendum)
 
     t = time.time()
     agent.p1_analyze()
@@ -241,6 +248,8 @@ def main() -> None:
     result = {
         "run_id": args.run_id,
         "model": agent.llm.model,
+        "paper_dir": str(paper_dir),
+        "used_addendum": addendum is not None,
         "calls": len(calls),
         "call_limit": MAX_CALLS,
         "input_tokens": sum(c["input_tokens"] for c in calls),

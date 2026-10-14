@@ -1,0 +1,444 @@
+{
+ "run": "syn_clipsign_sub_empty",
+ "label": "23 tasks, 2 workers",
+ "total": 23,
+ "completed": 23,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-1021729": 11,
+  "gpu7-1021728": 12
+ },
+ "wall_time_sec": 60.86,
+ "mean_task_sec": 5.28,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 91.14,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 23,
+  "input_tokens": 48440,
+  "output_tokens": 1458,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/clipsign/submissions/sub_empty",
+ "leaves": {
+  "5de949d9-09b6-5237-b49d-6e963b43f3fd": {
+   "leaf_id": "5de949d9-09b6-5237-b49d-6e963b43f3fd",
+   "category": "Code Development",
+   "requirements": "The model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 that takes flattened 784-dimensional images as input.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. There is no code implementing the MLP model with layer sizes 784 -> 256 -> 128 -> 10 and flattened 784-dimensional inputs as described in Section 3.",
+   "usage": {
+    "input_tokens": 2028,
+    "output_tokens": 82,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982869.131135,
+   "finished_at": 1791982870.4332187,
+   "ratelimit_wait_sec": 0.0
+  },
+  "87045acc-5353-5951-99e6-d3b1f903a471": {
+   "leaf_id": "87045acc-5353-5951-99e6-d3b1f903a471",
+   "category": "Code Development",
+   "requirements": "The threshold is computed separately for each parameter tensor as tau = 0.37 times the mean absolute value of the (weight-decayed) gradient components of that tensor, as in Eq. (2).",
+   "score": 0,
+   "reason": "The submission only contains an empty README and a mock reproduce.sh script that says 'not implemented'. Therefore, the implementation of the relative dead-zone threshold computation as described in Eq. (2) is completely missing.",
+   "usage": {
+    "input_tokens": 2107,
+    "output_tokens": 54,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982871.6849241,
+   "finished_at": 1791982872.837506,
+   "ratelimit_wait_sec": 0.0
+  },
+  "603b8d9e-ab01-5cc2-b246-d11c2499d5aa": {
+   "leaf_id": "603b8d9e-ab01-5cc2-b246-d11c2499d5aa",
+   "category": "Code Development",
+   "requirements": "The last 5,000 images of the training set are held out as a validation set, and the first 55,000 images are used for training.",
+   "score": 0,
+   "reason": "The submission only contains an empty README and a stub reproduce.sh script that says 'not implemented'. There is no code implementing the dataset splitting where the last 5,000 images of the training set are held out as a validation set and the first 55,000 images are used for training.",
+   "usage": {
+    "input_tokens": 2069,
+    "output_tokens": 75,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982869.107708,
+   "finished_at": 1791982870.254555,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9f2c10ae-af4e-5872-be5a-60978acd1c12": {
+   "leaf_id": "9f2c10ae-af4e-5872-be5a-60978acd1c12",
+   "category": "Code Development",
+   "requirements": "Code loads the MNIST training set (60,000 images) and the official test set (10,000 images).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It does not contain any code to load the MNIST dataset as required by the criterion.",
+   "usage": {
+    "input_tokens": 2005,
+    "output_tokens": 54,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982867.91108,
+   "finished_at": 1791982869.1294055,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0a5724f2-203f-54b3-89ee-2430e142470f": {
+   "leaf_id": "0a5724f2-203f-54b3-89ee-2430e142470f",
+   "category": "Code Development",
+   "requirements": "Gradient components that are not set to zero are replaced by the sign of the gradient, sign(g_i), as in Eq. (3).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. There is no code implementing the ClipSign-SGD optimizer or the ternary sign vector step where components not set to zero are replaced by their sign.",
+   "usage": {
+    "input_tokens": 2183,
+    "output_tokens": 66,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982872.8396688,
+   "finished_at": 1791982875.5751846,
+   "ratelimit_wait_sec": 0.0
+  },
+  "82f0bfc6-4e95-5937-a5e4-3ec906d21429": {
+   "leaf_id": "82f0bfc6-4e95-5937-a5e4-3ec906d21429",
+   "category": "Code Development",
+   "requirements": "Gradient components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not set to zero, as in Eq. (3).",
+   "score": 0,
+   "reason": "The candidate has provided no implementation; both README.md and reproduce.sh only state 'not implemented'. Therefore, the codebase does not contain an implementation for the ternary sign vector dead-zone thresholding rule.",
+   "usage": {
+    "input_tokens": 2151,
+    "output_tokens": 58,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982871.969172,
+   "finished_at": 1791982873.3761578,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9a83d9b5-e834-52b6-9443-e26a17137ab4": {
+   "leaf_id": "9a83d9b5-e834-52b6-9443-e26a17137ab4",
+   "category": "Code Development",
+   "requirements": "Random seed 7 is set for PyTorch and for Python's random module.",
+   "score": 0,
+   "reason": "The submission does not contain any code implementing the random seed setup as specified in the paper (seed 7 for PyTorch and Python's random module); the repository only contains a README and a placeholder reproduce.sh script.",
+   "usage": {
+    "input_tokens": 2078,
+    "output_tokens": 61,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982925.0784316,
+   "finished_at": 1791982926.4054701,
+   "ratelimit_wait_sec": 0.0
+  },
+  "23cc028d-490a-5b15-a137-b840902c9fb5": {
+   "leaf_id": "23cc028d-490a-5b15-a137-b840902c9fb5",
+   "category": "Code Development",
+   "requirements": "The momentum buffer is updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector from Eq. (3) and not the raw gradient, as in Eq. (4).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. Therefore, no code is implemented for the momentum buffer or the ClipSign-SGD optimizer.",
+   "usage": {
+    "input_tokens": 2246,
+    "output_tokens": 55,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982875.5766432,
+   "finished_at": 1791982921.344321,
+   "ratelimit_wait_sec": 44.47
+  },
+  "a8d6c1a9-4e88-5474-8eee-444d205d8072": {
+   "leaf_id": "a8d6c1a9-4e88-5474-8eee-444d205d8072",
+   "category": "Code Development",
+   "requirements": "ReLU activations are applied after each of the two hidden layers, and not after the output layer.",
+   "score": 0,
+   "reason": "The paper specifies an MLP with layer sizes 784 -> 256 -> 128 -> 10 and ReLU activations after the two hidden layers. Examining the provided submission files (README.md and reproduce.sh), there is no implementation code whatsoever, as the submission states 'Not implemented yet.' Therefore, the required MLP architecture with ReLU activations after the two hidden layers has not been implemented.",
+   "usage": {
+    "input_tokens": 2049,
+    "output_tokens": 100,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982870.2563925,
+   "finished_at": 1791982871.6787994,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0dd52301-b664-5d7b-bc3b-a151209c07f2": {
+   "leaf_id": "0dd52301-b664-5d7b-bc3b-a151209c07f2",
+   "category": "Code Development",
+   "requirements": "The momentum buffer is initialized to zeros before the first update.",
+   "score": 0,
+   "reason": "The submission consists only of a placeholder README.md and a non-functional reproduce.sh script, meaning no actual implementation of the ClipSign-SGD optimizer or momentum buffer initialization exists.",
+   "usage": {
+    "input_tokens": 2260,
+    "output_tokens": 53,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982921.3462176,
+   "finished_at": 1791982922.6201036,
+   "ratelimit_wait_sec": 0.0
+  },
+  "648b5277-726e-5dc6-822a-0c6e499069f8": {
+   "leaf_id": "648b5277-726e-5dc6-822a-0c6e499069f8",
+   "category": "Code Development",
+   "requirements": "A baseline is trained on the same MLP using PyTorch's SGD optimizer with momentum 0.9.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README and a dummy reproduce.sh script that outputs 'not implemented'. It does not contain any code implementing the SGD baseline.",
+   "usage": {
+    "input_tokens": 2074,
+    "output_tokens": 41,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982926.1336606,
+   "finished_at": 1791982927.3220117,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2e897b3b-fe65-5f3d-bda7-43b2e08f9527": {
+   "leaf_id": "2e897b3b-fe65-5f3d-bda7-43b2e08f9527",
+   "category": "Code Development",
+   "requirements": "The baseline uses a constant learning rate of 0.05 with no warmup and no decay.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a bash script that prints 'not implemented'. It lacks any code implementing the baseline optimizer, learning rate, or training configuration as specified in the paper.",
+   "usage": {
+    "input_tokens": 2096,
+    "output_tokens": 56,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982926.4072227,
+   "finished_at": 1791982927.4754324,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d7c5017b-08b5-5c84-b082-2f59c59ee3f6": {
+   "leaf_id": "d7c5017b-08b5-5c84-b082-2f59c59ee3f6",
+   "category": "Code Development",
+   "requirements": "Parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. Therefore, no code implementing the parameter update step (theta <- theta - eta * m) is present.",
+   "usage": {
+    "input_tokens": 2296,
+    "output_tokens": 58,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982921.5004666,
+   "finished_at": 1791982922.9619167,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a4812f82-641e-5374-8bab-8b36f8de8eea": {
+   "leaf_id": "a4812f82-641e-5374-8bab-8b36f8de8eea",
+   "category": "Code Development",
+   "requirements": "The momentum coefficient beta is set to 0.73.",
+   "score": 0,
+   "reason": "The submission only contains an unimplemented README.md and a reproduce.sh script that prints 'not implemented'. Therefore, no code implementing the momentum coefficient beta = 0.73 exists.",
+   "usage": {
+    "input_tokens": 2198,
+    "output_tokens": 54,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982873.3778293,
+   "finished_at": 1791982921.4984374,
+   "ratelimit_wait_sec": 46.67
+  },
+  "5fe40f3c-0821-5c17-96ee-2975304fedad": {
+   "leaf_id": "5fe40f3c-0821-5c17-96ee-2975304fedad",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 10,000-image MNIST test set.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It lacks any code for the MNIST dataset, MLP model, ClipSign-SGD optimizer, training loop, or test accuracy evaluation on the 10,000-image MNIST test set.",
+   "usage": {
+    "input_tokens": 2084,
+    "output_tokens": 77,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982927.3233018,
+   "finished_at": 1791982928.587447,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e32d5e1f-4816-5548-b789-91a3f5d0930c": {
+   "leaf_id": "e32d5e1f-4816-5548-b789-91a3f5d0930c",
+   "category": "Code Development",
+   "requirements": "Images are normalized with mean 0.1307 and standard deviation 0.3081.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It lacks any code implementing the MNIST data pipeline or the required normalization with mean 0.1307 and standard deviation 0.3081.",
+   "usage": {
+    "input_tokens": 2030,
+    "output_tokens": 64,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982867.9634213,
+   "finished_at": 1791982869.1063435,
+   "ratelimit_wait_sec": 0.0
+  },
+  "df8d4a33-16e4-50c0-b36d-fff7ddbc7169": {
+   "leaf_id": "df8d4a33-16e4-50c0-b36d-fff7ddbc7169",
+   "category": "Code Development",
+   "requirements": "Coupled weight decay with lambda = 0.0013 is added to the gradient (g <- g + lambda * theta) before the threshold is computed, as in Eq. (1). Decoupled weight decay applied directly to the parameters does not satisfy this requirement.",
+   "score": 0,
+   "reason": "The submission is completely empty with only a boilerplate README and a reproduce.sh that says 'not implemented'. Therefore, the required coupled weight decay implementation is entirely missing.",
+   "usage": {
+    "input_tokens": 2063,
+    "output_tokens": 49,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982870.4349766,
+   "finished_at": 1791982871.9648638,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f44e80e3-0663-5012-bbbb-740df2e69328": {
+   "leaf_id": "f44e80e3-0663-5012-bbbb-740df2e69328",
+   "category": "Code Development",
+   "requirements": "After warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a dummy reproduce.sh script that prints 'not implemented'. Therefore, the learning rate schedule where the learning rate is multiplied by 1/3 at the end of every 5 epochs has not been implemented in code.",
+   "usage": {
+    "input_tokens": 2096,
+    "output_tokens": 64,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982923.697025,
+   "finished_at": 1791982924.7636619,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8fe35afb-514a-5004-a941-f0b464856145": {
+   "leaf_id": "8fe35afb-514a-5004-a941-f0b464856145",
+   "category": "Code Development",
+   "requirements": "Training uses a batch size of 128.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that prints 'not implemented'. There is no code implementing the training loop or setting the batch size to 128 as described in Section 3.",
+   "usage": {
+    "input_tokens": 2049,
+    "output_tokens": 65,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982923.923199,
+   "finished_at": 1791982925.0763354,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3bfed980-88c1-5ca3-a2c7-6f88da688853": {
+   "leaf_id": "3bfed980-88c1-5ca3-a2c7-6f88da688853",
+   "category": "Code Development",
+   "requirements": "Training runs for 15 epochs.",
+   "score": 0,
+   "reason": "The paper specifies training for 15 epochs. Looking at the submitted files, the `README.md` and `reproduce.sh` indicate that nothing has been implemented ('Not implemented yet'). Therefore, the submission lacks any implementation for the 15-epoch training requirement.",
+   "usage": {
+    "input_tokens": 2059,
+    "output_tokens": 73,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982924.765309,
+   "finished_at": 1791982926.1316082,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3": {
+   "leaf_id": "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3",
+   "category": "Code Development",
+   "requirements": "The learning rate is increased linearly over the first 200 optimizer steps, reaching the base learning rate at step 200.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. There is no code implementing the learning rate warmup described in the paper.",
+   "usage": {
+    "input_tokens": 2071,
+    "output_tokens": 51,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982922.963825,
+   "finished_at": 1791982923.922027,
+   "ratelimit_wait_sec": 0.0
+  },
+  "355d898d-7e6e-5013-98d2-efc5bbc5e8be": {
+   "leaf_id": "355d898d-7e6e-5013-98d2-efc5bbc5e8be",
+   "category": "Code Development",
+   "requirements": "The base learning rate of ClipSign-SGD is 0.004.",
+   "score": 0,
+   "reason": "The submission does not contain any implementation of ClipSign-SGD or the base learning rate. The README.md states 'Not implemented yet' and the reproduce.sh only echoes 'not implemented'. Therefore, the base learning rate of 0.004 for ClipSign-SGD is not implemented in code.",
+   "usage": {
+    "input_tokens": 2041,
+    "output_tokens": 79,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021728",
+   "started_at": 1791982922.621761,
+   "finished_at": 1791982923.6955016,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0e096d1e-467b-51de-a7af-e04409b560fa": {
+   "leaf_id": "0e096d1e-467b-51de-a7af-e04409b560fa",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both ClipSign-SGD and the baseline are printed and saved to a results file.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It does not implement any part of the paper, nor does it print or save the test accuracies of ClipSign-SGD and the baseline to a results file.",
+   "usage": {
+    "input_tokens": 2107,
+    "output_tokens": 69,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-1021729",
+   "started_at": 1791982927.4782236,
+   "finished_at": 1791982928.773642,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

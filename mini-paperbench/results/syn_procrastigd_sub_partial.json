@@ -1,0 +1,462 @@
+{
+ "run": "syn_procrastigd_sub_partial",
+ "label": "24 tasks, 2 workers",
+ "total": 24,
+ "completed": 24,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-2238605": 12,
+  "gpu7-2238606": 12
+ },
+ "wall_time_sec": 111.51,
+ "mean_task_sec": 9.24,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 184.86,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 24,
+  "input_tokens": 84939,
+  "output_tokens": 2895,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.4583,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/procrastigd/submissions/sub_partial",
+ "leaves": {
+  "7c676973-fd0b-513e-8fde-702db173e5f2": {
+   "leaf_id": "7c676973-fd0b-513e-8fde-702db173e5f2",
+   "category": "Code Development",
+   "requirements": "At a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3.",
+   "score": 0,
+   "reason": "The paper specifies that at a deadline, the global L2 norm of the pile (computed over all parameters together) is compared against 1.3, and if it is smaller and no excuse has been used yet, the deadline is postponed by 3 steps. Looking at the implementation in `src/procrastigd.py` and `src/train.py`, there is no implementation of the excuse mechanism, the L2 norm check, or the dynamic due count (it uses a fixed deadline of 9 steps and performs updates unconditionally). Therefore, the requirement for triggering an excuse based on the global L2 norm below 1.3 is completely missing.",
+   "usage": {
+    "input_tokens": 3545,
+    "output_tokens": 150,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983221.5549753,
+   "finished_at": 1791983223.0671437,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8a8a206a-7682-5367-b62e-a07094cc00b2": {
+   "leaf_id": "8a8a206a-7682-5367-b62e-a07094cc00b2",
+   "category": "Code Development",
+   "requirements": "Pixel values are divided by 16 so that they lie in [0, 1].",
+   "score": 1,
+   "reason": "The paper states in Section 3 that pixel values are divided by 16 so that they lie in [0, 1]. In the submission, `src/data.py` contains the code `digits = load_digits(); X = digits.data / 16.0`, which correctly implements this requirement.",
+   "usage": {
+    "input_tokens": 3471,
+    "output_tokens": 82,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983171.496498,
+   "finished_at": 1791983173.0679605,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cb355b56-51d1-51fd-9c2d-4ed33e642b4a": {
+   "leaf_id": "cb355b56-51d1-51fd-9c2d-4ed33e642b4a",
+   "category": "Code Development",
+   "requirements": "All weights and biases are initialized to zero.",
+   "score": 0,
+   "reason": "The paper specifies in Section 3 that 'All weights and biases are initialized to zero (\"a blank to-do list\").' However, looking at the code in src/model.py, the weights are initialized randomly using np.random.default_rng(0).normal(scale=0.01, size=(n_in, n_out)) rather than being initialized to zero. Therefore, the requirement for zero initialization is not met.",
+   "usage": {
+    "input_tokens": 3500,
+    "output_tokens": 109,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983174.404854,
+   "finished_at": 1791983176.3160472,
+   "ratelimit_wait_sec": 0.0
+  },
+  "16e23ed3-28fc-58be-9a43-8a94bc1fa458": {
+   "leaf_id": "16e23ed3-28fc-58be-9a43-8a94bc1fa458",
+   "category": "Code Development",
+   "requirements": "The base learning rate of ProcrastiGD is 0.77.",
+   "score": 1,
+   "reason": "The paper states that the base learning rate is eta = 0.77. In the candidate's implementation in `src/train.py`, the constant `LR = 0.77` is defined and passed to the optimizer, meeting the criterion.",
+   "usage": {
+    "input_tokens": 3478,
+    "output_tokens": 70,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983227.0767608,
+   "finished_at": 1791983228.4862375,
+   "ratelimit_wait_sec": 0.0
+  },
+  "36ef7c46-c373-5009-a7a4-80011d94703d": {
+   "leaf_id": "36ef7c46-c373-5009-a7a4-80011d94703d",
+   "category": "Code Development",
+   "requirements": "The panic factor is 1 + 0.42 * (n - 9), where n is the number of gradients in the pile, as in Eq. (1).",
+   "score": 0,
+   "reason": "The paper specifies that the panic factor should be computed as panic = 1 + 0.42 * (n - 9), where n is the number of gradients in the pile (Eq. 1), and applied during the parameter update (Eq. 2). Reviewing the submission files, specifically src/procrastigd.py and src/train.py, the ProcrastiGD optimizer implementation lacks the panic factor calculation entirely, uses a fixed deadline behavior that resets at every epoch rather than maintaining a persistent to-do pile, and does not apply the panic multiplier when updating parameters. Therefore, the implementation does not meet the criteria.",
+   "usage": {
+    "input_tokens": 3628,
+    "output_tokens": 148,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983223.2180326,
+   "finished_at": 1791983225.0857463,
+   "ratelimit_wait_sec": 0.0
+  },
+  "07025f87-369d-555e-8858-b174bc19d93e": {
+   "leaf_id": "07025f87-369d-555e-8858-b174bc19d93e",
+   "category": "Code Development",
+   "requirements": "For a fresh pile, the deadline is reached when the pile contains 9 gradients.",
+   "score": 1,
+   "reason": "The paper states that the due count is 9 for a fresh pile. In the candidate implementation under `src/procrastigd.py`, the default deadline parameter is set to 9 (`deadline=9`), and the condition checks `if self.n < self.deadline:` where `self.n` counts gradients added, meaning the deadline is indeed reached when the pile contains 9 gradients for a fresh pile.",
+   "usage": {
+    "input_tokens": 3512,
+    "output_tokens": 102,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983176.3182082,
+   "finished_at": 1791983221.5529442,
+   "ratelimit_wait_sec": 43.73
+  },
+  "ac82eb5c-ce5a-5b3d-898d-1525f76d225c": {
+   "leaf_id": "ac82eb5c-ce5a-5b3d-898d-1525f76d225c",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn handwritten digits dataset (load_digits, 1,797 images of 8x8 pixels, 10 classes).",
+   "score": 1,
+   "reason": "The paper specifies loading the scikit-learn handwritten digits dataset via load_digits. Looking at src/data.py, the code correctly imports load_digits from sklearn.datasets, loads the dataset, scales pixel values by dividing by 16.0, and splits into training and test sets as required.",
+   "usage": {
+    "input_tokens": 3450,
+    "output_tokens": 79,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983171.401898,
+   "finished_at": 1791983172.7159948,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e952e7e8-32fe-5b26-b26e-ca0da289b886": {
+   "leaf_id": "e952e7e8-32fe-5b26-b26e-ca0da289b886",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 297 test samples.",
+   "score": 1,
+   "reason": "The criterion requires test accuracy to be computed on the 297 test samples. Looking at src/data.py, load_data splits the digits dataset (1797 samples) into X[:1500] (training) and X[1500:] (test), which leaves 1797 - 1500 = 297 test samples. In src/model.py, the accuracy method computes the accuracy of the model on given X and y, and src/train.py evaluates this using X_te and y_te (the 297 test samples). Therefore, the test accuracy is correctly computed on the 297 test samples.",
+   "usage": {
+    "input_tokens": 3517,
+    "output_tokens": 162,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983231.7633717,
+   "finished_at": 1791983281.601938,
+   "ratelimit_wait_sec": 48.29
+  },
+  "62249178-c2b4-5089-9f0f-28833623614a": {
+   "leaf_id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "requirements": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "score": 0,
+   "reason": "The paper specifies in Step 5 that the pile is averaged over the actual number of gradients it contains (n, which is 12 after an excuse), i.e., dividing by n. In the submitted code (src/procrastigd.py), the update divides the pile by `self.n` (`self.params[k] -= self.lr * self.pile[k] / self.n`). However, the implementation of ProcrastiGD completely omits the excuse mechanism, deadline adjustments, global L2 norm check, and panic factor. Furthermore, src/train.py explicitly calls `opt.forget()` at the end of every epoch, violating the paper's requirement that 'Procrastination knows no epoch boundaries' and that the pile carries over across epochs. Thus, the implementation does not correctly implement the multi-step deadline/excuse/panic logic described in the paper.",
+   "usage": {
+    "input_tokens": 3662,
+    "output_tokens": 202,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983224.3374445,
+   "finished_at": 1791983226.3154464,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3791e245-f059-53e7-a00b-d7f68fd6b77c": {
+   "leaf_id": "3791e245-f059-53e7-a00b-d7f68fd6b77c",
+   "category": "Code Development",
+   "requirements": "Without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing.",
+   "score": 1,
+   "reason": "The paper specifies that without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing. Looking at src/data.py, the implementation correctly splits the data as return X[:1500], y[:1500], X[1500:], y[1500:] without any prior shuffling.",
+   "usage": {
+    "input_tokens": 3503,
+    "output_tokens": 99,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983172.7179785,
+   "finished_at": 1791983174.2384727,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747": {
+   "leaf_id": "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747",
+   "category": "Code Development",
+   "requirements": "An excuse postpones the deadline by exactly 3 steps without changing the parameters.",
+   "score": 0,
+   "reason": "The paper specifies that at a deadline, if the global L2 norm of the pile is less than 1.3 and no excuse has been used for the current pile, the due count (deadline) is increased by exactly 3 steps, the parameters are not changed, and only one excuse is allowed per pile. Looking at `src/procrastigd.py`, the submission implements a fixed deadline of 9, does not check the L2 norm against 1.3, does not implement the excuse mechanism, and updates parameters unconditionally once `self.n >= self.deadline`. Therefore, the requirement that an excuse postpones the deadline by exactly 3 steps without changing parameters is not met.",
+   "usage": {
+    "input_tokens": 3563,
+    "output_tokens": 158,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983221.7180738,
+   "finished_at": 1791983223.2166593,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd": {
+   "leaf_id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "requirements": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "score": 0,
+   "reason": "The model implementation in `src/model.py` uses random initialization rather than zero initialization as specified in the paper ('All weights and biases are initialized to zero'). Therefore, the model initialization does not match the paper's specification.",
+   "usage": {
+    "input_tokens": 3459,
+    "output_tokens": 63,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983173.069878,
+   "finished_at": 1791983174.4033787,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a8dd2f24-26df-585c-ba58-fcfaa5576775": {
+   "leaf_id": "a8dd2f24-26df-585c-ba58-fcfaa5576775",
+   "category": "Code Development",
+   "requirements": "A baseline is trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step.",
+   "score": 0,
+   "reason": "The paper specifies a baseline trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step. Looking through the provided files (such as src/train.py), there is no implementation of the diligent SGD baseline training loop or its evaluation. Therefore, the criterion has not been met.",
+   "usage": {
+    "input_tokens": 3519,
+    "output_tokens": 78,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983230.3215325,
+   "finished_at": 1791983231.5531085,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6e5df9ef-1c07-54de-95c1-0645c1c528e0": {
+   "leaf_id": "6e5df9ef-1c07-54de-95c1-0645c1c528e0",
+   "category": "Code Development",
+   "requirements": "At most one excuse is allowed per pile; at the postponed deadline the update happens regardless of the norm of the pile.",
+   "score": 0,
+   "reason": "The paper specifies that at most one excuse is allowed per pile, and at the postponed deadline the update happens regardless of the pile's norm. Looking at the submitted code in `src/procrastigd.py`, the ProcrastiGD optimizer class is completely missing the implementation for the excuse mechanism, deadline postponement, norm calculation, and panic factor. Therefore, it does not implement the rule allowing at most one excuse per pile and forcing the update at the postponed deadline.",
+   "usage": {
+    "input_tokens": 3589,
+    "output_tokens": 111,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983223.068336,
+   "finished_at": 1791983224.335713,
+   "ratelimit_wait_sec": 0.0
+  },
+  "55ed0e31-c221-5408-b0ce-16cc3eb0b223": {
+   "leaf_id": "55ed0e31-c221-5408-b0ce-16cc3eb0b223",
+   "category": "Code Development",
+   "requirements": "Training uses a batch size of 30.",
+   "score": 1,
+   "reason": "The paper specifies in Section 3 that the training should use a batch size of 30. Examining the codebase, specifically `src/train.py`, we can see the definition `BATCH_SIZE = 30` which is correctly used to slice the training batches `idx = order[i:i + BATCH_SIZE]`. Thus, the training uses a batch size of 30 as required.",
+   "usage": {
+    "input_tokens": 3486,
+    "output_tokens": 102,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983228.4887257,
+   "finished_at": 1791983230.1342251,
+   "ratelimit_wait_sec": 0.0
+  },
+  "242f0f9f-5f00-5b47-a082-98bb0a6ab68b": {
+   "leaf_id": "242f0f9f-5f00-5b47-a082-98bb0a6ab68b",
+   "category": "Code Development",
+   "requirements": "The training loss is softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss.",
+   "score": 1,
+   "reason": "The paper specifies that the loss is the cross-entropy averaged over the mini-batch. In `src/model.py`, the `loss_and_grads` method computes the softmax cross-entropy loss by taking the negative log likelihood of the correct classes and averaging over the batch (`loss = -np.log(p[np.arange(n), y] + 1e-12).mean()`). Furthermore, the returned gradients are correctly derived from this loss with respect to the weights and biases (`d = p; d[np.arange(n), y] -= 1.0; d /= n`). Therefore, the criterion is met.",
+   "usage": {
+    "input_tokens": 3489,
+    "output_tokens": 152,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983174.2401938,
+   "finished_at": 1791983175.6936357,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e1cac884-8232-5557-9ac0-04ebce46a335": {
+   "leaf_id": "e1cac884-8232-5557-9ac0-04ebce46a335",
+   "category": "Code Development",
+   "requirements": "The baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD.",
+   "score": 0,
+   "reason": "The criterion requires that the baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD. Examining the provided code files (e.g., `src/model.py`, `src/train.py`), the model uses random initialization (`np.random.default_rng(0).normal(...)`) rather than zero initialization as specified in the paper ('All weights and biases are initialized to zero'). Furthermore, the baseline SGD training loop is not even fully implemented in `train.py`. Therefore, the baseline does not meet the specified requirements.",
+   "usage": {
+    "input_tokens": 3549,
+    "output_tokens": 139,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983231.5552511,
+   "finished_at": 1791983281.7005885,
+   "ratelimit_wait_sec": 48.49
+  },
+  "85b53814-adb8-5b68-b0b4-e3a24078f58c": {
+   "leaf_id": "85b53814-adb8-5b68-b0b4-e3a24078f58c",
+   "category": "Code Development",
+   "requirements": "At every step the gradient is added to a to-do pile as a plain sum (not an average or a moving average), the parameters are not changed on steps that are not deadlines, and the pile is emptied after each update.",
+   "score": 1,
+   "reason": "The paper states that gradients are added to a to-do pile as a plain sum, parameters are not changed on non-deadline steps, and the pile is emptied after an update. In the submission's `src/procrastigd.py`, the `step` function adds incoming gradients using `self.pile[k] += g` (plain sum), does not update parameters if `self.n < self.deadline` (returning early without changing parameters), and calls `self.forget()` after the update, which explicitly zeros out the pile and resets `self.n = 0`. Thus, the criteria are fully met.",
+   "usage": {
+    "input_tokens": 3493,
+    "output_tokens": 146,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983175.695967,
+   "finished_at": 1791983221.7157075,
+   "ratelimit_wait_sec": 44.35
+  },
+  "c7112918-6155-53bc-a1dc-bc1f02fec899": {
+   "leaf_id": "c7112918-6155-53bc-a1dc-bc1f02fec899",
+   "category": "Code Development",
+   "requirements": "During epochs 5 and 10 (1-based epoch numbers divisible by 5) the learning rate is halved, and it returns to 0.77 in the following epoch.",
+   "score": 0,
+   "reason": "The paper specifies in Section 2.1 that every fifth epoch (epochs 5 and 10) is a Monday during which the learning rate is halved to 0.385, and returns to 0.77 at the start of the next epoch. Inspecting the codebase (specifically `src/procrastigd.py` and `src/train.py`), there is no implementation of the Monday blues learning rate schedule where the learning rate is halved during epochs 5 and 10. The learning rate is kept constant at 0.77 throughout training.",
+   "usage": {
+    "input_tokens": 3519,
+    "output_tokens": 136,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983227.875224,
+   "finished_at": 1791983229.0788035,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c": {
+   "leaf_id": "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c",
+   "category": "Code Development",
+   "requirements": "The pile, the step counter and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch.",
+   "score": 0,
+   "reason": "The paper explicitly states: 'No end-of-epoch cleanup. Procrastination knows no epoch boundaries. The pile, the counter and the excuse flag are not reset or applied at the end of an epoch; unfinished work simply carries over into the next epoch.' Looking at the submission's `src/train.py`, line 24 includes an explicit end-of-epoch cleanup: `opt.forget()` which resets the pile and step counter after every epoch. Furthermore, the ProcrastiGD implementation in `src/procrastigd.py` lacks excuse flag tracking altogether and doesn't implement the required excuse/deadline postponement logic. Therefore, the requirement that the pile, step counter, and excuse flag are not reset at epoch boundaries is not met.",
+   "usage": {
+    "input_tokens": 3734,
+    "output_tokens": 172,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983226.318127,
+   "finished_at": 1791983227.8732066,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3cc9fc18-1c15-54ce-af88-aac3e919e4e1": {
+   "leaf_id": "3cc9fc18-1c15-54ce-af88-aac3e919e4e1",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file.",
+   "score": 0,
+   "reason": "The criterion specifies that the test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file. Looking at the code (`src/train.py` and other files), there is no implementation for saving results to a results file (like results/results.json referenced in the README), nor is the baseline implemented or the number of excuses counted and printed as required.",
+   "usage": {
+    "input_tokens": 3549,
+    "output_tokens": 104,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983281.6038702,
+   "finished_at": 1791983282.9069314,
+   "ratelimit_wait_sec": 0.0
+  },
+  "90b6f5ec-308d-54e1-ab74-b0512d5f7eae": {
+   "leaf_id": "90b6f5ec-308d-54e1-ab74-b0512d5f7eae",
+   "category": "Code Development",
+   "requirements": "Training runs for 12 epochs.",
+   "score": 1,
+   "reason": "The criterion requires that training runs for 12 epochs. Looking at src/train.py, EPOCHS is set to 12, and the training loop runs for `range(1, EPOCHS + 1)`, which correctly executes for 12 epochs. Therefore, the implementation meets the requirement.",
+   "usage": {
+    "input_tokens": 3496,
+    "output_tokens": 79,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238605",
+   "started_at": 1791983229.0800827,
+   "finished_at": 1791983230.3198633,
+   "ratelimit_wait_sec": 0.0
+  },
+  "684c42e6-5122-5cf7-adcd-7274018d4b1c": {
+   "leaf_id": "684c42e6-5122-5cf7-adcd-7274018d4b1c",
+   "category": "Code Development",
+   "requirements": "At the start of every epoch the training samples are shuffled with a NumPy random generator that is created once with seed 13.",
+   "score": 1,
+   "reason": "The paper states: 'At the start of every epoch the training samples are shuffled with a NumPy random generator created once with seed 13'. In the submission's train.py (`src/train.py`), the RNG is created once outside the epoch loop via `rng = np.random.default_rng(SEED)` with `SEED = 13`, and inside the epoch loop `order = rng.permutation(len(X_tr))` is called at the start of every epoch. This correctly implements the requirement.",
+   "usage": {
+    "input_tokens": 3524,
+    "output_tokens": 124,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983230.13581,
+   "finished_at": 1791983231.7617397,
+   "ratelimit_wait_sec": 0.0
+  },
+  "456c62ee-8e51-5550-8445-603e582e7454": {
+   "leaf_id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "requirements": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "score": 0,
+   "reason": "The paper specifies that at a deadline that is not excused, parameters are updated using the accumulated pile divided by n multiplied by the panic factor and learning rate, as in Eq. (2). In the submission's 'src/procrastigd.py', the implementation divides by self.n (which is 9 or 12) and applies the learning rate, but it completely omits the panic factor calculation and the excuse mechanism entirely. Therefore, the implementation does not correctly perform the update according to Eq. (2) and the optimizer logic.",
+   "usage": {
+    "input_tokens": 3704,
+    "output_tokens": 128,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-2238606",
+   "started_at": 1791983225.087565,
+   "finished_at": 1791983227.075162,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

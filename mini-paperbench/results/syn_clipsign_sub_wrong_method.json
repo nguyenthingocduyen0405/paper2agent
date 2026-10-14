@@ -1,0 +1,444 @@
+{
+ "run": "syn_clipsign_sub_wrong_method",
+ "label": "23 tasks, 2 workers",
+ "total": 23,
+ "completed": 23,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-641440": 13,
+  "gpu7-641439": 10
+ },
+ "wall_time_sec": 90.8,
+ "mean_task_sec": 7.88,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 103.11,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 23,
+  "input_tokens": 86022,
+  "output_tokens": 2967,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.7391,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/clipsign/submissions/sub_wrong_method",
+ "leaves": {
+  "5de949d9-09b6-5237-b49d-6e963b43f3fd": {
+   "leaf_id": "5de949d9-09b6-5237-b49d-6e963b43f3fd",
+   "category": "Code Development",
+   "requirements": "The model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 that takes flattened 784-dimensional images as input.",
+   "score": 1,
+   "reason": "The paper specifies an MLP with layer sizes 784 -> 256 -> 128 -> 10 and ReLU activations after the two hidden layers, taking flattened 784-dimensional images as input. Examining src/model.py, the MLP uses nn.Flatten(), followed by nn.Linear(784, 256), nn.ReLU(), nn.Linear(256, 128), nn.ReLU(), and nn.Linear(128, 10), which perfectly matches the specification.",
+   "usage": {
+    "input_tokens": 3662,
+    "output_tokens": 132,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982774.9079914,
+   "finished_at": 1791982801.3796291,
+   "ratelimit_wait_sec": 25.14
+  },
+  "87045acc-5353-5951-99e6-d3b1f903a471": {
+   "leaf_id": "87045acc-5353-5951-99e6-d3b1f903a471",
+   "category": "Code Development",
+   "requirements": "The threshold is computed separately for each parameter tensor as tau = 0.37 times the mean absolute value of the (weight-decayed) gradient components of that tensor, as in Eq. (2).",
+   "score": 0,
+   "reason": "The paper specifies in Section 2, Step 2 that a relative dead-zone threshold tau = 0.37 * mean_i |g_i| should be computed independently per parameter tensor from the weight-decayed gradient. Looking at the implementation of the optimizer in src/clipsign.py, there is no implementation of the dead-zone threshold (steps 2 and 3 of the paper's method are completely missing, and instead, standard momentum is computed directly on the raw gradient followed by decoupled or incorrectly applied updates). Therefore, the threshold requirement as in Eq. (2) is not implemented.",
+   "usage": {
+    "input_tokens": 3741,
+    "output_tokens": 143,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982802.74077,
+   "finished_at": 1791982804.229679,
+   "ratelimit_wait_sec": 0.0
+  },
+  "603b8d9e-ab01-5cc2-b246-d11c2499d5aa": {
+   "leaf_id": "603b8d9e-ab01-5cc2-b246-d11c2499d5aa",
+   "category": "Code Development",
+   "requirements": "The last 5,000 images of the training set are held out as a validation set, and the first 55,000 images are used for training.",
+   "score": 1,
+   "reason": "The paper states: 'The last 5,000 images of the 60,000-image training set are held out as a validation set; the first 55,000 are used for training.' In `src/data.py`, the submission implements this precisely by using `Subset(full_train, range(0, 55000))` for training and `Subset(full_train, range(55000, 60000))` for validation. Thus, the criterion is fully met.",
+   "usage": {
+    "input_tokens": 3703,
+    "output_tokens": 134,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982774.7643673,
+   "finished_at": 1791982802.3094676,
+   "ratelimit_wait_sec": 25.29
+  },
+  "9f2c10ae-af4e-5872-be5a-60978acd1c12": {
+   "leaf_id": "9f2c10ae-af4e-5872-be5a-60978acd1c12",
+   "category": "Code Development",
+   "requirements": "Code loads the MNIST training set (60,000 images) and the official test set (10,000 images).",
+   "score": 1,
+   "reason": "The paper specifies loading the MNIST dataset consisting of a 60,000-image training set and a 10,000-image test set. Examining src/data.py, the code correctly uses torchvision.datasets.MNIST to load both the training set (train=True, 60,000 images, which are subsequently split into 55,000 training and 5,000 validation subsets) and the official test set (train=False, 10,000 images). Therefore, the criterion is fully satisfied.",
+   "usage": {
+    "input_tokens": 3639,
+    "output_tokens": 131,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982773.5070467,
+   "finished_at": 1791982774.7628543,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0a5724f2-203f-54b3-89ee-2430e142470f": {
+   "leaf_id": "0a5724f2-203f-54b3-89ee-2430e142470f",
+   "category": "Code Development",
+   "requirements": "Gradient components that are not set to zero are replaced by the sign of the gradient, sign(g_i), as in Eq. (3).",
+   "score": 0,
+   "reason": "The paper specifies in Step 3 of Section 2 that components not set to zero are replaced by their sign, i.e., s_i = sign(g_i) for |g_i| >= tau. Inspecting the submission's optimizer implementation in `src/clipsign.py` and the training code in `src/train.py`, we can see that the dead-zone thresholding, relative calculation, ternary sign vector generation, and smoothed momentum steps (Eqs. 2-4) are completely missing from the implementation. Instead, the submission directly adds the raw gradient to the momentum buffer without computing the relative threshold or taking the sign of the gradient components. Therefore, the requirement that gradient components not set to zero are replaced by the sign of the gradient has not been implemented.",
+   "usage": {
+    "input_tokens": 3817,
+    "output_tokens": 181,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982804.231922,
+   "finished_at": 1791982805.9391565,
+   "ratelimit_wait_sec": 0.0
+  },
+  "82f0bfc6-4e95-5937-a5e4-3ec906d21429": {
+   "leaf_id": "82f0bfc6-4e95-5937-a5e4-3ec906d21429",
+   "category": "Code Development",
+   "requirements": "Gradient components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not set to zero, as in Eq. (3).",
+   "score": 0,
+   "reason": "The paper specifies in Section 2, Step 3 that gradient components with absolute value strictly less than tau should be set to zero, and components with absolute value equal to tau should not be zeroed (i.e. s_i = 0 if |g_i| < tau, and s_i = sign(g_i) otherwise). Looking at the candidate's implementation of the optimizer in `src/clipsign.py`, the dead-zone thresholding (tau), relative dead-zone computation, and ternary sign quantization steps (Eq. 2 and Eq. 3) are completely missing from the optimizer step. Instead, the implementation computes standard momentum directly on the raw gradients without applying the relative dead-zone threshold or ternary quantization.",
+   "usage": {
+    "input_tokens": 3785,
+    "output_tokens": 171,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982803.9369967,
+   "finished_at": 1791982807.9571164,
+   "ratelimit_wait_sec": 0.0
+  },
+  "9a83d9b5-e834-52b6-9443-e26a17137ab4": {
+   "leaf_id": "9a83d9b5-e834-52b6-9443-e26a17137ab4",
+   "category": "Code Development",
+   "requirements": "Random seed 7 is set for PyTorch and for Python's random module.",
+   "score": 1,
+   "reason": "The paper specifies that random seed 7 is set for PyTorch and Python's random module. Looking at `src/train.py`, `set_seed(seed)` is defined using `random.seed(seed)` and `torch.manual_seed(seed)`, and `SEED = 7` is passed throughout training for both ClipSign and the baseline.",
+   "usage": {
+    "input_tokens": 3712,
+    "output_tokens": 85,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982834.1433241,
+   "finished_at": 1791982861.6647165,
+   "ratelimit_wait_sec": 25.91
+  },
+  "23cc028d-490a-5b15-a137-b840902c9fb5": {
+   "leaf_id": "23cc028d-490a-5b15-a137-b840902c9fb5",
+   "category": "Code Development",
+   "requirements": "The momentum buffer is updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector from Eq. (3) and not the raw gradient, as in Eq. (4).",
+   "score": 0,
+   "reason": "The paper states that the momentum buffer should be updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector resulting from the dead-zone thresholding (Eq. 3), and not the raw gradient g. In the submission's clipsign.py file, the code updates the momentum buffer using `m.mul_(beta).add_(g, alpha=1 - beta)`, passing the raw gradient `g` instead of the ternary sign vector `s` computed from dead-zone thresholding. Therefore, the momentum buffer update uses the raw gradient rather than the ternary sign vector, failing the requirement.",
+   "usage": {
+    "input_tokens": 3880,
+    "output_tokens": 149,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982807.2404988,
+   "finished_at": 1791982808.831363,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a8d6c1a9-4e88-5474-8eee-444d205d8072": {
+   "leaf_id": "a8d6c1a9-4e88-5474-8eee-444d205d8072",
+   "category": "Code Development",
+   "requirements": "ReLU activations are applied after each of the two hidden layers, and not after the output layer.",
+   "score": 1,
+   "reason": "The paper specifies that the model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 with ReLU activations after the two hidden layers. Examining `src/model.py`, the network is defined using `nn.Sequential(nn.Flatten(), nn.Linear(784, 256), nn.ReLU(), nn.Linear(256, 128), nn.ReLU(), nn.Linear(128, 10))`, which correctly places ReLU activations after each of the two hidden layers (256 and 128 units) and not after the output layer (10 units).",
+   "usage": {
+    "input_tokens": 3683,
+    "output_tokens": 160,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982801.3831315,
+   "finished_at": 1791982802.7384787,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0dd52301-b664-5d7b-bc3b-a151209c07f2": {
+   "leaf_id": "0dd52301-b664-5d7b-bc3b-a151209c07f2",
+   "category": "Code Development",
+   "requirements": "The momentum buffer is initialized to zeros before the first update.",
+   "score": 1,
+   "reason": "The paper specifies in Section 2 (Step 4: Smoothed momentum) that 'The buffer m is initialized to zeros before the first step.' Examining the submission's `src/clipsign.py` file, the `ClipSignSGD` optimizer checks if 'm' is in state for each parameter, and if not, initializes it using `torch.zeros_like(p)` ('if \"m\" not in state: state[\"m\"] = torch.zeros_like(p)'). This correctly implements the zero initialization of the momentum buffer before the first update.",
+   "usage": {
+    "input_tokens": 3894,
+    "output_tokens": 134,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982807.9587128,
+   "finished_at": 1791982809.3874764,
+   "ratelimit_wait_sec": 0.0
+  },
+  "648b5277-726e-5dc6-822a-0c6e499069f8": {
+   "leaf_id": "648b5277-726e-5dc6-822a-0c6e499069f8",
+   "category": "Code Development",
+   "requirements": "A baseline is trained on the same MLP using PyTorch's SGD optimizer with momentum 0.9.",
+   "score": 1,
+   "reason": "The paper specifies training a baseline on the same MLP using PyTorch's SGD optimizer with momentum 0.9. In the submission file src/train.py, the function train_baseline implements this requirement exactly using torch.optim.SGD(model.parameters(), lr=BASELINE_LR, momentum=BASELINE_MOMENTUM) where BASELINE_LR = 0.05 and BASELINE_MOMENTUM = 0.9.",
+   "usage": {
+    "input_tokens": 3708,
+    "output_tokens": 110,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982861.3900537,
+   "finished_at": 1791982862.6130567,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2e897b3b-fe65-5f3d-bda7-43b2e08f9527": {
+   "leaf_id": "2e897b3b-fe65-5f3d-bda7-43b2e08f9527",
+   "category": "Code Development",
+   "requirements": "The baseline uses a constant learning rate of 0.05 with no warmup and no decay.",
+   "score": 1,
+   "reason": "The paper specifies that the SGD baseline uses a constant learning rate of 0.05 with no warmup and no decay. In `src/train.py`, the `train_baseline` function initializes PyTorch's SGD optimizer with `lr=BASELINE_LR` (where `BASELINE_LR = 0.05`) and momentum 0.9, and it does not modify the learning rate during training (no warmup and no decay), which perfectly matches the specification.",
+   "usage": {
+    "input_tokens": 3730,
+    "output_tokens": 114,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982861.6667383,
+   "finished_at": 1791982863.069746,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d7c5017b-08b5-5c84-b082-2f59c59ee3f6": {
+   "leaf_id": "d7c5017b-08b5-5c84-b082-2f59c59ee3f6",
+   "category": "Code Development",
+   "requirements": "Parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5).",
+   "score": 0,
+   "reason": "The criterion requires that parameters are updated as theta <- theta - eta * m using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5). Inspecting `src/clipsign.py`, the update step is implemented as `p.add_(torch.sign(m), alpha=-lr)`. Here, `torch.sign(m)` is applied to the momentum buffer `m` before updating the parameters, which violates the requirement that m is used directly without applying a sign or normalization to it.",
+   "usage": {
+    "input_tokens": 3930,
+    "output_tokens": 126,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982808.8331046,
+   "finished_at": 1791982810.6080754,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a4812f82-641e-5374-8bab-8b36f8de8eea": {
+   "leaf_id": "a4812f82-641e-5374-8bab-8b36f8de8eea",
+   "category": "Code Development",
+   "requirements": "The momentum coefficient beta is set to 0.73.",
+   "score": 1,
+   "reason": "The paper specifies in Section 2 (Step 4) that the momentum coefficient beta is set to 0.73. Examining the submission, `src/clipsign.py` defines the default parameter `beta=0.73` in the `ClipSignSGD` optimizer class definition, and `src/train.py` calls it without overriding beta, meaning it uses the default value of 0.73. Thus, the implementation correctly sets beta to 0.73.",
+   "usage": {
+    "input_tokens": 3832,
+    "output_tokens": 118,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982805.9412546,
+   "finished_at": 1791982807.238232,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5fe40f3c-0821-5c17-96ee-2975304fedad": {
+   "leaf_id": "5fe40f3c-0821-5c17-96ee-2975304fedad",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 10,000-image MNIST test set.",
+   "score": 1,
+   "reason": "The paper specifies that test accuracy on the 10,000 test images is computed for both ClipSign-SGD and the baseline. Examining `src/train.py`, `get_loaders` loads the test dataset via `datasets.MNIST(root, train=False, ...)`, and `evaluate` computes the accuracy by iterating over `test_loader`. The `main` function evaluates both models on the test set and saves the results. Thus, test accuracy is correctly computed on the 10,000-image MNIST test set.",
+   "usage": {
+    "input_tokens": 3718,
+    "output_tokens": 124,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982862.6151748,
+   "finished_at": 1791982864.1319997,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e32d5e1f-4816-5548-b789-91a3f5d0930c": {
+   "leaf_id": "e32d5e1f-4816-5548-b789-91a3f5d0930c",
+   "category": "Code Development",
+   "requirements": "Images are normalized with mean 0.1307 and standard deviation 0.3081.",
+   "score": 1,
+   "reason": "The paper specifies that MNIST images should be normalized with a mean of 0.1307 and a standard deviation of 0.3081. In the submitted code (src/data.py), the dataset is loaded and transformed using torchvision transforms.Compose([transforms.ToTensor(), transforms.Normalize((MEAN,), (STD,))]) where MEAN = 0.1307 and STD = 0.3081. This correctly matches the requirements.",
+   "usage": {
+    "input_tokens": 3664,
+    "output_tokens": 113,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982773.6050434,
+   "finished_at": 1791982774.9067335,
+   "ratelimit_wait_sec": 0.0
+  },
+  "df8d4a33-16e4-50c0-b36d-fff7ddbc7169": {
+   "leaf_id": "df8d4a33-16e4-50c0-b36d-fff7ddbc7169",
+   "category": "Code Development",
+   "requirements": "Coupled weight decay with lambda = 0.0013 is added to the gradient (g <- g + lambda * theta) before the threshold is computed, as in Eq. (1). Decoupled weight decay applied directly to the parameters does not satisfy this requirement.",
+   "score": 0,
+   "reason": "The paper specifies coupled weight decay added to the gradient before threshold computation: g <- g + lambda * theta, with lambda = 0.0013, as described in Equation 1. In the candidate's implementation of ClipSignSGD in src/clipsign.py, weight decay is applied as decoupled weight decay directly to the parameters (p.mul_(1 - lr * wd)), and the dead-zone threshold and ternary sign vector operations (Steps 2 and 3) are completely missing from the optimizer implementation. Therefore, the requirement for coupled weight decay added to the gradient prior to threshold computation has not been met.",
+   "usage": {
+    "input_tokens": 3697,
+    "output_tokens": 145,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982802.3109577,
+   "finished_at": 1791982803.9352448,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f44e80e3-0663-5012-bbbb-740df2e69328": {
+   "leaf_id": "f44e80e3-0663-5012-bbbb-740df2e69328",
+   "category": "Code Development",
+   "requirements": "After warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs.",
+   "score": 1,
+   "reason": "The paper specifies that after warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs (after epochs 5 and 10 in a 15-epoch run). In `src/train.py`, the learning rate schedule checks `if epoch % DECAY_EVERY == 0:` where `DECAY_EVERY = 5` and multiplies `base_lr` by `DECAY_FACTOR` (`1 / 3`) at the end of epochs 5, 10, and 15, matching the paper's specification.",
+   "usage": {
+    "input_tokens": 3730,
+    "output_tokens": 142,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982831.8380723,
+   "finished_at": 1791982833.2688215,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8fe35afb-514a-5004-a941-f0b464856145": {
+   "leaf_id": "8fe35afb-514a-5004-a941-f0b464856145",
+   "category": "Code Development",
+   "requirements": "Training uses a batch size of 128.",
+   "score": 1,
+   "reason": "The paper specifies in Section 3 that the training should use a batch size of 128. In the submission, src/train.py defines BATCH_SIZE = 128 and uses it in get_loaders(BATCH_SIZE), which is passed to the DataLoader. Therefore, training uses a batch size of 128 as required.",
+   "usage": {
+    "input_tokens": 3683,
+    "output_tokens": 90,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982832.904708,
+   "finished_at": 1791982834.141775,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3bfed980-88c1-5ca3-a2c7-6f88da688853": {
+   "leaf_id": "3bfed980-88c1-5ca3-a2c7-6f88da688853",
+   "category": "Code Development",
+   "requirements": "Training runs for 15 epochs.",
+   "score": 1,
+   "reason": "The paper and Section 3 specify that training should run for 15 epochs. In the candidate's implementation (`src/train.py`), the constant `EPOCHS = 15` is defined and used in the training loops for both ClipSign-SGD and the baseline model (`for epoch in range(1, EPOCHS + 1):`), ensuring that training runs for exactly 15 epochs.",
+   "usage": {
+    "input_tokens": 3693,
+    "output_tokens": 100,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982833.273869,
+   "finished_at": 1791982861.3886635,
+   "ratelimit_wait_sec": 26.77
+  },
+  "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3": {
+   "leaf_id": "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3",
+   "category": "Code Development",
+   "requirements": "The learning rate is increased linearly over the first 200 optimizer steps, reaching the base learning rate at step 200.",
+   "score": 1,
+   "reason": "The paper specifies that during the first 200 optimizer steps, the learning rate increases linearly from η₀/200 at step 1 to η₀ at step 200. In `src/train.py`, the warmup schedule is implemented as `warm = min(step, WARMUP_STEPS) / WARMUP_STEPS` where `WARMUP_STEPS = 200`, and `group['lr'] = base_lr * warm`. At step 1, `warm = 1/200`, scaling the learning rate to `η₀/200`. As `step` increments, it increases linearly until step 200 where `warm = 200/200 = 1.0`, matching the base learning rate. The criterion is correctly met.",
+   "usage": {
+    "input_tokens": 3705,
+    "output_tokens": 192,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982810.6107109,
+   "finished_at": 1791982832.9030173,
+   "ratelimit_wait_sec": 0.0
+  },
+  "355d898d-7e6e-5013-98d2-efc5bbc5e8be": {
+   "leaf_id": "355d898d-7e6e-5013-98d2-efc5bbc5e8be",
+   "category": "Code Development",
+   "requirements": "The base learning rate of ClipSign-SGD is 0.004.",
+   "score": 1,
+   "reason": "The paper specifies the base learning rate for ClipSign-SGD as η₀ = 0.004 in Section 2.1. In the submission, `src/train.py` defines `BASE_LR = 0.004` and passes it to the ClipSignSGD optimizer as `lr=BASE_LR`. Therefore, the base learning rate of ClipSign-SGD is correctly set to 0.004.",
+   "usage": {
+    "input_tokens": 3675,
+    "output_tokens": 108,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641439",
+   "started_at": 1791982809.3890443,
+   "finished_at": 1791982831.8363578,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0e096d1e-467b-51de-a7af-e04409b560fa": {
+   "leaf_id": "0e096d1e-467b-51de-a7af-e04409b560fa",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both ClipSign-SGD and the baseline are printed and saved to a results file.",
+   "score": 1,
+   "reason": "The submission script train.py computes test accuracy on the 10,000 test images for both models, prints the dictionary of results, and explicitly saves them to ../results/results.json as described in the paper and README.",
+   "usage": {
+    "input_tokens": 3741,
+    "output_tokens": 65,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-641440",
+   "started_at": 1791982863.071433,
+   "finished_at": 1791982864.3041804,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

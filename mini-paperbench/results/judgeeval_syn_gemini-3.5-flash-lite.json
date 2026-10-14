@@ -1,0 +1,2256 @@
+{
+ "name": "syn_gemini-3.5-flash-lite",
+ "graded": 188,
+ "overall": {
+  "n": 188,
+  "confusion": {
+   "tp": 137,
+   "fp": 0,
+   "fn": 4,
+   "tn": 47
+  },
+  "f1": 0.9856,
+  "precision": 1.0,
+  "recall": 0.9716,
+  "recall_score0": 1.0,
+  "f1_score0": 0.9592,
+  "macro_f1": 0.9724,
+  "accuracy": 0.9787
+ },
+ "baseline_always_1": {
+  "n": 188,
+  "confusion": {
+   "tp": 141,
+   "fp": 47,
+   "fn": 0,
+   "tn": 0
+  },
+  "f1": 0.8571,
+  "precision": 0.75,
+  "recall": 1.0,
+  "recall_score0": 0.0,
+  "f1_score0": 0.0,
+  "macro_f1": 0.4286,
+  "accuracy": 0.75
+ },
+ "by_category": {
+  "Code Development": {
+   "n": 188,
+   "confusion": {
+    "tp": 137,
+    "fp": 0,
+    "fn": 4,
+    "tn": 47
+   },
+   "f1": 0.9856,
+   "precision": 1.0,
+   "recall": 0.9716,
+   "recall_score0": 1.0,
+   "f1_score0": 0.9592,
+   "macro_f1": 0.9724,
+   "accuracy": 0.9787
+  }
+ },
+ "by_run": {
+  "syn_clipsign_sub_correct": {
+   "n": 23,
+   "confusion": {
+    "tp": 23,
+    "fp": 0,
+    "fn": 0,
+    "tn": 0
+   },
+   "f1": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "recall_score0": null,
+   "f1_score0": null,
+   "macro_f1": null,
+   "accuracy": 1.0
+  },
+  "syn_clipsign_sub_subtle": {
+   "n": 23,
+   "confusion": {
+    "tp": 15,
+    "fp": 0,
+    "fn": 0,
+    "tn": 8
+   },
+   "f1": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "recall_score0": 1.0,
+   "f1_score0": 1.0,
+   "macro_f1": 1.0,
+   "accuracy": 1.0
+  },
+  "syn_clipsign_sub_partial": {
+   "n": 23,
+   "confusion": {
+    "tp": 14,
+    "fp": 0,
+    "fn": 0,
+    "tn": 9
+   },
+   "f1": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "recall_score0": 1.0,
+   "f1_score0": 1.0,
+   "macro_f1": 1.0,
+   "accuracy": 1.0
+  },
+  "syn_clipsign_sub_wrong_method": {
+   "n": 23,
+   "confusion": {
+    "tp": 17,
+    "fp": 0,
+    "fn": 0,
+    "tn": 6
+   },
+   "f1": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "recall_score0": 1.0,
+   "f1_score0": 1.0,
+   "macro_f1": 1.0,
+   "accuracy": 1.0
+  },
+  "syn_procrastigd_sub_correct": {
+   "n": 24,
+   "confusion": {
+    "tp": 24,
+    "fp": 0,
+    "fn": 0,
+    "tn": 0
+   },
+   "f1": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "recall_score0": null,
+   "f1_score0": null,
+   "macro_f1": null,
+   "accuracy": 1.0
+  },
+  "syn_procrastigd_sub_subtle": {
+   "n": 24,
+   "confusion": {
+    "tp": 15,
+    "fp": 0,
+    "fn": 1,
+    "tn": 8
+   },
+   "f1": 0.9677,
+   "precision": 1.0,
+   "recall": 0.9375,
+   "recall_score0": 1.0,
+   "f1_score0": 0.9412,
+   "macro_f1": 0.9545,
+   "accuracy": 0.9583
+  },
+  "syn_procrastigd_sub_partial": {
+   "n": 24,
+   "confusion": {
+    "tp": 11,
+    "fp": 0,
+    "fn": 3,
+    "tn": 10
+   },
+   "f1": 0.88,
+   "precision": 1.0,
+   "recall": 0.7857,
+   "recall_score0": 1.0,
+   "f1_score0": 0.8696,
+   "macro_f1": 0.8748,
+   "accuracy": 0.875
+  },
+  "syn_procrastigd_sub_wrong_method": {
+   "n": 24,
+   "confusion": {
+    "tp": 18,
+    "fp": 0,
+    "fn": 0,
+    "tn": 6
+   },
+   "f1": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "recall_score0": 1.0,
+   "f1_score0": 1.0,
+   "macro_f1": 1.0,
+   "accuracy": 1.0
+  }
+ },
+ "checks": {
+  "syn_clipsign_sub_empty": {
+   "n": 23,
+   "accuracy": 1.0,
+   "judge_ones": 0
+  },
+  "syn_procrastigd_sub_empty": {
+   "n": 24,
+   "accuracy": 1.0,
+   "judge_ones": 0
+  }
+ },
+ "runs": {
+  "syn_clipsign_sub_correct": {
+   "wall_time_sec": 40.12,
+   "workers": 2,
+   "retries": 0,
+   "failures": 0,
+   "parse_retries": 0,
+   "ratelimit_wait_sec": 0.0,
+   "usage": {
+    "calls": 23,
+    "input_tokens": 88253,
+    "output_tokens": 2558,
+    "cached_tokens": 0
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/clipsign/submissions/sub_correct"
+  },
+  "syn_clipsign_sub_subtle": {
+   "wall_time_sec": 88.09,
+   "workers": 2,
+   "retries": 0,
+   "failures": 0,
+   "parse_retries": 0,
+   "ratelimit_wait_sec": 97.32,
+   "usage": {
+    "calls": 23,
+    "input_tokens": 88322,
+    "output_tokens": 2802,
+    "cached_tokens": 3884
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/clipsign/submissions/sub_subtle"
+  },
+  "syn_clipsign_sub_partial": {
+   "wall_time_sec": 82.55,
+   "workers": 2,
+   "retries": 0,
+   "failures": 0,
+   "parse_retries": 0,
+   "ratelimit_wait_sec": 46.41,
+   "usage": {
+    "calls": 23,
+    "input_tokens": 72544,
+    "output_tokens": 2714,
+    "cached_tokens": 0
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/clipsign/submissions/sub_partial"
+  },
+  "syn_clipsign_sub_wrong_method": {
+   "wall_time_sec": 90.8,
+   "workers": 2,
+   "retries": 0,
+   "failures": 0,
+   "parse_retries": 0,
+   "ratelimit_wait_sec": 103.11,
+   "usage": {
+    "calls": 23,
+    "input_tokens": 86022,
+    "output_tokens": 2967,
+    "cached_tokens": 0
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/clipsign/submissions/sub_wrong_method"
+  },
+  "syn_procrastigd_sub_correct": {
+   "wall_time_sec": 174.24,
+   "workers": 2,
+   "retries": 0,
+   "failures": 0,
+   "parse_retries": 1,
+   "ratelimit_wait_sec": 143.57,
+   "usage": {
+    "calls": 25,
+    "input_tokens": 103667,
+    "output_tokens": 68212,
+    "cached_tokens": 5845
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/procrastigd/submissions/sub_correct"
+  },
+  "syn_procrastigd_sub_subtle": {
+   "wall_time_sec": 57.45,
+   "workers": 2,
+   "retries": 0,
+   "failures": 0,
+   "parse_retries": 0,
+   "ratelimit_wait_sec": 74.04,
+   "usage": {
+    "calls": 24,
+    "input_tokens": 100155,
+    "output_tokens": 3206,
+    "cached_tokens": 9741
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/procrastigd/submissions/sub_subtle"
+  },
+  "syn_procrastigd_sub_partial": {
+   "wall_time_sec": 111.51,
+   "workers": 2,
+   "retries": 0,
+   "failures": 0,
+   "parse_retries": 0,
+   "ratelimit_wait_sec": 184.86,
+   "usage": {
+    "calls": 24,
+    "input_tokens": 84939,
+    "output_tokens": 2895,
+    "cached_tokens": 0
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/procrastigd/submissions/sub_partial"
+  },
+  "syn_procrastigd_sub_wrong_method": {
+   "wall_time_sec": 178.68,
+   "workers": 2,
+   "retries": 1,
+   "failures": 0,
+   "parse_retries": 1,
+   "ratelimit_wait_sec": 89.51,
+   "usage": {
+    "calls": 25,
+    "input_tokens": 102217,
+    "output_tokens": 68738,
+    "cached_tokens": 9723
+   },
+   "errors": 0,
+   "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/procrastigd/submissions/sub_wrong_method"
+  }
+ },
+ "usage_total": {
+  "calls": 190,
+  "input_tokens": 726119,
+  "output_tokens": 154092,
+  "cached_tokens": 29193
+ },
+ "disagreements": [
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "criterion": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "judge": 0,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that at a deadline that is not excused, parameters are updated using the accumulated pile divided by n (the number of gradients in the pile), multiplied by the learning rate and panic factor, as in Eq. (2). In the submission's `src/procrastigd.py`, the update uses `self.deadline` in the denominator instead of `self.n` (the actual number of gradients, which is 12 after an excuse): `self.params[k] -= self.lr * panic * self.pile[k] / self.deadline`. Additionally, the panic rate parameter defaults to 0.24 instead of 0.42. Therefore, the implementation deviates from Eq. (2) and the requirements in the paper."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "criterion": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "judge": 0,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Step 5 that the pile is averaged over the actual number of gradients it contains (n, which is 12 after an excuse), i.e., dividing by n. In the submitted code (src/procrastigd.py), the update divides the pile by `self.n` (`self.params[k] -= self.lr * self.pile[k] / self.n`). However, the implementation of ProcrastiGD completely omits the excuse mechanism, deadline adjustments, global L2 norm check, and panic factor. Furthermore, src/train.py explicitly calls `opt.forget()` at the end of every epoch, violating the paper's requirement that 'Procrastination knows no epoch boundaries' and that the pile carries over across epochs. Thus, the implementation does not correctly implement the multi-step deadline/excuse/panic logic described in the paper."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "criterion": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "judge": 0,
+   "label": 1,
+   "label_why": "",
+   "reason": "The model implementation in `src/model.py` uses random initialization rather than zero initialization as specified in the paper ('All weights and biases are initialized to zero'). Therefore, the model initialization does not match the paper's specification."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "criterion": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "judge": 0,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that at a deadline that is not excused, parameters are updated using the accumulated pile divided by n multiplied by the panic factor and learning rate, as in Eq. (2). In the submission's 'src/procrastigd.py', the implementation divides by self.n (which is 9 or 12) and applies the learning rate, but it completely omits the panic factor calculation and the excuse mechanism entirely. Therefore, the implementation does not correctly perform the update according to Eq. (2) and the optimizer logic."
+  }
+ ],
+ "leaves": [
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "5de949d9-09b6-5237-b49d-6e963b43f3fd",
+   "category": "Code Development",
+   "criterion": "The model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 that takes flattened 784-dimensional images as input.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission correctly implements the MLP architecture in src/model.py using nn.Sequential with nn.Flatten(), nn.Linear(784, 256), nn.ReLU(), nn.Linear(256, 128), nn.ReLU(), and nn.Linear(128, 10), matching the exact layer sizes and structure described in Section 3 of the paper."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "87045acc-5353-5951-99e6-d3b1f903a471",
+   "category": "Code Development",
+   "criterion": "The threshold is computed separately for each parameter tensor as tau = 0.37 times the mean absolute value of the (weight-decayed) gradient components of that tensor, as in Eq. (2).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2, Step 2 that the threshold is computed per tensor from the gradient after Step 1 as tau = 0.37 * mean_i |g_i|. Checking src/clipsign.py, we find the code: g = p.grad + wd * p and tau = tau_scale * g.abs().mean(), which correctly implements the per-tensor relative dead-zone threshold calculation on the weight-decayed gradient according to Eq. (2)."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "603b8d9e-ab01-5cc2-b246-d11c2499d5aa",
+   "category": "Code Development",
+   "criterion": "The last 5,000 images of the training set are held out as a validation set, and the first 55,000 images are used for training.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the last 5,000 images of the 60,000-image training set are held out as a validation set, and the first 55,000 are used for training. In the submission file src/data.py, the code correctly implements this by loading the MNIST training dataset and using Subset to define train = Subset(full_train, range(0, 55000)) and val = Subset(full_train, range(55000, 60000)), perfectly matching the requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "9f2c10ae-af4e-5872-be5a-60978acd1c12",
+   "category": "Code Development",
+   "criterion": "Code loads the MNIST training set (60,000 images) and the official test set (10,000 images).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The code in `src/data.py` successfully loads both the MNIST training set (`train=True`, 60,000 images) and the official test set (`train=False`, 10,000 images) using torchvision datasets, fulfilling the criterion."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "0a5724f2-203f-54b3-89ee-2430e142470f",
+   "category": "Code Development",
+   "criterion": "Gradient components that are not set to zero are replaced by the sign of the gradient, sign(g_i), as in Eq. (3).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion requires that gradient components not set to zero are replaced by the sign of the gradient, sign(g_i), as in Eq. (3). In `src/clipsign.py`, the code implements this with `s = torch.sign(g)` followed by `s[g.abs() < tau] = 0.0`, correctly retaining `sign(g_i)` for all components where `|g_i| >= tau`. Thus, the implementation correctly matches Eq. (3)."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "82f0bfc6-4e95-5937-a5e4-3ec906d21429",
+   "category": "Code Development",
+   "criterion": "Gradient components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not set to zero, as in Eq. (3).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Eq. (3) that components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not zeroed. In src/clipsign.py, the implementation uses s[g.abs() < tau] = 0.0, which correctly implements strict inequality (< tau) for setting components to zero while leaving those equal to tau unchanged."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "9a83d9b5-e834-52b6-9443-e26a17137ab4",
+   "category": "Code Development",
+   "criterion": "Random seed 7 is set for PyTorch and for Python's random module.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper requires that random seed 7 is set for both PyTorch and Python's random module. Looking at `src/train.py`, the submission implements `set_seed(seed)` which calls `random.seed(seed)` and `torch.manual_seed(seed)` using `SEED = 7`. This seed is correctly applied before training both the ClipSign-SGD and baseline models."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "23cc028d-490a-5b15-a137-b840902c9fb5",
+   "category": "Code Development",
+   "criterion": "The momentum buffer is updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector from Eq. (3) and not the raw gradient, as in Eq. (4).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2, Eq. (4) that the momentum buffer m is updated using the ternary sign vector s rather than the raw gradient: m <- beta * m + (1 - beta) * s. In the submitted code (src/clipsign.py), the momentum buffer update is implemented as `m.mul_(beta).add_(s, alpha=1 - beta)`, where `s` is correctly computed as the ternary sign vector. Thus, the implementation matches the requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "a8d6c1a9-4e88-5474-8eee-444d205d8072",
+   "category": "Code Development",
+   "criterion": "ReLU activations are applied after each of the two hidden layers, and not after the output layer.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion specifies that ReLU activations are applied after each of the two hidden layers, and not after the output layer. Examining src/model.py, the MLP uses nn.Sequential with Linear(784, 256), ReLU(), Linear(256, 128), ReLU(), and a final Linear(128, 10). This correctly implements ReLU activations after each of the two hidden layers and not after the output layer."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "0dd52301-b664-5d7b-bc3b-a151209c07f2",
+   "category": "Code Development",
+   "criterion": "The momentum buffer is initialized to zeros before the first update.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2 (Step 4) that the momentum buffer m is initialized to zeros before the first step. Looking at `src/clipsign.py`, the optimizer checks if \"m\" is not in state (`if \"m\" not in state: state[\"m\"] = torch.zeros_like(p)`), which correctly initializes the momentum buffer to zeros before the first update for each parameter tensor. Thus, the criterion is met."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "648b5277-726e-5dc6-822a-0c6e499069f8",
+   "category": "Code Development",
+   "criterion": "A baseline is trained on the same MLP using PyTorch's SGD optimizer with momentum 0.9.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies training a baseline model on the same MLP using PyTorch's SGD optimizer with momentum 0.9. In the submission's `src/train.py` file, `train_baseline` correctly instantiates `torch.optim.SGD(model.parameters(), lr=BASELINE_LR, momentum=BASELINE_MOMENTUM)` where `BASELINE_LR = 0.05` and `BASELINE_MOMENTUM = 0.9`, meeting the criteria."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "2e897b3b-fe65-5f3d-bda7-43b2e08f9527",
+   "category": "Code Development",
+   "criterion": "The baseline uses a constant learning rate of 0.05 with no warmup and no decay.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the SGD baseline uses a constant learning rate of 0.05 with no warmup and no decay. Looking at `src/train.py`, the `train_baseline` function initializes PyTorch's SGD optimizer with `lr=BASELINE_LR` (which is 0.05) and momentum `BASELINE_MOMENTUM=0.9`, without any learning rate scheduler, warmup, or decay logic applied during training loops. This matches the specification perfectly."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "d7c5017b-08b5-5c84-b082-2f59c59ee3f6",
+   "category": "Code Development",
+   "criterion": "Parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion requires that parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5). Inspecting `src/clipsign.py`, the code implements the update step as `p.add_(m, alpha=-lr)` which corresponds to `p <- p - eta * m`. The momentum buffer `m` is used directly without applying any sign or additional normalization. Thus, the implementation correctly matches Eq. (5)."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "a4812f82-641e-5374-8bab-8b36f8de8eea",
+   "category": "Code Development",
+   "criterion": "The momentum coefficient beta is set to 0.73.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2 (Step 4) that the momentum coefficient beta is set to 0.73. Looking at `src/clipsign.py`, the `ClipSignSGD` optimizer has a default parameter `beta=0.73` in its `__init__` signature, and uses this `beta` value correctly in the momentum update step corresponding to Equation (4). The criterion is fully met."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "5fe40f3c-0821-5c17-96ee-2975304fedad",
+   "category": "Code Development",
+   "criterion": "Test accuracy is computed on the 10,000-image MNIST test set.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission correctly loads the official 10,000-image MNIST test set using torchvision datasets (test=datasets.MNIST(root, train=False, download=True, transform=tf)) in src/data.py and evaluates both the ClipSign-SGD model and the baseline model on this test set via the evaluate function in src/train.py, saving and printing the resulting test accuracies."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "e32d5e1f-4816-5548-b789-91a3f5d0930c",
+   "category": "Code Development",
+   "criterion": "Images are normalized with mean 0.1307 and standard deviation 0.3081.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that images are normalized with mean 0.1307 and standard deviation 0.3081. In the submission's src/data.py file, MEAN and STD are defined as 0.1307 and 0.3081 respectively, and the torchvision transforms pipeline applies transforms.Normalize((MEAN,), (STD,)) to the MNIST dataset tensors, fulfilling the criterion."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "df8d4a33-16e4-50c0-b36d-fff7ddbc7169",
+   "category": "Code Development",
+   "criterion": "Coupled weight decay with lambda = 0.0013 is added to the gradient (g <- g + lambda * theta) before the threshold is computed, as in Eq. (1). Decoupled weight decay applied directly to the parameters does not satisfy this requirement.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies coupled weight decay (Eq. 1) where weight decay is added directly to the gradient before any other step: g <- g + lambda * theta with lambda = 0.0013. Examining `src/clipsign.py`, the code implements this exact operation: `g = p.grad + wd * p` where `wd = 0.0013`, prior to computing the threshold (`tau = tau_scale * g.abs().mean()`). This correctly implements coupled weight decay on the gradient rather than standard decoupled weight decay."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "f44e80e3-0663-5012-bbbb-740df2e69328",
+   "category": "Code Development",
+   "criterion": "After warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that after warmup, the learning rate is multiplied by 1/3 at the end of every 5 epochs (i.e., after epochs 5 and 10 in a 15-epoch run). In `src/train.py`, the learning rate schedule checks `if epoch % DECAY_EVERY == 0:` where `DECAY_EVERY = 5` and multiplies `base_lr` by `DECAY_FACTOR = 1 / 3`, and applies it during training. This correctly implements the requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "8fe35afb-514a-5004-a941-f0b464856145",
+   "category": "Code Development",
+   "criterion": "Training uses a batch size of 128.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies a batch size of 128 for training. Examining src/train.py, the constant BATCH_SIZE is set to 128, and it is passed into get_loaders(BATCH_SIZE) in src/data.py where DataLoader is instantiated with this batch size. The training implementation correctly uses a batch size of 128."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "3bfed980-88c1-5ca3-a2c7-6f88da688853",
+   "category": "Code Development",
+   "criterion": "Training runs for 15 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that training runs for 15 epochs. In `src/train.py`, the constant `EPOCHS = 15` is defined and used in both `train_clipsign` and `train_baseline` via `for epoch in range(1, EPOCHS + 1):`, which correctly ensures that training runs for 15 epochs."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3",
+   "category": "Code Development",
+   "criterion": "The learning rate is increased linearly over the first 200 optimizer steps, reaching the base learning rate at step 200.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that during the first 200 optimizer steps the learning rate increases linearly from η₀/200 at step 1 to η₀ at step 200. In `src/train.py`, the warmup is implemented as `warm = min(step, WARMUP_STEPS) / WARMUP_STEPS` where `WARMUP_STEPS = 200`, which correctly gives a linear increase from 1/200 at step 1 to 1 at step 200, multiplying the base learning rate."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "355d898d-7e6e-5013-98d2-efc5bbc5e8be",
+   "category": "Code Development",
+   "criterion": "The base learning rate of ClipSign-SGD is 0.004.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the base learning rate for ClipSign-SGD is ͑₀ = 0.004. In the submitted code, specifically src/train.py and src/clipsign.py, BASE_LR is set to 0.004 and passed as the default learning rate parameter to ClipSignSGD, matching the paper's requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_correct",
+   "id": "0e096d1e-467b-51de-a7af-e04409b560fa",
+   "category": "Code Development",
+   "criterion": "The test accuracies of both ClipSign-SGD and the baseline are printed and saved to a results file.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that test accuracy on the 10,000 test images is computed for both ClipSign-SGD and the baseline, and both numbers are printed and saved to a results file. Inspecting src/train.py, the script computes test accuracies for both models, prints them using print(results), and saves them to ../results/results.json using json.dump(). This meets the requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "5de949d9-09b6-5237-b49d-6e963b43f3fd",
+   "category": "Code Development",
+   "criterion": "The model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 that takes flattened 784-dimensional images as input.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies an MLP with layer sizes 784 -> 256 -> 128 -> 10 and ReLU activations after the two hidden layers, taking flattened 784-dimensional images as input. Looking at `src/model.py`, the `MLP` class implements `nn.Sequential` with `nn.Flatten()`, `nn.Linear(784, 256)`, `nn.ReLU()`, `nn.Linear(256, 128)`, `nn.ReLU()`, and `nn.Linear(128, 10)`, which perfectly matches the specifications."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "87045acc-5353-5951-99e6-d3b1f903a471",
+   "category": "Code Development",
+   "criterion": "The threshold is computed separately for each parameter tensor as tau = 0.37 times the mean absolute value of the (weight-decayed) gradient components of that tensor, as in Eq. (2).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Threshold uses 0.37 * max|g| instead of 0.37 * mean|g|.",
+   "reason": "The paper specifies in Section 2, Step 2 that the threshold is computed as tau = 0.37 * mean_i |g_i| per tensor. Examining `src/clipsign.py`, the implementation calculates tau as `tau = tau_scale * g.abs().max()`, using `.max()` instead of `.mean()`. Therefore, the implementation does not match Equation (2) of the paper."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "603b8d9e-ab01-5cc2-b246-d11c2499d5aa",
+   "category": "Code Development",
+   "criterion": "The last 5,000 images of the training set are held out as a validation set, and the first 55,000 images are used for training.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Holds out the FIRST 5,000 training images instead of the last 5,000.",
+   "reason": "The paper specifies that the last 5,000 images of the 60,000-image training set are held out as a validation set, and the first 55,000 are used for training. In src/data.py, the submission implements this via: train = Subset(full_train, range(5000, 60000)) and val = Subset(full_train, range(0, 5000)). This incorrectly uses the first 5,000 images for validation and the remaining 55,000 for training (indices 0 to 4999 vs 5000 to 59999), reversing the partition specified in the paper."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "9f2c10ae-af4e-5872-be5a-60978acd1c12",
+   "category": "Code Development",
+   "criterion": "Code loads the MNIST training set (60,000 images) and the official test set (10,000 images).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that MNIST training set (60,000 images) and the official test set (10,000 images) are used. Examining src/data.py, the code correctly calls datasets.MNIST(root, train=True, ...) for the training set (60,000 images total, from which a subset is created) and datasets.MNIST(root, train=False, ...) for the official test set (10,000 images). Therefore, the criterion is fully met."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "0a5724f2-203f-54b3-89ee-2430e142470f",
+   "category": "Code Development",
+   "criterion": "Gradient components that are not set to zero are replaced by the sign of the gradient, sign(g_i), as in Eq. (3).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Eq. (3) that remaining components (those where absolute gradient is not strictly less than tau) are replaced by their sign, sign(g_i). In the submission's 'src/clipsign.py', line 26 computes s = torch.sign(g) and then sets elements to zero where g.abs() <= tau, which correctly assigns sign(g_i) to all non-zeroed components."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "82f0bfc6-4e95-5937-a5e4-3ec906d21429",
+   "category": "Code Development",
+   "criterion": "Gradient components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not set to zero, as in Eq. (3).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Uses <= tau, so components exactly equal to tau are zeroed.",
+   "reason": "The criterion requires that gradient components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not set to zero, as specified in Eq. (3). Examining `src/clipsign.py`, the dead-zone masking is implemented as `s[g.abs() <= tau] = 0.0`. This incorrectly sets components where |g_i| is equal to tau to zero, rather than only strictly less than tau (`<` vs `<=`), and also uses `g.abs().max()` instead of `mean_i |g_i|` (which was a previous criterion). Therefore, the exact inequality condition for Eq. (3) is not correctly implemented."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "9a83d9b5-e834-52b6-9443-e26a17137ab4",
+   "category": "Code Development",
+   "criterion": "Random seed 7 is set for PyTorch and for Python's random module.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Seed is 42 instead of 7.",
+   "reason": "The paper specifies in Section 3 that random seed 7 should be set for PyTorch and Python's random module. Looking at `src/train.py`, the submission instead uses `SEED = 42` rather than `7`. Therefore, the criterion requiring seed 7 has not been met."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "23cc028d-490a-5b15-a137-b840902c9fb5",
+   "category": "Code Development",
+   "criterion": "The momentum buffer is updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector from Eq. (3) and not the raw gradient, as in Eq. (4).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Momentum update is m <- beta*m + s, missing the (1 - beta) factor.",
+   "reason": "The paper specifies in Section 2, Eq. (4) that the momentum buffer m is updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector and not the raw gradient. Looking at the submitted code in `src/clipsign.py`, the momentum update is implemented as `m.mul_(beta).add_(s)`, where `s` is the ternary sign vector computed in Eq. (3) (and `1 - beta` multiplier is missing or not scaling `s` directly like `(1 - beta) * s`, wait, let's check: `m = beta * m + s` without the `(1 - beta)` scaling factor is used, or rather `m.mul_(beta).add_(s)` which corresponds to `m <- beta * m + s` instead of `m <- beta * m + (1 - beta) * s`). Therefore, the exact update formula from Eq. (4) with the `(1 - beta)` term for `s` has not been correctly implemented."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "a8d6c1a9-4e88-5474-8eee-444d205d8072",
+   "category": "Code Development",
+   "criterion": "ReLU activations are applied after each of the two hidden layers, and not after the output layer.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies an MLP with layer sizes 784 -> 256 -> 128 -> 10 with ReLU activations after the two hidden layers. Examining `src/model.py`, the MLP uses nn.Sequential with nn.Linear(784, 256), nn.ReLU(), nn.Linear(256, 128), nn.ReLU(), and nn.Linear(128, 10). Thus, ReLU activations are correctly applied after each of the two hidden layers and not after the output layer."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "0dd52301-b664-5d7b-bc3b-a151209c07f2",
+   "category": "Code Development",
+   "criterion": "The momentum buffer is initialized to zeros before the first update.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states in Section 2 (Step 4) that the momentum buffer m is initialized to zeros before the first step. Looking at the implementation in src/clipsign.py, when a parameter tensor's state does not have 'm' yet, it is initialized as state['m'] = torch.zeros_like(p). This correctly initializes the momentum buffer to zeros before the first update."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "648b5277-726e-5dc6-822a-0c6e499069f8",
+   "category": "Code Development",
+   "criterion": "A baseline is trained on the same MLP using PyTorch's SGD optimizer with momentum 0.9.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission implements the baseline training using PyTorch's SGD optimizer with momentum 0.9 in `src/train.py` within the `train_baseline` function, initializing `torch.optim.SGD(model.parameters(), lr=BASELINE_LR, momentum=BASELINE_MOMENTUM)` where `BASELINE_MOMENTUM = 0.9` and `BASELINE_LR = 0.05`, as required by the baseline specification in Section 3."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "2e897b3b-fe65-5f3d-bda7-43b2e08f9527",
+   "category": "Code Development",
+   "criterion": "The baseline uses a constant learning rate of 0.05 with no warmup and no decay.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The baseline learning rate is set to 0.05 without warmup or decay in train_baseline within src/train.py, matching Section 3 of the paper."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "d7c5017b-08b5-5c84-b082-2f59c59ee3f6",
+   "category": "Code Development",
+   "criterion": "Parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion requires that parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5). Inspecting src/clipsign.py, the parameter update is implemented as p.add_(m, alpha=-lr), which correctly adds -eta * m to the parameter tensor p using the momentum buffer m directly without applying any sign or normalization. Therefore, the implementation matches Eq. (5)."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "a4812f82-641e-5374-8bab-8b36f8de8eea",
+   "category": "Code Development",
+   "criterion": "The momentum coefficient beta is set to 0.73.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the momentum coefficient beta in the smoothed momentum step (Eq. 4) should be set to 0.73. In the implementation of the ClipSign-SGD optimizer (`src/clipsign.py`), the default parameter for beta is correctly set to 0.73 (`beta=0.73` in the class `ClipSignSGD` constructor)."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "5fe40f3c-0821-5c17-96ee-2975304fedad",
+   "category": "Code Development",
+   "criterion": "Test accuracy is computed on the 10,000-image MNIST test set.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that the official 10,000-image test set is used for final evaluation. Looking at the implementation in src/train.py, the evaluation function computes accuracy by iterating over data loaders, and main() evaluates both models on the test_loader (which uses datasets.MNIST with train=False, corresponding to the 10,000-image test set). Therefore, test accuracy is correctly computed on the 10,000-image MNIST test set."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "e32d5e1f-4816-5548-b789-91a3f5d0930c",
+   "category": "Code Development",
+   "criterion": "Images are normalized with mean 0.1307 and standard deviation 0.3081.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that MNIST images must be normalized with mean 0.1307 and standard deviation 0.3081. In the file `src/data.py`, the transforms are defined as `transforms.Compose([transforms.ToTensor(), transforms.Normalize((MEAN,), (STD,))])` where `MEAN = 0.1307` and `STD = 0.3081`. Thus, the code correctly implements the image normalization requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "df8d4a33-16e4-50c0-b36d-fff7ddbc7169",
+   "category": "Code Development",
+   "criterion": "Coupled weight decay with lambda = 0.0013 is added to the gradient (g <- g + lambda * theta) before the threshold is computed, as in Eq. (1). Decoupled weight decay applied directly to the parameters does not satisfy this requirement.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Weight decay is decoupled (applied to the parameters), not added to the gradient.",
+   "reason": "The paper specifies coupled weight decay added to the gradient via g <- g + lambda * theta with lambda = 0.0013 before computing the threshold and updating parameters. In the candidate's implementation in `src/clipsign.py`, weight decay is implemented as decoupled weight decay on the parameters directly (`p.mul_(1 - lr * wd)`) instead of modifying the gradient (Eq. 1). Furthermore, the threshold computation uses `g.abs().max()` instead of the mean absolute value required by Eq. (2). Therefore, the implementation does not correctly match the specified coupled weight decay requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "f44e80e3-0663-5012-bbbb-740df2e69328",
+   "category": "Code Development",
+   "criterion": "After warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Decay factor is 0.3 instead of exactly 1/3.",
+   "reason": "According to Section 2.1 of the paper, after warmup, the learning rate is multiplied by exactly 1/3 (or 33.33%, which corresponds to a decay factor of 1/3) at the end of every 5 epochs (after epochs 5 and 10 in a 15-epoch run). In the candidate's implementation in `src/train.py`, `DECAY_FACTOR` is set to `0.3` instead of `1/3` (approx. 0.333333), and `DECAY_EVERY` is 5, meaning the learning rate is multiplied by 0.3 rather than 1/3. Therefore, the requirement of multiplying by exactly 1/3 is not met."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "8fe35afb-514a-5004-a941-f0b464856145",
+   "category": "Code Development",
+   "criterion": "Training uses a batch size of 128.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that the training configuration uses a batch size of 128. In the submission, src/train.py defines BATCH_SIZE = 128 and uses it when calling get_loaders(BATCH_SIZE). Therefore, the training correctly uses a batch size of 128."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "3bfed980-88c1-5ca3-a2c7-6f88da688853",
+   "category": "Code Development",
+   "criterion": "Training runs for 15 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that training runs for 15 epochs. In `src/train.py`, the constant `EPOCHS = 15` is defined and used in the training loops for both ClipSign-SGD and the baseline model (`for epoch in range(1, EPOCHS + 1):`), matching the requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3",
+   "category": "Code Development",
+   "criterion": "The learning rate is increased linearly over the first 200 optimizer steps, reaching the base learning rate at step 200.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Warmup lasts 100 steps instead of 200.",
+   "reason": "The paper states in Section 2.1 that the learning rate increases linearly over the first 200 optimizer steps from eta_0/200 to eta_0 at step 200. In the submission's train.py (line 16-17, 43-46), WARMUP_STEPS is set to 100 instead of 200, and the warmup factor calculation uses WARMUP_STEPS=100. Therefore, the learning rate warmup duration does not match the specification."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "355d898d-7e6e-5013-98d2-efc5bbc5e8be",
+   "category": "Code Development",
+   "criterion": "The base learning rate of ClipSign-SGD is 0.004.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2.1 that the base learning rate for ClipSign-SGD is ͑₀ = 0.004. Reviewing the submission code, specifically in src/train.py and src/clipsign.py, BASE_LR is defined as 0.004 and passed as the default learning rate to the ClipSignSGD optimizer. Therefore, the base learning rate of ClipSign-SGD is correctly implemented as 0.004."
+  },
+  {
+   "run": "syn_clipsign_sub_subtle",
+   "id": "0e096d1e-467b-51de-a7af-e04409b560fa",
+   "category": "Code Development",
+   "criterion": "The test accuracies of both ClipSign-SGD and the baseline are printed and saved to a results file.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission correctly prints the evaluation results to standard output and saves them to a results file at `results/results.json` as required by the paper and reproduction instructions, utilizing `json.dump` inside `src/train.py`."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "5de949d9-09b6-5237-b49d-6e963b43f3fd",
+   "category": "Code Development",
+   "criterion": "The model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 that takes flattened 784-dimensional images as input.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The model implementation in `src/model.py` correctly defines an MLP with layer sizes 784 -> 256 -> 128 -> 10 using `nn.Sequential` with `nn.Flatten()`, `nn.Linear(784, 256)`, `nn.ReLU()`, `nn.Linear(256, 128)`, `nn.ReLU()`, and `nn.Linear(128, 10)`, which fully satisfies the criterion."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "87045acc-5353-5951-99e6-d3b1f903a471",
+   "category": "Code Development",
+   "criterion": "The threshold is computed separately for each parameter tensor as tau = 0.37 times the mean absolute value of the (weight-decayed) gradient components of that tensor, as in Eq. (2).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2, Step 2 that the threshold is computed per parameter tensor as tau = 0.37 * mean_i |g_i|. In the submitted implementation (`src/clipsign.py`), the code computes `tau = tau_scale * g.abs().mean()` for each parameter `p` in the parameter group, where `g` is `p.grad` (though weight decay from step 1 is missing, the per-tensor computation of tau itself matches Eq. 2). However, looking closely at the implementation, `g` is accessed per parameter tensor and `g.abs().mean()` computes the mean absolute value across all components of that specific tensor. Therefore, the per-tensor computation of tau is implemented correctly."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "603b8d9e-ab01-5cc2-b246-d11c2499d5aa",
+   "category": "Code Development",
+   "criterion": "The last 5,000 images of the training set are held out as a validation set, and the first 55,000 images are used for training.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No validation split; trains on all 60,000 images.",
+   "reason": "The paper specifies that the last 5,000 images of the 60,000-image training set should be held out as a validation set, and the first 55,000 used for training. Looking at the implementation in `src/data.py`, the code uses `datasets.MNIST(root, train=True, download=True, transform=tf)` without splitting or slicing the training set into a 55,000-image training subset and a 5,000-image validation subset. Therefore, this specific criterion has not been implemented."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "9f2c10ae-af4e-5872-be5a-60978acd1c12",
+   "category": "Code Development",
+   "criterion": "Code loads the MNIST training set (60,000 images) and the official test set (10,000 images).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that the MNIST dataset has 60,000 training images and a 10,000 image test set. In `src/data.py`, the submission uses `datasets.MNIST(root, train=True, ...)` and `datasets.MNIST(root, train=False, ...)`, which correctly loads the standard 60,000 training images and 10,000 test images provided by torchvision."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "0a5724f2-203f-54b3-89ee-2430e142470f",
+   "category": "Code Development",
+   "criterion": "Gradient components that are not set to zero are replaced by the sign of the gradient, sign(g_i), as in Eq. (3).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion requires that gradient components not set to zero are replaced by their sign, sign(g_i), as in Eq. (3). Looking at `src/clipsign.py`, the implementation computes `s = torch.sign(g)` and then sets `s[g.abs() < tau] = 0.0`. This correctly replaces components with their sign where they are not zeroed out. Thus, the implementation meets the criterion."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "82f0bfc6-4e95-5937-a5e4-3ec906d21429",
+   "category": "Code Development",
+   "criterion": "Gradient components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not set to zero, as in Eq. (3).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Eq. (3) that s_i = 0 if |g_i| < tau (strictly less than), and s_i = sign(g_i) otherwise, meaning components with |g_i| exactly equal to tau are not zeroed. Looking at `src/clipsign.py`, the code implements this using `s[g.abs() < tau] = 0.0`, which correctly uses the strict inequality `< tau`, leaving values equal to `tau` unaffected (as `torch.sign` or default initialized values apply)."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "9a83d9b5-e834-52b6-9443-e26a17137ab4",
+   "category": "Code Development",
+   "criterion": "Random seed 7 is set for PyTorch and for Python's random module.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No random seed is set.",
+   "reason": "The paper specifies setting random seed 7 for PyTorch and Python's random module, but reviewing the codebase (e.g., src/train.py and other files), there is no code setting torch.manual_seed(7) or random.seed(7). Therefore, the requirement is not met."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "23cc028d-490a-5b15-a137-b840902c9fb5",
+   "category": "Code Development",
+   "criterion": "The momentum buffer is updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector from Eq. (3) and not the raw gradient, as in Eq. (4).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2, Step 4 that the momentum buffer m should be updated as an exponential moving average of the ternary sign vector s, i.e., m <- beta * m + (1 - beta) * s, rather than the raw gradient. Looking at the submitted optimizer implementation in `src/clipsign.py`, the code correctly computes the ternary sign vector `s` (applying the dead zone and sign function) and then updates the momentum buffer `m` using `s`: `m.mul_(beta).add_(s, alpha=1 - beta)`. Therefore, the implementation correctly satisfies the requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "a8d6c1a9-4e88-5474-8eee-444d205d8072",
+   "category": "Code Development",
+   "criterion": "ReLU activations are applied after each of the two hidden layers, and not after the output layer.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies an MLP with layer sizes 784 -> 256 -> 128 -> 10 and ReLU activations after the two hidden layers. Examining `src/model.py`, the network uses nn.Linear(784, 256), nn.ReLU(), nn.Linear(256, 128), nn.ReLU(), and nn.Linear(128, 10), matching the specification precisely with ReLU applied after each of the two hidden layers and not after the output layer."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "0dd52301-b664-5d7b-bc3b-a151209c07f2",
+   "category": "Code Development",
+   "criterion": "The momentum buffer is initialized to zeros before the first update.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states in Section 2, Step 4 that the momentum buffer m is initialized to zeros before the first step. Looking at the implementation of ClipSignSGD in `src/clipsign.py`, the state dictionary check verifies `if \"m\" not in state: state[\"m\"] = torch.zeros_like(p)`, which correctly initializes the momentum buffer to zeros before the first update. Therefore, the criterion is met."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "648b5277-726e-5dc6-822a-0c6e499069f8",
+   "category": "Code Development",
+   "criterion": "A baseline is trained on the same MLP using PyTorch's SGD optimizer with momentum 0.9.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No baseline is trained.",
+   "reason": "The paper specifies training a baseline on the same MLP using PyTorch's SGD with momentum 0.9, constant learning rate 0.05, no warmup, and no decay. Looking at the submission's `src/train.py` and other source files, there is no implementation of the baseline model training whatsoever; the script only trains and evaluates the custom `ClipSignSGD` optimizer. Therefore, the criterion requiring a baseline trained with PyTorch's SGD optimizer with momentum 0.9 has not been met."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "2e897b3b-fe65-5f3d-bda7-43b2e08f9527",
+   "category": "Code Development",
+   "criterion": "The baseline uses a constant learning rate of 0.05 with no warmup and no decay.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No baseline is trained.",
+   "reason": "The baseline configuration described in Section 3 requires PyTorch's SGD with momentum 0.9 and a constant learning rate of 0.05, with the same data, batch size, number of epochs, and seed, using no warmup and no decay. Looking at the submission, the implementation in `src/train.py` only implements and runs the ClipSignSGD optimizer and does not implement or train the SGD baseline at all."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "d7c5017b-08b5-5c84-b082-2f59c59ee3f6",
+   "category": "Code Development",
+   "criterion": "Parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion requires that parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5). Inspecting `src/clipsign.py`, the parameter update reads `p.add_(m, alpha=-lr)` which corresponds directly to theta = theta - eta * m using the momentum buffer m directly without applying sign or normalization."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "a4812f82-641e-5374-8bab-8b36f8de8eea",
+   "category": "Code Development",
+   "criterion": "The momentum coefficient beta is set to 0.73.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2, Step 4 that the momentum coefficient beta should be set to 0.73. In the provided implementation `src/clipsign.py`, the `ClipSignSGD` optimizer class has `beta=0.73` as the default argument in its `__init__` method (`def __init__(self, params, lr=0.004, beta=0.73, tau_scale=0.37):`), and this value is used in the exponential moving average update (`m.mul_(beta).add_(s, alpha=1 - beta)`). Therefore, the momentum coefficient beta is correctly set to 0.73."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "5fe40f3c-0821-5c17-96ee-2975304fedad",
+   "category": "Code Development",
+   "criterion": "Test accuracy is computed on the 10,000-image MNIST test set.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that test accuracy is computed on the official 10,000-image test set. In the submission, src/data.py loads the MNIST test dataset using datasets.MNIST(root, train=False, download=True, transform=tf), which corresponds to the official 10,000-image test set. Furthermore, src/train.py defines an evaluate function that iterates over the test loader and computes the accuracy correctly using test_loader. Thus, the criterion is met."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "e32d5e1f-4816-5548-b789-91a3f5d0930c",
+   "category": "Code Development",
+   "criterion": "Images are normalized with mean 0.1307 and standard deviation 0.3081.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No normalization (ToTensor only).",
+   "reason": "The paper specifies in Section 3 that MNIST images should be normalized with mean 0.1307 and standard deviation 0.3081. Examining `src/data.py`, the transform is defined as `tf = transforms.Compose([transforms.ToTensor()])`, which only converts images to tensors without applying the required normalization (`transforms.Normalize((0.1307,), (0.3081,))`). Therefore, the criterion has not been met."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "df8d4a33-16e4-50c0-b36d-fff7ddbc7169",
+   "category": "Code Development",
+   "criterion": "Coupled weight decay with lambda = 0.0013 is added to the gradient (g <- g + lambda * theta) before the threshold is computed, as in Eq. (1). Decoupled weight decay applied directly to the parameters does not satisfy this requirement.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No weight decay at all.",
+   "reason": "The paper specifies that coupled weight decay (g <- g + lambda * theta with lambda = 0.0013) must be added to the gradient before computing the threshold and updating parameters. Reviewing src/clipsign.py and src/train.py, there is no implementation of weight decay in the optimizer or training loop. Therefore, the requirement for coupled weight decay has not been met."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "f44e80e3-0663-5012-bbbb-740df2e69328",
+   "category": "Code Development",
+   "criterion": "After warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No step decay; constant learning rate.",
+   "reason": "The paper specifies that after warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs (after epochs 5 and 10 in a 15-epoch run). Examining the code in `src/train.py` and `src/clipsign.py`, there is no implementation of the learning-rate schedule decay (multiplying by 1/3 every 5 epochs) nor the warmup phase."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "8fe35afb-514a-5004-a941-f0b464856145",
+   "category": "Code Development",
+   "criterion": "Training uses a batch size of 128.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies a batch size of 128 in Section 3. Examining the submission code in `src/train.py`, `BATCH_SIZE = 128` is defined and passed to `get_loaders(BATCH_SIZE)` from `src/data.py`, which correctly configures the DataLoader with a batch size of 128. Therefore, the criterion is met."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "3bfed980-88c1-5ca3-a2c7-6f88da688853",
+   "category": "Code Development",
+   "criterion": "Training runs for 15 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that training runs for 15 epochs. In the submission, `src/train.py` defines `EPOCHS = 15` and uses it in the training loop (`for epoch in range(1, EPOCHS + 1):`), correctly implementing the 15-epoch training duration."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3",
+   "category": "Code Development",
+   "criterion": "The learning rate is increased linearly over the first 200 optimizer steps, reaching the base learning rate at step 200.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No warmup; constant learning rate.",
+   "reason": "The paper specifies in Section 2.1 that during the first 200 optimizer steps, the learning rate increases linearly from η₀/200 at step 1 to η₀ at step 200. Inspecting the provided source code files, specifically `src/clipsign.py` and `src/train.py`, there is no implementation of a learning rate warmup over the first 200 optimizer steps. The learning rate is kept static at the base value. Therefore, this criterion has not been met."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "355d898d-7e6e-5013-98d2-efc5bbc5e8be",
+   "category": "Code Development",
+   "criterion": "The base learning rate of ClipSign-SGD is 0.004.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies the base learning rate of ClipSign-SGD as ͑₀ = 0.004 (Section 2.1). Looking at the submission, specifically in `src/clipsign.py`, the default learning rate `lr` in `ClipSignSGD.__init__` is set to `0.004`, and in `src/train.py`, `LR = 0.004` is passed into the optimizer. Thus, the base learning rate is correctly implemented as 0.004."
+  },
+  {
+   "run": "syn_clipsign_sub_partial",
+   "id": "0e096d1e-467b-51de-a7af-e04409b560fa",
+   "category": "Code Development",
+   "criterion": "The test accuracies of both ClipSign-SGD and the baseline are printed and saved to a results file.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Only ClipSign accuracy is printed; no baseline and no results file.",
+   "reason": "The paper requires that test accuracies for both ClipSign-SGD and the baseline are printed and saved to a results file. Examining the submission files (`train.py` and `README.md`), only ClipSign-SGD is trained and evaluated, the baseline is missing entirely, and test accuracies are not saved to a results file (like results/results.json as mentioned in the README). Therefore, this criterion is not met."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "5de949d9-09b6-5237-b49d-6e963b43f3fd",
+   "category": "Code Development",
+   "criterion": "The model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 that takes flattened 784-dimensional images as input.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies an MLP with layer sizes 784 -> 256 -> 128 -> 10 and ReLU activations after the two hidden layers, taking flattened 784-dimensional images as input. Examining src/model.py, the MLP uses nn.Flatten(), followed by nn.Linear(784, 256), nn.ReLU(), nn.Linear(256, 128), nn.ReLU(), and nn.Linear(128, 10), which perfectly matches the specification."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "87045acc-5353-5951-99e6-d3b1f903a471",
+   "category": "Code Development",
+   "criterion": "The threshold is computed separately for each parameter tensor as tau = 0.37 times the mean absolute value of the (weight-decayed) gradient components of that tensor, as in Eq. (2).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No threshold is computed.",
+   "reason": "The paper specifies in Section 2, Step 2 that a relative dead-zone threshold tau = 0.37 * mean_i |g_i| should be computed independently per parameter tensor from the weight-decayed gradient. Looking at the implementation of the optimizer in src/clipsign.py, there is no implementation of the dead-zone threshold (steps 2 and 3 of the paper's method are completely missing, and instead, standard momentum is computed directly on the raw gradient followed by decoupled or incorrectly applied updates). Therefore, the threshold requirement as in Eq. (2) is not implemented."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "603b8d9e-ab01-5cc2-b246-d11c2499d5aa",
+   "category": "Code Development",
+   "criterion": "The last 5,000 images of the training set are held out as a validation set, and the first 55,000 images are used for training.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states: 'The last 5,000 images of the 60,000-image training set are held out as a validation set; the first 55,000 are used for training.' In `src/data.py`, the submission implements this precisely by using `Subset(full_train, range(0, 55000))` for training and `Subset(full_train, range(55000, 60000))` for validation. Thus, the criterion is fully met."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "9f2c10ae-af4e-5872-be5a-60978acd1c12",
+   "category": "Code Development",
+   "criterion": "Code loads the MNIST training set (60,000 images) and the official test set (10,000 images).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies loading the MNIST dataset consisting of a 60,000-image training set and a 10,000-image test set. Examining src/data.py, the code correctly uses torchvision.datasets.MNIST to load both the training set (train=True, 60,000 images, which are subsequently split into 55,000 training and 5,000 validation subsets) and the official test set (train=False, 10,000 images). Therefore, the criterion is fully satisfied."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "0a5724f2-203f-54b3-89ee-2430e142470f",
+   "category": "Code Development",
+   "criterion": "Gradient components that are not set to zero are replaced by the sign of the gradient, sign(g_i), as in Eq. (3).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Sign is applied to the momentum buffer, not to the gradient components.",
+   "reason": "The paper specifies in Step 3 of Section 2 that components not set to zero are replaced by their sign, i.e., s_i = sign(g_i) for |g_i| >= tau. Inspecting the submission's optimizer implementation in `src/clipsign.py` and the training code in `src/train.py`, we can see that the dead-zone thresholding, relative calculation, ternary sign vector generation, and smoothed momentum steps (Eqs. 2-4) are completely missing from the implementation. Instead, the submission directly adds the raw gradient to the momentum buffer without computing the relative threshold or taking the sign of the gradient components. Therefore, the requirement that gradient components not set to zero are replaced by the sign of the gradient has not been implemented."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "82f0bfc6-4e95-5937-a5e4-3ec906d21429",
+   "category": "Code Development",
+   "criterion": "Gradient components with |g_i| strictly less than tau are set to zero, and components with |g_i| exactly equal to tau are not set to zero, as in Eq. (3).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No dead zone; no components are set to zero.",
+   "reason": "The paper specifies in Section 2, Step 3 that gradient components with absolute value strictly less than tau should be set to zero, and components with absolute value equal to tau should not be zeroed (i.e. s_i = 0 if |g_i| < tau, and s_i = sign(g_i) otherwise). Looking at the candidate's implementation of the optimizer in `src/clipsign.py`, the dead-zone thresholding (tau), relative dead-zone computation, and ternary sign quantization steps (Eq. 2 and Eq. 3) are completely missing from the optimizer step. Instead, the implementation computes standard momentum directly on the raw gradients without applying the relative dead-zone threshold or ternary quantization."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "9a83d9b5-e834-52b6-9443-e26a17137ab4",
+   "category": "Code Development",
+   "criterion": "Random seed 7 is set for PyTorch and for Python's random module.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that random seed 7 is set for PyTorch and Python's random module. Looking at `src/train.py`, `set_seed(seed)` is defined using `random.seed(seed)` and `torch.manual_seed(seed)`, and `SEED = 7` is passed throughout training for both ClipSign and the baseline."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "23cc028d-490a-5b15-a137-b840902c9fb5",
+   "category": "Code Development",
+   "criterion": "The momentum buffer is updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector from Eq. (3) and not the raw gradient, as in Eq. (4).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "The EMA averages the raw gradient, not the ternary sign vector.",
+   "reason": "The paper states that the momentum buffer should be updated as m <- beta * m + (1 - beta) * s, where s is the ternary sign vector resulting from the dead-zone thresholding (Eq. 3), and not the raw gradient g. In the submission's clipsign.py file, the code updates the momentum buffer using `m.mul_(beta).add_(g, alpha=1 - beta)`, passing the raw gradient `g` instead of the ternary sign vector `s` computed from dead-zone thresholding. Therefore, the momentum buffer update uses the raw gradient rather than the ternary sign vector, failing the requirement."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "a8d6c1a9-4e88-5474-8eee-444d205d8072",
+   "category": "Code Development",
+   "criterion": "ReLU activations are applied after each of the two hidden layers, and not after the output layer.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the model is an MLP with layer sizes 784 -> 256 -> 128 -> 10 with ReLU activations after the two hidden layers. Examining `src/model.py`, the network is defined using `nn.Sequential(nn.Flatten(), nn.Linear(784, 256), nn.ReLU(), nn.Linear(256, 128), nn.ReLU(), nn.Linear(128, 10))`, which correctly places ReLU activations after each of the two hidden layers (256 and 128 units) and not after the output layer (10 units)."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "0dd52301-b664-5d7b-bc3b-a151209c07f2",
+   "category": "Code Development",
+   "criterion": "The momentum buffer is initialized to zeros before the first update.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2 (Step 4: Smoothed momentum) that 'The buffer m is initialized to zeros before the first step.' Examining the submission's `src/clipsign.py` file, the `ClipSignSGD` optimizer checks if 'm' is in state for each parameter, and if not, initializes it using `torch.zeros_like(p)` ('if \"m\" not in state: state[\"m\"] = torch.zeros_like(p)'). This correctly implements the zero initialization of the momentum buffer before the first update."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "648b5277-726e-5dc6-822a-0c6e499069f8",
+   "category": "Code Development",
+   "criterion": "A baseline is trained on the same MLP using PyTorch's SGD optimizer with momentum 0.9.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies training a baseline on the same MLP using PyTorch's SGD optimizer with momentum 0.9. In the submission file src/train.py, the function train_baseline implements this requirement exactly using torch.optim.SGD(model.parameters(), lr=BASELINE_LR, momentum=BASELINE_MOMENTUM) where BASELINE_LR = 0.05 and BASELINE_MOMENTUM = 0.9."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "2e897b3b-fe65-5f3d-bda7-43b2e08f9527",
+   "category": "Code Development",
+   "criterion": "The baseline uses a constant learning rate of 0.05 with no warmup and no decay.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the SGD baseline uses a constant learning rate of 0.05 with no warmup and no decay. In `src/train.py`, the `train_baseline` function initializes PyTorch's SGD optimizer with `lr=BASELINE_LR` (where `BASELINE_LR = 0.05`) and momentum 0.9, and it does not modify the learning rate during training (no warmup and no decay), which perfectly matches the specification."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "d7c5017b-08b5-5c84-b082-2f59c59ee3f6",
+   "category": "Code Development",
+   "criterion": "Parameters are updated as theta <- theta - eta * m, using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "The update applies sign() to m instead of using m directly.",
+   "reason": "The criterion requires that parameters are updated as theta <- theta - eta * m using the momentum buffer m directly without applying a sign or normalization to it, as in Eq. (5). Inspecting `src/clipsign.py`, the update step is implemented as `p.add_(torch.sign(m), alpha=-lr)`. Here, `torch.sign(m)` is applied to the momentum buffer `m` before updating the parameters, which violates the requirement that m is used directly without applying a sign or normalization to it."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "a4812f82-641e-5374-8bab-8b36f8de8eea",
+   "category": "Code Development",
+   "criterion": "The momentum coefficient beta is set to 0.73.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2 (Step 4) that the momentum coefficient beta is set to 0.73. Examining the submission, `src/clipsign.py` defines the default parameter `beta=0.73` in the `ClipSignSGD` optimizer class definition, and `src/train.py` calls it without overriding beta, meaning it uses the default value of 0.73. Thus, the implementation correctly sets beta to 0.73."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "5fe40f3c-0821-5c17-96ee-2975304fedad",
+   "category": "Code Development",
+   "criterion": "Test accuracy is computed on the 10,000-image MNIST test set.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that test accuracy on the 10,000 test images is computed for both ClipSign-SGD and the baseline. Examining `src/train.py`, `get_loaders` loads the test dataset via `datasets.MNIST(root, train=False, ...)`, and `evaluate` computes the accuracy by iterating over `test_loader`. The `main` function evaluates both models on the test set and saves the results. Thus, test accuracy is correctly computed on the 10,000-image MNIST test set."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "e32d5e1f-4816-5548-b789-91a3f5d0930c",
+   "category": "Code Development",
+   "criterion": "Images are normalized with mean 0.1307 and standard deviation 0.3081.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that MNIST images should be normalized with a mean of 0.1307 and a standard deviation of 0.3081. In the submitted code (src/data.py), the dataset is loaded and transformed using torchvision transforms.Compose([transforms.ToTensor(), transforms.Normalize((MEAN,), (STD,))]) where MEAN = 0.1307 and STD = 0.3081. This correctly matches the requirements."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "df8d4a33-16e4-50c0-b36d-fff7ddbc7169",
+   "category": "Code Development",
+   "criterion": "Coupled weight decay with lambda = 0.0013 is added to the gradient (g <- g + lambda * theta) before the threshold is computed, as in Eq. (1). Decoupled weight decay applied directly to the parameters does not satisfy this requirement.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Weight decay is decoupled (applied to the parameters).",
+   "reason": "The paper specifies coupled weight decay added to the gradient before threshold computation: g <- g + lambda * theta, with lambda = 0.0013, as described in Equation 1. In the candidate's implementation of ClipSignSGD in src/clipsign.py, weight decay is applied as decoupled weight decay directly to the parameters (p.mul_(1 - lr * wd)), and the dead-zone threshold and ternary sign vector operations (Steps 2 and 3) are completely missing from the optimizer implementation. Therefore, the requirement for coupled weight decay added to the gradient prior to threshold computation has not been met."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "f44e80e3-0663-5012-bbbb-740df2e69328",
+   "category": "Code Development",
+   "criterion": "After warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that after warmup, the learning rate is multiplied by exactly 1/3 at the end of every 5 epochs (after epochs 5 and 10 in a 15-epoch run). In `src/train.py`, the learning rate schedule checks `if epoch % DECAY_EVERY == 0:` where `DECAY_EVERY = 5` and multiplies `base_lr` by `DECAY_FACTOR` (`1 / 3`) at the end of epochs 5, 10, and 15, matching the paper's specification."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "8fe35afb-514a-5004-a941-f0b464856145",
+   "category": "Code Development",
+   "criterion": "Training uses a batch size of 128.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that the training should use a batch size of 128. In the submission, src/train.py defines BATCH_SIZE = 128 and uses it in get_loaders(BATCH_SIZE), which is passed to the DataLoader. Therefore, training uses a batch size of 128 as required."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "3bfed980-88c1-5ca3-a2c7-6f88da688853",
+   "category": "Code Development",
+   "criterion": "Training runs for 15 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper and Section 3 specify that training should run for 15 epochs. In the candidate's implementation (`src/train.py`), the constant `EPOCHS = 15` is defined and used in the training loops for both ClipSign-SGD and the baseline model (`for epoch in range(1, EPOCHS + 1):`), ensuring that training runs for exactly 15 epochs."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "b8c9c653-cf34-5c1a-a106-cfcd4e180ff3",
+   "category": "Code Development",
+   "criterion": "The learning rate is increased linearly over the first 200 optimizer steps, reaching the base learning rate at step 200.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that during the first 200 optimizer steps, the learning rate increases linearly from η₀/200 at step 1 to η₀ at step 200. In `src/train.py`, the warmup schedule is implemented as `warm = min(step, WARMUP_STEPS) / WARMUP_STEPS` where `WARMUP_STEPS = 200`, and `group['lr'] = base_lr * warm`. At step 1, `warm = 1/200`, scaling the learning rate to `η₀/200`. As `step` increments, it increases linearly until step 200 where `warm = 200/200 = 1.0`, matching the base learning rate. The criterion is correctly met."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "355d898d-7e6e-5013-98d2-efc5bbc5e8be",
+   "category": "Code Development",
+   "criterion": "The base learning rate of ClipSign-SGD is 0.004.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies the base learning rate for ClipSign-SGD as η₀ = 0.004 in Section 2.1. In the submission, `src/train.py` defines `BASE_LR = 0.004` and passes it to the ClipSignSGD optimizer as `lr=BASE_LR`. Therefore, the base learning rate of ClipSign-SGD is correctly set to 0.004."
+  },
+  {
+   "run": "syn_clipsign_sub_wrong_method",
+   "id": "0e096d1e-467b-51de-a7af-e04409b560fa",
+   "category": "Code Development",
+   "criterion": "The test accuracies of both ClipSign-SGD and the baseline are printed and saved to a results file.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission script train.py computes test accuracy on the 10,000 test images for both models, prints the dictionary of results, and explicitly saves them to ../results/results.json as described in the paper and README."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "criterion": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission correctly implements multinomial logistic regression using a single linear layer from 64 inputs to 10 outputs with a bias followed by softmax in src/model.py."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "c7112918-6155-53bc-a1dc-bc1f02fec899",
+   "category": "Code Development",
+   "criterion": "During epochs 5 and 10 (1-based epoch numbers divisible by 5) the learning rate is halved, and it returns to 0.77 in the following epoch.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that every fifth epoch (epochs 5 and 10) is a Monday during which the learning rate is halved to 0.385, returning to 0.77 at the start of the next epoch. In src/train.py, the code sets opt.lr = BASE_LR * (MONDAY_FACTOR if epoch % MONDAY_EVERY == 0 else 1.0) inside the epoch training loop where BASE_LR = 0.77, MONDAY_FACTOR = 0.5, and MONDAY_EVERY = 5. This correctly implements the learning rate schedule for Monday blues."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "7c676973-fd0b-513e-8fde-702db173e5f2",
+   "category": "Code Development",
+   "criterion": "At a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that at a deadline, the global L2 norm of the pile over all parameters together is computed, and if it is below 1.3 and no excuse has been used, an excuse is made. In src/procrastigd.py, the code computes the L2 norm as `norm = np.sqrt(sum(np.sum(p ** 2) for p in self.pile.values()))` and checks `if not self.excused and norm < self.excuse_threshold:` where `excuse_threshold` defaults to 1.3. This correctly implements the excuse logic described."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "8a8a206a-7682-5367-b62e-a07094cc00b2",
+   "category": "Code Development",
+   "criterion": "Pixel values are divided by 16 so that they lie in [0, 1].",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that pixel values are divided by 16 so that they lie in [0, 1]. In src/data.py, the line `X = digits.data / 16.0` correctly implements this requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "cb355b56-51d1-51fd-9c2d-4ed33e642b4a",
+   "category": "Code Development",
+   "criterion": "All weights and biases are initialized to zero.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that all weights and biases are initialized to zero ('a blank to-do list'). In `src/model.py`, the `LogisticRegression` class initializes its parameters using `np.zeros((n_in, n_out))` for weights `W` and `np.zeros(n_out)` for biases `b`, which correctly fulfills the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "07025f87-369d-555e-8858-b174bc19d93e",
+   "category": "Code Development",
+   "criterion": "For a fresh pile, the deadline is reached when the pile contains 9 gradients.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2 (Step 2 & 3) that for a fresh pile, the due count (deadline) is 9. In the submitted code `src/procrastigd.py`, the `ProcrastiGD` class accepts `deadline=9` as a default parameter, and checks `if self.n < self.due:` where `self.due` is initialized to `deadline` (9). This correctly implements the requirement that for a fresh pile, the deadline is reached when the pile contains 9 gradients."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "ac82eb5c-ce5a-5b3d-898d-1525f76d225c",
+   "category": "Code Development",
+   "criterion": "Code loads the scikit-learn handwritten digits dataset (load_digits, 1,797 images of 8x8 pixels, 10 classes).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The code correctly loads the scikit-learn handwritten digits dataset using `load_digits()` from `sklearn.datasets`, as seen in `src/data.py`."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "e952e7e8-32fe-5b26-b26e-ca0da289b886",
+   "category": "Code Development",
+   "criterion": "Test accuracy is computed on the 297 test samples.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that test accuracy on the 297 test samples is computed for both ProcrastiGD and the baseline. Examining src/data.py and src/train.py, load_data returns X_te and y_te which are X[1500:] and y[1500:] (from 1797 total samples, meaning 1797 - 1500 = 297 test samples). The evaluation computes accuracy on these test samples via model.accuracy(X_te, y_te), meeting the criterion."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "criterion": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Step 5 of the Method section that the pile is averaged over the number of gradients it contains (P / n) before being applied to the parameter update. In `src/procrastigd.py`, the code implements this by dividing by `self.n`: `self.params[k] -= self.lr * panic * self.pile[k] / self.n`. This correctly divides by the actual number of gradients accumulated (e.g., 12 after an excuse), satisfying the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "3791e245-f059-53e7-a00b-d7f68fd6b77c",
+   "category": "Code Development",
+   "criterion": "Without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that without any shuffling, the first 1,500 samples form the training set and the last 297 samples form the test set. Looking at `src/data.py`, the implementation returns `X[:1500], y[:1500], X[1500:], y[1500:]` directly on the loaded dataset without shuffling the samples prior to the split. This correctly implements the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747",
+   "category": "Code Development",
+   "criterion": "An excuse postpones the deadline by exactly 3 steps without changing the parameters.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that at a deadline, if the L2 norm is below 1.3 and no excuse has been used, the due count is increased by exactly 3 steps and parameters are not changed. In 'src/procrastigd.py', under Step 3, the code checks 'if not self.excused and norm < self.excuse_threshold:', then sets 'self.due += self.excuse_steps' (where self.excuse_steps defaults to 3) and returns without updating the parameters, correctly satisfying the criterion."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "a8dd2f24-26df-585c-ba58-fcfaa5576775",
+   "category": "Code Development",
+   "criterion": "A baseline is trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission implements the diligent SGD baseline in train_diligent function within src/train.py, using a constant learning rate of 0.1 (BASELINE_LR = 0.1), running with the correct batch size, number of epochs, data shuffling seed, and updating parameters at every step."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "6e5df9ef-1c07-54de-95c1-0645c1c528e0",
+   "category": "Code Development",
+   "criterion": "At most one excuse is allowed per pile; at the postponed deadline the update happens regardless of the norm of the pile.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that at most one excuse is allowed per pile, and at the postponed deadline the update happens regardless of the norm of the pile. In the submission's `src/procrastigd.py`, the `ProcrastiGD` class uses an `excused` flag (`not self.excused and norm < self.excuse_threshold`) which is set to `True` upon taking an excuse and reset to `False` only after an update occurs (`self.excused = False` in Step 6), ensuring at most one excuse per pile. Furthermore, if an excuse has already been used (`self.excused` is True), the check is skipped and it proceeds to Step 4 (panic and update) regardless of the norm of the pile. This correctly matches the requirements."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "36ef7c46-c373-5009-a7a4-80011d94703d",
+   "category": "Code Development",
+   "criterion": "The panic factor is 1 + 0.42 * (n - 9), where n is the number of gradients in the pile, as in Eq. (1).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the panic factor is computed as panic = 1 + 0.42 * (n - 9), where n is the number of gradients in the pile (Eq. 1). In `src/procrastigd.py`, the code calculates `panic = 1 + self.panic_rate * (self.n - self.deadline)`, where `self.panic_rate` defaults to `0.42` and `self.deadline` defaults to `9`. This correctly matches Eq. (1) from the paper."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "55ed0e31-c221-5408-b0ce-16cc3eb0b223",
+   "category": "Code Development",
+   "criterion": "Training uses a batch size of 30.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that the training should use a batch size of 30. In the submission, src/train.py defines BATCH_SIZE = 30 and uses it correctly in the batches generator function, meeting the criterion."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "242f0f9f-5f00-5b47-a082-98bb0a6ab68b",
+   "category": "Code Development",
+   "criterion": "The training loss is softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that the loss is the cross-entropy averaged over the mini-batch. In src/model.py, the LogisticRegression class computes the softmax cross-entropy loss averaged over the batch (loss = -np.log(p[np.arange(n), y] + 1e-12).mean()), and the gradients returned are the gradients of this loss with respect to the weights and biases (d = p; d[np.arange(n), y] -= 1.0; d /= n; W: X.T @ d, b: d.sum(axis=0)), matching the requirements."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "e1cac884-8232-5557-9ac0-04ebce46a335",
+   "category": "Code Development",
+   "criterion": "The baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The baseline implementation in `src/train.py` (`train_diligent`) uses the exact same model (`LogisticRegression` with zero initialization by default), data split (`X_tr, y_tr` from `load_data()`), batch size (`BATCH_SIZE = 30`), number of epochs (`EPOCHS = 12`), and shuffling seed (`SEED = 13` passed to `np.random.default_rng(SEED)`) as ProcrastiGD."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "85b53814-adb8-5b68-b0b4-e3a24078f58c",
+   "category": "Code Development",
+   "criterion": "At every step the gradient is added to a to-do pile as a plain sum (not an average or a moving average), the parameters are not changed on steps that are not deadlines, and the pile is emptied after each update.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission correctly implements Step 1 (adding gradients as a plain sum to the pile P), does not update parameters on non-deadline steps (returns early when n < due), and correctly empties the pile after each update (resets pile to zero, n=0, due=9, excused=False). This is clearly implemented in src/procrastigd.py."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "16e23ed3-28fc-58be-9a43-8a94bc1fa458",
+   "category": "Code Development",
+   "criterion": "The base learning rate of ProcrastiGD is 0.77.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the base learning rate of ProcrastiGD is ͖͙̠̣̳̇͡0.77. In the submission, `src/train.py` defines `BASE_LR = 0.77` and passes it or uses it as the base learning rate for the ProcrastiGD optimizer, and `src/procrastigd.py` sets a default `lr=0.77` in its constructor. The implementation correctly reflects this requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c",
+   "category": "Code Development",
+   "criterion": "The pile, the step counter and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies under 'No end-of-epoch cleanup' that the pile, counter, and excuse flag are not reset or applied at epoch boundaries; unfinished work carries over. Inspecting src/procrastigd.py and src/train.py, the optimizer instance persists across epochs without any manual resetting of self.pile, self.n, or self.excused when an epoch ends, correctly allowing unfinished work to carry over into the next epoch."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "3cc9fc18-1c15-54ce-af88-aac3e919e4e1",
+   "category": "Code Development",
+   "criterion": "The test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The submission successfully prints and saves the test accuracies for both ProcrastiGD and the diligent baseline, as well as the total number of excuses made, to a results file (`results/results.json`). This is implemented in `src/train.py`, which computes these values, prints them via standard output, and uses `json.dump` to save them into the specified results directory."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "90b6f5ec-308d-54e1-ab74-b0512d5f7eae",
+   "category": "Code Development",
+   "criterion": "Training runs for 12 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that training runs for 12 epochs ('Batch size 30, 12 epochs'). In the submission, src/train.py defines EPOCHS = 12 and uses this constant in the training loop for both the procrastinator and diligent models (for epoch in range(1, EPOCHS + 1):). The implementation correctly runs for 12 epochs."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "684c42e6-5122-5cf7-adcd-7274018d4b1c",
+   "category": "Code Development",
+   "criterion": "At the start of every epoch the training samples are shuffled with a NumPy random generator that is created once with seed 13.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that at the start of every epoch the training samples are shuffled with a NumPy random generator created once with seed 13. Looking at `src/train.py`, the random generator is created outside the epoch loop as `rng = np.random.default_rng(SEED)` where `SEED = 13`, and then passed to the `batches` function at the start of every epoch to perform the permutation. This correctly matches the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_correct",
+   "id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "criterion": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2 (Step 5) that when the update finally happens, parameters are updated using the accumulated pile divided by n: theta <- theta - lr * panic * (P / n). Looking at `src/procrastigd.py`, the code implements this exactly: `self.params[k] -= self.lr * panic * self.pile[k] / self.n`, using the accumulated pile (not individual or most recent gradients) in the descent direction."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "7c676973-fd0b-513e-8fde-702db173e5f2",
+   "category": "Code Development",
+   "criterion": "At a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Uses the largest absolute entry instead of the global L2 norm.",
+   "reason": "The paper specifies that at a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3. Examining `src/procrastigd.py`, the code computes `norm = max(np.abs(p).max() for p in self.pile.values())`, which calculates the max absolute value across elements instead of the global L2 norm (sqrt of the sum of squared elements across all parameters). Therefore, the implementation of the excuse check does not match the paper's specification."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "8a8a206a-7682-5367-b62e-a07094cc00b2",
+   "category": "Code Development",
+   "criterion": "Pixel values are divided by 16 so that they lie in [0, 1].",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that pixel values are divided by 16 so that they lie in [0, 1]. Examining the file src/data.py, the implementation correctly loads the digits dataset and divides the features by 16.0 (digits = load_digits(); X = digits.data / 16.0), satisfying the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "cb355b56-51d1-51fd-9c2d-4ed33e642b4a",
+   "category": "Code Development",
+   "criterion": "All weights and biases are initialized to zero.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states: 'All weights and biases are initialized to zero (\"a blank to-do list\").' In the submission, `src/model.py` implements the `LogisticRegression` class where the initialization is defined as `self.params = {\"W\": np.zeros((n_in, n_out)), \"b\": np.zeros(n_out)}`. This correctly initializes all weights and biases to zero."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "16e23ed3-28fc-58be-9a43-8a94bc1fa458",
+   "category": "Code Development",
+   "criterion": "The base learning rate of ProcrastiGD is 0.77.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the base learning rate for ProcrastiGD is η = 0.77. In the candidate's implementation (`src/train.py`), BASE_LR is set to 0.77 and passed to the optimizer, meeting the criterion."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "36ef7c46-c373-5009-a7a4-80011d94703d",
+   "category": "Code Development",
+   "criterion": "The panic factor is 1 + 0.42 * (n - 9), where n is the number of gradients in the pile, as in Eq. (1).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Panic rate is 0.24 instead of 0.42 (digits swapped).",
+   "reason": "The paper specifies in Section 2 (Step 4) and Equation (1) that the panic factor should be calculated as panic = 1 + 0.42 * (n - 9). In the submission's `src/procrastigd.py`, the panic rate is initialized with `panic_rate=0.24` and the formula uses `self.panic_rate * (self.n - self.deadline)`, which uses 0.24 instead of 0.42 and a deadline variable of 10 instead of 9. Therefore, the implementation does not correctly implement the panic factor from Eq. (1)."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "07025f87-369d-555e-8858-b174bc19d93e",
+   "category": "Code Development",
+   "criterion": "For a fresh pile, the deadline is reached when the pile contains 9 gradients.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Deadline is 10 gradients instead of 9.",
+   "reason": "According to Section 2 of the paper, the due count is 9 for a fresh pile. Looking at `src/procrastigd.py` and `src/train.py`, the candidate hardcoded `deadline=10` by default in `ProcrastiGD.__init__`, and furthermore the data indices, random seeds, and deadline values do not match the paper's specification (deadline=9). Therefore, the requirement that the deadline is reached when the pile contains 9 gradients for a fresh pile is not correctly implemented."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "ac82eb5c-ce5a-5b3d-898d-1525f76d225c",
+   "category": "Code Development",
+   "criterion": "Code loads the scikit-learn handwritten digits dataset (load_digits, 1,797 images of 8x8 pixels, 10 classes).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies loading the scikit-learn handwritten digits dataset using load_digits (1,797 images, 8x8 pixels, 10 classes). Examining src/data.py, the code imports load_digits from sklearn.datasets, loads the dataset, divides pixel values by 16.0, splits the dataset into training and test sets as specified, and correctly implements the pipeline."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "e952e7e8-32fe-5b26-b26e-ca0da289b886",
+   "category": "Code Development",
+   "criterion": "Test accuracy is computed on the 297 test samples.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that test accuracy is computed on the 297 test samples for both ProcrastiGD and the baseline. Examining src/data.py, the dataset of 1,797 samples is split into the first 1,500 for training and the last 297 for testing (X[1500:], y[1500:]). In src/train.py, the evaluation is performed using model.accuracy(X_te, y_te) on these exact test samples and saved to results.json. Thus, the test accuracy is correctly computed on the 297 test samples."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "criterion": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Divides the pile by the constant deadline, not by n (wrong after an excuse).",
+   "reason": "According to the paper and the prompt, before the update, the pile is supposed to be divided by n, the actual number of gradients it contains (e.g., 12 after an excuse), rather than the constant deadline value (9). In the candidate's implementation in `src/procrastigd.py`, Step 5 divides the pile by `self.deadline` (which is hardcoded to 10 in their constructor default, and represents the deadline value) instead of dividing by `self.n` (the actual number of gradients accumulated in the pile). Thus, the division uses the wrong count, failing the criterion."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "3791e245-f059-53e7-a00b-d7f68fd6b77c",
+   "category": "Code Development",
+   "criterion": "Without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Shuffles the whole dataset before splitting.",
+   "reason": "According to Section 3 of the paper, without any shuffling, the first 1,500 samples form the training set and the last 297 samples form the test set. However, examining `src/data.py`, the candidate implements `order = np.random.default_rng(0).permutation(len(X))` which shuffles the data before splitting it into training and test sets. Thus, the implementation fails to meet the criterion."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747",
+   "category": "Code Development",
+   "criterion": "An excuse postpones the deadline by exactly 3 steps without changing the parameters.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that when an excuse is triggered (global L2 norm of the pile < 1.3 and no excuse used yet), the due count/deadline is increased by exactly 3 steps and the parameters are not changed. Examining `src/procrastigd.py`, the deadline check updates `self.due += self.excuse_steps` and returns immediately without modifying parameters (i.e., `return`). Furthermore, the base deadline is 9 and `excuse_steps` defaults to 3, implementing the exact logic required."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "criterion": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies multinomial logistic regression with a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax. In the submission's `src/model.py`, the `LogisticRegression` class implements this with weights initialized to zeros (`np.zeros((n_in, n_out))`, `np.zeros(n_out)`), computes logits as `X @ self.params['W'] + self.params['b']`, and applies cross-entropy loss with softmax probabilities, perfectly matching the requirements."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "a8dd2f24-26df-585c-ba58-fcfaa5576775",
+   "category": "Code Development",
+   "criterion": "A baseline is trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the diligent SGD baseline uses a constant learning rate of 0.1 and updates parameters at every step. In the provided submission (`src/train.py`), the function `train_diligent` implements this baseline by iterating over mini-batches, computing gradients, and performing an SGD update with `BASELINE_LR = 0.1` at every step. Thus, the implementation correctly matches the requirements."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "6e5df9ef-1c07-54de-95c1-0645c1c528e0",
+   "category": "Code Development",
+   "criterion": "At most one excuse is allowed per pile; at the postponed deadline the update happens regardless of the norm of the pile.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Unlimited excuses per pile (no excuse flag check).",
+   "reason": "The criterion requires that at most one excuse is allowed per pile, and at the postponed deadline the update happens regardless of the norm of the pile. In the candidate's implementation of ProcrastiGD (`src/procrastigd.py`), the `excused` flag and `excuses_used` are tracked, but once an excuse is taken, the due count is increased by `excuse_steps` (3 steps), and on subsequent steps, the norm condition is checked again using `max(np.abs(p).max() for p in self.pile.values())` instead of the global L2 norm, and crucially, another excuse can potentially be taken because `excused` is not strictly checked to block subsequent excuses (or rather, the code allows multiple excuses if the norm is still below threshold). Furthermore, the paper specifies that at the postponed deadline the update happens no matter how small the pile is, but the code checks `norm < self.excuse_threshold` again at the postponed deadline. Thus, the implementation does not correctly restrict to at most one excuse per pile nor ensure updates always happen after the first postponement."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "55ed0e31-c221-5408-b0ce-16cc3eb0b223",
+   "category": "Code Development",
+   "criterion": "Training uses a batch size of 30.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies a training batch size of 30. In the submission, `src/train.py` defines `BATCH_SIZE = 30` which is used in the batching generator to divide the training data into mini-batches of size 30. Thus, the criterion has been successfully implemented."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "242f0f9f-5f00-5b47-a082-98bb0a6ab68b",
+   "category": "Code Development",
+   "criterion": "The training loss is softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the loss is the cross-entropy averaged over the mini-batch. In `src/model.py`, the `loss_and_grads` function computes the cross-entropy loss by summing `-np.log(...)` over the mini-batch and dividing by `n` (the batch size), which is an average over the mini-batch. Furthermore, the gradients are correctly computed with respect to this loss, where `d /= n` normalizes the gradients. Thus, the implementation correctly matches the loss and gradient requirements."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "e1cac884-8232-5557-9ac0-04ebce46a335",
+   "category": "Code Development",
+   "criterion": "The baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that the baseline uses the same model (multinomial logistic regression with zero initialization), data split, batch size, number of epochs, and shuffling seed as ProcrastiGD. In src/train.py, train_diligent uses BATCH_SIZE=30, EPOCHS=12, SEED=31 (passed to the rng used for batch shuffling, which matches the data shuffling seed logic), and the same LogisticRegression model initialized to zero weights. However, the data split uses load_data() from data.py which applies a different random generator seed (SEED=0) than the training seed (SEED=31), but this data splitting seed is shared identically by both ProcrastiGD and the diligent baseline. Thus, the baseline uses the exact same model, zero initialization, data split, batch size, number of epochs, and shuffling seed as ProcrastiGD."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "85b53814-adb8-5b68-b0b4-e3a24078f58c",
+   "category": "Code Development",
+   "criterion": "At every step the gradient is added to a to-do pile as a plain sum (not an average or a moving average), the parameters are not changed on steps that are not deadlines, and the pile is emptied after each update.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 2 (Step 1, Step 5, Step 6) that gradients are added to the pile P as a plain sum (P <- P + g), parameters are not changed on non-deadline steps, and the pile is emptied after each update (P <- 0). Reviewing src/procrastigd.py, Step 1 correctly does `self.pile[k] += g`, parameters are only changed when the deadline and excuse checks are passed, and Step 6 correctly zeroes out the pile (`self.pile[k][:] = 0.0`). Thus, the requirement has been successfully implemented."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "c7112918-6155-53bc-a1dc-bc1f02fec899",
+   "category": "Code Development",
+   "criterion": "During epochs 5 and 10 (1-based epoch numbers divisible by 5) the learning rate is halved, and it returns to 0.77 in the following epoch.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "0-based epoch index, so Mondays are epochs 1, 6 and 11.",
+   "reason": "The paper specifies that every fifth epoch (1-based epoch numbers divisible by 5, i.e., epochs 5 and 10 for 12 total epochs) is a Monday, during which the learning rate is halved to 0.385 from 0.77, returning to 0.77 at the start of the next epoch. In the submission's `src/train.py`, the epoch loop uses `epoch` ranging from 0 to 11 (0-based indexing). The code checks `if epoch % MONDAY_EVERY == 0` (where `MONDAY_EVERY = 5`), which evaluates to true for `epoch = 0`, `5`, and `10`. This means epoch 0 (the first epoch) has its learning rate halved incorrectly, and 1-based epoch 5 (which is `epoch = 4` in 0-based indexing) is missed. Therefore, the implementation of the Monday blues learning rate schedule does not correctly match the paper's 1-based definition for epochs 5 and 10."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c",
+   "category": "Code Development",
+   "criterion": "The pile, the step counter and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper explicitly states under Section 2 ('No end-of-epoch cleanup') that the pile, the counter, and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch. In `src/procrastigd.py` and `src/train.py`, the training loop iterates over batches across epochs without calling any reset methods or re-instantiating the optimizer per epoch, meaning the `ProcrastiGD` instance maintains its state (`self.pile`, `self.n`, `self.excused`, etc.) continuously across epoch boundaries. Therefore, this criterion is fully met."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "3cc9fc18-1c15-54ce-af88-aac3e919e4e1",
+   "category": "Code Development",
+   "criterion": "The test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that both accuracies and the total number of excuses ProcrastiGD made are printed and saved to a results file. In `src/train.py`, the code prints the `results` dictionary and writes it to `../results/results.json`, which contains `procrastigd_test_acc`, `baseline_test_acc`, and `excuses_made`. This meets the criteria."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "90b6f5ec-308d-54e1-ab74-b0512d5f7eae",
+   "category": "Code Development",
+   "criterion": "Training runs for 12 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that training runs for 12 epochs. In the submission file src/train.py, EPOCHS is defined as 12, and the training loop in train_procrastinator runs for range(EPOCHS) which correctly executes for 12 epochs."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "684c42e6-5122-5cf7-adcd-7274018d4b1c",
+   "category": "Code Development",
+   "criterion": "At the start of every epoch the training samples are shuffled with a NumPy random generator that is created once with seed 13.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Seed is 31 instead of 13.",
+   "reason": "The paper specifies that at the start of every epoch the training samples are shuffled with a NumPy random generator created once with seed 13. Looking at `src/train.py`, the seed is defined as `SEED = 31` (instead of 13), and in `src/data.py`, `np.random.default_rng(0)` is used with seed 0. Therefore, the training samples are not shuffled with a NumPy random generator created once with seed 13."
+  },
+  {
+   "run": "syn_procrastigd_sub_subtle",
+   "id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "criterion": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "judge": 0,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that at a deadline that is not excused, parameters are updated using the accumulated pile divided by n (the number of gradients in the pile), multiplied by the learning rate and panic factor, as in Eq. (2). In the submission's `src/procrastigd.py`, the update uses `self.deadline` in the denominator instead of `self.n` (the actual number of gradients, which is 12 after an excuse): `self.params[k] -= self.lr * panic * self.pile[k] / self.deadline`. Additionally, the panic rate parameter defaults to 0.24 instead of 0.42. Therefore, the implementation deviates from Eq. (2) and the requirements in the paper."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "7c676973-fd0b-513e-8fde-702db173e5f2",
+   "category": "Code Development",
+   "criterion": "At a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No excuse mechanism.",
+   "reason": "The paper specifies that at a deadline, the global L2 norm of the pile (computed over all parameters together) is compared against 1.3, and if it is smaller and no excuse has been used yet, the deadline is postponed by 3 steps. Looking at the implementation in `src/procrastigd.py` and `src/train.py`, there is no implementation of the excuse mechanism, the L2 norm check, or the dynamic due count (it uses a fixed deadline of 9 steps and performs updates unconditionally). Therefore, the requirement for triggering an excuse based on the global L2 norm below 1.3 is completely missing."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "8a8a206a-7682-5367-b62e-a07094cc00b2",
+   "category": "Code Development",
+   "criterion": "Pixel values are divided by 16 so that they lie in [0, 1].",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states in Section 3 that pixel values are divided by 16 so that they lie in [0, 1]. In the submission, `src/data.py` contains the code `digits = load_digits(); X = digits.data / 16.0`, which correctly implements this requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "cb355b56-51d1-51fd-9c2d-4ed33e642b4a",
+   "category": "Code Development",
+   "criterion": "All weights and biases are initialized to zero.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Weights are initialized randomly, not to zero.",
+   "reason": "The paper specifies in Section 3 that 'All weights and biases are initialized to zero (\"a blank to-do list\").' However, looking at the code in src/model.py, the weights are initialized randomly using np.random.default_rng(0).normal(scale=0.01, size=(n_in, n_out)) rather than being initialized to zero. Therefore, the requirement for zero initialization is not met."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "16e23ed3-28fc-58be-9a43-8a94bc1fa458",
+   "category": "Code Development",
+   "criterion": "The base learning rate of ProcrastiGD is 0.77.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that the base learning rate is eta = 0.77. In the candidate's implementation in `src/train.py`, the constant `LR = 0.77` is defined and passed to the optimizer, meeting the criterion."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "36ef7c46-c373-5009-a7a4-80011d94703d",
+   "category": "Code Development",
+   "criterion": "The panic factor is 1 + 0.42 * (n - 9), where n is the number of gradients in the pile, as in Eq. (1).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No panic factor.",
+   "reason": "The paper specifies that the panic factor should be computed as panic = 1 + 0.42 * (n - 9), where n is the number of gradients in the pile (Eq. 1), and applied during the parameter update (Eq. 2). Reviewing the submission files, specifically src/procrastigd.py and src/train.py, the ProcrastiGD optimizer implementation lacks the panic factor calculation entirely, uses a fixed deadline behavior that resets at every epoch rather than maintaining a persistent to-do pile, and does not apply the panic multiplier when updating parameters. Therefore, the implementation does not meet the criteria."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "07025f87-369d-555e-8858-b174bc19d93e",
+   "category": "Code Development",
+   "criterion": "For a fresh pile, the deadline is reached when the pile contains 9 gradients.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that the due count is 9 for a fresh pile. In the candidate implementation under `src/procrastigd.py`, the default deadline parameter is set to 9 (`deadline=9`), and the condition checks `if self.n < self.deadline:` where `self.n` counts gradients added, meaning the deadline is indeed reached when the pile contains 9 gradients for a fresh pile."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "ac82eb5c-ce5a-5b3d-898d-1525f76d225c",
+   "category": "Code Development",
+   "criterion": "Code loads the scikit-learn handwritten digits dataset (load_digits, 1,797 images of 8x8 pixels, 10 classes).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies loading the scikit-learn handwritten digits dataset via load_digits. Looking at src/data.py, the code correctly imports load_digits from sklearn.datasets, loads the dataset, scales pixel values by dividing by 16.0, and splits into training and test sets as required."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "e952e7e8-32fe-5b26-b26e-ca0da289b886",
+   "category": "Code Development",
+   "criterion": "Test accuracy is computed on the 297 test samples.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion requires test accuracy to be computed on the 297 test samples. Looking at src/data.py, load_data splits the digits dataset (1797 samples) into X[:1500] (training) and X[1500:] (test), which leaves 1797 - 1500 = 297 test samples. In src/model.py, the accuracy method computes the accuracy of the model on given X and y, and src/train.py evaluates this using X_te and y_te (the 297 test samples). Therefore, the test accuracy is correctly computed on the 297 test samples."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "criterion": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "judge": 0,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Step 5 that the pile is averaged over the actual number of gradients it contains (n, which is 12 after an excuse), i.e., dividing by n. In the submitted code (src/procrastigd.py), the update divides the pile by `self.n` (`self.params[k] -= self.lr * self.pile[k] / self.n`). However, the implementation of ProcrastiGD completely omits the excuse mechanism, deadline adjustments, global L2 norm check, and panic factor. Furthermore, src/train.py explicitly calls `opt.forget()` at the end of every epoch, violating the paper's requirement that 'Procrastination knows no epoch boundaries' and that the pile carries over across epochs. Thus, the implementation does not correctly implement the multi-step deadline/excuse/panic logic described in the paper."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "3791e245-f059-53e7-a00b-d7f68fd6b77c",
+   "category": "Code Development",
+   "criterion": "Without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing. Looking at src/data.py, the implementation correctly splits the data as return X[:1500], y[:1500], X[1500:], y[1500:] without any prior shuffling."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747",
+   "category": "Code Development",
+   "criterion": "An excuse postpones the deadline by exactly 3 steps without changing the parameters.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No excuse mechanism.",
+   "reason": "The paper specifies that at a deadline, if the global L2 norm of the pile is less than 1.3 and no excuse has been used for the current pile, the due count (deadline) is increased by exactly 3 steps, the parameters are not changed, and only one excuse is allowed per pile. Looking at `src/procrastigd.py`, the submission implements a fixed deadline of 9, does not check the L2 norm against 1.3, does not implement the excuse mechanism, and updates parameters unconditionally once `self.n >= self.deadline`. Therefore, the requirement that an excuse postpones the deadline by exactly 3 steps without changing parameters is not met."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "criterion": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "judge": 0,
+   "label": 1,
+   "label_why": "",
+   "reason": "The model implementation in `src/model.py` uses random initialization rather than zero initialization as specified in the paper ('All weights and biases are initialized to zero'). Therefore, the model initialization does not match the paper's specification."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "a8dd2f24-26df-585c-ba58-fcfaa5576775",
+   "category": "Code Development",
+   "criterion": "A baseline is trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No baseline is trained.",
+   "reason": "The paper specifies a baseline trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step. Looking through the provided files (such as src/train.py), there is no implementation of the diligent SGD baseline training loop or its evaluation. Therefore, the criterion has not been met."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "6e5df9ef-1c07-54de-95c1-0645c1c528e0",
+   "category": "Code Development",
+   "criterion": "At most one excuse is allowed per pile; at the postponed deadline the update happens regardless of the norm of the pile.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No excuse mechanism.",
+   "reason": "The paper specifies that at most one excuse is allowed per pile, and at the postponed deadline the update happens regardless of the pile's norm. Looking at the submitted code in `src/procrastigd.py`, the ProcrastiGD optimizer class is completely missing the implementation for the excuse mechanism, deadline postponement, norm calculation, and panic factor. Therefore, it does not implement the rule allowing at most one excuse per pile and forcing the update at the postponed deadline."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "55ed0e31-c221-5408-b0ce-16cc3eb0b223",
+   "category": "Code Development",
+   "criterion": "Training uses a batch size of 30.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that the training should use a batch size of 30. Examining the codebase, specifically `src/train.py`, we can see the definition `BATCH_SIZE = 30` which is correctly used to slice the training batches `idx = order[i:i + BATCH_SIZE]`. Thus, the training uses a batch size of 30 as required."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "242f0f9f-5f00-5b47-a082-98bb0a6ab68b",
+   "category": "Code Development",
+   "criterion": "The training loss is softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the loss is the cross-entropy averaged over the mini-batch. In `src/model.py`, the `loss_and_grads` method computes the softmax cross-entropy loss by taking the negative log likelihood of the correct classes and averaging over the batch (`loss = -np.log(p[np.arange(n), y] + 1e-12).mean()`). Furthermore, the returned gradients are correctly derived from this loss with respect to the weights and biases (`d = p; d[np.arange(n), y] -= 1.0; d /= n`). Therefore, the criterion is met."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "e1cac884-8232-5557-9ac0-04ebce46a335",
+   "category": "Code Development",
+   "criterion": "The baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No baseline is trained.",
+   "reason": "The criterion requires that the baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD. Examining the provided code files (e.g., `src/model.py`, `src/train.py`), the model uses random initialization (`np.random.default_rng(0).normal(...)`) rather than zero initialization as specified in the paper ('All weights and biases are initialized to zero'). Furthermore, the baseline SGD training loop is not even fully implemented in `train.py`. Therefore, the baseline does not meet the specified requirements."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "85b53814-adb8-5b68-b0b4-e3a24078f58c",
+   "category": "Code Development",
+   "criterion": "At every step the gradient is added to a to-do pile as a plain sum (not an average or a moving average), the parameters are not changed on steps that are not deadlines, and the pile is emptied after each update.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that gradients are added to a to-do pile as a plain sum, parameters are not changed on non-deadline steps, and the pile is emptied after an update. In the submission's `src/procrastigd.py`, the `step` function adds incoming gradients using `self.pile[k] += g` (plain sum), does not update parameters if `self.n < self.deadline` (returning early without changing parameters), and calls `self.forget()` after the update, which explicitly zeros out the pile and resets `self.n = 0`. Thus, the criteria are fully met."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "c7112918-6155-53bc-a1dc-bc1f02fec899",
+   "category": "Code Development",
+   "criterion": "During epochs 5 and 10 (1-based epoch numbers divisible by 5) the learning rate is halved, and it returns to 0.77 in the following epoch.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No Monday blues; constant learning rate.",
+   "reason": "The paper specifies in Section 2.1 that every fifth epoch (epochs 5 and 10) is a Monday during which the learning rate is halved to 0.385, and returns to 0.77 at the start of the next epoch. Inspecting the codebase (specifically `src/procrastigd.py` and `src/train.py`), there is no implementation of the Monday blues learning rate schedule where the learning rate is halved during epochs 5 and 10. The learning rate is kept constant at 0.77 throughout training."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c",
+   "category": "Code Development",
+   "criterion": "The pile, the step counter and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "The pile is thrown away at the end of every epoch.",
+   "reason": "The paper explicitly states: 'No end-of-epoch cleanup. Procrastination knows no epoch boundaries. The pile, the counter and the excuse flag are not reset or applied at the end of an epoch; unfinished work simply carries over into the next epoch.' Looking at the submission's `src/train.py`, line 24 includes an explicit end-of-epoch cleanup: `opt.forget()` which resets the pile and step counter after every epoch. Furthermore, the ProcrastiGD implementation in `src/procrastigd.py` lacks excuse flag tracking altogether and doesn't implement the required excuse/deadline postponement logic. Therefore, the requirement that the pile, step counter, and excuse flag are not reset at epoch boundaries is not met."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "3cc9fc18-1c15-54ce-af88-aac3e919e4e1",
+   "category": "Code Development",
+   "criterion": "The test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Only ProcrastiGD accuracy is printed; no baseline, no excuse count, no results file.",
+   "reason": "The criterion specifies that the test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file. Looking at the code (`src/train.py` and other files), there is no implementation for saving results to a results file (like results/results.json referenced in the README), nor is the baseline implemented or the number of excuses counted and printed as required."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "90b6f5ec-308d-54e1-ab74-b0512d5f7eae",
+   "category": "Code Development",
+   "criterion": "Training runs for 12 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion requires that training runs for 12 epochs. Looking at src/train.py, EPOCHS is set to 12, and the training loop runs for `range(1, EPOCHS + 1)`, which correctly executes for 12 epochs. Therefore, the implementation meets the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "684c42e6-5122-5cf7-adcd-7274018d4b1c",
+   "category": "Code Development",
+   "criterion": "At the start of every epoch the training samples are shuffled with a NumPy random generator that is created once with seed 13.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states: 'At the start of every epoch the training samples are shuffled with a NumPy random generator created once with seed 13'. In the submission's train.py (`src/train.py`), the RNG is created once outside the epoch loop via `rng = np.random.default_rng(SEED)` with `SEED = 13`, and inside the epoch loop `order = rng.permutation(len(X_tr))` is called at the start of every epoch. This correctly implements the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_partial",
+   "id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "criterion": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "judge": 0,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that at a deadline that is not excused, parameters are updated using the accumulated pile divided by n multiplied by the panic factor and learning rate, as in Eq. (2). In the submission's 'src/procrastigd.py', the implementation divides by self.n (which is 9 or 12) and applies the learning rate, but it completely omits the panic factor calculation and the excuse mechanism entirely. Therefore, the implementation does not correctly perform the update according to Eq. (2) and the optimizer logic."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "c7112918-6155-53bc-a1dc-bc1f02fec899",
+   "category": "Code Development",
+   "criterion": "During epochs 5 and 10 (1-based epoch numbers divisible by 5) the learning rate is halved, and it returns to 0.77 in the following epoch.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Mondays double the learning rate instead of halving it.",
+   "reason": "The paper states that every fifth epoch (epochs 5 and 10) is a Monday during which the learning rate is halved to 0.385, and it returns to 0.77 at the start of the next epoch. In the submission's train.py (`src/train.py`), the learning rate modification is implemented as `opt.lr = BASE_LR * (MONDAY_FACTOR if epoch % MONDAY_EVERY == 0 else 1.0)` where `MONDAY_FACTOR` is set to `2.0`. This means instead of halving the learning rate during epochs 5 and 10, it doubles it. Therefore, the implementation of the Monday blues learning rate schedule does not match the paper's requirements."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "7c676973-fd0b-513e-8fde-702db173e5f2",
+   "category": "Code Development",
+   "criterion": "At a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "The norm is computed on the latest gradient, not on the pile.",
+   "reason": "The paper specifies that at a deadline, an excuse is triggered if the global L2 norm of the pile over all parameters together is below 1.3, provided no excuse has been used yet for the current pile. Looking at `src/procrastigd.py`, the code computes `norm = np.sqrt(sum(np.sum(g ** 2) for g in self.latest.values()))` (which incorrectly uses `self.latest` instead of a persistent to-do pile summing all gradients accumulated since the last update, or rather it treats `latest` as the pile, but even worse, looking at `src/train.py`, `opt.n, opt.due, opt.excused = 0, opt.deadline, False` is explicitly reset at the start of *every epoch* instead of carrying over across epoch boundaries as specified in 'No end-of-epoch cleanup: Procrastination knows no epoch boundaries. The pile, the counter and the excuse flag are not reset or applied at the end of an epoch; unfinished work simply carries over into the next epoch.'). Furthermore, the pile itself is not accumulated as a sum of gradients in `step()` (it just assigns `self.latest = {k: g.copy() for k, g in grads.items()}`). Therefore, the global L2 norm of the pile is not correctly computed over the accumulated pile."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "8a8a206a-7682-5367-b62e-a07094cc00b2",
+   "category": "Code Development",
+   "criterion": "Pixel values are divided by 16 so that they lie in [0, 1].",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that pixel values are divided by 16 so that they lie in [0, 1]. In the file `src/data.py`, the data loading function correctly implements this requirement by dividing `digits.data` by 16.0 (`X = digits.data / 16.0`)."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "cb355b56-51d1-51fd-9c2d-4ed33e642b4a",
+   "category": "Code Development",
+   "criterion": "All weights and biases are initialized to zero.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies in Section 3 that all weights and biases are initialized to zero ('a blank to-do list'). Inspecting the implementation in src/model.py under the LogisticRegression class initialization (__init__), we find that weights 'W' and biases 'b' are initialized using np.zeros((n_in, n_out)) and np.zeros(n_out) respectively. This correctly fulfills the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "07025f87-369d-555e-8858-b174bc19d93e",
+   "category": "Code Development",
+   "criterion": "For a fresh pile, the deadline is reached when the pile contains 9 gradients.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states that the due count is 9 for a fresh pile. In `src/procrastigd.py`, the optimizer class `ProcrastiGD` initializes `deadline=9` and `due=deadline`, and checks if `self.n < self.due` where `self.n` is the number of gradients currently in the pile, correctly implementing the 9-gradient deadline for a fresh pile."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "ac82eb5c-ce5a-5b3d-898d-1525f76d225c",
+   "category": "Code Development",
+   "criterion": "Code loads the scikit-learn handwritten digits dataset (load_digits, 1,797 images of 8x8 pixels, 10 classes).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies loading the scikit-learn handwritten digits dataset via load_digits. Examining src/data.py, the code correctly imports `load_digits` from `sklearn.datasets`, loads the dataset, divides pixel values by 16.0, and correctly splits it into training (first 1500 samples) and test (last 297 samples) sets as required."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "e952e7e8-32fe-5b26-b26e-ca0da289b886",
+   "category": "Code Development",
+   "criterion": "Test accuracy is computed on the 297 test samples.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The criterion requires that test accuracy is computed on the 297 test samples. In the paper, Section 3 states that the last 297 samples form the test set. Looking at `src/data.py`, `load_data()` splits the dataset into `X[:1500]` for training and `X[1500:]` for testing, where `load_digits()` has 1,797 samples in total, meaning the test set contains 297 samples. In `src/train.py`, `main()` loads `X_te, y_te` using `load_data()` and computes `procrastinator.accuracy(X_te, y_te)` and `diligent.accuracy(X_te, y_te)`, where `accuracy()` in `src/model.py` evaluates predictions against the test labels. Thus, test accuracy is correctly computed on the 297 test samples."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "criterion": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "No averaging over a pile.",
+   "reason": "The criterion requires that before the update, the pile is divided by n (the actual number of gradients it contains, e.g., 12 after an excuse), rather than by a constant 9. Looking at src/procrastigd.py, the optimizer accumulates the latest gradient into `self.latest` instead of accumulating a sum pile P and dividing by n. Specifically, `self.latest = {k: g.copy() for k, g in grads.items()}` overwrites the pile at every step instead of summing gradients, and the update multiplies `self.latest[k]` by the learning rate and panic factor without dividing by `n` at all (or dividing by the number of gradients accumulated). Therefore, the ProcrastiGD implementation does not correctly sum gradients into a pile and divide by `n` during the update step as specified."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "3791e245-f059-53e7-a00b-d7f68fd6b77c",
+   "category": "Code Development",
+   "criterion": "Without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies: 'Without any shuffling, the first 1,500 samples form the training set and the last 297 samples form the test set.' Looking at `src/data.py`, the implementation does `X[:1500], y[:1500], X[1500:], y[1500:]` directly without shuffling the dataset before splitting. This correctly implements the requirement."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747",
+   "category": "Code Development",
+   "criterion": "An excuse postpones the deadline by exactly 3 steps without changing the parameters.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "According to the paper and the prompt's preceding expectations, when an excuse is triggered at a deadline (norm < 1.3 and no excuse used yet), the due count should be increased by exactly 3 steps, and parameters should not be changed. Inspecting src/procrastigd.py, the code checks `if not self.excused and norm < self.excuse_threshold:`, then executes `self.due += self.excuse_steps` (where excuse_steps is initialized to 3) and returns without updating the parameters. Thus, the implementation correctly postpones the deadline by exactly 3 steps without changing the parameters."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "criterion": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies multinomial logistic regression as a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax, with cross-entropy loss. Examining `src/model.py`, the LogisticRegression class initializes weight matrix of shape (64, 10) and bias of shape (10), implements logits as X @ W + b, computes softmax probabilities and cross-entropy loss with gradients, matching the specification exactly."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "a8dd2f24-26df-585c-ba58-fcfaa5576775",
+   "category": "Code Development",
+   "criterion": "A baseline is trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The baseline model in src/train.py ('train_diligent') correctly implements plain mini-batch SGD with a constant learning rate of 0.1, updating parameters at every step over the same dataset, batch size, shuffling seed, and epochs as specified in Section 3."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "6e5df9ef-1c07-54de-95c1-0645c1c528e0",
+   "category": "Code Development",
+   "criterion": "At most one excuse is allowed per pile; at the postponed deadline the update happens regardless of the norm of the pile.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that at most one excuse is allowed per pile and that at the postponed deadline the update happens no matter how small the pile is. In `src/procrastigd.py`, the code implements this using `if not self.excused and norm < self.excuse_threshold:` and sets `self.excused = True`, which prevents multiple excuses for the same pile. Furthermore, once an excuse has been used, `self.excused` is True, so the condition for making an excuse is bypassed on subsequent checks, forcing the update to happen regardless of the norm at the postponed deadline. The implementation correctly adheres to the requirements."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "36ef7c46-c373-5009-a7a4-80011d94703d",
+   "category": "Code Development",
+   "criterion": "The panic factor is 1 + 0.42 * (n - 9), where n is the number of gradients in the pile, as in Eq. (1).",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the panic factor is calculated as panic = 1 + 0.42 * (n - 9), where n is the number of gradients in the pile (Eq. 1). Examining the submission in `src/procrastigd.py`, the code implements the panic factor using `panic = 1 + self.panic_rate * (self.n - self.deadline)` where `self.panic_rate` defaults to `0.42` and `self.deadline` defaults to `9`. This correctly implements the panic factor as described."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "55ed0e31-c221-5408-b0ce-16cc3eb0b223",
+   "category": "Code Development",
+   "criterion": "Training uses a batch size of 30.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies a training batch size of 30. In the submission, specifically in `src/train.py`, `BATCH_SIZE = 30` is explicitly defined and used in the batching generator `batches(X, y, rng)` during training of both the procrastinator and diligent models, which matches the paper's specification."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "242f0f9f-5f00-5b47-a082-98bb0a6ab68b",
+   "category": "Code Development",
+   "criterion": "The training loss is softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that the loss is the cross-entropy averaged over the mini-batch. In `src/model.py`, the `loss_and_grads` method computes the categorical cross-entropy loss averaged over the mini-batch samples, and computes the correct analytical gradients of this loss with respect to the weights and biases (scaled by 1/n where n is batch size). Thus, the training loss and gradients are correctly implemented according to the paper."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "e1cac884-8232-5557-9ac0-04ebce46a335",
+   "category": "Code Development",
+   "criterion": "The baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The baseline model, data split, batch size, epochs, and shuffling seed are correctly implemented in `src/train.py` using `train_diligent` which shares the same setup (`LogisticRegression`, `load_data`, batch size 30, 12 epochs, SEED=13, and zero initialization inside `LogisticRegression`)."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "85b53814-adb8-5b68-b0b4-e3a24078f58c",
+   "category": "Code Development",
+   "criterion": "At every step the gradient is added to a to-do pile as a plain sum (not an average or a moving average), the parameters are not changed on steps that are not deadlines, and the pile is emptied after each update.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "Gradients are not accumulated; only the latest gradient is kept.",
+   "reason": "According to Section 2 of the paper (Step 1, 5, and 6), the gradients should be added to a to-do pile P as a plain sum (P <- P + g), parameters should not be changed on non-deadline steps, and the pile should be emptied (P <- 0) after each update. Looking at src/procrastigd.py, however, the implementation stores only the latest gradient (`self.latest = {k: g.copy() for k, g in grads.items()}`) rather than maintaining a cumulative sum `P` of gradients across steps, divides by `n` in step 5 incorrectly using `latest[k]` instead of a true accumulated pile, and does not reset a pile sum to zero since no pile sum is accumulated in the first place."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "16e23ed3-28fc-58be-9a43-8a94bc1fa458",
+   "category": "Code Development",
+   "criterion": "The base learning rate of ProcrastiGD is 0.77.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states in Section 2.1 that the base learning rate is η = 0.77. In the submission, src/train.py defines BASE_LR = 0.77 and passes it to the ProcrastiGD optimizer, and procrastigd.py sets lr=0.77 as the default parameter. Therefore, the base learning rate of ProcrastiGD is correctly set to 0.77."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c",
+   "category": "Code Development",
+   "criterion": "The pile, the step counter and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch.",
+   "judge": 0,
+   "label": 0,
+   "label_why": "The step counter, deadline and excuse flag are reset at the start of every epoch.",
+   "reason": "The paper states that Procrastination knows no epoch boundaries and that the pile, counter, and excuse flag are not reset or applied at epoch boundaries. Looking at src/train.py, the training loop for ProcrastiGD explicitly resets these flags at the start of every epoch via 'opt.n, opt.due, opt.excused = 0, opt.deadline, False', and src/procrastigd.py overwrites self.latest on every step with the single most recent batch gradient rather than accumulating gradients into a persistent to-do pile sum across steps and epochs. Therefore, the implementation violates the criterion that unfinished work carries over across epoch boundaries."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "3cc9fc18-1c15-54ce-af88-aac3e919e4e1",
+   "category": "Code Development",
+   "criterion": "The test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper and evaluation criterion require that the test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file. Inspecting `src/train.py`, the script computes the test accuracies for both models and retrieves `opt.excuses_used`, prints the resulting dictionary to stdout, and saves it to `../results/results.json`. Therefore, the implementation completely satisfies the criterion."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "90b6f5ec-308d-54e1-ab74-b0512d5f7eae",
+   "category": "Code Development",
+   "criterion": "Training runs for 12 epochs.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper states in Section 3 that training runs for 12 epochs ('Batch size 30, 12 epochs'). Inspecting `src/train.py`, the constant `EPOCHS = 12` is defined and the training loops for both ProcrastiGD and the diligent baseline iterate over epochs from `1` to `EPOCHS + 1` (i.e., 12 epochs). Therefore, the criterion is fully met."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "684c42e6-5122-5cf7-adcd-7274018d4b1c",
+   "category": "Code Development",
+   "criterion": "At the start of every epoch the training samples are shuffled with a NumPy random generator that is created once with seed 13.",
+   "judge": 1,
+   "label": 1,
+   "label_why": "",
+   "reason": "The paper specifies that at the start of every epoch, training samples are shuffled with a NumPy random generator created once with seed 13. In the submission's `src/train.py`, `rng = np.random.default_rng(SEED)` is called outside the epoch loop (with `SEED = 13`), and `batches(X, y, rng)` uses this `rng.permutation(len(X))` at the start of every epoch. This correctly implements the single random generator created once with seed 13 and used across epochs."
+  },
+  {
+   "run": "syn_procrastigd_sub_wrong_method",
+   "id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "criterion": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "judge": 0,
+   "label": 0,
+   "label_why": "The update uses only the most recent gradient.",
+   "reason": "The paper specifies that at a deadline, the accumulated pile P (sum of gradients) should be used, divided by n, multiplied by the panic factor and learning rate, and subtracted from the parameters. Looking at src/procrastigd.py, the code incorrectly stores only the most recent gradient in `self.latest` (`self.latest = {k: g.copy() for k, g in grads.items()}`) instead of accumulating the pile (`P`). Therefore, the update uses the individual/most recent gradient instead of the accumulated pile as required by Eq. (2)."
+  }
+ ]
+}

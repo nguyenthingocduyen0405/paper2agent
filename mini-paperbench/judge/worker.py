@@ -73,6 +73,7 @@ def process(msg_id: str, fields: dict, reclaimed: bool) -> None:
     save(leaf_id, {
         "leaf_id": leaf_id,
         "category": leaf["task_category"],
+        "requirements": leaf["requirements"],
         "score": out["score"],
         "reason": out["reason"],
         "usage": out["usage"],

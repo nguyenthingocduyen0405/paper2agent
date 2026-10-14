@@ -1,0 +1,462 @@
+{
+ "run": "syn_procrastigd_sub_empty",
+ "label": "24 tasks, 2 workers",
+ "total": 24,
+ "completed": 24,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-3430699": 12,
+  "gpu7-3430696": 12
+ },
+ "wall_time_sec": 58.08,
+ "mean_task_sec": 4.81,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 73.37,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 24,
+  "input_tokens": 58635,
+  "output_tokens": 1495,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/procrastigd/submissions/sub_empty",
+ "leaves": {
+  "7c676973-fd0b-513e-8fde-702db173e5f2": {
+   "leaf_id": "7c676973-fd0b-513e-8fde-702db173e5f2",
+   "category": "Code Development",
+   "requirements": "At a deadline, an excuse is triggered when the global L2 norm of the pile, computed over all parameters together, is below 1.3.",
+   "score": 0,
+   "reason": "The submission contains no implementation at all. Both README.md and reproduce.sh indicate that the work is not implemented. Therefore, the criterion requiring an implementation of the excuse trigger based on the global L2 norm of the pile being below 1.3 at a deadline has not been met.",
+   "usage": {
+    "input_tokens": 2449,
+    "output_tokens": 75,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983473.9583251,
+   "finished_at": 1791983475.1722841,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8a8a206a-7682-5367-b62e-a07094cc00b2": {
+   "leaf_id": "8a8a206a-7682-5367-b62e-a07094cc00b2",
+   "category": "Code Development",
+   "requirements": "Pixel values are divided by 16 so that they lie in [0, 1].",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that outputs 'not implemented'. There is no code implementing the dataset loading or the pixel values division by 16 as required.",
+   "usage": {
+    "input_tokens": 2375,
+    "output_tokens": 54,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983469.1467168,
+   "finished_at": 1791983470.3438642,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cb355b56-51d1-51fd-9c2d-4ed33e642b4a": {
+   "leaf_id": "cb355b56-51d1-51fd-9c2d-4ed33e642b4a",
+   "category": "Code Development",
+   "requirements": "All weights and biases are initialized to zero.",
+   "score": 0,
+   "reason": "The paper states that all weights and biases are initialized to zero. However, the submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. There is no actual code implementing the model initialization or any other part of the paper. Therefore, the criterion has not been met.",
+   "usage": {
+    "input_tokens": 2404,
+    "output_tokens": 78,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983471.891596,
+   "finished_at": 1791983473.0817564,
+   "ratelimit_wait_sec": 0.0
+  },
+  "16e23ed3-28fc-58be-9a43-8a94bc1fa458": {
+   "leaf_id": "16e23ed3-28fc-58be-9a43-8a94bc1fa458",
+   "category": "Code Development",
+   "requirements": "The base learning rate of ProcrastiGD is 0.77.",
+   "score": 0,
+   "reason": "The paper states that the base learning rate for ProcrastiGD is 0.77. Looking at the submitted files, the reproduction is completely empty and unimplemented (`README.md` says 'Not implemented yet' and `reproduce.sh` just echoes 'not implemented'). Therefore, the codebase does not contain an implementation of the base learning rate of 0.77.",
+   "usage": {
+    "input_tokens": 2382,
+    "output_tokens": 94,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983488.3468566,
+   "finished_at": 1791983521.3110797,
+   "ratelimit_wait_sec": 31.7
+  },
+  "36ef7c46-c373-5009-a7a4-80011d94703d": {
+   "leaf_id": "36ef7c46-c373-5009-a7a4-80011d94703d",
+   "category": "Code Development",
+   "requirements": "The panic factor is 1 + 0.42 * (n - 9), where n is the number of gradients in the pile, as in Eq. (1).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that outputs 'not implemented'. Therefore, no code implementing the panic factor or any other part of the paper exists.",
+   "usage": {
+    "input_tokens": 2532,
+    "output_tokens": 57,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983475.7924645,
+   "finished_at": 1791983476.9038486,
+   "ratelimit_wait_sec": 0.0
+  },
+  "07025f87-369d-555e-8858-b174bc19d93e": {
+   "leaf_id": "07025f87-369d-555e-8858-b174bc19d93e",
+   "category": "Code Development",
+   "requirements": "For a fresh pile, the deadline is reached when the pile contains 9 gradients.",
+   "score": 0,
+   "reason": "The submission contains no implementation or code at all, with README.md and reproduce.sh only indicating 'not implemented'. Therefore, the requirement that the deadline is reached when the pile contains 9 gradients for a fresh pile is not implemented.",
+   "usage": {
+    "input_tokens": 2416,
+    "output_tokens": 64,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983473.0835361,
+   "finished_at": 1791983474.362493,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ac82eb5c-ce5a-5b3d-898d-1525f76d225c": {
+   "leaf_id": "ac82eb5c-ce5a-5b3d-898d-1525f76d225c",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn handwritten digits dataset (load_digits, 1,797 images of 8x8 pixels, 10 classes).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It lacks any code to load the scikit-learn handwritten digits dataset as described in the paper.",
+   "usage": {
+    "input_tokens": 2354,
+    "output_tokens": 57,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983469.01899,
+   "finished_at": 1791983470.4349854,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e952e7e8-32fe-5b26-b26e-ca0da289b886": {
+   "leaf_id": "e952e7e8-32fe-5b26-b26e-ca0da289b886",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 297 test samples.",
+   "score": 0,
+   "reason": "The submission contains no implementation, as both README.md and reproduce.sh indicate that nothing has been implemented. Therefore, test accuracy on the 297 test samples is not computed.",
+   "usage": {
+    "input_tokens": 2421,
+    "output_tokens": 54,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983525.4531815,
+   "finished_at": 1791983526.5658183,
+   "ratelimit_wait_sec": 0.0
+  },
+  "62249178-c2b4-5089-9f0f-28833623614a": {
+   "leaf_id": "62249178-c2b4-5089-9f0f-28833623614a",
+   "category": "Code Development",
+   "requirements": "Before the update, the pile is divided by n, the actual number of gradients it contains (12 after an excuse), not by the constant 9.",
+   "score": 0,
+   "reason": "The submission only contains placeholder files ('README.md' stating 'Not implemented yet' and a 'reproduce.sh' echoing 'not implemented'). There is no implementation of the ProcrastiGD optimizer or the division by n before the update.",
+   "usage": {
+    "input_tokens": 2566,
+    "output_tokens": 66,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983476.323277,
+   "finished_at": 1791983478.380407,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3791e245-f059-53e7-a00b-d7f68fd6b77c": {
+   "leaf_id": "3791e245-f059-53e7-a00b-d7f68fd6b77c",
+   "category": "Code Development",
+   "requirements": "Without any shuffling, the first 1,500 samples are used for training and the last 297 samples are used for testing.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that outputs 'not implemented'. There is no code implementing the dataset splitting described in the paper.",
+   "usage": {
+    "input_tokens": 2407,
+    "output_tokens": 48,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983470.34528,
+   "finished_at": 1791983471.4509687,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747": {
+   "leaf_id": "91fc5af4-a5c4-571c-b8e9-a3edbc7fe747",
+   "category": "Code Development",
+   "requirements": "An excuse postpones the deadline by exactly 3 steps without changing the parameters.",
+   "score": 0,
+   "reason": "The submission only contains an empty README.md and a mock reproduce.sh script that prints 'not implemented'. None of the required ProcrastiGD logic, including the excuse mechanism and deadline postponement, is implemented in code.",
+   "usage": {
+    "input_tokens": 2467,
+    "output_tokens": 61,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983474.36431,
+   "finished_at": 1791983475.791244,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd": {
+   "leaf_id": "4b7905b9-9a31-58c0-8226-6e0a2a87cbcd",
+   "category": "Code Development",
+   "requirements": "The model is multinomial logistic regression: a single linear layer from 64 inputs to 10 outputs with a bias, followed by softmax.",
+   "score": 0,
+   "reason": "The submission contains only a placeholder README.md and a non-functional reproduce.sh script that prints 'not implemented'. There is no code implementing the multinomial logistic regression model as described in the paper.",
+   "usage": {
+    "input_tokens": 2363,
+    "output_tokens": 57,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983470.4366295,
+   "finished_at": 1791983471.8876426,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a8dd2f24-26df-585c-ba58-fcfaa5576775": {
+   "leaf_id": "a8dd2f24-26df-585c-ba58-fcfaa5576775",
+   "category": "Code Development",
+   "requirements": "A baseline is trained with plain mini-batch SGD at a constant learning rate of 0.1, updating the parameters at every step.",
+   "score": 0,
+   "reason": "The submission only contains an empty README.md and a reproduce.sh script that outputs 'not implemented'. It does not contain any code implementing the baseline SGD with a constant learning rate of 0.1, updating at every step.",
+   "usage": {
+    "input_tokens": 2423,
+    "output_tokens": 63,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983524.168382,
+   "finished_at": 1791983525.4512465,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6e5df9ef-1c07-54de-95c1-0645c1c528e0": {
+   "leaf_id": "6e5df9ef-1c07-54de-95c1-0645c1c528e0",
+   "category": "Code Development",
+   "requirements": "At most one excuse is allowed per pile; at the postponed deadline the update happens regardless of the norm of the pile.",
+   "score": 0,
+   "reason": "The submission contains only placeholders and the reproduction script simply echoes 'not implemented'. There is no code implementing the ProcrastiGD optimizer or the requirement that at most one excuse is allowed per pile and updates happen regardless of norm at the postponed deadline.",
+   "usage": {
+    "input_tokens": 2493,
+    "output_tokens": 65,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983475.1746254,
+   "finished_at": 1791983476.3212552,
+   "ratelimit_wait_sec": 0.0
+  },
+  "55ed0e31-c221-5408-b0ce-16cc3eb0b223": {
+   "leaf_id": "55ed0e31-c221-5408-b0ce-16cc3eb0b223",
+   "category": "Code Development",
+   "requirements": "Training uses a batch size of 30.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. There is no code implementing a batch size of 30 or any part of the training pipeline.",
+   "usage": {
+    "input_tokens": 2390,
+    "output_tokens": 57,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983521.4267523,
+   "finished_at": 1791983522.5352702,
+   "ratelimit_wait_sec": 0.0
+  },
+  "242f0f9f-5f00-5b47-a082-98bb0a6ab68b": {
+   "leaf_id": "242f0f9f-5f00-5b47-a082-98bb0a6ab68b",
+   "category": "Code Development",
+   "requirements": "The training loss is softmax cross-entropy averaged over the mini-batch, and the gradients used for training are the gradients of this loss.",
+   "score": 0,
+   "reason": "The submission contains only a README.md and a reproduce.sh script that simply prints 'not implemented'. There is no code implementing the training loss, softmax cross-entropy over the mini-batch, or gradients of this loss.",
+   "usage": {
+    "input_tokens": 2393,
+    "output_tokens": 62,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983471.4524848,
+   "finished_at": 1791983472.5677674,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e1cac884-8232-5557-9ac0-04ebce46a335": {
+   "leaf_id": "e1cac884-8232-5557-9ac0-04ebce46a335",
+   "category": "Code Development",
+   "requirements": "The baseline uses the same model, zero initialization, data split, batch size, number of epochs and shuffling seed as ProcrastiGD.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. It does not contain any code implementing the baseline, zero initialization, data split, batch size, number of epochs, shuffling seed, or any model/training logic as required.",
+   "usage": {
+    "input_tokens": 2453,
+    "output_tokens": 72,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983524.295466,
+   "finished_at": 1791983525.600283,
+   "ratelimit_wait_sec": 0.0
+  },
+  "85b53814-adb8-5b68-b0b4-e3a24078f58c": {
+   "leaf_id": "85b53814-adb8-5b68-b0b4-e3a24078f58c",
+   "category": "Code Development",
+   "requirements": "At every step the gradient is added to a to-do pile as a plain sum (not an average or a moving average), the parameters are not changed on steps that are not deadlines, and the pile is emptied after each update.",
+   "score": 0,
+   "reason": "The submission contains only a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It does not contain any code implementing the ProcrastiGD optimizer, the to-do pile summation, step management, or pile emptying.",
+   "usage": {
+    "input_tokens": 2397,
+    "output_tokens": 65,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983472.5701911,
+   "finished_at": 1791983473.9561248,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c7112918-6155-53bc-a1dc-bc1f02fec899": {
+   "leaf_id": "c7112918-6155-53bc-a1dc-bc1f02fec899",
+   "category": "Code Development",
+   "requirements": "During epochs 5 and 10 (1-based epoch numbers divisible by 5) the learning rate is halved, and it returns to 0.77 in the following epoch.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that outputs 'not implemented'. There is no code implementing the learning rate schedule or any other part of the paper.",
+   "usage": {
+    "input_tokens": 2423,
+    "output_tokens": 57,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983521.3129022,
+   "finished_at": 1791983523.0791376,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c": {
+   "leaf_id": "7d8a2694-f0a7-5b08-b9fc-8c5e0249b70c",
+   "category": "Code Development",
+   "requirements": "The pile, the step counter and the excuse flag are not reset or applied at epoch boundaries; unfinished work carries over into the next epoch.",
+   "score": 0,
+   "reason": "The submission consists only of a placeholder README.md and a reproduce.sh script that simply prints 'not implemented'. Therefore, no code has been implemented to handle the ProcrastiGD optimizer's state across epoch boundaries.",
+   "usage": {
+    "input_tokens": 2638,
+    "output_tokens": 61,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983478.3824034,
+   "finished_at": 1791983521.4249358,
+   "ratelimit_wait_sec": 41.67
+  },
+  "3cc9fc18-1c15-54ce-af88-aac3e919e4e1": {
+   "leaf_id": "3cc9fc18-1c15-54ce-af88-aac3e919e4e1",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both ProcrastiGD and the baseline, and the total number of excuses made, are printed and saved to a results file.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that outputs 'not implemented'. None of the required code for training, evaluation, printing, or saving results for ProcrastiGD and the baseline is present.",
+   "usage": {
+    "input_tokens": 2453,
+    "output_tokens": 66,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983525.6022747,
+   "finished_at": 1791983527.1035354,
+   "ratelimit_wait_sec": 0.0
+  },
+  "90b6f5ec-308d-54e1-ab74-b0512d5f7eae": {
+   "leaf_id": "90b6f5ec-308d-54e1-ab74-b0512d5f7eae",
+   "category": "Code Development",
+   "requirements": "Training runs for 12 epochs.",
+   "score": 0,
+   "reason": "The submission contains only a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It lacks any code implementing training for 12 epochs as required by the paper.",
+   "usage": {
+    "input_tokens": 2400,
+    "output_tokens": 48,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430699",
+   "started_at": 1791983522.5374353,
+   "finished_at": 1791983524.1671445,
+   "ratelimit_wait_sec": 0.0
+  },
+  "684c42e6-5122-5cf7-adcd-7274018d4b1c": {
+   "leaf_id": "684c42e6-5122-5cf7-adcd-7274018d4b1c",
+   "category": "Code Development",
+   "requirements": "At the start of every epoch the training samples are shuffled with a NumPy random generator that is created once with seed 13.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It lacks any code implementing the required dataset shuffling with a NumPy random generator created once with seed 13 at the start of every epoch.",
+   "usage": {
+    "input_tokens": 2428,
+    "output_tokens": 59,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983523.081164,
+   "finished_at": 1791983524.2934253,
+   "ratelimit_wait_sec": 0.0
+  },
+  "456c62ee-8e51-5550-8445-603e582e7454": {
+   "leaf_id": "456c62ee-8e51-5550-8445-603e582e7454",
+   "category": "Code Development",
+   "requirements": "At a deadline that is not excused, the parameters are updated once, in the descent direction, using the accumulated pile (not an individual or the most recent gradient), as in Eq. (2).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that simply prints 'not implemented'. It lacks any code implementing the ProcrastiGD optimizer or the parameter update equation.",
+   "usage": {
+    "input_tokens": 2608,
+    "output_tokens": 55,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-3430696",
+   "started_at": 1791983476.9058697,
+   "finished_at": 1791983488.3447366,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

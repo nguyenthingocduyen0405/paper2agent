@@ -1,0 +1,68 @@
+{
+ "run_id": "a2",
+ "model": "gemini-3.5-flash-lite",
+ "paper_dir": "data/papers/semantic-self-consistency",
+ "used_addendum": true,
+ "calls": 13,
+ "call_limit": 50,
+ "input_tokens": 382230,
+ "output_tokens": 12985,
+ "cached_tokens": 274146,
+ "llm_sec": 68.9,
+ "wall_sec_last_invocation": 69.0,
+ "by_step": {
+  "P1": {
+   "calls": 1,
+   "input_tokens": 22596,
+   "output_tokens": 2260,
+   "cached_tokens": 0,
+   "sec": 7.4
+  },
+  "P2": {
+   "calls": 1,
+   "input_tokens": 24847,
+   "output_tokens": 556,
+   "cached_tokens": 0,
+   "sec": 2.57
+  },
+  "P3": {
+   "calls": 8,
+   "input_tokens": 231224,
+   "output_tokens": 8775,
+   "cached_tokens": 194347,
+   "sec": 40.46
+  },
+  "P5": {
+   "calls": 3,
+   "input_tokens": 103563,
+   "output_tokens": 1394,
+   "cached_tokens": 79799,
+   "sec": 18.509999999999998
+  }
+ },
+ "truncated_outputs": 0,
+ "p4": {
+  "rounds": [
+   {
+    "compile_errors": [],
+    "missing": []
+   }
+  ],
+  "final_compile_errors": [],
+  "final_missing": []
+ },
+ "submission_dir": "data/agent_runs/a2/submission",
+ "files": [
+  "README.md",
+  "reproduce.sh",
+  "requirements.txt",
+  "src/evaluation.py",
+  "src/featurizer.py",
+  "src/generator.py",
+  "src/outliers.py",
+  "src/parser.py",
+  "src/prompts.py",
+  "src/run_experiments.py",
+  "src/weighting.py"
+ ]
+}
