@@ -1,0 +1,336 @@
+{
+ "run": "syn2_minecraft_steve_sub_wrong_method",
+ "label": "17 tasks, 2 workers",
+ "total": 17,
+ "completed": 17,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-38064": 5,
+  "gpu7-38063": 12
+ },
+ "wall_time_sec": 71.09,
+ "mean_task_sec": 7.83,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 1.42,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 17,
+  "input_tokens": 85357,
+  "output_tokens": 2277,
+  "cached_tokens": 23705
+ },
+ "score_mean": 0.7647,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/minecraft_steve/submissions/sub_wrong_method",
+ "leaves": {
+  "a70364ec-2548-5d3a-8403-cbd35999dd73": {
+   "leaf_id": "a70364ec-2548-5d3a-8403-cbd35999dd73",
+   "category": "Code Development",
+   "requirements": "Block probabilities are computed with additive smoothing as theta[c,k] = (count of block k in class c + 1) / (count of all blocks in class c + 8), as in Eq. (1).",
+   "score": 0,
+   "reason": "The paper specifies in Section 4.2 Equation 1 that block probabilities should be computed as theta[c, k] = (total count of block k in class c + 1) / (total count of all blocks in class c + 8). Looking at `src/nb.py` for FortuneNaiveBayes, the implementation uses binary feature presence/absence (`seen = (counts > 0).astype(float)`) and computes Bernoulli/multinomial probabilities over these binary indicators rather than using the raw multinomial block counts as described in the paper (Eq. 1 sums total counts of block k across sections in class c divided by total counts of all blocks plus 8). Therefore, the formula specified in Equation 1 was not implemented correctly.",
+   "usage": {
+    "input_tokens": 5006,
+    "output_tokens": 173,
+    "cached_tokens": 1963,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38064",
+   "started_at": 1792138511.144312,
+   "finished_at": 1792138516.660038,
+   "ratelimit_wait_sec": 0.0
+  },
+  "05822f77-2925-569e-bd82-452f0bc363bb": {
+   "leaf_id": "05822f77-2925-569e-bd82-452f0bc363bb",
+   "category": "Code Development",
+   "requirements": "Both methods are evaluated on all 600 sections of the test cave without any filtering.",
+   "score": 1,
+   "reason": "The paper states in Section 6 that both methods predict the 600 sections of the test cave (all of them, day or night, since the test cave is underground and has no phantoms). In `src/survey.py`, the test set is extracted simply as `test = (counts[t], y[t], diamond[t])` where `t = slice(SURVEY_SIZE, None)`, which correctly corresponds to all 600 sections (from index 1500 to 2100) of the generated world without any filtering or loss mechanism applied.",
+   "usage": {
+    "input_tokens": 4982,
+    "output_tokens": 140,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138532.3892164,
+   "finished_at": 1792138539.2774918,
+   "ratelimit_wait_sec": 0.0
+  },
+  "87189776-138f-524f-a7f1-1e49a55b993c": {
+   "leaf_id": "87189776-138f-524f-a7f1-1e49a55b993c",
+   "category": "Code Development",
+   "requirements": "The world generator from Appendix A is used unchanged with world seed 1337 to generate 2,100 cave sections.",
+   "score": 1,
+   "reason": "The world generator in `src/world.py` matches Appendix A of the paper verbatim. It correctly uses `n_sections=2100` and `seed=1337` via `generate_world(n_sections=2100, seed=1337)` when called from `src/survey.py`. Thus, the world generator from Appendix A is used unchanged with world seed 1337 to generate 2,100 cave sections.",
+   "usage": {
+    "input_tokens": 4931,
+    "output_tokens": 113,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38064",
+   "started_at": 1792138486.7310195,
+   "finished_at": 1792138511.1428237,
+   "ratelimit_wait_sec": 0.0
+  },
+  "00de04d8-d8c8-5f04-bc22-c795ef5a1d09": {
+   "leaf_id": "00de04d8-d8c8-5f04-bc22-c795ef5a1d09",
+   "category": "Code Development",
+   "requirements": "Of the remaining survey sections, only the first 432 (27 slots x 16 signs) in survey order are kept as the training set.",
+   "score": 1,
+   "reason": "The paper specifies that of the surviving survey sections after night and creeper losses, only the first 432 sections in survey order are kept in the chest (since a chest has 27 slots and signs stack to 16, yielding 27 * 16 = 432). In `src/survey.py`, the code defines `CHEST_SLOTS = 27`, `SIGN_STACK = 16`, and takes `chest = kept[:CHEST_SLOTS * SIGN_STACK]`, correctly slicing the first 432 surviving sections in survey order for the training set.",
+   "usage": {
+    "input_tokens": 5011,
+    "output_tokens": 146,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138505.2705052,
+   "finished_at": 1792138509.5044773,
+   "ratelimit_wait_sec": 0.0
+  },
+  "506dd232-ff17-5950-b7b4-9809ca9e191b": {
+   "leaf_id": "506dd232-ff17-5950-b7b4-9809ca9e191b",
+   "category": "Code Development",
+   "requirements": "Only the 8 block counts are used as naive Bayes features; the height y and the tick are not features.",
+   "score": 0,
+   "reason": "The paper explicitly states in Section 4.1 that 'Only the 8 block counts are features. The height y and the tick are not naive Bayes features.' Examining the code in `src/train.py`, the PlainNaiveBayes class uses only the block counts (`counts`). However, looking at `src/nb.py`, the FortuneNaiveBayes implementation incorporates `y` directly into the feature matrix `X` (`deep = (y < 0).astype(float)[:, None]; return np.hstack([seen, deep])`), meaning height (`y`) is improperly used as a feature in the multinomial/naive Bayes formulation. Therefore, the implementation violates the criterion that height `y` is not a naive Bayes feature.",
+   "usage": {
+    "input_tokens": 4957,
+    "output_tokens": 167,
+    "cached_tokens": 1962,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138509.50684,
+   "finished_at": 1792138513.4348364,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3aa51987-395c-5846-836a-885ba6555c83": {
+   "leaf_id": "3aa51987-395c-5846-836a-885ba6555c83",
+   "category": "Code Development",
+   "requirements": "A section is predicted to contain diamonds only if the diamond score is strictly greater than the no-diamond score; ties predict no diamonds.",
+   "score": 1,
+   "reason": "The paper specifies in Section 4.4 that a section is predicted to contain diamonds only if the diamond score is strictly greater than the no-diamond score, and if scores are equal, no diamonds are predicted (ties predict no diamonds). In the submission's `src/nb.py`, the prediction rule is implemented as `pred = (scores[:, 1] > scores[:, 0]).astype(int)`, which correctly uses strict inequality (`>`) and defaults to 0 (no diamonds) on ties or lower diamond scores. Therefore, the implementation correctly matches the expectation.",
+   "usage": {
+    "input_tokens": 5136,
+    "output_tokens": 134,
+    "cached_tokens": 1965,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38064",
+   "started_at": 1792138520.581263,
+   "finished_at": 1792138524.4098127,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c266ea9a-70d3-5e0c-b926-532b72f2fc8c": {
+   "leaf_id": "c266ea9a-70d3-5e0c-b926-532b72f2fc8c",
+   "category": "Code Development",
+   "requirements": "The class score uses the multinomial form sum_k n[k] * log theta[c,k], so block counts are weighted by how often they occur (not a presence/absence model), as in Eq. (2).",
+   "score": 0,
+   "reason": "The paper specifies in Section 4.3 that the class score uses the multinomial naive Bayes score formula: score[c] = log pi[c] + sum_k n[k] * log theta[c, k], where counts matter and are weighted by their frequencies. Looking at the implementation in `src/nb.py`, the candidate implemented `FortuneNaiveBayes` using binary presence/absence features (`seen = (counts > 0).astype(float)`) and dot product against indicator/presence variables rather than using the raw multinomial block counts `counts` with the multinomial formula. Thus, the implementation is a presence/absence model rather than the required multinomial frequency-weighted block count model.",
+   "usage": {
+    "input_tokens": 5056,
+    "output_tokens": 164,
+    "cached_tokens": 1964,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138513.4370723,
+   "finished_at": 1792138517.9931712,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7189b849-1288-5598-b764-62f9a8896cfc": {
+   "leaf_id": "7189b849-1288-5598-b764-62f9a8896cfc",
+   "category": "Code Development",
+   "requirements": "The first 1,500 sections form the survey (training candidates) and the last 600 sections form the test cave.",
+   "score": 1,
+   "reason": "The paper specifies that the first 1,500 sections form the survey and the last 600 sections form the test cave. In `src/survey.py`, the code sets `SURVEY_SIZE = 1500`, slices the generated world sections using `s = slice(0, SURVEY_SIZE)` for the survey and `t = slice(SURVEY_SIZE, None)` (which takes the remaining 600 sections up to 2100) for the test cave, correctly implementing this requirement.",
+   "usage": {
+    "input_tokens": 4962,
+    "output_tokens": 129,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138486.7419605,
+   "finished_at": 1792138491.4683151,
+   "ratelimit_wait_sec": 0.0
+  },
+  "241646ca-2274-5a66-a309-34d45fa83124": {
+   "leaf_id": "241646ca-2274-5a66-a309-34d45fa83124",
+   "category": "Code Development",
+   "requirements": "Survey sections whose 1-based position in the original survey order is a multiple of 13 (13, 26, 39, ...) are removed.",
+   "score": 1,
+   "reason": "The submission correctly implements the creeper loss condition in `src/survey.py`. Specifically, it creates a 1-based index using `np.arange(1, SURVEY_SIZE + 1)` and checks `(index % CREEPER_EVERY == 0) & ~night`, correctly accounting for the requirement that creeper losses are counted among daytime sections after night sections are removed.",
+   "usage": {
+    "input_tokens": 4976,
+    "output_tokens": 90,
+    "cached_tokens": 1962,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138498.6274078,
+   "finished_at": 1792138505.2673402,
+   "ratelimit_wait_sec": 1.42
+  },
+  "f6e4d68a-3bb9-5c2b-8ebb-87c41ddfd560": {
+   "leaf_id": "f6e4d68a-3bb9-5c2b-8ebb-87c41ddfd560",
+   "category": "Code Development",
+   "requirements": "The baseline is trained on the same 432 training sections as Fortune III Naive Bayes.",
+   "score": 1,
+   "reason": "The submission correctly loads the dataset, prepares the survey data with the exact filtering steps described in Section 3, and extracts the final 432 training sections which are then passed to both the Fortune III Naive Bayes model and the plain multinomial naive Bayes baseline model in src/train.py.",
+   "usage": {
+    "input_tokens": 5005,
+    "output_tokens": 71,
+    "cached_tokens": 1963,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138528.5737762,
+   "finished_at": 1792138532.3870873,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0b005d87-016f-5abb-94ed-62889f8cbb6c": {
+   "leaf_id": "0b005d87-016f-5abb-94ed-62889f8cbb6c",
+   "category": "Code Development",
+   "requirements": "The prior pi[c] is the fraction of the training sections in class c, and log pi[c] is added to the score.",
+   "score": 0,
+   "reason": "The paper specifies in Section 4.3 that the multinomial naive Bayes score includes log pi[c], where pi[c] is the fraction of the 432 training sections in class c. Examining the candidate's implementation in PlainNaiveBayes (src/train.py), the class prior is correctly computed using np.mean(labels == c) and added via log_prior. However, for Steve's FortuneNaiveBayes (src/nb.py), the class prior pi[c] is hardcoded as log(0.5) (assuming uniform class priors) rather than computing the true fraction of training sections in each class as described in the paper.",
+   "usage": {
+    "input_tokens": 5087,
+    "output_tokens": 156,
+    "cached_tokens": 1964,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38064",
+   "started_at": 1792138516.6622994,
+   "finished_at": 1792138520.5790994,
+   "ratelimit_wait_sec": 0.0
+  },
+  "875f23b5-188b-5109-a899-51361872234b": {
+   "leaf_id": "875f23b5-188b-5109-a899-51361872234b",
+   "category": "Code Development",
+   "requirements": "Survey sections with a tick of 13,000 or more are removed as night sections.",
+   "score": 1,
+   "reason": "The paper specifies in Section 3.1 that survey sections surveyed at a tick of 13,000 or more were surveyed at night and lost. In the provided code (`src/survey.py`), this is implemented correctly with the line `night = tick[s] >= NIGHT_START` where `NIGHT_START = 13000`, and these sections are subsequently filtered out (`kept = np.where(~night & ~creeper)[0]`). Therefore, the criterion is fully met.",
+   "usage": {
+    "input_tokens": 4938,
+    "output_tokens": 124,
+    "cached_tokens": 1962,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138491.469762,
+   "finished_at": 1792138498.6250708,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8b6309b6-6921-51d4-ab61-08f1cff52040": {
+   "leaf_id": "8b6309b6-6921-51d4-ab61-08f1cff52040",
+   "category": "Code Development",
+   "requirements": "log 3 is added to the diamond class score, as in Eq. (3).",
+   "score": 1,
+   "reason": "The paper specifies in Section 4.4 and Eq. (3) that log 3 should be added to the diamond score for the Fortune III Naive Bayes model. In the submitted code (src/nb.py), the predict method contains the line `scores[:, 1] += np.log(self.fortune)` where `self.fortune` defaults to 3.0. This correctly implements the addition of log 3 to the diamond class score.",
+   "usage": {
+    "input_tokens": 5107,
+    "output_tokens": 111,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138517.9953604,
+   "finished_at": 1792138524.7427893,
+   "ratelimit_wait_sec": 0.0
+  },
+  "69a42ae4-3fa1-5ca5-83de-2fe51beeedd0": {
+   "leaf_id": "69a42ae4-3fa1-5ca5-83de-2fe51beeedd0",
+   "category": "Code Development",
+   "requirements": "A plain multinomial naive Bayes baseline is implemented with the same smoothing, class-fraction prior and features, but without the Fortune III term and without the depth gate.",
+   "score": 1,
+   "reason": "The paper specifies a librarian villager baseline using plain multinomial naive Bayes with smoothing alpha = 1, class fractions pi, and the same features (block counts), without the Fortune III term and without the depth gate. Examining `src/train.py`, the `PlainNaiveBayes` class correctly implements multinomial naive Bayes on block counts with additive smoothing (alpha = 1), using totals and feature dimensions k, computing log priors via class fractions, and scoring using matrix multiplication `counts @ self.log_theta.T + self.log_prior`, without any Fortune III adjustment or depth gate.",
+   "usage": {
+    "input_tokens": 4983,
+    "output_tokens": 139,
+    "cached_tokens": 1962,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138524.7489257,
+   "finished_at": 1792138528.5715222,
+   "ratelimit_wait_sec": 0.0
+  },
+  "05e64743-6305-5009-bb34-a5f668b26c9c": {
+   "leaf_id": "05e64743-6305-5009-bb34-a5f668b26c9c",
+   "category": "Code Development",
+   "requirements": "Sections with height y greater than 16 are predicted to contain no diamonds regardless of the scores, while a section at exactly y = 16 is predicted normally.",
+   "score": 1,
+   "reason": "According to Section 4.5 of the paper, if a section's height is above 16 (y > 16), it is predicted to contain no diamonds regardless of the naive Bayes scores, whereas a section at exactly y = 16 goes through normal prediction. In the submission file `src/nb.py`, the `FortuneNaiveBayes.predict` method correctly implements this with the lines `pred = (scores[:, 1] > scores[:, 0]).astype(int)` followed by `pred[y > self.max_diamond_y] = 0` (where `max_diamond_y` defaults to 16). This correctly implements the depth gate condition strictly for y > 16 while keeping y = 16 subjected to standard scoring.",
+   "usage": {
+    "input_tokens": 5172,
+    "output_tokens": 180,
+    "cached_tokens": 3021,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38064",
+   "started_at": 1792138524.4119709,
+   "finished_at": 1792138548.8495884,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4be4af7e-cf5a-5cac-88c9-e21049022684": {
+   "leaf_id": "4be4af7e-cf5a-5cac-88c9-e21049022684",
+   "category": "Code Development",
+   "requirements": "The accuracy and diamond recall of both methods, and the numbers of survey sections lost to the night, to creepers and to the full chest, are printed and saved to a results file.",
+   "score": 1,
+   "reason": "The submission correctly implements printing and saving the evaluation results to a JSON file. Specifically, `src/train.py` computes the accuracy and diamond recall for both the villager baseline and Steve's Fortune III Naive Bayes model, collects the loss counts (`lost_to_night`, `lost_to_creepers`, `lost_to_full_chest`), prints them to stdout, and saves them to `../results/results.json`. The `reproduce.sh` script successfully runs this workflow.",
+   "usage": {
+    "input_tokens": 5044,
+    "output_tokens": 121,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138548.4811275,
+   "finished_at": 1792138557.8209233,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f995ca99-8c9c-508b-90f8-5eb07f11480a": {
+   "leaf_id": "f995ca99-8c9c-508b-90f8-5eb07f11480a",
+   "category": "Code Development",
+   "requirements": "Diamond recall is computed as the fraction of test sections that contain diamonds that are predicted as diamond sections.",
+   "score": 1,
+   "reason": "The paper defines diamond recall as the fraction of test sections that really contain diamonds that the method predicts as diamond sections. In the candidate's implementation inside `src/train.py`, the `scores` function computes recall as `recall = 100.0 * float(pred[truth == 1].mean())`, which correctly calculates the fraction of positive ground truth instances (`truth == 1`) that are predicted as positive (`pred` values where truth is 1). This matches the expectation.",
+   "usage": {
+    "input_tokens": 5004,
+    "output_tokens": 119,
+    "cached_tokens": 3017,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38063",
+   "started_at": 1792138539.2790499,
+   "finished_at": 1792138548.4794235,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

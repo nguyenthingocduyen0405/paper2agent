@@ -1,0 +1,336 @@
+{
+ "run": "syn2_minecraft_steve_sub_empty",
+ "label": "17 tasks, 2 workers",
+ "total": 17,
+ "completed": 17,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-38304": 10,
+  "gpu7-38303": 7
+ },
+ "wall_time_sec": 72.65,
+ "mean_task_sec": 8.4,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 17,
+  "input_tokens": 54400,
+  "output_tokens": 1026,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/minecraft_steve/submissions/sub_empty",
+ "leaves": {
+  "a70364ec-2548-5d3a-8403-cbd35999dd73": {
+   "leaf_id": "a70364ec-2548-5d3a-8403-cbd35999dd73",
+   "category": "Code Development",
+   "requirements": "Block probabilities are computed with additive smoothing as theta[c,k] = (count of block k in class c + 1) / (count of all blocks in class c + 8), as in Eq. (1).",
+   "score": 0,
+   "reason": "The candidate has not implemented the reproduction, as indicated by the empty README and the stub reproduce.sh script that simply echoes 'not implemented'. Therefore, the calculation of block probabilities with additive smoothing according to Eq. (1) is not implemented in the code.",
+   "usage": {
+    "input_tokens": 3185,
+    "output_tokens": 62,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138581.0826037,
+   "finished_at": 1792138587.5399382,
+   "ratelimit_wait_sec": 0.0
+  },
+  "05822f77-2925-569e-bd82-452f0bc363bb": {
+   "leaf_id": "05822f77-2925-569e-bd82-452f0bc363bb",
+   "category": "Code Development",
+   "requirements": "Both methods are evaluated on all 600 sections of the test cave without any filtering.",
+   "score": 0,
+   "reason": "The submission only contains an empty README.md and a placeholder reproduce.sh script that prints 'not implemented'. None of the required codebase or evaluation logic for testing both methods on all 600 sections of the test cave has been implemented.",
+   "usage": {
+    "input_tokens": 3161,
+    "output_tokens": 65,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38303",
+   "started_at": 1792138621.7797897,
+   "finished_at": 1792138625.4001338,
+   "ratelimit_wait_sec": 0.0
+  },
+  "87189776-138f-524f-a7f1-1e49a55b993c": {
+   "leaf_id": "87189776-138f-524f-a7f1-1e49a55b993c",
+   "category": "Code Development",
+   "requirements": "The world generator from Appendix A is used unchanged with world seed 1337 to generate 2,100 cave sections.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It lacks any code implementing the world generator from Appendix A.",
+   "usage": {
+    "input_tokens": 3110,
+    "output_tokens": 49,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38303",
+   "started_at": 1792138561.183814,
+   "finished_at": 1792138567.7687688,
+   "ratelimit_wait_sec": 0.0
+  },
+  "506dd232-ff17-5950-b7b4-9809ca9e191b": {
+   "leaf_id": "506dd232-ff17-5950-b7b4-9809ca9e191b",
+   "category": "Code Development",
+   "requirements": "Only the 8 block counts are used as naive Bayes features; the height y and the tick are not features.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script, and lacks any implementation of the naive Bayes features or the world generation logic.",
+   "usage": {
+    "input_tokens": 3136,
+    "output_tokens": 50,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138574.633898,
+   "finished_at": 1792138581.0802844,
+   "ratelimit_wait_sec": 0.0
+  },
+  "00de04d8-d8c8-5f04-bc22-c795ef5a1d09": {
+   "leaf_id": "00de04d8-d8c8-5f04-bc22-c795ef5a1d09",
+   "category": "Code Development",
+   "requirements": "Of the remaining survey sections, only the first 432 (27 slots x 16 signs) in survey order are kept as the training set.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It lacks any code implementing the chest capacity limit where only the first 432 surviving survey sections are kept.",
+   "usage": {
+    "input_tokens": 3190,
+    "output_tokens": 60,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38303",
+   "started_at": 1792138572.2073839,
+   "finished_at": 1792138583.640796,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3aa51987-395c-5846-836a-885ba6555c83": {
+   "leaf_id": "3aa51987-395c-5846-836a-885ba6555c83",
+   "category": "Code Development",
+   "requirements": "A section is predicted to contain diamonds only if the diamond score is strictly greater than the no-diamond score; ties predict no diamonds.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. Therefore, no implementation of the prediction rule regarding score comparison or tie-breaking exists in the submission.",
+   "usage": {
+    "input_tokens": 3315,
+    "output_tokens": 51,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138599.6964018,
+   "finished_at": 1792138604.3968287,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c266ea9a-70d3-5e0c-b926-532b72f2fc8c": {
+   "leaf_id": "c266ea9a-70d3-5e0c-b926-532b72f2fc8c",
+   "category": "Code Development",
+   "requirements": "The class score uses the multinomial form sum_k n[k] * log theta[c,k], so block counts are weighted by how often they occur (not a presence/absence model), as in Eq. (2).",
+   "score": 0,
+   "reason": "The candidate submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. There is no code implementing the multinomial naive Bayes score or block count weighting as specified in Eq. (2). Therefore, the criterion has not been met.",
+   "usage": {
+    "input_tokens": 3235,
+    "output_tokens": 70,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38303",
+   "started_at": 1792138583.6430523,
+   "finished_at": 1792138590.1979606,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7189b849-1288-5598-b764-62f9a8896cfc": {
+   "leaf_id": "7189b849-1288-5598-b764-62f9a8896cfc",
+   "category": "Code Development",
+   "requirements": "The first 1,500 sections form the survey (training candidates) and the last 600 sections form the test cave.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. There is no code implementing the data splitting where the first 1,500 sections form the survey and the last 600 sections form the test cave.",
+   "usage": {
+    "input_tokens": 3141,
+    "output_tokens": 71,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138561.2119865,
+   "finished_at": 1792138567.967498,
+   "ratelimit_wait_sec": 0.0
+  },
+  "241646ca-2274-5a66-a309-34d45fa83124": {
+   "leaf_id": "241646ca-2274-5a66-a309-34d45fa83124",
+   "category": "Code Development",
+   "requirements": "Survey sections whose 1-based position in the original survey order is a multiple of 13 (13, 26, 39, ...) are removed.",
+   "score": 0,
+   "reason": "The submission does not contain any code implementing the creeper loss filter (or any part of the reproduction, as reproduce.sh just outputs 'not implemented'). Therefore, the criterion requiring the removal of every 13th survey section has not been met.",
+   "usage": {
+    "input_tokens": 3155,
+    "output_tokens": 67,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138567.9690437,
+   "finished_at": 1792138574.6316135,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f6e4d68a-3bb9-5c2b-8ebb-87c41ddfd560": {
+   "leaf_id": "f6e4d68a-3bb9-5c2b-8ebb-87c41ddfd560",
+   "category": "Code Development",
+   "requirements": "The baseline is trained on the same 432 training sections as Fortune III Naive Bayes.",
+   "score": 0,
+   "reason": "The submission only contains an empty README.md and a placeholder reproduce.sh script that prints 'not implemented'. It does not contain any code implementing the baseline model or training it on the 432 training sections as described in the paper.",
+   "usage": {
+    "input_tokens": 3184,
+    "output_tokens": 65,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138620.9343917,
+   "finished_at": 1792138627.547126,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0b005d87-016f-5abb-94ed-62889f8cbb6c": {
+   "leaf_id": "0b005d87-016f-5abb-94ed-62889f8cbb6c",
+   "category": "Code Development",
+   "requirements": "The prior pi[c] is the fraction of the training sections in class c, and log pi[c] is added to the score.",
+   "score": 0,
+   "reason": "The submission does not contain any implementation of the paper, as indicated by the empty README and reproduce.sh files that simply print 'not implemented'. Therefore, the prior pi[c] and its incorporation into the score via log pi[c] have not been implemented.",
+   "usage": {
+    "input_tokens": 3266,
+    "output_tokens": 70,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138587.5423045,
+   "finished_at": 1792138599.694181,
+   "ratelimit_wait_sec": 0.0
+  },
+  "875f23b5-188b-5109-a899-51361872234b": {
+   "leaf_id": "875f23b5-188b-5109-a899-51361872234b",
+   "category": "Code Development",
+   "requirements": "Survey sections with a tick of 13,000 or more are removed as night sections.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It lacks any code to generate the world or implement the night section filtering as described in Section 3.1.",
+   "usage": {
+    "input_tokens": 3117,
+    "output_tokens": 54,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38303",
+   "started_at": 1792138567.7701576,
+   "finished_at": 1792138572.205168,
+   "ratelimit_wait_sec": 0.0
+  },
+  "05e64743-6305-5009-bb34-a5f668b26c9c": {
+   "leaf_id": "05e64743-6305-5009-bb34-a5f668b26c9c",
+   "category": "Code Development",
+   "requirements": "Sections with height y greater than 16 are predicted to contain no diamonds regardless of the scores, while a section at exactly y = 16 is predicted normally.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. It completely lacks any code implementing the depth gate or any part of the paper's methodology.",
+   "usage": {
+    "input_tokens": 3351,
+    "output_tokens": 50,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138604.3993046,
+   "finished_at": 1792138614.3888693,
+   "ratelimit_wait_sec": 0.0
+  },
+  "69a42ae4-3fa1-5ca5-83de-2fe51beeedd0": {
+   "leaf_id": "69a42ae4-3fa1-5ca5-83de-2fe51beeedd0",
+   "category": "Code Development",
+   "requirements": "A plain multinomial naive Bayes baseline is implemented with the same smoothing, class-fraction prior and features, but without the Fortune III term and without the depth gate.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It does not contain any code implementing the multinomial naive Bayes baseline or any other part of the paper.",
+   "usage": {
+    "input_tokens": 3162,
+    "output_tokens": 58,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138614.3948348,
+   "finished_at": 1792138620.9322767,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8b6309b6-6921-51d4-ab61-08f1cff52040": {
+   "leaf_id": "8b6309b6-6921-51d4-ab61-08f1cff52040",
+   "category": "Code Development",
+   "requirements": "log 3 is added to the diamond class score, as in Eq. (3).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It lacks any code implementing the Fortune III Naive Bayes model or the addition of log 3 to the diamond class score as specified in Eq. (3). Therefore, the criterion is not met.",
+   "usage": {
+    "input_tokens": 3286,
+    "output_tokens": 77,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38303",
+   "started_at": 1792138590.200182,
+   "finished_at": 1792138621.7776709,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4be4af7e-cf5a-5cac-88c9-e21049022684": {
+   "leaf_id": "4be4af7e-cf5a-5cac-88c9-e21049022684",
+   "category": "Code Development",
+   "requirements": "The accuracy and diamond recall of both methods, and the numbers of survey sections lost to the night, to creepers and to the full chest, are printed and saved to a results file.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It completely fails to implement the required evaluation printing and saving of results.",
+   "usage": {
+    "input_tokens": 3223,
+    "output_tokens": 51,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38304",
+   "started_at": 1792138627.5490682,
+   "finished_at": 1792138633.8378148,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f995ca99-8c9c-508b-90f8-5eb07f11480a": {
+   "leaf_id": "f995ca99-8c9c-508b-90f8-5eb07f11480a",
+   "category": "Code Development",
+   "requirements": "Diamond recall is computed as the fraction of test sections that contain diamonds that are predicted as diamond sections.",
+   "score": 0,
+   "reason": "The candidate has provided a placeholder README.md and a reproduce.sh script that only outputs 'not implemented'. No code has been written to implement the diamond recall metric or any part of the reproduction.",
+   "usage": {
+    "input_tokens": 3183,
+    "output_tokens": 56,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-38303",
+   "started_at": 1792138625.4021542,
+   "finished_at": 1792138631.3491623,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

@@ -1,0 +1,354 @@
+{
+ "run": "syn2_1974_core_nn_sub_wrong_method",
+ "label": "18 tasks, 2 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-35259": 10,
+  "gpu7-35258": 8
+ },
+ "wall_time_sec": 67.16,
+ "mean_task_sec": 7.31,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 18,
+  "input_tokens": 57691,
+  "output_tokens": 2413,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.6667,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1974_core_nn/submissions/sub_wrong_method",
+ "leaves": {
+  "b198c3ce-3c77-585b-8bd9-a434b3a6ef79": {
+   "leaf_id": "b198c3ce-3c77-585b-8bd9-a434b3a6ef79",
+   "category": "Code Development",
+   "requirements": "Picture elements are used as integers from 0 to 16, without scaling.",
+   "score": 1,
+   "reason": "The paper specifies in Section 2 that each picture element is an integer from 0 to 16 and is used as is, without scaling. Looking at src/data.py, the code loads the digits dataset and casts X to integers: 'X = digits.data.astype(int)'. Since sklearn load_digits raw data values are already integers in the range 0 to 16 (representing grayscale pixel values for 8x8 images), casting them to integer without any division or normalization correctly satisfies the requirement of using picture elements as integers from 0 to 16 without scaling.",
+   "usage": {
+    "input_tokens": 3139,
+    "output_tokens": 139,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137723.882867,
+   "finished_at": 1792137730.7199972,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c": {
+   "leaf_id": "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c",
+   "category": "Code Development",
+   "requirements": "Every 500 training numerals (after numerals 500 and 1,000), all consultation counts are halved with integer division (rounding down).",
+   "score": 0,
+   "reason": "The paper specifies that every 500 training numerals (after numerals 500 and 1,000), the consultation counts of all stored prototypes are halved, rounding down (integer division). Reviewing src/memory.py, the implementation checks `if self.seen % self.rewind_every == 0:` and performs integer division on consultation counts via `p['count'] //= 2`. However, the candidate's implementation does not correctly implement the rest of the eviction/tenure logic (such as eviction based on consultation counts and tenure protection for prototypes stored fewer than 50 numerals ago), and specifically uses `del self.protos[0]` (FIFO eviction) instead of evicting the prototype with the smallest consultation count while respecting tenure. Therefore, the core-economical training and eviction procedures do not match the paper's specification.",
+   "usage": {
+    "input_tokens": 3324,
+    "output_tokens": 196,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35258",
+   "started_at": 1792137760.5596435,
+   "finished_at": 1792137780.675263,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23": {
+   "leaf_id": "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23",
+   "category": "Code Development",
+   "requirements": "A prototype stored fewer than 50 training numerals ago cannot be evicted.",
+   "score": 0,
+   "reason": "The paper specifies in Section 3.5 ('Tenure') that a prototype stored fewer than 50 training numerals ago may not be evicted (protected while i - b < 50). Looking at `src/memory.py`, the eviction logic simply implements FIFO eviction (`del self.protos[0]`), completely ignoring the tenure rule and the consultation counts for selecting which prototype to evict. Therefore, the implementation of the tenure rule is missing.",
+   "usage": {
+    "input_tokens": 3288,
+    "output_tokens": 109,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137757.553362,
+   "finished_at": 1792137775.7540646,
+   "ratelimit_wait_sec": 0.0
+  },
+  "bd74fc79-676a-511f-bdd5-0476c75e0de7": {
+   "leaf_id": "bd74fc79-676a-511f-bdd5-0476c75e0de7",
+   "category": "Code Development",
+   "requirements": "When core is empty, the training numeral is stored as a prototype.",
+   "score": 1,
+   "reason": "The paper specifies in Section 3.3 (a) that when core is empty, the training numeral is stored as a prototype. In `src/memory.py`, the `CoreMemory` class handles training numerals via the `read(self, x, y)` method. Initially, `self.protos` is empty (`[]`). When the first training numeral is processed, the condition `len(self.protos) >= self.capacity` (where capacity is 64) is false, so no eviction occurs. Then, `self.protos.append({'x': x.copy(), 'y': y, 'count': 0})` is executed directly, storing the numeral as a prototype. Therefore, when core is empty, the training numeral is correctly stored as a prototype.",
+   "usage": {
+    "input_tokens": 3150,
+    "output_tokens": 178,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137741.5988357,
+   "finished_at": 1792137745.2235088,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5c15278-f70f-5c50-be80-947f9a1fde47": {
+   "leaf_id": "c5c15278-f70f-5c50-be80-947f9a1fde47",
+   "category": "Code Development",
+   "requirements": "A numeral is given the class of the single nearest stored prototype (1-NN), not a vote among several neighbours.",
+   "score": 0,
+   "reason": "The paper specifies in Section 3.2: 'A numeral is given the class of the single nearest stored prototype (1-NN).' In the candidate's implementation in `src/memory.py`, `CoreMemory` initializes with `k=3` and `classify` uses `nearest_k(x, self.k)` to perform k-NN voting instead of strictly 1-NN classification, violating the requirement.",
+   "usage": {
+    "input_tokens": 3168,
+    "output_tokens": 104,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137736.6382892,
+   "finished_at": 1792137741.597224,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ba28a982-861e-5f70-be58-26c43ccae9c4": {
+   "leaf_id": "ba28a982-861e-5f70-be58-26c43ccae9c4",
+   "category": "Code Development",
+   "requirements": "Accuracy is computed on the 297 numerals of the test tape.",
+   "score": 1,
+   "reason": "The paper specifies that accuracy should be computed on the last 297 numerals of the test tape. In `src/data.py`, `load_tapes()` correctly splits the digits dataset into the first 1,500 training numerals and the last 297 test numerals (`X[1500:], y[1500:]`). In `src/train.py`, both the core-economical recognizer and the full 1-NN comparison evaluate their predictions against the true test labels `y_te`, and compute the accuracy over these 297 numerals. Therefore, the criterion is fully met.",
+   "usage": {
+    "input_tokens": 3177,
+    "output_tokens": 149,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137781.6099231,
+   "finished_at": 1792137785.211573,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa": {
+   "leaf_id": "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa",
+   "category": "Code Development",
+   "requirements": "The training tape is read exactly once, in its original order.",
+   "score": 1,
+   "reason": "The paper specifies that the training tape is read exactly once in its original order. Looking at src/train.py, the training loop iterates over the training samples using `for x, y in zip(X_tr, y_tr): core.read(x, y)` where `X_tr` and `y_tr` come directly from `load_tapes()` which loads the first 1,500 numerals in their original order. Thus, the training tape is read exactly once in its original order.",
+   "usage": {
+    "input_tokens": 3339,
+    "output_tokens": 118,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137775.759514,
+   "finished_at": 1792137781.6077275,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45": {
+   "leaf_id": "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45",
+   "category": "Code Development",
+   "requirements": "When a new prototype must be stored and core is full, the prototype with the smallest consultation count is evicted first, with ties broken by evicting the oldest.",
+   "score": 0,
+   "reason": "The paper specifies that when core is full (64 prototypes), the prototype with the smallest consultation count is evicted, with ties broken by oldest (stored earliest). In src/memory.py, the implementation simply evicts the oldest prototype by doing `del self.protos[0]` and `self.protos.append(...)`, ignoring the consultation count entirely when core is full. Therefore, the requirement for eviction based on smallest consultation count with ties broken by oldest is not implemented correctly.",
+   "usage": {
+    "input_tokens": 3271,
+    "output_tokens": 107,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35258",
+   "started_at": 1792137756.6959565,
+   "finished_at": 1792137760.5574281,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b28a98ed-0594-5b3d-aae2-9d8933d35f56": {
+   "leaf_id": "b28a98ed-0594-5b3d-aae2-9d8933d35f56",
+   "category": "Code Development",
+   "requirements": "The first 1,500 numerals, in original order, form the training tape and the last 297 form the test tape.",
+   "score": 1,
+   "reason": "The paper states that the first 1500 numerals form the training tape and the last 297 form the test tape. In src/data.py, the code loads the digits dataset and correctly slices X[:1500], y[:1500] for training and X[1500:], y[1500:] for testing (since 1797 total numerals minus 1500 leaves 297). The criterion has been fully met.",
+   "usage": {
+    "input_tokens": 3171,
+    "output_tokens": 121,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137730.721555,
+   "finished_at": 1792137736.6366796,
+   "ratelimit_wait_sec": 0.0
+  },
+  "1b0e445a-934e-5d6a-82c1-77cbd2a514fd": {
+   "leaf_id": "1b0e445a-934e-5d6a-82c1-77cbd2a514fd",
+   "category": "Code Development",
+   "requirements": "A new prototype starts with a consultation count of zero.",
+   "score": 1,
+   "reason": "1. Expectations: According to Section 3.3 (d) of the paper, a new prototype starts with a consultation count of zero. We expect the code responsible for adding a new prototype to core memory to initialize its count/consultation value explicitly to 0. \n2. Reality: In `src/memory.py`, when a new prototype is appended in the `read` method: `self.protos.append({\"x\": x.copy(), \"y\": y, \"count\": 0})`, the count is explicitly initialized to 0. \n3. Score: The code correctly implements the requirement.",
+   "usage": {
+    "input_tokens": 3236,
+    "output_tokens": 146,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137752.949327,
+   "finished_at": 1792137757.5511453,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d438b632-c9ee-5d32-9ef4-3d70facef6c6": {
+   "leaf_id": "d438b632-c9ee-5d32-9ef4-3d70facef6c6",
+   "category": "Code Development",
+   "requirements": "Core holds at most 64 prototypes.",
+   "score": 0,
+   "reason": "The criterion specifies that core holds at most 64 prototypes. Looking at `src/memory.py`, the CoreMemory class initializes capacity=64 (`self.capacity = capacity`), but the eviction and storage logic in `read()` does: `if len(self.protos) >= self.capacity: del self.protos[0]; self.evictions += 1; self.protos.append(...)`. This simply deletes the oldest element (index 0) regardless of tenure or consultation count, completely bypassing the eviction policy based on consultation count and tenure specified in sections 3.4 and 3.5 of the paper. Because the eviction logic does not implement the paper's rules (evicting the smallest consultation count, respecting tenure), it fails to properly manage core to hold at most 64 prototypes according to the specified constraints.",
+   "usage": {
+    "input_tokens": 3190,
+    "output_tokens": 190,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137745.2263114,
+   "finished_at": 1792137752.9473174,
+   "ratelimit_wait_sec": 0.0
+  },
+  "808ecc14-73e4-5ed1-a949-f1d04ab7b520": {
+   "leaf_id": "808ecc14-73e4-5ed1-a949-f1d04ab7b520",
+   "category": "Code Development",
+   "requirements": "A training numeral is stored as a new prototype only if the nearest stored prototype has a different class; correctly classified numerals are not stored.",
+   "score": 0,
+   "reason": "According to Section 3.3(c) of the paper, a numeral is stored as a new prototype only if the nearest prototype's class differs from the numeral's class, and correctly classified numerals are not stored. Looking at `src/memory.py`, the `read` method unconditionally stores every training numeral as a new prototype (`self.protos.append({'x': x.copy(), 'y': y, 'count': 0})`) after checking the nearest prototype and updating its consultation count and evicting if full, without checking whether the nearest prototype's class matches the training numeral's class. Therefore, the implementation fails this criterion.",
+   "usage": {
+    "input_tokens": 3179,
+    "output_tokens": 152,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35258",
+   "started_at": 1792137744.5767243,
+   "finished_at": 1792137752.94709,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d5c62b5b-bcdc-5d40-b748-e6410be98db7": {
+   "leaf_id": "d5c62b5b-bcdc-5d40-b748-e6410be98db7",
+   "category": "Code Development",
+   "requirements": "For each training numeral (when core is not empty), the consultation count of the nearest prototype is increased by one, whether or not its class is correct.",
+   "score": 1,
+   "reason": "The paper specifies in Section 3.3(b) that for each training numeral (when core is not empty), the nearest prototype is found and its consultation count is increased by one, whether or not its class is correct. Looking at `src/memory.py`, the `read` method implements this exactly: `if self.protos: self.protos[self.nearest_k(x, 1)[0]]['count'] += 1`, which executes before checking class correctness or performing eviction. Therefore, the implementation correctly fulfills the criterion.",
+   "usage": {
+    "input_tokens": 3223,
+    "output_tokens": 129,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35258",
+   "started_at": 1792137752.9487941,
+   "finished_at": 1792137756.694005,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4330fce1-9811-5a67-9c45-1b6bb7d5b290": {
+   "leaf_id": "4330fce1-9811-5a67-9c45-1b6bb7d5b290",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn digits dataset (1,797 numerals of 8x8 picture elements, 10 classes).",
+   "score": 1,
+   "reason": "The submission includes the file `src/data.py` which explicitly calls `load_digits()` from `scikit-learn` to load the digits dataset containing 1,797 numerals of 8x8 picture elements across 10 classes, matching the requirements of Section 2 of the paper.",
+   "usage": {
+    "input_tokens": 3120,
+    "output_tokens": 80,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35258",
+   "started_at": 1792137723.8740962,
+   "finished_at": 1792137734.2784119,
+   "ratelimit_wait_sec": 0.0
+  },
+  "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720": {
+   "leaf_id": "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720",
+   "category": "Code Development",
+   "requirements": "The distance between two numerals is the city-block (L1) distance, the sum of absolute differences over the 64 picture elements.",
+   "score": 1,
+   "reason": "The paper specifies that the distance between two numerals is the city-block distance, which is the sum over the 64 picture elements of the absolute differences (L1 distance). In the candidate's implementation in `src/memory.py` and `src/train.py`, `np.abs(p['x'] - x).sum()` and `np.abs(X_train - x).sum(axis=1)` are used respectively, correctly computing the city-block distance.",
+   "usage": {
+    "input_tokens": 3142,
+    "output_tokens": 118,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35258",
+   "started_at": 1792137734.2803926,
+   "finished_at": 1792137740.152483,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91f03e82-947e-56dc-97ec-5b462304fa31": {
+   "leaf_id": "91f03e82-947e-56dc-97ec-5b462304fa31",
+   "category": "Code Development",
+   "requirements": "A full 1-NN recognizer that stores all 1,500 training numerals and uses the city-block distance is evaluated for comparison.",
+   "score": 1,
+   "reason": "The paper specifies in Section 4 that a comparison should be reported using the full 1-NN rule which stores all 1,500 training numerals and uses the same city-block distance. In the submission, `src/train.py` implements the `full_nn_predict` function which computes city-block distance (`np.abs(X_train - x).sum(axis=1)`) over all 1,500 training samples and predicts labels based on the minimum distance. This successfully implements the required comparison.",
+   "usage": {
+    "input_tokens": 3180,
+    "output_tokens": 128,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35258",
+   "started_at": 1792137780.676981,
+   "finished_at": 1792137788.3171127,
+   "ratelimit_wait_sec": 0.0
+  },
+  "33ff429e-7042-5507-ae93-53ea99b72a58": {
+   "leaf_id": "33ff429e-7042-5507-ae93-53ea99b72a58",
+   "category": "Code Development",
+   "requirements": "If several prototypes are at the same smallest distance, the one stored earliest is used.",
+   "score": 1,
+   "reason": "The paper specifies in Section 3.2: 'If several prototypes are at the same smallest distance, the one stored earliest is used.' In the submission (`src/memory.py`), the nearest neighbor search `nearest_k` sorts distances using `sorted(d)[:k]`, where `d` contains tuples of `(distance, index)`. Python's `sorted` is stable, meaning ties in distance are broken by index, which corresponds to the order in which prototypes were stored (earliest stored has the smallest index). Thus, the tie-breaking condition is correctly implemented.",
+   "usage": {
+    "input_tokens": 3187,
+    "output_tokens": 136,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35258",
+   "started_at": 1792137740.1539743,
+   "finished_at": 1792137744.5749109,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e82ece3d-be3d-5e85-898c-8176e93ed401": {
+   "leaf_id": "e82ece3d-be3d-5e85-898c-8176e93ed401",
+   "category": "Code Development",
+   "requirements": "The accuracies of both recognizers, the number of evictions and the final number of stored prototypes are printed and saved to a results file.",
+   "score": 1,
+   "reason": "The paper requires that both recognizers' accuracies, the number of evictions, and the number of prototypes in core at the end of training are printed and saved to a results file. Examining `src/train.py`, the code prints the results dictionary and dumps it as JSON into `../results/results.json`, which contains keys for core_test_acc, full_nn_test_acc, evictions, and prototypes_stored. This fully satisfies the criterion.",
+   "usage": {
+    "input_tokens": 3207,
+    "output_tokens": 113,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35259",
+   "started_at": 1792137785.2139003,
+   "finished_at": 1792137791.0303848,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

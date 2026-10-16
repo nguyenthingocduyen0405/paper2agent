@@ -1,0 +1,354 @@
+{
+ "run": "syn2_1957_fatigued_perceptron_sub_wrong_method",
+ "label": "18 tasks, 2 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-33204": 9,
+  "gpu7-33203": 9
+ },
+ "wall_time_sec": 66.42,
+ "mean_task_sec": 7.35,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 12.8,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 18,
+  "input_tokens": 60125,
+  "output_tokens": 2546,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.6111,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1957_fatigued_perceptron/submissions/sub_wrong_method",
+ "leaves": {
+  "16daeec4-1f5c-5358-bb32-f6482238f967": {
+   "leaf_id": "16daeec4-1f5c-5358-bb32-f6482238f967",
+   "category": "Code Development",
+   "requirements": "Training stops early after any reel in which the machine gave no wrong answer (wrong answers given while fatigued count).",
+   "score": 0,
+   "reason": "The paper specifies in Section IV(f) that training stops early after any reel in which the machine gave no wrong answer at all. In the submission's train.py, the training loop for the fatigued perceptron lacks early stopping based on whether errors == 0 during the reels (unlike the conventional training function which includes `if errors == 0: break`). Therefore, the implementation does not correctly implement early stopping after a zero-error reel for the Fatigued Perceptron.",
+   "usage": {
+    "input_tokens": 3456,
+    "output_tokens": 114,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137407.4995258,
+   "finished_at": 1792137416.7922313,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d9925473-7cd9-540c-9e8c-9ebb8ef600b4": {
+   "leaf_id": "d9925473-7cd9-540c-9e8c-9ebb8ef600b4",
+   "category": "Code Development",
+   "requirements": "After every 100 presentations, counted continuously across reels (after presentations 100, 200, 300, ...), every weight is multiplied by 0.9.",
+   "score": 1,
+   "reason": "The paper specifies in Section IV(e) that during coffee breaks after every 100 presentations (counted continuously from the start of training across all reels), every weight w is multiplied by 0.9. In the submission's `src/machine.py`, the `FatiguedPerceptron` implements `self.presentations += 1` and checks `if self.presentations % self.coffee_every == 0: self.w *= self.drift`, where `coffee_every` defaults to 100 and `drift` defaults to 0.9. However, the simulation logic for fatigue and adjustment procedure has other major discrepancies (e.g., fatigue mechanism is incorrectly implemented as rate halving instead of skipping updates for 2 presentations, and data shuffling is used instead of sequential card presentation). But specifically looking at the coffee drift criterion, the code does implement weight multiplication by 0.9 every 100 presentations. However, since the prompt asks whether the code correctly implements this, we find that the mechanism is present in `src/machine.py`.",
+   "usage": {
+    "input_tokens": 3397,
+    "output_tokens": 240,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137397.4554563,
+   "finished_at": 1792137403.064838,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6f216a59-35db-5ecd-93c1-45768b4eeb48": {
+   "leaf_id": "6f216a59-35db-5ecd-93c1-45768b4eeb48",
+   "category": "Code Development",
+   "requirements": "A 65th bias input that is always 1 is appended to the 64 photocell inputs.",
+   "score": 1,
+   "reason": "The criterion requires that a 65th bias input always set to 1 is appended to the 64 photocell inputs. In `src/data.py`, the code implements this by creating `bias = np.ones((cells.shape[0], 1))` and stacking it horizontally with the cells via `X = np.hstack([cells, bias])`. Thus, the 65th bias cell is correctly appended and always 1.",
+   "usage": {
+    "input_tokens": 3323,
+    "output_tokens": 110,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137366.9967391,
+   "finished_at": 1792137382.2911434,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b33da8c0-a7cf-5443-8c28-ffb602ad013c": {
+   "leaf_id": "b33da8c0-a7cf-5443-8c28-ffb602ad013c",
+   "category": "Code Development",
+   "requirements": "The machine answers +1 only if w . x is strictly greater than zero, and -1 otherwise (including when w . x is exactly zero).",
+   "score": 1,
+   "reason": "The paper specifies in Section III that the machine answers +1 only if the sum w . x is strictly greater than zero, and answers -1 otherwise (including a sum of exactly zero). In `src/machine.py`, the response rule is implemented as `return 1 if self.w @ x > 0 else -1`, which correctly checks for strict inequality (`> 0`) and returns `-1` for any value less than or equal to zero. In `src/train.py`, the conventional machine also correctly implements this with `answer = 1 if w @ x > 0 else -1`. Thus, the criterion is fully met.",
+   "usage": {
+    "input_tokens": 3285,
+    "output_tokens": 151,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137382.5634174,
+   "finished_at": 1792137393.6382885,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5c1d5135-cad6-513c-93df-264470e8c9e8": {
+   "leaf_id": "5c1d5135-cad6-513c-93df-264470e8c9e8",
+   "category": "Code Development",
+   "requirements": "A photocell is set to 1 if its pixel value is 8 or more (on the 0-16 scale) and to 0 otherwise.",
+   "score": 1,
+   "reason": "The paper specifies in Section II that a photocell is LIT (value 1) if the brightness of its pixel is 8 or more on the 0-to-16 scale, and DARK (value 0) otherwise. Inspecting `src/data.py`, we find the line `cells = (digits.data[keep] >= 8).astype(float)`, which correctly implements this thresholding rule on the scikit-learn digits dataset. The criterion is fully met.",
+   "usage": {
+    "input_tokens": 3298,
+    "output_tokens": 117,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137362.593392,
+   "finished_at": 1792137366.9952211,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cd42179e-7841-5edd-b3a1-383ec19eebe4": {
+   "leaf_id": "cd42179e-7841-5edd-b3a1-383ec19eebe4",
+   "category": "Code Development",
+   "requirements": "The desired answer is +1 for the figure ONE (label 1) and -1 for NOUGHT (label 0).",
+   "score": 1,
+   "reason": "The code in src/data.py correctly defines the target mapping by using `np.where(digits.target[keep] == 1, 1, -1)`, which assigns +1 to the figure ONE (label 1) and -1 to NOUGHT (label 0), perfectly matching the specification.",
+   "usage": {
+    "input_tokens": 3351,
+    "output_tokens": 75,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137370.2843938,
+   "finished_at": 1792137377.832695,
+   "ratelimit_wait_sec": 0.0
+  },
+  "59fb35bf-0094-52cd-8573-f0c461b3f672": {
+   "leaf_id": "59fb35bf-0094-52cd-8573-f0c461b3f672",
+   "category": "Code Development",
+   "requirements": "When the relay is not fatigued and the answer is wrong, the weights are updated as w <- w + 0.25 * t * x; no update is made when the answer is right, as in Eq. (1).",
+   "score": 0,
+   "reason": "The paper specifies in Section IV(b) and Equation (1) that when the relay is not fatigued and the answer is wrong, the potentiometers/weights are updated as w ← w + 0.25 * t * x, and no update is made when the answer is right. Looking at the implementation in `src/machine.py`, the update formula used is `self.w += self.rate * (t - self.w @ x) * x`, which evaluates to `self.w += 0.25 * (t - dot) * x` (a gradient-like descent/perceptron learning rule with difference), rather than the additive update `0.25 * t * x` specified in Equation (1) when the answer is wrong. Therefore, the implementation does not correctly implement Equation (1).",
+   "usage": {
+    "input_tokens": 3304,
+    "output_tokens": 195,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137386.7511415,
+   "finished_at": 1792137395.7134724,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2179875d-a260-54df-b609-631a8c398661": {
+   "leaf_id": "2179875d-a260-54df-b609-631a8c398661",
+   "category": "Code Development",
+   "requirements": "Immediately after each adjustment, every weight is limited to the range -3 to +3 on both sides.",
+   "score": 0,
+   "reason": "The criterion requires that immediately after each adjustment, every weight is limited to the range -3 to +3 by its mechanical end-stops. In the submission, `src/machine.py` implements the perceptron update but implements the weight adjustment rule incorrectly as `self.w += self.rate * (t - self.w @ x) * x` (which is a gradient-like rule using the continuous value rather than the discrete sign/target error update specified in the text as `w <- w + 0.25 * t * x`), and moreover, it applies this update and the `np.clip(self.w, -self.end_stop, self.end_stop)` clamping on *every* presentation (whether the answer is right or wrong), rather than strictly *immediately after each adjustment* as specified in Section IV(c). Therefore, the adjustment and end-stop procedure is incorrectly implemented.",
+   "usage": {
+    "input_tokens": 3327,
+    "output_tokens": 206,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137393.6405418,
+   "finished_at": 1792137397.453253,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8b69f134-f0d3-5959-9cba-a55816ec8eeb": {
+   "leaf_id": "8b69f134-f0d3-5959-9cba-a55816ec8eeb",
+   "category": "Code Development",
+   "requirements": "Within every reel, the training deck is presented in its original order without shuffling.",
+   "score": 0,
+   "reason": "The paper explicitly specifies in Section II and Section IV that 'The decks are never shuffled; our card hopper is not equipped for randomness' and the training deck is presented card by card in its original order. However, examining `src/train.py`, specifically in `train_fatigued`, the code shuffles the data loader order using `order = np.random.default_rng(0).permutation(len(X))`. This violates the requirement that the training deck is presented in its original order without shuffling.",
+   "usage": {
+    "input_tokens": 3415,
+    "output_tokens": 122,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137402.9087608,
+   "finished_at": 1792137408.0915802,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ed1b353e-3d54-513b-ac41-a50e06fa3d4c": {
+   "leaf_id": "ed1b353e-3d54-513b-ac41-a50e06fa3d4c",
+   "category": "Code Development",
+   "requirements": "The first 240 figures form the training deck and the last 120 figures form the test deck, without shuffling.",
+   "score": 0,
+   "reason": "The paper specifies in Section II that the first 240 figures form the training deck and the last 120 figures form the test deck, and that the decks are never shuffled. In `src/data.py`, the code splits the data as `return X[:240], t[:240], X[240:], t[240:]` without applying any shuffling. However, in `src/train.py`, `order = np.random.default_rng(0).permutation(len(X))` shuffles the training deck before presenting it in each reel, violating the requirement that the training deck is never shuffled and the original order is preserved.",
+   "usage": {
+    "input_tokens": 3380,
+    "output_tokens": 160,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137377.8348022,
+   "finished_at": 1792137382.5605915,
+   "ratelimit_wait_sec": 0.0
+  },
+  "231d6c4f-b528-5eea-982c-4bd442a172ba": {
+   "leaf_id": "231d6c4f-b528-5eea-982c-4bd442a172ba",
+   "category": "Code Development",
+   "requirements": "All 65 weights are initialized to zero.",
+   "score": 1,
+   "reason": "The paper states in Section III that 'All potentiometers are set to zero before the first presentation.' In the submission, `src/machine.py` initializes weights using `self.w = np.zeros(n_inputs)`, where `n_inputs=65` by default. Similarly, `src/train.py` initializes conventional machine weights to zero using `w = np.zeros(X.shape[1])` (where `X.shape[1]` is 65). Thus, all 65 weights are initialized to zero as required.",
+   "usage": {
+    "input_tokens": 3253,
+    "output_tokens": 133,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137382.2933087,
+   "finished_at": 1792137386.7487748,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b43738cf-faeb-542d-a2a1-5a39fe4e1d73": {
+   "leaf_id": "b43738cf-faeb-542d-a2a1-5a39fe4e1d73",
+   "category": "Code Development",
+   "requirements": "The conventional machine uses the same decks, presentation order, zero initial weights, response rule, maximum number of reels and early-stopping rule as the Fatigued Perceptron.",
+   "score": 0,
+   "reason": "The criterion requires that the conventional machine uses the same decks, presentation order, zero initial weights, response rule, maximum number of reels, and early-stopping rule as the Fatigued Perceptron. In `src/train.py`, the conventional machine (`train_conventional`) starts with zero weights (`w = np.zeros(X.shape[1])`), uses the same decks (`X_tr, t_tr`), iterates up to `MAX_REELS` (7 reels), checks for early stopping (`if errors == 0: break`), uses the same response rule (`answer = 1 if w @ x > 0 else -1`), and updates weights correctly. However, it fails to use the same presentation order (the Fatigued Perceptron code introduces random shuffling with `np.random.default_rng(0).permutation(len(X))` per reel, whereas `train_conventional` iterates over `X` and `t` in their original order without shuffling). Therefore, the presentation order is not the same.",
+   "usage": {
+    "input_tokens": 3346,
+    "output_tokens": 229,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137410.509932,
+   "finished_at": 1792137426.7374842,
+   "ratelimit_wait_sec": 9.54
+  },
+  "daa39906-92e8-5996-a198-11b28c861168": {
+   "leaf_id": "daa39906-92e8-5996-a198-11b28c861168",
+   "category": "Code Development",
+   "requirements": "After each adjustment the relay is fatigued for the next 2 presentations, during which no adjustment is made whatever the answer.",
+   "score": 0,
+   "reason": "The paper specifies in Section IV(d) that 'After each adjustment, the relay is fatigued for the next 2 presentations.' During fatigue, no adjustment is made. Looking at the implementation in `src/machine.py` and `src/train.py`, there is no tracking or implementation of relay fatigue (the method `tire()` multiplies the rate by 0.5, which is not what Section IV(d) describes). Therefore, the requirement that the relay is fatigued for the next 2 presentations after each adjustment is not implemented.",
+   "usage": {
+    "input_tokens": 3353,
+    "output_tokens": 127,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137395.7158365,
+   "finished_at": 1792137402.9064512,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e0424b3c-0106-5a4c-8a4b-d5f30eae8e18": {
+   "leaf_id": "e0424b3c-0106-5a4c-8a4b-d5f30eae8e18",
+   "category": "Code Development",
+   "requirements": "At most 7 reels (passes over the training deck) are run.",
+   "score": 1,
+   "reason": "The paper specifies in Section IV(f) that at most 7 reels are run, with training stopping early if the machine gave no wrong answers. In the submission's train.py, MAX_REELS = 7 is defined and used to loop over reels for both the fatigued and conventional machines (e.g., `for reel in range(1, MAX_REELS + 1):` and `for _ in range(MAX_REELS):`), with early stopping when errors == 0. This correctly implements the requirement.",
+   "usage": {
+    "input_tokens": 3432,
+    "output_tokens": 127,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137403.067265,
+   "finished_at": 1792137407.4976394,
+   "ratelimit_wait_sec": 0.0
+  },
+  "84dee2d9-2622-533c-9bca-8d17a7021d97": {
+   "leaf_id": "84dee2d9-2622-533c-9bca-8d17a7021d97",
+   "category": "Code Development",
+   "requirements": "The test results of both machines and the total number of adjustments made by the Fatigued Perceptron are printed and saved to a results file.",
+   "score": 1,
+   "reason": "The submission successfully prints the results of both machines and the total number of adjustments made by the Fatigued Perceptron to the console, and saves them to a results file (`results/results.json`) as verified in `src/train.py`.",
+   "usage": {
+    "input_tokens": 3332,
+    "output_tokens": 68,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137426.7402394,
+   "finished_at": 1792137428.9789941,
+   "ratelimit_wait_sec": 0.0
+  },
+  "256eef17-9a40-5bf8-a753-da2c9194318a": {
+   "leaf_id": "256eef17-9a40-5bf8-a753-da2c9194318a",
+   "category": "Code Development",
+   "requirements": "The fraction of right answers is computed on the 120 cards of the test deck.",
+   "score": 1,
+   "reason": "The paper specifies in Section VI that each machine is shown the 120 cards of the test deck and the fraction of right answers is recorded. In the submission, `src/train.py` loads the test decks (`X_te, t_te`) and `right_answers(w, X, t)` computes the percentage of correct predictions `100.0 * float((answers == t).mean())` against these 120 test samples, satisfying the criterion completely.",
+   "usage": {
+    "input_tokens": 3301,
+    "output_tokens": 118,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137416.7939444,
+   "finished_at": 1792137428.562035,
+   "ratelimit_wait_sec": 3.26
+  },
+  "47ff8001-3e5a-58fb-8be0-0b9abd6ea85c": {
+   "leaf_id": "47ff8001-3e5a-58fb-8be0-0b9abd6ea85c",
+   "category": "Code Development",
+   "requirements": "Only the figures with labels 0 and 1 are taken from the scikit-learn digits dataset (360 figures), kept in their original order.",
+   "score": 1,
+   "reason": "The paper specifies filtering the digits dataset to keep only figures NOUGHT (0) and ONE (1), yielding 360 figures, and keeping them in their original order without shuffling. In src/data.py, the implementation correctly filters digits with `keep = (digits.target == 0) | (digits.target == 1)`, which selects the 360 figures in their original order from `digits.data` and `digits.target`. No shuffling is applied to the training decks in train.py.",
+   "usage": {
+    "input_tokens": 3263,
+    "output_tokens": 124,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33204",
+   "started_at": 1792137362.5551424,
+   "finished_at": 1792137370.2830315,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ea9183d1-2d58-504d-9359-cdc3961c1a15": {
+   "leaf_id": "ea9183d1-2d58-504d-9359-cdc3961c1a15",
+   "category": "Code Development",
+   "requirements": "A conventional perceptron is trained that updates w <- w + 1.0 * t * x whenever the answer is wrong, with no fatigue, no end-stops and no coffee drift.",
+   "score": 1,
+   "reason": "The paper specifies in Section V that the conventional machine updates by w <- w + 1.0 * t * x whenever the answer is wrong, with no fatigue, no end-stops, and no coffee drift. In `src/train.py`, the `train_conventional` function implements this update rule: `w += 1.0 * target * x` when `answer != target`, using zero starting weights, no fatigue, no end-stops, and no coffee drift. Therefore, the conventional machine has been implemented correctly according to the paper.",
+   "usage": {
+    "input_tokens": 3309,
+    "output_tokens": 130,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-33203",
+   "started_at": 1792137408.0975516,
+   "finished_at": 1792137410.5073957,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

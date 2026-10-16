@@ -214,6 +214,7 @@ scripts/redis.sh stop
 | JudgeEval (사람 채점 77개) | F1 0.986, macro-F1 0.893 | `results/judgeeval_gemini-3.5-flash-lite.json` |
 | 합성 논문 (정답 188개) | F1 0.986, macro-F1 0.972, 0점 47개 모두 맞힘 | `results/judgeeval_syn_gemini-3.5-flash-lite.json` |
 | 에이전트 제출물 (Code-Dev 50개) | a1 0.92, a2 0.92 | `results/agent_a*_codedev.json` |
+| 합성 논문 6편 (정답 476개), Gemini | F1 0.967, macro-F1 0.937, 0점 재현율 0.966 | `results/judgeeval_syn6_gemini-3.5-flash-lite.json` |
 | 로컬 Qwen2.5-7B judge (합성 6편, JudgeEval) | macro-F1 0.703, 0.413. Gemini보다 크게 낮다 | `reports/2026-10-15.md` |
 
 주의할 점

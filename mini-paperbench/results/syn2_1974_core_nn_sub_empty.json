@@ -1,0 +1,354 @@
+{
+ "run": "syn2_1974_core_nn_sub_empty",
+ "label": "18 tasks, 2 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-35482": 10,
+  "gpu7-35481": 8
+ },
+ "wall_time_sec": 60.59,
+ "mean_task_sec": 6.54,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 27.34,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 18,
+  "input_tokens": 39799,
+  "output_tokens": 1108,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1974_core_nn/submissions/sub_empty",
+ "leaves": {
+  "d5c62b5b-bcdc-5d40-b748-e6410be98db7": {
+   "leaf_id": "d5c62b5b-bcdc-5d40-b748-e6410be98db7",
+   "category": "Code Development",
+   "requirements": "For each training numeral (when core is not empty), the consultation count of the nearest prototype is increased by one, whether or not its class is correct.",
+   "score": 0,
+   "reason": "The candidate has provided a placeholder README.md and a stub reproduce.sh script that simply echoes 'not implemented'. There is no actual code implementing the training procedure, distance metrics, consultation counts, or prototype management as required by the paper and the specific criterion.",
+   "usage": {
+    "input_tokens": 2229,
+    "output_tokens": 68,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137816.4690435,
+   "finished_at": 1792137820.2472112,
+   "ratelimit_wait_sec": 0.0
+  },
+  "33ff429e-7042-5507-ae93-53ea99b72a58": {
+   "leaf_id": "33ff429e-7042-5507-ae93-53ea99b72a58",
+   "category": "Code Development",
+   "requirements": "If several prototypes are at the same smallest distance, the one stored earliest is used.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that echoes 'not implemented'. There is no code implementing the tie-breaking rule where the prototype stored earliest is used when several prototypes are at the same smallest distance.",
+   "usage": {
+    "input_tokens": 2193,
+    "output_tokens": 67,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137806.9921591,
+   "finished_at": 1792137812.958802,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b198c3ce-3c77-585b-8bd9-a434b3a6ef79": {
+   "leaf_id": "b198c3ce-3c77-585b-8bd9-a434b3a6ef79",
+   "category": "Code Development",
+   "requirements": "Picture elements are used as integers from 0 to 16, without scaling.",
+   "score": 0,
+   "reason": "The submission does not implement the paper and consists only of a placeholder README.md and a 'not implemented' reproduce.sh script. There is no code implementing the requirement that picture elements are used as integers from 0 to 16 without scaling.",
+   "usage": {
+    "input_tokens": 2145,
+    "output_tokens": 61,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137794.481527,
+   "finished_at": 1792137799.6217403,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c": {
+   "leaf_id": "c9fa7fb3-9f8e-5579-b59b-cb59fd50031c",
+   "category": "Code Development",
+   "requirements": "Every 500 training numerals (after numerals 500 and 1,000), all consultation counts are halved with integer division (rounding down).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. None of the required functionality, including the rule to halve consultation counts every 500 training numerals, has been implemented.",
+   "usage": {
+    "input_tokens": 2330,
+    "output_tokens": 62,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137829.1925797,
+   "finished_at": 1792137844.3369358,
+   "ratelimit_wait_sec": 10.86
+  },
+  "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23": {
+   "leaf_id": "8a348eb5-f664-5e7a-b44d-e8b8b4e49b23",
+   "category": "Code Development",
+   "requirements": "A prototype stored fewer than 50 training numerals ago cannot be evicted.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. There is no code implementing the tenure rule or any part of the paper.",
+   "usage": {
+    "input_tokens": 2294,
+    "output_tokens": 52,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35481",
+   "started_at": 1792137823.5672925,
+   "finished_at": 1792137845.719154,
+   "ratelimit_wait_sec": 16.48
+  },
+  "bd74fc79-676a-511f-bdd5-0476c75e0de7": {
+   "leaf_id": "bd74fc79-676a-511f-bdd5-0476c75e0de7",
+   "category": "Code Development",
+   "requirements": "When core is empty, the training numeral is stored as a prototype.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It does not contain any code implementing the requirement that when core is empty, the training numeral is stored as a prototype.",
+   "usage": {
+    "input_tokens": 2156,
+    "output_tokens": 61,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35481",
+   "started_at": 1792137808.3901274,
+   "finished_at": 1792137814.7415385,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91f03e82-947e-56dc-97ec-5b462304fa31": {
+   "leaf_id": "91f03e82-947e-56dc-97ec-5b462304fa31",
+   "category": "Code Development",
+   "requirements": "A full 1-NN recognizer that stores all 1,500 training numerals and uses the city-block distance is evaluated for comparison.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. It completely lacks any code to implement the full 1-NN recognizer or any other part of the paper.",
+   "usage": {
+    "input_tokens": 2186,
+    "output_tokens": 60,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35481",
+   "started_at": 1792137845.7209113,
+   "finished_at": 1792137848.9563804,
+   "ratelimit_wait_sec": 0.0
+  },
+  "c5c15278-f70f-5c50-be80-947f9a1fde47": {
+   "leaf_id": "c5c15278-f70f-5c50-be80-947f9a1fde47",
+   "category": "Code Development",
+   "requirements": "A numeral is given the class of the single nearest stored prototype (1-NN), not a vote among several neighbours.",
+   "score": 0,
+   "reason": "The submission only contains an empty README.md and a mock reproduce.sh script that echoes 'not implemented'. There is no code implementing the 1-NN decision rule as described in the paper.",
+   "usage": {
+    "input_tokens": 2174,
+    "output_tokens": 50,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137803.3364305,
+   "finished_at": 1792137806.9900334,
+   "ratelimit_wait_sec": 0.0
+  },
+  "1b0e445a-934e-5d6a-82c1-77cbd2a514fd": {
+   "leaf_id": "1b0e445a-934e-5d6a-82c1-77cbd2a514fd",
+   "category": "Code Development",
+   "requirements": "A new prototype starts with a consultation count of zero.",
+   "score": 0,
+   "reason": "The candidate has provided only a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. There is no code implementing the training procedure, prototype initialization, or consultation counts. Therefore, the criterion that a new prototype starts with a consultation count of zero is not implemented.",
+   "usage": {
+    "input_tokens": 2242,
+    "output_tokens": 73,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35481",
+   "started_at": 1792137818.0209436,
+   "finished_at": 1792137823.5655656,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d438b632-c9ee-5d32-9ef4-3d70facef6c6": {
+   "leaf_id": "d438b632-c9ee-5d32-9ef4-3d70facef6c6",
+   "category": "Code Development",
+   "requirements": "Core holds at most 64 prototypes.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. There is no code implementing the core-economical nearest-neighbour recognizer or enforcing the 64 prototype limit in core.",
+   "usage": {
+    "input_tokens": 2196,
+    "output_tokens": 63,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35481",
+   "started_at": 1792137814.7437007,
+   "finished_at": 1792137818.0192606,
+   "ratelimit_wait_sec": 0.0
+  },
+  "808ecc14-73e4-5ed1-a949-f1d04ab7b520": {
+   "leaf_id": "808ecc14-73e4-5ed1-a949-f1d04ab7b520",
+   "category": "Code Development",
+   "requirements": "A training numeral is stored as a new prototype only if the nearest stored prototype has a different class; correctly classified numerals are not stored.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that prints 'not implemented'. Therefore, no implementation of the training procedure or the condition for storing new prototypes exists.",
+   "usage": {
+    "input_tokens": 2185,
+    "output_tokens": 57,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137812.9609728,
+   "finished_at": 1792137816.4669394,
+   "ratelimit_wait_sec": 0.0
+  },
+  "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720": {
+   "leaf_id": "09ddcb6d-f2da-5fb7-b0c1-f70710d6d720",
+   "category": "Code Development",
+   "requirements": "The distance between two numerals is the city-block (L1) distance, the sum of absolute differences over the 64 picture elements.",
+   "score": 0,
+   "reason": "The candidate has not implemented any code for the paper. The files contain only a placeholder README.md and a 'reproduce.sh' script that prints 'not implemented'. Therefore, the city-block distance is not implemented in code.",
+   "usage": {
+    "input_tokens": 2148,
+    "output_tokens": 64,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35481",
+   "started_at": 1792137802.5836692,
+   "finished_at": 1792137808.3880122,
+   "ratelimit_wait_sec": 0.0
+  },
+  "4330fce1-9811-5a67-9c45-1b6bb7d5b290": {
+   "leaf_id": "4330fce1-9811-5a67-9c45-1b6bb7d5b290",
+   "category": "Code Development",
+   "requirements": "Code loads the scikit-learn digits dataset (1,797 numerals of 8x8 picture elements, 10 classes).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. There is no code loading the scikit-learn digits dataset.",
+   "usage": {
+    "input_tokens": 2126,
+    "output_tokens": 50,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35481",
+   "started_at": 1792137794.4553597,
+   "finished_at": 1792137802.5821977,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b28a98ed-0594-5b3d-aae2-9d8933d35f56": {
+   "leaf_id": "b28a98ed-0594-5b3d-aae2-9d8933d35f56",
+   "category": "Code Development",
+   "requirements": "The first 1,500 numerals, in original order, form the training tape and the last 297 form the test tape.",
+   "score": 0,
+   "reason": "The submission contains only a placeholder README.md and a reproduce.sh script that simply echoes 'not implemented'. Therefore, there is no code implementing the splitting of the scikit-learn digits dataset into the first 1,500 numerals for training and the last 297 for testing as required by Section 2 of the paper.",
+   "usage": {
+    "input_tokens": 2177,
+    "output_tokens": 86,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137799.623254,
+   "finished_at": 1792137803.3342357,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e82ece3d-be3d-5e85-898c-8176e93ed401": {
+   "leaf_id": "e82ece3d-be3d-5e85-898c-8176e93ed401",
+   "category": "Code Development",
+   "requirements": "The accuracies of both recognizers, the number of evictions and the final number of stored prototypes are printed and saved to a results file.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. It fails completely to implement the recognizers, training procedures, evaluation, printing, or saving to a results file.",
+   "usage": {
+    "input_tokens": 2213,
+    "output_tokens": 60,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137850.6648464,
+   "finished_at": 1792137855.0484538,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ba28a982-861e-5f70-be58-26c43ccae9c4": {
+   "leaf_id": "ba28a982-861e-5f70-be58-26c43ccae9c4",
+   "category": "Code Development",
+   "requirements": "Accuracy is computed on the 297 numerals of the test tape.",
+   "score": 0,
+   "reason": "The submission is entirely un-implemented, containing only a README and a reproduce.sh script that echoes 'not implemented'. Accuracy on the 297 numerals of the test tape is not computed.",
+   "usage": {
+    "input_tokens": 2183,
+    "output_tokens": 56,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35481",
+   "started_at": 1792137848.958597,
+   "finished_at": 1792137851.6353345,
+   "ratelimit_wait_sec": 0.0
+  },
+  "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45": {
+   "leaf_id": "0bc6cd7a-a2e3-5739-9b11-117cfb39ee45",
+   "category": "Code Development",
+   "requirements": "When a new prototype must be stored and core is full, the prototype with the smallest consultation count is evicted first, with ties broken by evicting the oldest.",
+   "score": 0,
+   "reason": "The candidate submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. There is no code implementing the eviction policy based on consultation count and tie-breaking by oldest prototype as described in Section 3.4 of the paper.",
+   "usage": {
+    "input_tokens": 2277,
+    "output_tokens": 69,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137820.249626,
+   "finished_at": 1792137829.186594,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa": {
+   "leaf_id": "ddc08fe5-61e2-5ab4-9fd2-f6c3f9af8eaa",
+   "category": "Code Development",
+   "requirements": "The training tape is read exactly once, in its original order.",
+   "score": 0,
+   "reason": "The candidate has provided a placeholder README and a reproduce.sh script that simply echoes 'not implemented'. No implementation of the training tape reading procedure exists in the submission.",
+   "usage": {
+    "input_tokens": 2345,
+    "output_tokens": 49,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-35482",
+   "started_at": 1792137844.3391144,
+   "finished_at": 1792137850.6627474,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

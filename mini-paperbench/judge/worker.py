@@ -11,12 +11,13 @@ import argparse
 import json
 import os
 import socket
+import sys
 import time
 from pathlib import Path
 
 from judge.common import (CLAIM_IDLE_SEC, GROUP, MAX_DELIVERIES, RATE_LIMIT_RPM,
                           RATE_LIMIT_TPM, connect, k)
-from judge.judge import judge_leaf
+from judge.judge import is_daily_quota_error, judge_leaf
 from judge.ratelimit import RateLimiter
 
 ap = argparse.ArgumentParser()
@@ -75,6 +76,9 @@ def process(msg_id: str, fields: dict, reclaimed: bool) -> None:
     except Exception as e:  # ACK하지 않는다 → CLAIM_IDLE_SEC 뒤 다른 워커(또는 자신)가 다시 가져간다
         r.incr(k(run, "failures"))
         log(f"error on {leaf_id[:8]}: {type(e).__name__}: {str(e)[:200]}")
+        if is_daily_quota_error(e):
+            # 하루 한도: 몇 시간 재시도해도 풀리지 않는다. run을 중단 표시하고 모든 워커가 멈춘다.
+            r.set(k(run, "aborted"), "daily quota exceeded")
         return
     finished = time.time()
     save(leaf_id, {
@@ -98,6 +102,9 @@ def process(msg_id: str, fields: dict, reclaimed: bool) -> None:
 log("started")
 total = int(r.get(k(run, "total")))
 while True:
+    if r.exists(k(run, "aborted")):
+        log(f"run aborted: {r.get(k(run, 'aborted'))}")
+        sys.exit(3)
     # 1) 죽은 워커가 들고 있던 메시지 먼저
     _, claimed, _ = r.xautoclaim(stream, GROUP, consumer, min_idle_time=int(CLAIM_IDLE_SEC * 1000), count=1)
     if claimed:

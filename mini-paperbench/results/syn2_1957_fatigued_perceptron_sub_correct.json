@@ -1,0 +1,354 @@
+{
+ "run": "syn2_1957_fatigued_perceptron_sub_correct",
+ "label": "18 tasks, 2 workers",
+ "total": 18,
+ "completed": 18,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-31916": 10,
+  "gpu7-31915": 8
+ },
+ "wall_time_sec": 48.84,
+ "mean_task_sec": 5.27,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 0.0,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 18,
+  "input_tokens": 60287,
+  "output_tokens": 2252,
+  "cached_tokens": 0
+ },
+ "score_mean": 1.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/1957_fatigued_perceptron/submissions/sub_correct",
+ "leaves": {
+  "16daeec4-1f5c-5358-bb32-f6482238f967": {
+   "leaf_id": "16daeec4-1f5c-5358-bb32-f6482238f967",
+   "category": "Code Development",
+   "requirements": "Training stops early after any reel in which the machine gave no wrong answer (wrong answers given while fatigued count).",
+   "score": 1,
+   "reason": "The paper specifies that training stops early after any reel in which the machine gave no wrong answer (where wrong answers given while fatigued count as wrong answers). In `src/train.py`, the training function for the fatigued machine iterates over reels (up to MAX_REELS), and checks if `errors == 0`, breaking early if true. In `src/machine.py`, `present` returns `wrong` (whether an error occurred, including when fatigued and failing to adjust), and `train_fatigued` sums `errors += machine.present(...)` for each presentation in the reel. This correctly implements early stopping when a reel has no wrong answers.",
+   "usage": {
+    "input_tokens": 3465,
+    "output_tokens": 146,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137193.4491181,
+   "finished_at": 1792137195.9531956,
+   "ratelimit_wait_sec": 0.0
+  },
+  "d9925473-7cd9-540c-9e8c-9ebb8ef600b4": {
+   "leaf_id": "d9925473-7cd9-540c-9e8c-9ebb8ef600b4",
+   "category": "Code Development",
+   "requirements": "After every 100 presentations, counted continuously across reels (after presentations 100, 200, 300, ...), every weight is multiplied by 0.9.",
+   "score": 1,
+   "reason": "The criterion requires that after every 100 presentations, counted continuously across reels, every weight is multiplied by 0.9 (coffee drift). Looking at `src/machine.py`, the `FatiguedPerceptron` increments `self.presentations += 1` on each presentation, and checks `if self.presentations % self.coffee_every == 0: self.w *= self.drift`, where `coffee_every` is 100 and `drift` is 0.9. This correctly implements the continuous counting across reels and the weight scaling after every 100 presentations.",
+   "usage": {
+    "input_tokens": 3406,
+    "output_tokens": 142,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137182.3650253,
+   "finished_at": 1792137185.304964,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6f216a59-35db-5ecd-93c1-45768b4eeb48": {
+   "leaf_id": "6f216a59-35db-5ecd-93c1-45768b4eeb48",
+   "category": "Code Development",
+   "requirements": "A 65th bias input that is always 1 is appended to the 64 photocell inputs.",
+   "score": 1,
+   "reason": "The paper states in Section II that a 65th bias cell, which is always LIT (value 1), is added to the 64 photocells. In the submission, `src/data.py` implements this by creating a bias column of ones (`bias = np.ones((cells.shape[0], 1))`) and appending it to the photocell array (`X = np.hstack([cells, bias])`). Thus, the 65th bias input always set to 1 is correctly implemented.",
+   "usage": {
+    "input_tokens": 3332,
+    "output_tokens": 125,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137161.2011797,
+   "finished_at": 1792137165.0560393,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b33da8c0-a7cf-5443-8c28-ffb602ad013c": {
+   "leaf_id": "b33da8c0-a7cf-5443-8c28-ffb602ad013c",
+   "category": "Code Development",
+   "requirements": "The machine answers +1 only if w . x is strictly greater than zero, and -1 otherwise (including when w . x is exactly zero).",
+   "score": 1,
+   "reason": "The paper specifies in Section III that the machine answers +1 only if the sum w * x is strictly greater than zero, and answers -1 otherwise (including a sum of exactly zero). Examining the source files, specifically `src/machine.py` (line 19: `return 1 if self.w @ x > 0 else -1`) and `src/train.py` (line 33: `answer = 1 if w @ x > 0 else -1`), the response rule correctly implements strict inequality (`> 0`) returning +1, and defaults to -1 for all other cases including exactly zero. The code fulfills the criterion.",
+   "usage": {
+    "input_tokens": 3294,
+    "output_tokens": 155,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137172.6398337,
+   "finished_at": 1792137176.7471192,
+   "ratelimit_wait_sec": 0.0
+  },
+  "5c1d5135-cad6-513c-93df-264470e8c9e8": {
+   "leaf_id": "5c1d5135-cad6-513c-93df-264470e8c9e8",
+   "category": "Code Development",
+   "requirements": "A photocell is set to 1 if its pixel value is 8 or more (on the 0-16 scale) and to 0 otherwise.",
+   "score": 1,
+   "reason": "The paper specifies that a photocell is LIT (value 1) if the brightness of its pixel is 8 or more on the 0-to-16 scale, and DARK (value 0) otherwise. Looking at src/data.py, the implementation correctly computes cells = (digits.data[keep] >= 8).astype(float), which directly implements this threshold condition. Therefore, the criterion is fully met.",
+   "usage": {
+    "input_tokens": 3307,
+    "output_tokens": 106,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137157.5996802,
+   "finished_at": 1792137161.1996129,
+   "ratelimit_wait_sec": 0.0
+  },
+  "59fb35bf-0094-52cd-8573-f0c461b3f672": {
+   "leaf_id": "59fb35bf-0094-52cd-8573-f0c461b3f672",
+   "category": "Code Development",
+   "requirements": "When the relay is not fatigued and the answer is wrong, the weights are updated as w <- w + 0.25 * t * x; no update is made when the answer is right, as in Eq. (1).",
+   "score": 1,
+   "reason": "The paper specifies that when the relay is not fatigued and the answer is wrong, the potentiometers/weights are updated as w <- w + 0.25 * t * x (Eq. 1), and no update is made when the answer is right. Looking at `src/machine.py`, the `present` method checks `if self.rest > 0:` (fatigued), and `elif wrong:` updates the weights using `self.w += self.increment * t * x` where `self.increment` is initialized to 0.25. If the answer is right (`wrong` is False and `self.rest == 0`), no update occurs. Thus, the implementation correctly follows Eq. (1).",
+   "usage": {
+    "input_tokens": 3313,
+    "output_tokens": 171,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137176.7495687,
+   "finished_at": 1792137182.3626604,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cd42179e-7841-5edd-b3a1-383ec19eebe4": {
+   "leaf_id": "cd42179e-7841-5edd-b3a1-383ec19eebe4",
+   "category": "Code Development",
+   "requirements": "The desired answer is +1 for the figure ONE (label 1) and -1 for NOUGHT (label 0).",
+   "score": 1,
+   "reason": "The paper states that the desired answer t is +1 for ONE and -1 for NOUGHT. In `src/data.py`, the code maps the labels via `t = np.where(digits.target[keep] == 1, 1, -1)`, which correctly assigns +1 to label 1 (ONE) and -1 to label 0 (NOUGHT). Thus, the criterion is fully met.",
+   "usage": {
+    "input_tokens": 3360,
+    "output_tokens": 104,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31915",
+   "started_at": 1792137164.3674123,
+   "finished_at": 1792137171.5285883,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2179875d-a260-54df-b609-631a8c398661": {
+   "leaf_id": "2179875d-a260-54df-b609-631a8c398661",
+   "category": "Code Development",
+   "requirements": "Immediately after each adjustment, every weight is limited to the range -3 to +3 on both sides.",
+   "score": 1,
+   "reason": "The paper specifies in Section IV(c) that immediately after each adjustment, every potentiometer (weight) is limited to the range -3 to +3 by its mechanical end-stops. Looking at `src/machine.py`, the FatiguedPerceptron class correctly implements this by applying `self.w = np.clip(self.w, -self.end_stop, self.end_stop)` immediately after updating the weights (`self.w += self.increment * t * x`) when an adjustment occurs. The value of `end_stop` defaults to 3.0. Thus, the implementation correctly fulfills the criterion.",
+   "usage": {
+    "input_tokens": 3336,
+    "output_tokens": 147,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31915",
+   "started_at": 1792137179.1380432,
+   "finished_at": 1792137182.135236,
+   "ratelimit_wait_sec": 0.0
+  },
+  "8b69f134-f0d3-5959-9cba-a55816ec8eeb": {
+   "leaf_id": "8b69f134-f0d3-5959-9cba-a55816ec8eeb",
+   "category": "Code Development",
+   "requirements": "Within every reel, the training deck is presented in its original order without shuffling.",
+   "score": 1,
+   "reason": "The paper states in Section II that 'The decks are never shuffled; our card hopper is not equipped for randomness.' In `src/train.py`, the training loop iterates over the training deck `X_tr` and `t_tr` sequentially without any random shuffling (`order = np.arange(len(X))` for the fatigued machine and standard iteration `zip(X, t)` for the conventional machine), maintaining the original order within every reel.",
+   "usage": {
+    "input_tokens": 3424,
+    "output_tokens": 109,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137185.3071287,
+   "finished_at": 1792137193.446664,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ed1b353e-3d54-513b-ac41-a50e06fa3d4c": {
+   "leaf_id": "ed1b353e-3d54-513b-ac41-a50e06fa3d4c",
+   "category": "Code Development",
+   "requirements": "The first 240 figures form the training deck and the last 120 figures form the test deck, without shuffling.",
+   "score": 1,
+   "reason": "The paper specifies that the first 240 figures form the training deck and the last 120 figures form the test deck, and that the decks are never shuffled (keeping their original order). Looking at `src/data.py`, the function `load_decks()` slices the filtered data array as `X[:240], t[:240], X[240:], t[240:]`, which correctly assigns the first 240 figures to training and the remaining 120 figures to testing in their original order without any shuffling.",
+   "usage": {
+    "input_tokens": 3389,
+    "output_tokens": 135,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137165.0589924,
+   "finished_at": 1792137172.637665,
+   "ratelimit_wait_sec": 0.0
+  },
+  "231d6c4f-b528-5eea-982c-4bd442a172ba": {
+   "leaf_id": "231d6c4f-b528-5eea-982c-4bd442a172ba",
+   "category": "Code Development",
+   "requirements": "All 65 weights are initialized to zero.",
+   "score": 1,
+   "reason": "The paper specifies in Section III that 'All potentiometers are set to zero before the first presentation.' In the submission, src/machine.py initializes the weights with `self.w = np.zeros(n_inputs)` (where n_inputs=65 by default), and src/train.py initializes conventional machine weights with `w = np.zeros(X.shape[1])` (which also corresponds to 65 weights). Thus, all 65 weights are correctly initialized to zero.",
+   "usage": {
+    "input_tokens": 3262,
+    "output_tokens": 115,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31915",
+   "started_at": 1792137171.5308816,
+   "finished_at": 1792137179.1358008,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b43738cf-faeb-542d-a2a1-5a39fe4e1d73": {
+   "leaf_id": "b43738cf-faeb-542d-a2a1-5a39fe4e1d73",
+   "category": "Code Development",
+   "requirements": "The conventional machine uses the same decks, presentation order, zero initial weights, response rule, maximum number of reels and early-stopping rule as the Fatigued Perceptron.",
+   "score": 1,
+   "reason": "The submission correctly implements the conventional comparison machine in `src/train.py`. It uses the same training decks (`X_tr`, `t_tr`), presentation order (iterating through the deck per reel), zero initial weights (`w = np.zeros(X.shape[1])`), response rule (`answer = 1 if w @ x > 0 else -1`), maximum number of reels (`MAX_REELS = 7`), and early-stopping rule (`if errors == 0: break`).",
+   "usage": {
+    "input_tokens": 3355,
+    "output_tokens": 116,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137195.9556623,
+   "finished_at": 1792137200.074616,
+   "ratelimit_wait_sec": 0.0
+  },
+  "daa39906-92e8-5996-a198-11b28c861168": {
+   "leaf_id": "daa39906-92e8-5996-a198-11b28c861168",
+   "category": "Code Development",
+   "requirements": "After each adjustment the relay is fatigued for the next 2 presentations, during which no adjustment is made whatever the answer.",
+   "score": 1,
+   "reason": "The paper specifies in Section IV(d) that after each adjustment, the relay is fatigued for the next 2 presentations. In `src/machine.py`, the `FatiguedPerceptron.present` method correctly implements this by setting `self.rest = self.fatigue` (where `self.fatigue = 2`) immediately after an adjustment is made, and decrementing/checking `self.rest` on subsequent presentations before allowing further adjustments, thus preventing any adjustment during the fatigue period regardless of the answer.",
+   "usage": {
+    "input_tokens": 3362,
+    "output_tokens": 124,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31915",
+   "started_at": 1792137182.1382666,
+   "finished_at": 1792137186.9531088,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e0424b3c-0106-5a4c-8a4b-d5f30eae8e18": {
+   "leaf_id": "e0424b3c-0106-5a4c-8a4b-d5f30eae8e18",
+   "category": "Code Development",
+   "requirements": "At most 7 reels (passes over the training deck) are run.",
+   "score": 1,
+   "reason": "The paper specifies in Section IV(f) that at most 7 reels are run and training stops early after any reel with no wrong answers. In the submission's train.py, MAX_REELS = 7 is defined, and train_fatigued and train_conventional loop over the range of MAX_REELS with early stopping when errors == 0. This correctly implements the 7-reel limit and early stopping condition.",
+   "usage": {
+    "input_tokens": 3441,
+    "output_tokens": 106,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31915",
+   "started_at": 1792137186.9549398,
+   "finished_at": 1792137193.618663,
+   "ratelimit_wait_sec": 0.0
+  },
+  "84dee2d9-2622-533c-9bca-8d17a7021d97": {
+   "leaf_id": "84dee2d9-2622-533c-9bca-8d17a7021d97",
+   "category": "Code Development",
+   "requirements": "The test results of both machines and the total number of adjustments made by the Fatigued Perceptron are printed and saved to a results file.",
+   "score": 1,
+   "reason": "The submission prints the evaluation results (accuracies and adjustment count) to standard output and successfully saves them to a results file (`results/results.json`) as required by Section VI.",
+   "usage": {
+    "input_tokens": 3341,
+    "output_tokens": 53,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31916",
+   "started_at": 1792137200.0769508,
+   "finished_at": 1792137203.6907656,
+   "ratelimit_wait_sec": 0.0
+  },
+  "256eef17-9a40-5bf8-a753-da2c9194318a": {
+   "leaf_id": "256eef17-9a40-5bf8-a753-da2c9194318a",
+   "category": "Code Development",
+   "requirements": "The fraction of right answers is computed on the 120 cards of the test deck.",
+   "score": 1,
+   "reason": "The paper states in Section VI that after training, each machine is shown the 120 cards of the test deck and the fraction of right answers is recorded. In `src/train.py`, the `right_answers` function computes the percentage of correct predictions using `X_te` and `t_te` (which contain the 120 test cards as defined in `src/data.py` taking `X[240:]` and `t[240:]` out of 360 total filtered figures). This correctly implements the evaluation on the 120 cards of the test deck.",
+   "usage": {
+    "input_tokens": 3310,
+    "output_tokens": 147,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31915",
+   "started_at": 1792137198.9153693,
+   "finished_at": 1792137206.441631,
+   "ratelimit_wait_sec": 0.0
+  },
+  "47ff8001-3e5a-58fb-8be0-0b9abd6ea85c": {
+   "leaf_id": "47ff8001-3e5a-58fb-8be0-0b9abd6ea85c",
+   "category": "Code Development",
+   "requirements": "Only the figures with labels 0 and 1 are taken from the scikit-learn digits dataset (360 figures), kept in their original order.",
+   "score": 1,
+   "reason": "The paper specifies in Section II that only figures NOUGHT (label 0) and ONE (label 1) are taken from the scikit-learn digits dataset, resulting in 360 figures, kept in their original order. Examining `src/data.py`, the code filters the digits dataset using `keep = (digits.target == 0) | (digits.target == 1)`, slices the data without shuffling (`X[:240], t[:240], X[240:], t[240:]`), and processes the 360 figures in their original order. This matches the specification completely.",
+   "usage": {
+    "input_tokens": 3272,
+    "output_tokens": 149,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31915",
+   "started_at": 1792137157.5991235,
+   "finished_at": 1792137164.365938,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ea9183d1-2d58-504d-9359-cdc3961c1a15": {
+   "leaf_id": "ea9183d1-2d58-504d-9359-cdc3961c1a15",
+   "category": "Code Development",
+   "requirements": "A conventional perceptron is trained that updates w <- w + 1.0 * t * x whenever the answer is wrong, with no fatigue, no end-stops and no coffee drift.",
+   "score": 1,
+   "reason": "The submission correctly implements the conventional comparison machine described in Section V. In `src/train.py`, the `train_conventional` function implements the update rule `w += 1.0 * target * x` whenever the answer is wrong (`answer != target`), without any fatigue, end-stops, or coffee drift, using the same decks, training procedure, and early-stopping criteria as specified in the paper.",
+   "usage": {
+    "input_tokens": 3318,
+    "output_tokens": 102,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-31915",
+   "started_at": 1792137193.6203668,
+   "finished_at": 1792137198.9136755,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

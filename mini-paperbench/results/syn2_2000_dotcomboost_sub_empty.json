@@ -1,0 +1,372 @@
+{
+ "run": "syn2_2000_dotcomboost_sub_empty",
+ "label": "19 tasks, 2 workers",
+ "total": 19,
+ "completed": 19,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-36678": 10,
+  "gpu7-36679": 9
+ },
+ "wall_time_sec": 74.54,
+ "mean_task_sec": 7.73,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 12.83,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 19,
+  "input_tokens": 43125,
+  "output_tokens": 1247,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.0,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/2000_dotcomboost/submissions/sub_empty",
+ "leaves": {
+  "eea77cee-8136-53c8-a833-81fe200eb307": {
+   "leaf_id": "eea77cee-8136-53c8-a833-81fe200eb307",
+   "category": "Code Development",
+   "requirements": "After rounding, every example worth more than 10 times the median of the current dollar values is reduced to floor(10 * median).",
+   "score": 0,
+   "reason": "The submission contains no code implementing the irrational exuberance cap or any other part of the paper, as the README.md and reproduce.sh files indicate that the reproduction is not implemented.",
+   "usage": {
+    "input_tokens": 2370,
+    "output_tokens": 53,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138217.1102543,
+   "finished_at": 1792138221.3177598,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b37d1b03-e14a-5a0a-9200-42ace66e2b48": {
+   "leaf_id": "b37d1b03-e14a-5a0a-9200-42ace66e2b48",
+   "category": "Code Development",
+   "requirements": "Every example's dollars are multiplied by exp(-alpha * y_i * h(x_i)), as in Eq. (4).",
+   "score": 0,
+   "reason": "The submission contains no implementation files besides an empty README.md and a placeholder reproduce.sh script that just echoes 'not implemented'. Therefore, Eq. (4) for updating the dollar weights has not been implemented in code.",
+   "usage": {
+    "input_tokens": 2317,
+    "output_tokens": 61,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138209.510538,
+   "finished_at": 1792138217.1041896,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a737ea75-1c81-5aa8-9e84-536be95c6a36": {
+   "leaf_id": "a737ea75-1c81-5aa8-9e84-536be95c6a36",
+   "category": "Code Development",
+   "requirements": "The final classifier predicts the sign of sum_t alpha_t * h_t(x), and predicts +1 when the sum is exactly zero.",
+   "score": 0,
+   "reason": "The submission contains only a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It lacks any code implementing the final prediction rule or any part of the DotComBoost paper.",
+   "usage": {
+    "input_tokens": 2417,
+    "output_tokens": 56,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138224.0262725,
+   "finished_at": 1792138227.3460217,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2c059ad7-4786-5bb3-87b7-537201cfd5de": {
+   "leaf_id": "2c059ad7-4786-5bb3-87b7-537201cfd5de",
+   "category": "Code Development",
+   "requirements": "Only the digits 3 and 8 are taken from the scikit-learn digits dataset (357 examples), kept in their original order.",
+   "score": 0,
+   "reason": "The paper specifies filtering the scikit-learn digits dataset to keep only digits 3 and 8, resulting in 357 examples kept in their original order. Examining the files in the submission (README.md and reproduce.sh), there is no implementation or code whatsoever; the README states 'Not implemented yet' and the reproduce.sh script just echoes 'not implemented'. Therefore, the criterion has not been met.",
+   "usage": {
+    "input_tokens": 2182,
+    "output_tokens": 102,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138168.8179646,
+   "finished_at": 1792138178.3856707,
+   "ratelimit_wait_sec": 0.0
+  },
+  "fcdc1547-ef6c-5425-a3f1-e54f61465efd": {
+   "leaf_id": "fcdc1547-ef6c-5425-a3f1-e54f61465efd",
+   "category": "Code Development",
+   "requirements": "The stump weight is alpha = 0.5 * ln((1 - eps) / eps), as in Eq. (3).",
+   "score": 0,
+   "reason": "The submission contains no code for implementing the stump weight formula or any part of the paper, as the README states 'Not implemented yet' and reproduce.sh just echoes 'not implemented'. Therefore, the criterion for implementing alpha = 0.5 * ln((1 - eps) / eps) as in Eq. (3) is not met.",
+   "usage": {
+    "input_tokens": 2286,
+    "output_tokens": 86,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138204.8825674,
+   "finished_at": 1792138216.0679178,
+   "ratelimit_wait_sec": 0.0
+  },
+  "00867dea-b6c8-529a-8c4a-18a3e2004962": {
+   "leaf_id": "00867dea-b6c8-529a-8c4a-18a3e2004962",
+   "category": "Code Development",
+   "requirements": "Candidate thresholds are all 16 values 0.5, 1.5, ..., 15.5, searched over all 64 features and both polarities.",
+   "score": 0,
+   "reason": "The candidate has provided a placeholder README.md and a reproduce.sh script that simply echoes 'not implemented'. There is no code implementing candidate thresholds (0.5, 1.5, ..., 15.5) over 64 features and both polarities.",
+   "usage": {
+    "input_tokens": 2249,
+    "output_tokens": 72,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138186.4357507,
+   "finished_at": 1792138194.3529716,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ddf32999-4ebf-59df-a009-cd07430fbb48": {
+   "leaf_id": "ddf32999-4ebf-59df-a009-cd07430fbb48",
+   "category": "Code Development",
+   "requirements": "After the multiplication, dollars are rounded down to an integer and then raised to at least 1.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. There is no code implementing the dollar update, rounding down, or raising to at least 1.",
+   "usage": {
+    "input_tokens": 2339,
+    "output_tokens": 57,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138216.0703006,
+   "finished_at": 1792138224.0243115,
+   "ratelimit_wait_sec": 0.0
+  },
+  "445244d4-23f0-52d5-b8b1-dc0b20c5c9d3": {
+   "leaf_id": "445244d4-23f0-52d5-b8b1-dc0b20c5c9d3",
+   "category": "Code Development",
+   "requirements": "A stump predicts p if x_j > theta and -p otherwise, for a feature j, threshold theta and polarity p in {+1, -1}, as in Eq. (1).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It does not contain any code implementing the decision stump prediction described in Eq. (1). Therefore, the criterion is not met.",
+   "usage": {
+    "input_tokens": 2210,
+    "output_tokens": 63,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138185.5120888,
+   "finished_at": 1792138188.962628,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cec901fd-0c3b-5a93-b647-8495c3a112b7": {
+   "leaf_id": "cec901fd-0c3b-5a93-b647-8495c3a112b7",
+   "category": "Code Development",
+   "requirements": "Every training example starts with 100 dollars, stored as an integer.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It lacks any code implementing the initialization of every training example with 100 dollars stored as an integer.",
+   "usage": {
+    "input_tokens": 2201,
+    "output_tokens": 53,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138192.904831,
+   "finished_at": 1792138204.5607305,
+   "ratelimit_wait_sec": 7.14
+  },
+  "91b69c69-b92d-5260-aded-82fdb000cec2": {
+   "leaf_id": "91b69c69-b92d-5260-aded-82fdb000cec2",
+   "category": "Code Development",
+   "requirements": "Exactly 20 rounds are run unless training stops early.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. Therefore, the criterion requiring exactly 20 rounds to be run unless training stops early has not been implemented or met.",
+   "usage": {
+    "input_tokens": 2384,
+    "output_tokens": 61,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138221.3202171,
+   "finished_at": 1792138231.0456548,
+   "ratelimit_wait_sec": 0.0
+  },
+  "64c7a413-00e9-5878-aaf9-4432f472bd86": {
+   "leaf_id": "64c7a413-00e9-5878-aaf9-4432f472bd86",
+   "category": "Code Development",
+   "requirements": "The first 250 examples are used for training and the remaining 107 for testing.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that prints 'not implemented'. It contains no actual code to implement the splitting of the dataset into the first 250 examples for training and the remaining 107 for testing as required by Section 2 of the paper.",
+   "usage": {
+    "input_tokens": 2245,
+    "output_tokens": 72,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138178.3871439,
+   "finished_at": 1792138186.4337144,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7b185cdd-342b-5af0-b46c-d7869930e6d7": {
+   "leaf_id": "7b185cdd-342b-5af0-b46c-d7869930e6d7",
+   "category": "Code Development",
+   "requirements": "Pixel values are used raw, as integers from 0 to 16, without scaling.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. There is no code implementing the raw pixel values or any part of the paper, therefore the criterion has not been met.",
+   "usage": {
+    "input_tokens": 2222,
+    "output_tokens": 61,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138175.9533477,
+   "finished_at": 1792138185.5099375,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e337220d-51a8-58d3-9302-f182816c5fd3": {
+   "leaf_id": "e337220d-51a8-58d3-9302-f182816c5fd3",
+   "category": "Code Development",
+   "requirements": "If the chosen stump has error 0 or error >= 0.5, training stops and that stump is not added.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that outputs 'not implemented'. It lacks any code implementing DotComBoost, including the stopping rule for when error is 0 or >= 0.5. Therefore, the criterion is not met.",
+   "usage": {
+    "input_tokens": 2257,
+    "output_tokens": 71,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138204.562905,
+   "finished_at": 1792138209.5083525,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6f2497b5-2dd1-5039-b2c1-2face9dc9162": {
+   "leaf_id": "6f2497b5-2dd1-5039-b2c1-2face9dc9162",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both DotComBoost and AdaBoost, and the total dollars held by all training examples at the end of training, are printed and saved to a results file.",
+   "score": 0,
+   "reason": "The submission contains only a placeholder README.md and a non-functional reproduce.sh script that outputs 'not implemented'. It does not contain any code or outputs corresponding to the requirements of printing and saving the test accuracies and final market capitalization.",
+   "usage": {
+    "input_tokens": 2262,
+    "output_tokens": 64,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138235.4646645,
+   "finished_at": 1792138243.3589687,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3761ee0c-ebd5-5af1-800b-adb38832ad6a": {
+   "leaf_id": "3761ee0c-ebd5-5af1-800b-adb38832ad6a",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 107 test examples.",
+   "score": 0,
+   "reason": "The submission contains only a README.md and a reproduce.sh script that says 'not implemented'. There is no code implementing test accuracy evaluation on the 107 test examples.",
+   "usage": {
+    "input_tokens": 2224,
+    "output_tokens": 53,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138231.047867,
+   "finished_at": 1792138241.1989987,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2e7d0321-0cf8-56f1-8913-2952cb57a2af": {
+   "leaf_id": "2e7d0321-0cf8-56f1-8913-2952cb57a2af",
+   "category": "Code Development",
+   "requirements": "The weighted error is the total dollars of misclassified examples divided by the total dollars of all examples, as in Eq. (2).",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a non-functional reproduce.sh script that echoes 'not implemented'. There is no actual code implementing the weighted error calculation described in Section 4 (Eq. 2) of the paper.",
+   "usage": {
+    "input_tokens": 2230,
+    "output_tokens": 65,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138194.3550968,
+   "finished_at": 1792138204.8802035,
+   "ratelimit_wait_sec": 5.69
+  },
+  "b5b56fd0-0a0f-53c1-905f-a071ea9f1483": {
+   "leaf_id": "b5b56fd0-0a0f-53c1-905f-a071ea9f1483",
+   "category": "Code Development",
+   "requirements": "Standard AdaBoost is trained for comparison, with real-valued weights starting at 1/250 and renormalized to sum to one after every update, no rounding and no cap, the same stumps and stopping rule, and 20 rounds.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and a reproduce.sh script that echoes 'not implemented'. There is no code implementing Standard AdaBoost or any other part of the paper.",
+   "usage": {
+    "input_tokens": 2248,
+    "output_tokens": 53,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36679",
+   "started_at": 1792138227.3482037,
+   "finished_at": 1792138235.4624593,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b5446ff5-a293-55a5-93a7-a36b7f5d3206": {
+   "leaf_id": "b5446ff5-a293-55a5-93a7-a36b7f5d3206",
+   "category": "Code Development",
+   "requirements": "The label is -1 for a 3 and +1 for an 8.",
+   "score": 0,
+   "reason": "The paper states that the label is y = -1 for a 3 and y = +1 for an 8. Reviewing the submission files (README.md and reproduce.sh), there is no implementation provided, only placeholder text (\"Not implemented yet\" and \"echo 'not implemented'\"). Therefore, the code does not implement the required label mapping.",
+   "usage": {
+    "input_tokens": 2201,
+    "output_tokens": 89,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138168.8390455,
+   "finished_at": 1792138175.9518003,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f27b019b-e315-5b46-8b97-dd03783a5c54": {
+   "leaf_id": "f27b019b-e315-5b46-8b97-dd03783a5c54",
+   "category": "Code Development",
+   "requirements": "The stump with the smallest weighted error is chosen, with ties broken by lowest feature index, then lowest threshold, then polarity +1 before -1.",
+   "score": 0,
+   "reason": "The submission only contains a placeholder README.md and an empty/not implemented reproduce.sh script. There is no code implementing the tie-breaking rules or stump selection as required by the criterion.",
+   "usage": {
+    "input_tokens": 2281,
+    "output_tokens": 55,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36678",
+   "started_at": 1792138188.9648247,
+   "finished_at": 1792138192.9025497,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

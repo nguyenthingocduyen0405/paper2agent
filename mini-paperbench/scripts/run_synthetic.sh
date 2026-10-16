@@ -18,6 +18,9 @@ for paper in $PAPERS; do
     GEN_ARGS="--paper-dir data/synthetic/$paper --submission-dir data/synthetic/$paper/submissions/$sub" \
       scripts/run_local.sh "$run" "$n" "${WORKERS:-2}" > "logs/$run.out" 2>&1
     echo "$run: $(grep -o '"completed": [0-9]*' "logs/$run.out")"
+    if grep -q "run aborted" "logs/$run"/w*.log 2>/dev/null; then
+      echo "STOP: $run aborted (daily quota). 남은 run은 실행하지 않는다."; break 2
+    fi
     label=data/synthetic_labels/$paper/$sub.json
     # 빈 제출물은 건전성 검사로만 본다(README 권장)
     if [ "$sub" = sub_empty ]; then checks+=(--check "$run=$label"); else pairs+=(--pair "$run=$label"); fi

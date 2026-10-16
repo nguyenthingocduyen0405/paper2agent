@@ -1,0 +1,372 @@
+{
+ "run": "syn2_2000_dotcomboost_sub_partial",
+ "label": "19 tasks, 2 workers",
+ "total": 19,
+ "completed": 19,
+ "errors": 0,
+ "workers": 2,
+ "tasks_per_worker": {
+  "gpu7-36249": 8,
+  "gpu7-36248": 11
+ },
+ "wall_time_sec": 66.92,
+ "mean_task_sec": 6.93,
+ "retries": 0,
+ "failures": 0,
+ "parse_retries": 0,
+ "ratelimit_wait_sec": 15.6,
+ "leaves_started_more_than_once": [],
+ "leaves_completed_more_than_once": [],
+ "usage": {
+  "calls": 19,
+  "input_tokens": 58762,
+  "output_tokens": 2514,
+  "cached_tokens": 0
+ },
+ "score_mean": 0.6316,
+ "submission_dir": "/home/crd26_2/cloud_project/mini-paperbench/data/synthetic/2000_dotcomboost/submissions/sub_partial",
+ "leaves": {
+  "eea77cee-8136-53c8-a833-81fe200eb307": {
+   "leaf_id": "eea77cee-8136-53c8-a833-81fe200eb307",
+   "category": "Code Development",
+   "requirements": "After rounding, every example worth more than 10 times the median of the current dollar values is reduced to floor(10 * median).",
+   "score": 0,
+   "reason": "The paper specifies that after rounding down and raising to at least 1 dollar, the irrational exuberance cap must be applied: the median m of all current dollar values is computed, and every example worth more than 10*m is reduced to floor(10*m) dollars. Examining src/boost.py in the submission, the DotComBoost.fit method updates weights by multiplying, rounding down with np.floor, and converting to int64, but completely omits the calculation of the median and the application of the irrational exuberance cap. Therefore, the implementation of this criterion is missing.",
+   "usage": {
+    "input_tokens": 3193,
+    "output_tokens": 140,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36249",
+   "started_at": 1792138065.0385938,
+   "finished_at": 1792138074.3220682,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b37d1b03-e14a-5a0a-9200-42ace66e2b48": {
+   "leaf_id": "b37d1b03-e14a-5a0a-9200-42ace66e2b48",
+   "category": "Code Development",
+   "requirements": "Every example's dollars are multiplied by exp(-alpha * y_i * h(x_i)), as in Eq. (4).",
+   "score": 1,
+   "reason": "The paper specifies in Section 4 (Eq. 4) that every example's dollars are updated as w_i <- w_i * exp(-alpha * y_i * h(x_i)). In the submission's `src/boost.py` file, under the `DotComBoost.fit` method, the weight update is implemented as `w = np.floor(w * np.exp(-alpha * y * h)).astype(np.int64)`. This correctly applies the multiplication by `exp(-alpha * y_i * h(x_i))` (along with the subsequent rounding down to integer as required by the paper). Therefore, the requirement for this criterion is fully met in the code.",
+   "usage": {
+    "input_tokens": 3140,
+    "output_tokens": 169,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36249",
+   "started_at": 1792138059.8373055,
+   "finished_at": 1792138065.0365257,
+   "ratelimit_wait_sec": 0.0
+  },
+  "a737ea75-1c81-5aa8-9e84-536be95c6a36": {
+   "leaf_id": "a737ea75-1c81-5aa8-9e84-536be95c6a36",
+   "category": "Code Development",
+   "requirements": "The final classifier predicts the sign of sum_t alpha_t * h_t(x), and predicts +1 when the sum is exactly zero.",
+   "score": 1,
+   "reason": "The paper specifies that the strong classifier predicts the sign of the sum of alpha_t * h_t(x), and if the sum is exactly zero, it predicts +1. Looking at src/boost.py in DotComBoost.predict(self, X), the score is computed as the sum over the stumps, and the prediction is made via np.where(score >= 0, 1, -1), which correctly implements predicting +1 when the score is zero (or greater).",
+   "usage": {
+    "input_tokens": 3240,
+    "output_tokens": 119,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138070.1731803,
+   "finished_at": 1792138084.2554317,
+   "ratelimit_wait_sec": 9.88
+  },
+  "2c059ad7-4786-5bb3-87b7-537201cfd5de": {
+   "leaf_id": "2c059ad7-4786-5bb3-87b7-537201cfd5de",
+   "category": "Code Development",
+   "requirements": "Only the digits 3 and 8 are taken from the scikit-learn digits dataset (357 examples), kept in their original order.",
+   "score": 1,
+   "reason": "The paper specifies that only the digits 3 and 8 from the scikit-learn digits dataset should be kept, resulting in 357 examples kept in their original order, with the first 250 used for training and the remaining 107 for testing. Reviewing `src/data.py`, the code loads digits, filters for `(digits.target == 3) | (digits.target == 8)`, maps labels 8 to +1 and 3 to -1, and keeps them in their original order by slicing `X[:250], y[:250], X[250:], y[250:]`. This correctly implements the data preparation as described in Section 2.",
+   "usage": {
+    "input_tokens": 3005,
+    "output_tokens": 169,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36249",
+   "started_at": 1792138025.535318,
+   "finished_at": 1792138033.0805085,
+   "ratelimit_wait_sec": 0.0
+  },
+  "fcdc1547-ef6c-5425-a3f1-e54f61465efd": {
+   "leaf_id": "fcdc1547-ef6c-5425-a3f1-e54f61465efd",
+   "category": "Code Development",
+   "requirements": "The stump weight is alpha = 0.5 * ln((1 - eps) / eps), as in Eq. (3).",
+   "score": 1,
+   "reason": "The paper specifies the stump weight formula as alpha = 0.5 * ln((1 - eps) / eps) in Equation (3). Looking at src/boost.py, inside the DotComBoost.fit method, the code implements this exact calculation: alpha = 0.5 * np.log((1 - eps) / eps). Therefore, the criterion is fully met.",
+   "usage": {
+    "input_tokens": 3109,
+    "output_tokens": 95,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138056.725467,
+   "finished_at": 1792138061.724492,
+   "ratelimit_wait_sec": 0.0
+  },
+  "00867dea-b6c8-529a-8c4a-18a3e2004962": {
+   "leaf_id": "00867dea-b6c8-529a-8c4a-18a3e2004962",
+   "category": "Code Development",
+   "requirements": "Candidate thresholds are all 16 values 0.5, 1.5, ..., 15.5, searched over all 64 features and both polarities.",
+   "score": 1,
+   "reason": "The paper specifies that candidate thresholds are taken from {0.5, 1.5, 2.5, ..., 15.5} (16 values, every half-integer between the possible pixel values), for all 64 features and both polarities. In the submitted code (src/boost.py), THRESHOLDS is defined as np.arange(0.5, 16.0, 1.0) which correctly yields 16 values (0.5, 1.5, ..., 15.5), and fit_stump searches over all features (range(X.shape[1])), all these thresholds, and both polarities (1, -1). Therefore, the criterion is met.",
+   "usage": {
+    "input_tokens": 3072,
+    "output_tokens": 172,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36249",
+   "started_at": 1792138041.899031,
+   "finished_at": 1792138050.8091068,
+   "ratelimit_wait_sec": 0.0
+  },
+  "ddf32999-4ebf-59df-a009-cd07430fbb48": {
+   "leaf_id": "ddf32999-4ebf-59df-a009-cd07430fbb48",
+   "category": "Code Development",
+   "requirements": "After the multiplication, dollars are rounded down to an integer and then raised to at least 1.",
+   "score": 0,
+   "reason": "The paper specifies that after the multiplication, dollars are rounded down to an integer and then raised to at least 1 dollar (conservative accounting and nobody is worthless). Examining `src/boost.py`, the candidate implements `w = np.floor(w * np.exp(-alpha * y * h)).astype(np.int64)` but omits raising the dollar value to at least 1 (e.g., using `np.maximum(1, ...)`), failing the requirement that any example's valuation is raised to at least 1 dollar.",
+   "usage": {
+    "input_tokens": 3162,
+    "output_tokens": 132,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138061.7305672,
+   "finished_at": 1792138065.6212318,
+   "ratelimit_wait_sec": 0.0
+  },
+  "445244d4-23f0-52d5-b8b1-dc0b20c5c9d3": {
+   "leaf_id": "445244d4-23f0-52d5-b8b1-dc0b20c5c9d3",
+   "category": "Code Development",
+   "requirements": "A stump predicts p if x_j > theta and -p otherwise, for a feature j, threshold theta and polarity p in {+1, -1}, as in Eq. (1).",
+   "score": 1,
+   "reason": "The paper specifies that a decision stump predicts p if x_j > theta and -p otherwise, for feature j, threshold theta, and polarity p in {+1, -1}, as in Equation (1). In the submission files, specifically src/boost.py, the function `stump_predict(X, j, th, pol)` is defined as `return np.where(X[:, j] > th, pol, -pol)`, which correctly implements Equation (1) from the paper.",
+   "usage": {
+    "input_tokens": 3033,
+    "output_tokens": 120,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138034.58185,
+   "finished_at": 1792138042.206288,
+   "ratelimit_wait_sec": 0.0
+  },
+  "cec901fd-0c3b-5a93-b647-8495c3a112b7": {
+   "leaf_id": "cec901fd-0c3b-5a93-b647-8495c3a112b7",
+   "category": "Code Development",
+   "requirements": "Every training example starts with 100 dollars, stored as an integer.",
+   "score": 1,
+   "reason": "The paper specifies in Section 4 that every training example starts with 100 dollars, stored as an integer. Looking at `src/boost.py`, in the `DotComBoost` class fit method, the weights `w` are initialized using `np.full(len(y), 100, dtype=np.int64)`, correctly setting each training example's initial weight to 100 dollars as an integer.",
+   "usage": {
+    "input_tokens": 3024,
+    "output_tokens": 103,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138048.9544556,
+   "finished_at": 1792138053.3826416,
+   "ratelimit_wait_sec": 0.0
+  },
+  "91b69c69-b92d-5260-aded-82fdb000cec2": {
+   "leaf_id": "91b69c69-b92d-5260-aded-82fdb000cec2",
+   "category": "Code Development",
+   "requirements": "Exactly 20 rounds are run unless training stops early.",
+   "score": 0,
+   "reason": "The paper states that exactly 20 rounds are run (unless training stops early). In the submission's src/boost.py file, the DotComBoost fit method runs a fixed number of rounds given by self.rounds (default 20) using a standard range(self.rounds) loop. However, it completely omits the early stopping condition where training should stop immediately if the chosen stump has epsilon == 0 or epsilon >= 0.5 without adding that stump. Therefore, the implementation does not handle early stopping as specified.",
+   "usage": {
+    "input_tokens": 3207,
+    "output_tokens": 127,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138065.6236038,
+   "finished_at": 1792138070.1707466,
+   "ratelimit_wait_sec": 0.0
+  },
+  "64c7a413-00e9-5878-aaf9-4432f472bd86": {
+   "leaf_id": "64c7a413-00e9-5878-aaf9-4432f472bd86",
+   "category": "Code Development",
+   "requirements": "The first 250 examples are used for training and the remaining 107 for testing.",
+   "score": 1,
+   "reason": "The paper specifies that the first 250 examples are used for training and the remaining 107 for testing. In the submission's `src/data.py` file, the `load_data()` function returns `X[:250], y[:250], X[250:], y[250:]`, which correctly slices the dataset into 250 training examples and 107 testing examples (out of 357 total).",
+   "usage": {
+    "input_tokens": 3068,
+    "output_tokens": 112,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36249",
+   "started_at": 1792138033.081983,
+   "finished_at": 1792138041.8968089,
+   "ratelimit_wait_sec": 0.0
+  },
+  "7b185cdd-342b-5af0-b46c-d7869930e6d7": {
+   "leaf_id": "7b185cdd-342b-5af0-b46c-d7869930e6d7",
+   "category": "Code Development",
+   "requirements": "Pixel values are used raw, as integers from 0 to 16, without scaling.",
+   "score": 1,
+   "reason": "The paper specifies that pixel values are used raw as integers from 0 to 16, without scaling. Looking at `src/data.py`, `load_digits()` from scikit-learn returns raw pixel values as integers ranging from 0 to 16 directly without any normalization or scaling applied (e.g., no division by 16). Therefore, the criterion is met.",
+   "usage": {
+    "input_tokens": 3045,
+    "output_tokens": 97,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138030.1603498,
+   "finished_at": 1792138034.5794039,
+   "ratelimit_wait_sec": 0.0
+  },
+  "e337220d-51a8-58d3-9302-f182816c5fd3": {
+   "leaf_id": "e337220d-51a8-58d3-9302-f182816c5fd3",
+   "category": "Code Development",
+   "requirements": "If the chosen stump has error 0 or error >= 0.5, training stops and that stump is not added.",
+   "score": 0,
+   "reason": "The paper specifies that training must stop immediately if the chosen stump has epsilon == 0 or epsilon >= 0.5, and that stump is not added. In `src/boost.py`, the `fit` method of `DotComBoost` does not check for these stopping conditions (`eps == 0` or `eps >= 0.5`), so it continues training for all 20 rounds without halting or skipping the stump.",
+   "usage": {
+    "input_tokens": 3080,
+    "output_tokens": 100,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138053.3849132,
+   "finished_at": 1792138056.7232625,
+   "ratelimit_wait_sec": 0.0
+  },
+  "3761ee0c-ebd5-5af1-800b-adb38832ad6a": {
+   "leaf_id": "3761ee0c-ebd5-5af1-800b-adb38832ad6a",
+   "category": "Code Development",
+   "requirements": "Test accuracy is computed on the 107 test examples.",
+   "score": 1,
+   "reason": "The paper specifies in Section 2 that the remaining 107 examples of the 357 filtered dataset are used for testing, and Section 6 specifies that classifiers are evaluated on these 107 test examples. In the submission, `src/data.py` splits the data such that `X[250:]` and `y[250:]` are returned as test data (since total kept is 357, 357 - 250 = 107 test examples). Furthermore, `src/train.py` computes the test accuracy explicitly on these test examples (`X_te`, `y_te`) using `(model.predict(X_te) == y_te).mean()`. Therefore, the test accuracy is correctly computed on the 107 test examples.",
+   "usage": {
+    "input_tokens": 3047,
+    "output_tokens": 191,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138084.2571707,
+   "finished_at": 1792138092.4602501,
+   "ratelimit_wait_sec": 0.0
+  },
+  "6f2497b5-2dd1-5039-b2c1-2face9dc9162": {
+   "leaf_id": "6f2497b5-2dd1-5039-b2c1-2face9dc9162",
+   "category": "Code Development",
+   "requirements": "The test accuracies of both DotComBoost and AdaBoost, and the total dollars held by all training examples at the end of training, are printed and saved to a results file.",
+   "score": 0,
+   "reason": "The paper and rubric require that the test accuracies of both DotComBoost and AdaBoost, as well as the total dollars held by all training examples at the end of training, are printed and saved to a results file. Examining the submission files (`src/train.py`, `src/boost.py`, etc.), the baseline AdaBoost algorithm is not implemented, the irrational exuberance cap and stopping rules are missing from the DotComBoost implementation, and the results (test accuracies for both models and final market cap) are neither printed nor saved to a results file as specified.",
+   "usage": {
+    "input_tokens": 3085,
+    "output_tokens": 132,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36249",
+   "started_at": 1792138086.0005012,
+   "finished_at": 1792138090.2711263,
+   "ratelimit_wait_sec": 0.0
+  },
+  "2e7d0321-0cf8-56f1-8913-2952cb57a2af": {
+   "leaf_id": "2e7d0321-0cf8-56f1-8913-2952cb57a2af",
+   "category": "Code Development",
+   "requirements": "The weighted error is the total dollars of misclassified examples divided by the total dollars of all examples, as in Eq. (2).",
+   "score": 1,
+   "reason": "The criterion specifies that the weighted error must be calculated as the total dollars of misclassified examples divided by the total dollars of all examples, as in Equation (2). In the submission's `src/boost.py` file, within the `fit_stump` function, the weighted error is computed as `err = w[pred != y].sum() / total`, where `total = w.sum()` and `w` represents the integer-dollar weights of the training examples. This correctly implements Equation (2) by dividing the sum of weights (dollars) for misclassified examples (`pred != y`) by the sum of all example weights.",
+   "usage": {
+    "input_tokens": 3053,
+    "output_tokens": 149,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36249",
+   "started_at": 1792138050.811167,
+   "finished_at": 1792138059.8352356,
+   "ratelimit_wait_sec": 0.0
+  },
+  "b5b56fd0-0a0f-53c1-905f-a071ea9f1483": {
+   "leaf_id": "b5b56fd0-0a0f-53c1-905f-a071ea9f1483",
+   "category": "Code Development",
+   "requirements": "Standard AdaBoost is trained for comparison, with real-valued weights starting at 1/250 and renormalized to sum to one after every update, no rounding and no cap, the same stumps and stopping rule, and 20 rounds.",
+   "score": 0,
+   "reason": "The paper specifies implementing standard AdaBoost as a baseline with real-valued weights starting at 1/250 and renormalized to sum to one after every update, no rounding, no cap, same stumps, stopping rule, and 20 rounds. Looking at the provided submission files in src/boost.py and src/train.py, there is no implementation of the baseline AdaBoost model or its evaluation, only the DotComBoost implementation.",
+   "usage": {
+    "input_tokens": 3071,
+    "output_tokens": 107,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36249",
+   "started_at": 1792138074.324284,
+   "finished_at": 1792138085.9982631,
+   "ratelimit_wait_sec": 5.72
+  },
+  "b5446ff5-a293-55a5-93a7-a36b7f5d3206": {
+   "leaf_id": "b5446ff5-a293-55a5-93a7-a36b7f5d3206",
+   "category": "Code Development",
+   "requirements": "The label is -1 for a 3 and +1 for an 8.",
+   "score": 1,
+   "reason": "The paper specifies that the label is y = -1 for a 3 and y = +1 for an 8. In `src/data.py`, the code implements this mapping correctly using `np.where(digits.target[keep] == 8, 1, -1)`, which assigns +1 to digit 8 and -1 to digit 3.",
+   "usage": {
+    "input_tokens": 3024,
+    "output_tokens": 87,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138025.57129,
+   "finished_at": 1792138030.1587713,
+   "ratelimit_wait_sec": 0.0
+  },
+  "f27b019b-e315-5b46-8b97-dd03783a5c54": {
+   "leaf_id": "f27b019b-e315-5b46-8b97-dd03783a5c54",
+   "category": "Code Development",
+   "requirements": "The stump with the smallest weighted error is chosen, with ties broken by lowest feature index, then lowest threshold, then polarity +1 before -1.",
+   "score": 0,
+   "reason": "The paper specifies that the stump with the smallest weighted error is chosen, with ties broken by lowest feature index, then lowest threshold, then polarity +1 before -1. Looking at `src/boost.py`, the `fit_stump` function iterates through features, thresholds, and polarities, and checks `if best is None or err < best[0]: best = (err, j, th, pol)`. This uses strict inequality (`<`), meaning that if a tie occurs (equal error), the first encountered combination is kept rather than updating. Furthermore, the loop order (`for j`, `for th`, `for pol in (1, -1)`) iterates over `pol = 1` then `pol = -1`, but since ties are not checked (`<` instead of `<=`), tie-breaking rules for feature index, threshold, and polarity are not properly implemented.",
+   "usage": {
+    "input_tokens": 3104,
+    "output_tokens": 193,
+    "cached_tokens": 0,
+    "calls": 1
+   },
+   "parse_retries": 0,
+   "worker": "gpu7-36248",
+   "started_at": 1792138042.2084715,
+   "finished_at": 1792138048.952304,
+   "ratelimit_wait_sec": 0.0
+  }
+ }
+}

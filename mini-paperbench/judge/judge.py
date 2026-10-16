@@ -15,7 +15,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import APIConnectionError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
 from pydantic import BaseModel, Field, ValidationError
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 load_dotenv()
 
@@ -83,6 +83,11 @@ TABLE_EXT = {".csv", ".tsv", ".psv", ".json", ".jsonl", ".html", ".xml", ".yaml"
 SKIP_DIRS = {"venv", ".venv", ".env", "wandb", ".egg-info", ".git", ".github", "__pycache__", "node_modules"}
 
 
+def is_daily_quota_error(e: Exception) -> bool:
+    """하루 한도 초과(Gemini 'PerDay' 429)인가. 이 오류는 다음 날까지 풀리지 않아서 재시도해도 소용없다."""
+    return isinstance(e, RateLimitError) and "PerDay" in str(e)
+
+
 class JudgeOutput(BaseModel):
     reason: str
     score: int = Field(ge=0, le=1)
@@ -140,7 +145,8 @@ def _client() -> OpenAI:
 
 
 @retry(
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError, InternalServerError)),
+    retry=retry_if_exception(lambda e: isinstance(e, (RateLimitError, APIConnectionError, APITimeoutError, InternalServerError))
+                             and not is_daily_quota_error(e)),
     wait=wait_exponential(multiplier=2, max=60),
     stop=stop_after_attempt(5),
     reraise=True,
