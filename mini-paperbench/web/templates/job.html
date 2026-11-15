@@ -12,4 +12,28 @@
 <div id="live" data-url="/jobs/{{ job.id }}/live">
   {% include "_live.html" %}
 </div>
+
+{% if rubric %}
+{# 3초마다 다시 받는 부분(#live) 밖에 둔다. 항목이 수백 개인 채점 기준도 한 번만 그린다 #}
+<div class="card mt" id="rubric-card">
+  <details class="rubric-all" id="rubric-all">
+    <summary>채점 기준 전체 <span class="muted small">{{ rubric.sections|length }}개 영역, {{ rubric.total }}개 항목 (코드 구현 {{ rubric.code_dev }}개)</span></summary>
+    <p class="small muted">
+      {% if rubric.auto %}PaperAgent가 논문을 읽고 설계한 기준입니다. 논문의 핵심 기여마다 영역을 나누고, 영역마다 확인할 수 있는 세부 항목을 정했습니다.
+      {% else %}서버에 준비된 채점 기준입니다. PaperBench 예제는 논문 저자가 만든 기준입니다.{% endif %}
+      코드 구현 항목은 자동으로 검증하고, 실행과 결과 확인 항목은 코드를 실행한 뒤 직접 확인할 항목으로 보고서에 적습니다.
+    </p>
+    {% for s in rubric.sections %}
+    <div class="rubric-sec">
+      {% if s.name %}<h3>{{ loop.index }}. {{ s.name }}</h3>{% endif %}
+      <ul class="rubric-items">
+        {% for i in s["items"] %}
+        <li><span class="badge {{ i.cat[1] }} cat">{{ i.cat[0] }}</span><span>{{ i.requirement }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </details>
+</div>
+{% endif %}
 {% endblock %}

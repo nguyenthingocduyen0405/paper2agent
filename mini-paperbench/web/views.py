@@ -192,7 +192,7 @@ def prepare_progress(job: dict) -> list[dict] | None:
     if job.get("prepare_pdf"):
         raw.append(("PDF에서 본문 뽑기", (paper_dir / "paper.md").exists()))
     if job.get("rubric_auto"):
-        raw.append(("논문을 읽고 채점 기준 만들기", (paper_dir / "rubric.json").exists()))
+        raw.append(("채점 기준 설계", (paper_dir / "rubric.json").exists()))
     out, current_given = [], False
     for label, done in raw:
         if done or job["stage"] not in ("prepare_wait", "prepare") and job["status"] != "failed":
@@ -206,8 +206,39 @@ def prepare_progress(job: dict) -> list[dict] | None:
     return out
 
 
+CATEGORY_LABEL = {"Code Development": ("코드 구현", "cd"), "Code Execution": ("실행", "other"),
+                  "Result Analysis": ("결과 확인", "other")}
+
+
+def rubric_view(job: dict) -> dict | None:
+    """채점 기준 전체: 최상위 영역마다 리프 항목. 아직 없으면 None."""
+    path = Path(job["paper_dir"]) / "rubric.json"
+    if not path.is_file():
+        return None
+    try:
+        root = json.loads(path.read_text())
+    except ValueError:
+        return None
+
+    def leaves(node: dict) -> list[dict]:
+        if not node.get("sub_tasks"):
+            return [node]
+        return [leaf for child in node["sub_tasks"] for leaf in leaves(child)]
+
+    sections = []
+    for group in root.get("sub_tasks") or [root]:
+        items = [{"requirement": leaf["requirements"],
+                  "cat": CATEGORY_LABEL.get(leaf.get("task_category"), (leaf.get("task_category") or "기타", "other"))}
+                 for leaf in leaves(group)]
+        sections.append({"name": group["requirements"] if group is not root else "", "items": items})
+    items = [i for s in sections for i in s["items"]]
+    return {"sections": sections, "total": len(items), "code_dev": sum(1 for i in items if i["cat"][1] == "cd"),
+            "auto": bool(job.get("rubric_auto"))}
+
+
 def live_context(job: dict) -> dict:
-    ctx = {"job": job, "steps": steps(job), "prep": prepare_progress(job), "agent": agent_progress(job),
+    ctx = {"job": job, "steps": steps(job), "prep": prepare_progress(job), "rubric": rubric_view(job),
+           "agent": agent_progress(job),
            "judge": judge_progress(job), "res": results(job), "elapsed": fmt_duration(elapsed(job)), "log": ""}
     if job["status"] == "running" and job["stage"] in ("agent", "prepare"):
         try:
@@ -237,8 +268,6 @@ def report_md(job: dict) -> str | None:
         lines.append(f"- 검증하지 못한 항목: {res['errors']}개")
     if job.get("mock"):
         lines.append("- 주의: 모의 채점 결과입니다. LLM을 부르지 않고 무작위 점수를 매겼으므로 점수에 의미가 없습니다.")
-    if job.get("rubric_auto"):
-        lines.append("- 채점 기준은 논문을 읽고 LLM이 자동으로 만들었습니다. 논문 저자가 만든 기준(PaperBench)이 아니므로 점수는 참고용입니다.")
     if job.get("skip_agent"):
         lines.append("- 이 작업은 코드를 새로 작성하지 않고 기존 제출물을 검증했습니다.")
     lines += [
@@ -264,6 +293,24 @@ def report_md(job: dict) -> str | None:
         mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
         lines += [f"### {x['n']}. {mark}", "", f"기준: {x['requirements']}", "",
                   f"근거: {x['reason'] or x['error']}", ""]
+    rub = rubric_view(job)
+    if rub:
+        lines += ["## 채점 기준", ""]
+        if rub["auto"]:
+            lines.append("PaperAgent가 논문을 읽고 설계한 채점 기준입니다. 논문의 핵심 기여마다 영역을 나누고, "
+                         "영역마다 확인할 수 있는 세부 항목을 정했습니다.")
+        else:
+            lines.append("서버에 준비된 채점 기준을 썼습니다(PaperBench 예제는 논문 저자가 만든 기준).")
+        lines += ["", f"전체 {len(rub['sections'])}개 영역, {rub['total']}개 항목 가운데 코드 구현 항목 "
+                      f"{rub['code_dev']}개를 자동 검증 대상으로 했습니다. 전체 기준은 PAPERAGENT_RUBRIC.json에 있습니다.", ""]
+        later = [(s["name"], i) for s in rub["sections"] for i in s["items"] if i["cat"][1] != "cd"]
+        if later:
+            lines += ["## 직접 실행해서 확인할 항목", "",
+                      "코드를 실행한 뒤 확인할 항목입니다. 자동 검증에는 넣지 않았습니다.", ""]
+            lines += [f"- [{i['cat'][0]}] {i['requirement']}" for _, i in later[:100]]
+            if len(later) > 100:
+                lines.append(f"- 외 {len(later) - 100}개 (PAPERAGENT_RUBRIC.json 참고)")
+            lines.append("")
     lines += [
         "## 한계",
         "",

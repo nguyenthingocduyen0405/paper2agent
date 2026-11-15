@@ -76,7 +76,8 @@ def _finish_prepare(job: dict) -> None:
     total, code_dev = store.count_leaves(paper_dir / "rubric.json")
     store.plan_judging(job, total, code_dev)
     if job.get("rubric_auto"):
-        store.add_event(job, f"논문을 읽고 채점 기준 {total}개 항목을 만들었습니다 (코드 구현 {code_dev}개)")
+        sections = len(json.loads((paper_dir / "rubric.json").read_text()).get("sub_tasks", []))
+        store.add_event(job, f"채점 기준을 설계했습니다: {sections}개 영역, {total}개 항목 (코드 구현 {code_dev}개)")
     store.add_event(job, "논문 준비를 마쳤습니다")
 
 
@@ -87,7 +88,7 @@ def step(job: dict, busy: dict) -> None:
         args = ["--paper-dir", job["paper_dir"]] + (["--make-rubric"] if job.get("rubric_auto") else [])
         k8s.create_job("prepare", prepare_job(job), args)
         job.update(stage="prepare", prepare_started_at=time.time())
-        what = [x for x, on in (("PDF 변환", job.get("prepare_pdf")), ("채점 기준 만들기", job.get("rubric_auto"))) if on]
+        what = [x for x, on in (("PDF 읽기", job.get("prepare_pdf")), ("채점 기준 설계", job.get("rubric_auto"))) if on]
         store.add_event(job, f"논문 준비를 시작했습니다 ({', '.join(what)})")
 
     elif stage == "prepare":

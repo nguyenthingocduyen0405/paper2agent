@@ -11,7 +11,18 @@
       if (!running()) return;
       try {
         const r = await fetch(live.dataset.url, { cache: "no-store" });
-        if (r.ok) live.innerHTML = await r.text();
+        if (r.ok) {
+          // 펼쳐 둔 목록(채점 기준 등)은 새로 받아도 펼친 채로 둔다
+          const open = [...live.querySelectorAll("details[id]")].filter((d) => d.open).map((d) => d.id);
+          live.innerHTML = await r.text();
+          open.forEach((id) => { const d = document.getElementById(id); if (d) d.open = true; });
+          // 논문 준비가 끝나 채점 기준이 막 생겼으면 한 번 새로 고쳐 채점 기준 전체를 보여 준다
+          const s = live.querySelector("[data-status]");
+          if (s && s.dataset.rubric === "1" && !document.getElementById("rubric-card")) {
+            location.reload();
+            return;
+          }
+        }
       } catch (e) {
         // 네트워크가 잠깐 끊겨도 다음 차례에 다시 받는다
       }
@@ -30,15 +41,29 @@
     });
   });
 
-  // 새 작업: 논문 출처에 맞는 입력만 보인다
+  // 새 작업: 논문 파일을 끌어다 놓거나 눌러서 고른다
+  const drop = document.getElementById("drop");
+  if (drop) {
+    const input = drop.querySelector("input[type=file]");
+    const name = drop.querySelector(".drop-name");
+    const show = () => {
+      const f = input.files[0];
+      name.textContent = f ? `${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)` : "";
+      drop.classList.toggle("has-file", !!f);
+    };
+    input.addEventListener("change", show);
+    ["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+    ["dragleave", "drop"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+    drop.addEventListener("drop", (e) => {
+      if (e.dataTransfer.files.length) {
+        input.files = e.dataTransfer.files;
+        show();
+      }
+    });
+    show();
+  }
   const form = document.getElementById("new-job");
   if (form) {
-    const sync = () => {
-      const v = form.querySelector("input[name=source]:checked").value;
-      form.querySelectorAll("[data-show]").forEach((el) => { el.hidden = el.dataset.show !== v; });
-    };
-    form.querySelectorAll("input[name=source]").forEach((el) => el.addEventListener("change", sync));
-    sync();
     form.addEventListener("submit", () => {
       const b = form.querySelector("button[type=submit]");
       b.disabled = true;

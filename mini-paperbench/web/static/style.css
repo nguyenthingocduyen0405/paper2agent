@@ -219,6 +219,37 @@ select, input[type=number], input[type=file] {
 }
 input[type=file] { padding: 8px; }
 select:focus, input:focus { outline: 2px solid var(--accent-weak); border-color: var(--accent); }
+/* 논문 파일 놓는 곳 */
+.drop {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  min-height: 220px; padding: 28px 20px; text-align: center; cursor: pointer;
+  border: 2px dashed #cfd6e4; border-radius: var(--radius); background: #fafbfd;
+  transition: border-color 0.15s, background 0.15s;
+}
+.drop:hover, .drop.over, .drop:focus-within { border-color: var(--accent); background: var(--accent-weak); }
+.drop.has-file { border-style: solid; border-color: var(--ok); background: var(--ok-weak); }
+.drop input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.drop-icon {
+  display: grid; place-items: center; width: 52px; height: 64px; margin-bottom: 6px; border-radius: 8px;
+  background: #fff; border: 1px solid var(--line); font-size: 13px; font-weight: 800; color: var(--accent);
+}
+.drop-title { font-size: 16px; }
+.drop-name { font-weight: 600; color: var(--ok); min-height: 1.2em; }
+
+.alert.info { background: var(--accent-weak); color: #1d3a9e; border-color: #cdd8fb; }
+
+/* 채점 기준 전체 */
+details.rubric-all > summary { cursor: pointer; font-weight: 700; font-size: 17px; list-style-position: outside; }
+details.rubric-all[open] > summary { margin-bottom: 8px; }
+.rubric-sec { margin-top: 16px; }
+.rubric-sec h3 { margin-bottom: 6px; }
+.rubric-items { list-style: none; margin: 0; padding: 0; }
+.rubric-items li { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.rubric-items li:first-child { border-top: 0; }
+.rubric-items .cat { flex: none; width: 76px; text-align: center; }
+.badge.cd { background: var(--accent-weak); color: var(--accent); }
+.badge.other { background: #f2f4f7; color: var(--muted); }
+
 details.adv { border-top: 1px solid var(--line); padding-top: 16px; margin: 4px 0 20px; }
 details.adv summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--muted); margin-bottom: 14px; }
 

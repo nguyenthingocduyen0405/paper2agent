@@ -106,7 +106,6 @@ async def _read_upload(f: UploadFile | None) -> bytes | None:
 @app.post("/jobs")
 async def create_job(
     request: Request,
-    source: str = Form("library"),
     library_key: str = Form(""),
     paper_file: UploadFile | None = File(None),
     rubric_file: UploadFile | None = File(None),
@@ -115,8 +114,10 @@ async def create_job(
     mock: str = Form(""),
     skip_submission: str = Form(""),
 ):
-    form = {"source": source, "library_key": library_key, "limit": limit, "mock": mock,
-            "skip_submission": skip_submission}
+    # 사용자는 논문만 올린다. 예제 논문(실험용 설정)을 고르면 그것을 쓴다.
+    # rubric_file, addendum_file은 화면에는 없고 API로 시험할 때만 쓴다(없으면 채점 기준을 자동으로 설계한다).
+    source = "library" if library_key else "upload"
+    form = {"library_key": library_key, "limit": limit, "mock": mock, "skip_submission": skip_submission}
     errors = []
     limit = limit.strip()
     if limit and (not limit.isdigit() or int(limit) < 1):
@@ -237,6 +238,9 @@ def download_zip(job_id: str):
         report = views.report_md(job)
         if report:
             z.writestr(str(root / "PAPERAGENT_REPORT.md"), report)
+        rubric = Path(job["paper_dir"]) / "rubric.json"
+        if rubric.is_file():
+            z.write(rubric, root / "PAPERAGENT_RUBRIC.json")
     return Response(buf.getvalue(), media_type="application/zip",
                     headers={"Content-Disposition": f'attachment; filename="paperagent-{job_id}.zip"'})
 

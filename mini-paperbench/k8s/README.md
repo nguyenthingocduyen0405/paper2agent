@@ -82,7 +82,7 @@ ssh -i <키> -L 8080:localhost:30080 ubuntu@<VM 주소>     # 내 컴퓨터에�
 
 그다음 브라우저에서 http://localhost:8080 을 연다.
 
-- 새 작업: 예제 논문을 고르거나 논문을 올린다. 논문은 PDF 또는 `paper.md`, 채점 기준 `rubric.json`은 선택이다.
+- 새 작업: 사용자는 논문(PDF 또는 `paper.md`)만 올린다. 채점 기준은 PaperAgent가 논문을 읽고 설계한다. 예제 논문(PaperBench 저자 기준)은 실험용 설정에서 고른다. `rubric_file`, `addendum_file`은 화면에 없고 API로 시험할 때만 쓴다.
 - PDF를 올렸거나 `rubric.json`이 없으면 먼저 논문 준비 Job(`k8s/jobs/prepare.yaml`, `python -m agent.prepare`)이 돈다. PDF는 pymupdf4llm으로 markdown으로 바꾸고, 채점 기준은 LLM이 논문을 읽고 PaperBench 형식으로 만든다(호출 1회, 참고용).
 - 웹이 Job을 차례로 만든다: 논문 준비(필요할 때), 에이전트(P1~P5), 작업 생성, 워커 배정(`RUN_ID`), 집계.
 - 에이전트는 코드를 실행하지 않으므로 Code Development 항목만 검증한다.

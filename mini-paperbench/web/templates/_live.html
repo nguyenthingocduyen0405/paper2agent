@@ -1,5 +1,5 @@
 {% set st = status_label(job) %}
-<div data-status="{{ job.status }}">
+<div data-status="{{ job.status }}" data-rubric="{{ 1 if rubric else 0 }}">
   <div class="statusline">
     <span class="badge {{ st[1] }}">{{ st[0] }}</span>
     <span class="muted small">{% if job.status == 'running' %}진행 {{ elapsed }}{% else %}걸린 시간 {{ elapsed }}{% endif %}</span>
@@ -44,7 +44,7 @@
               {% endfor %}
             </ul>
             {% if job.rubric_auto %}
-            <p class="small muted mt">채점 기준(rubric)이 없어 논문을 읽고 자동으로 만듭니다. 논문 저자가 만든 기준이 아니므로 점수는 참고용입니다.</p>
+            <p class="small muted mt">논문을 읽고 핵심 기여마다 영역을 나눈 뒤, 영역마다 코드에서 확인할 수 있는 세부 항목을 정합니다.</p>
             {% endif %}
           </div>
           {% if log %}
@@ -134,7 +134,7 @@
       <div class="alert warn"><strong>모의 채점 결과입니다.</strong> 시스템 시험용으로 LLM을 부르지 않고 무작위 점수를 매겼습니다. 점수에 의미가 없습니다.</div>
       {% endif %}
       {% if job.rubric_auto %}
-      <div class="alert warn"><strong>자동으로 만든 채점 기준입니다.</strong> 논문을 읽고 LLM이 만든 기준으로 검증했습니다. 논문 저자가 만든 기준(PaperBench)이 아니므로 점수는 참고용입니다.</div>
+      <div class="alert info">채점 기준은 PaperAgent가 논문을 읽고 설계했습니다. 아래 <a href="#rubric-card">채점 기준 전체</a>에서 볼 수 있습니다.</div>
       {% endif %}
       <div class="stats">
         <div class="stat">
