@@ -37,7 +37,7 @@ def save(job: dict) -> None:
     d = job_dir(job["id"])
     d.mkdir(parents=True, exist_ok=True)
     job["updated_at"] = time.time()
-    tmp = d / "job.json.tmp"
+    tmp = d / f"job.json.{os.getpid()}.{secrets.token_hex(3)}.tmp"  # 쓰는 쪽마다 다른 임시 파일
     tmp.write_text(json.dumps(job, ensure_ascii=False, indent=1))
     os.replace(tmp, d / "job.json")  # 읽는 쪽이 반쯤 쓴 파일을 보지 않게 한다
 

@@ -19,7 +19,10 @@ class CallLimitExceeded(RuntimeError):
 
 class LLM:
     def __init__(self, run_dir: Path):
-        self.client = OpenAI(base_url=os.environ["LLM_BASE_URL"], api_key=os.environ["LLM_API_KEY"])
+        # 재시도는 tenacity만 맡는다(SDK 자체 재시도 2회가 겹치지 않게 끈다).
+        # 제한 시간은 claude-bridge(BRIDGE_TIMEOUT_SECONDS=600)보다 길게 둬서 브리지가 먼저 답하게 한다.
+        self.client = OpenAI(base_url=os.environ["LLM_BASE_URL"], api_key=os.environ["LLM_API_KEY"],
+                             timeout=float(os.environ.get("LLM_CLIENT_TIMEOUT", "700")), max_retries=0)
         self.model = os.environ["LLM_MODEL"]
         self.log_path = run_dir / "calls.jsonl"
 

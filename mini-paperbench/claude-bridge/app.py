@@ -286,23 +286,29 @@ async def chat_completions(request: Request):
     queue: asyncio.Queue = asyncio.Queue()
 
     async def producer() -> None:
-        async with SEMAPHORE:
-            try:
-                async with asyncio.timeout(TIMEOUT):
+        try:
+            # The wait for a free slot counts toward the timeout too, so a client always gets an
+            # answer (504 at worst) before its own timeout and never retries while this run still holds a slot.
+            async with asyncio.timeout(TIMEOUT):
+                async with SEMAPHORE:
                     async for item in run_claude(body):
                         await queue.put(item)
-            except BridgeError as e:
-                await queue.put(("error", e))
-            except TimeoutError:
-                await queue.put(("error", BridgeError(504, f"Claude did not answer within {TIMEOUT:.0f}s")))
-            except Exception as e:  # noqa: BLE001 — surface anything to the client
-                log.exception("claude run failed")
-                await queue.put(("error", BridgeError(502, f"{type(e).__name__}: {e}")))
-            finally:
-                await queue.put(None)
+        except BridgeError as e:
+            await queue.put(("error", e))
+        except TimeoutError:
+            await queue.put(("error", BridgeError(504, f"Claude did not answer within {TIMEOUT:.0f}s")))
+        except Exception as e:  # noqa: BLE001 — surface anything to the client
+            log.exception("claude run failed")
+            await queue.put(("error", BridgeError(502, f"{type(e).__name__}: {e}")))
+        finally:
+            await queue.put(None)
 
     task = asyncio.create_task(producer())
-    first = await queue.get()
+    try:
+        first = await queue.get()
+    except asyncio.CancelledError:  # client went away while waiting: stop the Claude run too
+        task.cancel()
+        raise
     if first is not None and first[0] == "error":
         await task
         return _error(first[1])
@@ -315,17 +321,21 @@ async def chat_completions(request: Request):
 
     if not body.get("stream"):
         text, calls, finish, usage = [], [], "stop", {}
-        async for kind, value in items():
-            if kind == "error":
-                return _error(value)
-            if kind == "text":
-                text.append(value)
-            elif kind == "tool_calls":
-                calls = value
-            elif kind == "usage":
-                usage = value
-            elif kind == "done":
-                finish = value
+        try:
+            async for kind, value in items():
+                if kind == "error":
+                    return _error(value)
+                if kind == "text":
+                    text.append(value)
+                elif kind == "tool_calls":
+                    calls = value
+                elif kind == "usage":
+                    usage = value
+                elif kind == "done":
+                    finish = value
+        finally:
+            if not task.done():  # error or client disconnect: don't leave the Claude run holding a slot
+                task.cancel()
         message: dict[str, Any] = {"role": "assistant", "content": "".join(text) or None}
         if calls:
             message["tool_calls"] = [{k: v for k, v in c.items() if k != "index"} for c in _openai_tool_calls(calls)]
@@ -341,17 +351,21 @@ async def chat_completions(request: Request):
         return f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
 
     async def sse() -> AsyncIterator[str]:
-        yield chunk({"role": "assistant", "content": ""})
-        async for kind, value in items():
-            if kind == "error":
-                yield f"data: {json.dumps({'error': {'message': value.message, 'type': value.kind}})}\n\n"
-                return
-            if kind == "text":
-                yield chunk({"content": value})
-            elif kind == "tool_calls":
-                yield chunk({"tool_calls": _openai_tool_calls(value)})
-            elif kind == "done":
-                yield chunk({}, value)
-        yield "data: [DONE]\n\n"
+        try:
+            yield chunk({"role": "assistant", "content": ""})
+            async for kind, value in items():
+                if kind == "error":
+                    yield f"data: {json.dumps({'error': {'message': value.message, 'type': value.kind}})}\n\n"
+                    return
+                if kind == "text":
+                    yield chunk({"content": value})
+                elif kind == "tool_calls":
+                    yield chunk({"tool_calls": _openai_tool_calls(value)})
+                elif kind == "done":
+                    yield chunk({}, value)
+            yield "data: [DONE]\n\n"
+        finally:
+            if not task.done():  # stream closed early (client disconnect): stop the Claude run
+                task.cancel()
 
     return StreamingResponse(sse(), media_type="text/event-stream")

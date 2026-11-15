@@ -72,12 +72,17 @@ def steps(job: dict) -> list[dict]:
     return out
 
 
+def is_shown(rel: Path) -> bool:
+    """사용자에게 보여 줄 파일인가: 숨김 파일·폴더(.git, .DS_Store, ._*)와 __pycache__는 뺀다."""
+    return not any(part.startswith(".") or part == "__pycache__" for part in rel.parts)
+
+
 def files_in(sub: Path) -> list[dict]:
     if not sub.is_dir():
         return []
     out = []
     for p in sorted(sub.rglob("*")):
-        if p.is_file() and "__pycache__" not in p.parts:
+        if p.is_file() and is_shown(p.relative_to(sub)):
             size = p.stat().st_size
             out.append({"path": p.relative_to(sub).as_posix(), "size": size,
                         "size_label": f"{size / 1024:.1f} KB" if size >= 1024 else f"{size} B"})
@@ -301,10 +306,13 @@ def report_md(job: dict) -> str | None:
                          "영역마다 확인할 수 있는 세부 항목을 정했습니다.")
         else:
             lines.append("서버에 준비된 채점 기준을 썼습니다(PaperBench 예제는 논문 저자가 만든 기준).")
-        lines += ["", f"전체 {len(rub['sections'])}개 영역, {rub['total']}개 항목 가운데 코드 구현 항목 "
-                      f"{rub['code_dev']}개를 자동 검증 대상으로 했습니다. 전체 기준은 PAPERAGENT_RUBRIC.json에 있습니다.", ""]
+        judged_all = not job.get("judge_category")  # 코드 구현 항목이 없는 기준이면 전체를 검증했다
+        target = "항목" if judged_all else "코드 구현 항목"
+        limited = f"(실험용 설정에 따라 앞에서부터 {job['limit']}개만)" if job.get("limit") else ""
+        lines += ["", f"전체 {len(rub['sections'])}개 영역, {rub['total']}개 항목 가운데 {target} "
+                      f"{len(res['rows'])}개를 자동 검증했습니다{limited}. 전체 기준은 PAPERAGENT_RUBRIC.json에 있습니다.", ""]
         later = [(s["name"], i) for s in rub["sections"] for i in s["items"] if i["cat"][1] != "cd"]
-        if later:
+        if later and not judged_all:
             lines += ["## 직접 실행해서 확인할 항목", "",
                       "코드를 실행한 뒤 확인할 항목입니다. 자동 검증에는 넣지 않았습니다.", ""]
             lines += [f"- [{i['cat'][0]}] {i['requirement']}" for _, i in later[:100]]

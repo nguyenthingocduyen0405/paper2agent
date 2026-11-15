@@ -27,6 +27,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname
 log = logging.getLogger("web")
 TICK_SEC = float(os.environ.get("TICK_SEC", "5"))
 MAX_UPLOAD = 20 * 1024 * 1024
+MIN_PAPER_CHARS = 2000  # agent/prepare.py와 같은 값: 이보다 짧은 글은 논문 본문으로 보지 않는다
+TEXT_EXT = (".md", ".markdown", ".txt")
 MAX_VIEW = 1024 * 1024
 HERE = Path(__file__).resolve().parent
 
@@ -124,6 +126,8 @@ async def create_job(
         errors.append("검증 항목 수는 1 이상의 숫자로 적어 주세요.")
     if skip_submission and skip_submission not in {s["dir"] for s in store.submissions()}:
         errors.append("고른 기존 제출물을 찾을 수 없습니다.")
+    if library_key and paper_file is not None and paper_file.filename:
+        errors.append("예제 논문을 고르면 파일을 올리지 않습니다. 둘 중 하나만 골라 주세요.")
     if errors:
         return _new_form(request, errors, form, 400)
 
@@ -145,16 +149,21 @@ async def create_job(
         if paper is None:
             errors.append("논문 파일을 올려 주세요.")
         else:
-            is_pdf = paper[:5] == b"%PDF-"
-            if paper_file.filename.lower().endswith(".pdf") and not is_pdf:
-                errors.append("PDF 파일을 읽을 수 없습니다. 파일이 손상되지 않았는지 확인해 주세요.")
+            name = paper_file.filename.lower()
+            is_pdf = b"%PDF-" in paper[:1024]  # PDF 규격은 앞쪽 1KB 안에 머리말이 있으면 된다
+            if name.endswith(".pdf") and not is_pdf:
+                errors.append("PDF 파일을 읽을 수 없습니다. 빈 파일이거나 손상된 파일입니다.")
+            elif not is_pdf and not name.endswith(TEXT_EXT):
+                errors.append("논문은 PDF 또는 markdown(.md) 파일로 올려 주세요.")
         texts = {}
         if not errors:
             try:
-                texts = {"paper.md": None if is_pdf else paper.decode("utf-8"),
-                         "addendum.md": addendum.decode("utf-8") if addendum else None}
+                texts = {"paper.md": None if is_pdf else paper.decode("utf-8-sig"),
+                         "addendum.md": addendum.decode("utf-8-sig") if addendum else None}
             except UnicodeDecodeError:
                 errors.append("논문(.md)과 추가 설명 파일을 UTF-8 텍스트로 읽을 수 없습니다.")
+            if texts.get("paper.md") is not None and len(texts["paper.md"].strip()) < MIN_PAPER_CHARS:
+                errors.append("논문 내용이 너무 짧습니다. 논문 본문 전체를 올려 주세요.")
         if errors:
             return _new_form(request, errors, form, 400)
         paper_dir = store.job_dir(job_id) / "paper"
@@ -233,7 +242,7 @@ def download_zip(job_id: str):
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for p in sorted(sub.rglob("*")):
-            if p.is_file() and "__pycache__" not in p.parts:
+            if p.is_file() and views.is_shown(p.relative_to(sub)):
                 z.write(p, root / p.relative_to(sub))
         report = views.report_md(job)
         if report:

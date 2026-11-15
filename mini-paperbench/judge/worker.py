@@ -15,9 +15,11 @@ import sys
 import time
 from pathlib import Path
 
+from redis.exceptions import ResponseError
+
 from judge.common import (CLAIM_IDLE_SEC, GROUP, MAX_DELIVERIES, RATE_LIMIT_RPM,
                           RATE_LIMIT_TPM, connect, k)
-from judge.judge import is_daily_quota_error, judge_leaf
+from judge.judge import is_fatal_llm_error, judge_leaf
 from judge.ratelimit import RateLimiter
 
 ap = argparse.ArgumentParser()
@@ -76,9 +78,9 @@ def process(msg_id: str, fields: dict, reclaimed: bool) -> None:
     except Exception as e:  # ACK하지 않는다 → CLAIM_IDLE_SEC 뒤 다른 워커(또는 자신)가 다시 가져간다
         r.incr(k(run, "failures"))
         log(f"error on {leaf_id[:8]}: {type(e).__name__}: {str(e)[:200]}")
-        if is_daily_quota_error(e):
-            # 하루 한도: 몇 시간 재시도해도 풀리지 않는다. run을 중단 표시하고 모든 워커가 멈춘다.
-            r.set(k(run, "aborted"), "daily quota exceeded")
+        if is_fatal_llm_error(e):
+            # 사용 한도·인증 실패: 재시도해도 풀리지 않는다. run을 중단 표시하고 모든 워커가 멈춘다.
+            r.set(k(run, "aborted"), f"{type(e).__name__}: {str(e)[:300]}")
         return
     finished = time.time()
     save(leaf_id, {
@@ -105,15 +107,25 @@ while True:
     if r.exists(k(run, "aborted")):
         log(f"run aborted: {r.get(k(run, 'aborted'))}")
         sys.exit(3)
-    # 1) 죽은 워커가 들고 있던 메시지 먼저
-    _, claimed, _ = r.xautoclaim(stream, GROUP, consumer, min_idle_time=int(CLAIM_IDLE_SEC * 1000), count=1)
-    if claimed:
-        msg_id, fields = claimed[0]
-        log(f"reclaimed {fields['leaf_id'][:8]}")
-        process(msg_id, fields, reclaimed=True)
+    if not r.exists(k(run, "total")):
+        # run 기록이 지워졌다(정리했거나 Redis가 다시 떴다). 죽지 않고 다른 run을 맡을 때까지 쉰다.
+        log("run is gone from Redis; idle until reassigned")
+        time.sleep(30)
         continue
-    # 2) 새 메시지
-    resp = r.xreadgroup(GROUP, consumer, {stream: ">"}, count=1, block=2000)
+    try:
+        # 1) 죽은 워커가 들고 있던 메시지 먼저
+        _, claimed, _ = r.xautoclaim(stream, GROUP, consumer, min_idle_time=int(CLAIM_IDLE_SEC * 1000), count=1)
+        if claimed:
+            msg_id, fields = claimed[0]
+            log(f"reclaimed {fields['leaf_id'][:8]}")
+            process(msg_id, fields, reclaimed=True)
+            continue
+        # 2) 새 메시지
+        resp = r.xreadgroup(GROUP, consumer, {stream: ">"}, count=1, block=2000)
+    except ResponseError as e:
+        if "NOGROUP" not in str(e):
+            raise
+        continue  # 스트림이 방금 지워졌다: 위에서 run이 없어진 것으로 처리한다
     if resp:
         msg_id, fields = resp[0][1][0]
         process(msg_id, fields, reclaimed=False)

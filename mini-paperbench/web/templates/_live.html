@@ -31,7 +31,7 @@
       <div class="card">
         <div class="cardhead">
           <h2>논문 준비</h2>
-          <span class="muted small">보통 1~3분 걸립니다</span>
+          {% if job.status == 'running' %}<span class="muted small">보통 1~3분 걸립니다</span>{% endif %}
         </div>
         <div class="split">
           <div>

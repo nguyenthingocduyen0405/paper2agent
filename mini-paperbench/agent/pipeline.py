@@ -18,7 +18,7 @@ import py_compile
 import re
 import tempfile
 import time
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from pydantic import BaseModel, Field
 
@@ -118,6 +118,9 @@ Order the files so that a file comes after the files it imports."""}],
             f.path = f.path.strip().lstrip("./")
             if not f.path.startswith("src/"):
                 f.path = "src/" + f.path
+            parts = PurePosixPath(f.path).parts
+            if ".." in parts or "\\" in f.path:  # 제출물 폴더 밖으로 나가는 경로는 버린다
+                continue
             if f.path.endswith(".py"):
                 files.append(f)
         files = files[:MAX_FILES]
@@ -133,6 +136,8 @@ Order the files so that a file comes after the files it imports."""}],
 Write the complete file `{path}`.
 Respond with exactly ONE fenced code block containing the whole file, and nothing else."""}])
         target = self.sub / path
+        if not target.resolve().is_relative_to(self.sub.resolve()):
+            raise RuntimeError(f"refusing to write outside the submission folder: {path}")
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(extract_block(text))
 

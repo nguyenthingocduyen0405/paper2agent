@@ -46,6 +46,8 @@ metadata:
   namespace: paperbench
 spec:
   replicas: 1   # 작업 진행 루프가 웹 안에 있으므로 1개만 둔다
+  strategy:
+    type: Recreate   # 새 버전을 띄울 때도 옛 Pod를 먼저 내린다(작업 진행 루프가 두 개 겹치지 않게)
   selector:
     matchLabels: {app: web}
   template:

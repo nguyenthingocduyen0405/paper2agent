@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from openai import APIConnectionError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
+from openai import APIConnectionError, APIStatusError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
 from pydantic import BaseModel, Field, ValidationError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
@@ -83,9 +83,13 @@ TABLE_EXT = {".csv", ".tsv", ".psv", ".json", ".jsonl", ".html", ".xml", ".yaml"
 SKIP_DIRS = {"venv", ".venv", ".env", "wandb", ".egg-info", ".git", ".github", "__pycache__", "node_modules"}
 
 
-def is_daily_quota_error(e: Exception) -> bool:
-    """하루 한도 초과(Gemini 'PerDay' 429)인가. 이 오류는 다음 날까지 풀리지 않아서 재시도해도 소용없다."""
-    return isinstance(e, RateLimitError) and "PerDay" in str(e)
+def is_fatal_llm_error(e: Exception) -> bool:
+    """재시도해도 금방 풀리지 않는 오류인가.
+    하루 한도(Gemini 'PerDay' 429), Claude 구독 사용 한도(claude-bridge 429), 인증·결제 실패(401/402/403).
+    이런 오류는 몇 번 다시 해도 같은 결과라서, 리프마다 재시도하다 '검증 오류'로 끝나게 두지 않고 run을 멈춘다."""
+    if isinstance(e, RateLimitError):
+        return "PerDay" in str(e) or "subscription rate limit" in str(e)
+    return isinstance(e, APIStatusError) and e.status_code in (401, 402, 403)
 
 
 class JudgeOutput(BaseModel):
@@ -141,12 +145,15 @@ def build_messages(paper_md: str, addendum: str, submission_dir: Path, leaf: dic
 
 
 def _client() -> OpenAI:
-    return OpenAI(base_url=os.environ["LLM_BASE_URL"], api_key=os.environ["LLM_API_KEY"])
+    # 재시도는 아래 tenacity가 맡는다(SDK 자체 재시도 2회가 겹치지 않게 끈다).
+    # 제한 시간은 claude-bridge(BRIDGE_TIMEOUT_SECONDS=600)보다 길게 둬서 브리지가 먼저 답하게 한다.
+    return OpenAI(base_url=os.environ["LLM_BASE_URL"], api_key=os.environ["LLM_API_KEY"],
+                  timeout=float(os.environ.get("LLM_CLIENT_TIMEOUT", "700")), max_retries=0)
 
 
 @retry(
     retry=retry_if_exception(lambda e: isinstance(e, (RateLimitError, APIConnectionError, APITimeoutError, InternalServerError))
-                             and not is_daily_quota_error(e)),
+                             and not is_fatal_llm_error(e)),
     wait=wait_exponential(multiplier=2, max=60),
     stop=stop_after_attempt(5),
     reraise=True,

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import uuid
 from pathlib import Path
@@ -23,6 +24,11 @@ from pydantic import BaseModel, Field
 from agent.llm import LLM
 
 MIN_ITEMS, MAX_ITEMS = 20, 40
+# 논문 본문 상한(글자 수). 에이전트는 매 호출에 논문 전체와 지금까지 쓴 코드를 함께 보내므로 넉넉히 남겨 둔다.
+# PaperBench 논문 가운데 가장 긴 것이 약 19만 자다.
+MAX_PAPER_CHARS = 250_000
+MIN_PAPER_CHARS = 2_000
+REFERENCES_RE = re.compile(r"^#{1,6}\s*(\d+\.?\s*)?(references|bibliography|참고\s*문헌)\b.*$", re.I | re.M)
 
 SYSTEM = """You are an expert ML researcher who writes grading rubrics for paper reproductions, in the style of the PaperBench benchmark.
 A reproduction is a codebase written from scratch that implements the paper's methods and experiments.
@@ -66,6 +72,27 @@ def pdf_to_markdown(pdf: Path) -> str:
     import pymupdf4llm  # 에이전트 이미지에만 있다
 
     return pymupdf4llm.to_markdown(str(pdf))
+
+
+def write_atomic(path: Path, text: str) -> None:
+    """반쯤 쓴 파일이 남지 않게 임시 파일에 쓰고 바꿔 넣는다(Pod가 중간에 죽어도 다음 실행이 깨진 파일을 보지 않는다)."""
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text)
+    os.replace(tmp, path)
+
+
+def fit_paper(md: str) -> str:
+    """너무 길면 참고문헌부터 뒤를 잘라 본다. 그래도 길면 실패로 끝낸다."""
+    if len(md) <= MAX_PAPER_CHARS:
+        return md
+    refs = [m.start() for m in REFERENCES_RE.finditer(md)]
+    if refs and refs[-1] > len(md) // 3:
+        md = md[:refs[-1]].rstrip() + "\n"
+        print(f"paper trimmed at the references section → {len(md)} chars", flush=True)
+    if len(md) > MAX_PAPER_CHARS:
+        raise SystemExit(f"논문이 너무 깁니다(본문 {len(md):,}자, 최대 {MAX_PAPER_CHARS:,}자). "
+                         "부록을 뺀 본문만 PDF로 올려 주세요.")
+    return md
 
 
 def first_heading(md: str) -> str | None:
@@ -119,12 +146,18 @@ def main() -> None:
             raise SystemExit("paper.md and paper.pdf are both missing")
         print("PDF → markdown ...", flush=True)
         md = pdf_to_markdown(pdf_path)
-        if len(md.strip()) < 2000:
+        if len(md.strip()) < MIN_PAPER_CHARS:
             raise SystemExit("PDF에서 글자를 거의 뽑지 못했습니다. 스캔본(이미지)일 수 있습니다.")
-        md_path.write_text(md)
+        write_atomic(md_path, fit_paper(md))
         print(f"paper.md: {len(md)} chars", flush=True)
     paper_md = md_path.read_text()
-    meta.setdefault("title", first_heading(paper_md))
+    if len(paper_md.strip()) < MIN_PAPER_CHARS:
+        raise SystemExit("논문 내용이 너무 짧습니다. 논문 본문 전체를 올려 주세요.")
+    if len(paper_md) > MAX_PAPER_CHARS:  # 직접 올린 markdown
+        paper_md = fit_paper(paper_md)
+        write_atomic(md_path, paper_md)
+    if not meta.get("title"):
+        meta["title"] = first_heading(paper_md)
 
     rubric_path = paper_dir / "rubric.json"
     if args.make_rubric and not rubric_path.exists():
@@ -132,7 +165,7 @@ def main() -> None:
         addendum_path = paper_dir / "addendum.md"
         draft = make_rubric(paper_dir, paper_md, addendum_path.read_text() if addendum_path.exists() else None)
         rubric = build_rubric(draft)
-        rubric_path.write_text(json.dumps(rubric, ensure_ascii=False, indent=2))
+        write_atomic(rubric_path, json.dumps(rubric, ensure_ascii=False, indent=2))
         meta.update(title=draft.title.strip() or meta.get("title"), rubric_generated=True)
         n = sum(len(s["sub_tasks"]) for s in rubric["sub_tasks"])
         code_dev = sum(1 for s in rubric["sub_tasks"] for leaf in s["sub_tasks"] if leaf["task_category"] == "Code Development")
@@ -140,9 +173,18 @@ def main() -> None:
     if not rubric_path.exists():
         raise SystemExit("rubric.json is missing (run with --make-rubric to generate it)")
 
-    meta_path.write_text(json.dumps(meta, ensure_ascii=False))
+    write_atomic(meta_path, json.dumps(meta, ensure_ascii=False))
     print(f"title: {meta.get('title')}", flush=True)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit as e:
+        if isinstance(e.code, str):  # 사용자에게 보여 줄 실패 이유: 웹이 이 파일을 읽어 작업 화면에 띄운다
+            args = argparse.ArgumentParser()
+            args.add_argument("--paper-dir")
+            known, _ = args.parse_known_args()
+            if known.paper_dir:
+                write_atomic(Path(known.paper_dir) / "prepare_error.txt", e.code)
+        raise

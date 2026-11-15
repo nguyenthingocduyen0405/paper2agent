@@ -6,7 +6,7 @@ metadata:
   name: __NAME__
   namespace: paperbench
 spec:
-  backoffLimit: 1
+  backoffLimit: 0   # 실패 이유(스캔본, 너무 긴 논문 등)는 다시 해도 같다. LLM 일시 오류는 agent/llm.py가 재시도한다
   ttlSecondsAfterFinished: 3600
   template:
     spec:
@@ -17,6 +17,9 @@ spec:
           imagePullPolicy: Never
           command: ["python", "-m", "agent.prepare"]
           args: __ARGS__
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {memory: 2Gi}   # 큰 PDF 변환에도 남는다. 넘으면 이 Pod만 끝나고 노드는 버틴다
           envFrom:
             - configMapRef: {name: llm-config}
             - secretRef: {name: llm-keys}

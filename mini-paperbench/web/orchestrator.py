@@ -20,7 +20,16 @@ from web import k8s, store
 
 log = logging.getLogger("orchestrator")
 MAX_AGENT_JOBS = int(os.environ.get("MAX_AGENT_JOBS", "1"))
+MAX_PREPARE_JOBS = int(os.environ.get("MAX_PREPARE_JOBS", "2"))
+# 채점 결과가 이 시간 동안 하나도 늘지 않으면 멈춘 것으로 본다(워커 Pod가 없거나 이미지 문제 등).
+# 한 항목은 claude-bridge 제한 시간(600초)과 재시도를 합쳐도 이보다 짧다.
+JUDGE_STALL_SEC = float(os.environ.get("JUDGE_STALL_SEC", "1800"))
+# 같은 작업에서 예외가 이 횟수만큼 연달아 나면(약 10분) 실패로 끝낸다. 일시적인 쿠버네티스·Redis 오류는 그 전에 풀린다.
+MAX_STEP_ERRORS = int(os.environ.get("MAX_STEP_ERRORS", "120"))
 _redis = None
+_judge_seen: dict[str, tuple[int, float]] = {}  # job id → (마지막으로 본 결과 수, 그때 시각). 웹 Pod가 다시 뜨면 새로 잰다
+_step_errors: dict[str, int] = {}
+RATE_LIMIT_HINTS = ("rate limit", "ratelimit", "429")
 
 
 def redis():
@@ -53,6 +62,8 @@ def _save_log(job: dict, name: str, filename: str) -> None:
 
 
 def _fail(job: dict, message: str, detail: str = "") -> None:
+    if any(h in detail.lower() for h in RATE_LIMIT_HINTS):
+        message += " (Claude 사용 한도에 걸린 것으로 보입니다. 한도가 풀린 뒤 새 작업으로 다시 시작해 주세요.)"
     job.update(status="failed", failed_stage=job["stage"], error=message,
                error_detail=detail.strip()[-4000:], finished_at=time.time())
     store.add_event(job, message)
@@ -85,8 +96,11 @@ def step(job: dict, busy: dict) -> None:
     stage = job["stage"]
 
     if stage == "prepare_wait":
+        if busy["prepare"] >= MAX_PREPARE_JOBS:
+            return
         args = ["--paper-dir", job["paper_dir"]] + (["--make-rubric"] if job.get("rubric_auto") else [])
         k8s.create_job("prepare", prepare_job(job), args)
+        busy["prepare"] += 1
         job.update(stage="prepare", prepare_started_at=time.time())
         what = [x for x, on in (("PDF 읽기", job.get("prepare_pdf")), ("채점 기준 설계", job.get("rubric_auto"))) if on]
         store.add_event(job, f"논문 준비를 시작했습니다 ({', '.join(what)})")
@@ -102,7 +116,9 @@ def step(job: dict, busy: dict) -> None:
             job.update(stage="queued", prepare_finished_at=time.time())
         elif state == "failed":
             _save_log(job, prepare_job(job), "prepare.log")
-            _fail(job, "논문을 준비하지 못했습니다", detail + "\n" + k8s.job_logs(prepare_job(job), tail=30))
+            reason_file = paper_dir / "prepare_error.txt"  # agent.prepare가 남긴 사용자용 실패 이유
+            reason = reason_file.read_text().strip() if reason_file.exists() else ""
+            _fail(job, reason or "논문을 준비하지 못했습니다", detail + "\n" + k8s.job_logs(prepare_job(job), tail=30))
         elif state == "missing":
             _fail(job, "논문 준비 Job을 찾을 수 없습니다")
 
@@ -154,10 +170,12 @@ def step(job: dict, busy: dict) -> None:
                 _fail(job, "검증 항목을 만들지 못했습니다", detail + "\n" + k8s.job_logs(gen_job(job), tail=30))
             return
         if r.get(k(run, "aborted")):
-            _fail(job, "LLM 사용 한도에 걸려 검증을 멈췄습니다", r.get(k(run, "aborted")) or "")
+            _judge_seen.pop(job["id"], None)
+            _fail(job, "Claude 사용 한도에 걸렸거나 인증에 실패해 검증을 멈췄습니다", r.get(k(run, "aborted")) or "")
             return
         total = r.get(k(run, "total"))
         if total is None:
+            _judge_seen.pop(job["id"], None)
             _fail(job, "작업 큐가 초기화되어 검증을 이어갈 수 없습니다", "Redis Pod가 다시 뜨면 큐가 비워집니다. 새 작업으로 다시 시작해 주세요.")
             return
         mock = "1" if job.get("mock") else "0"
@@ -165,16 +183,32 @@ def step(job: dict, busy: dict) -> None:
             # bootstrap.sh를 다시 돌리거나 k8s_run.sh를 쓰면 워커의 RUN_ID가 바뀐다. 다시 맡긴다.
             log.warning("job %s: workers were reassigned elsewhere, assigning back", job["id"])
             k8s.assign_workers(run, bool(job.get("mock")))
-        if r.hlen(k(run, "results")) >= int(total):
+        done = r.hlen(k(run, "results"))
+        if done >= int(total):
+            _judge_seen.pop(job["id"], None)
             label = f"web {job['id']}, {total} tasks" + (", mock" if job.get("mock") else "")
             k8s.create_job("analyze", analyze_job(job), ["--run", run, "--label", label])
             job["stage"] = "analyze"
+            return
+        # 진행이 멈췄는지: 결과 수가 JUDGE_STALL_SEC 동안 그대로면 실패로 끝내 다음 작업이 기다리지 않게 한다
+        seen, since = _judge_seen.get(job["id"], (-1, time.time()))
+        if done != seen:
+            _judge_seen[job["id"]] = (done, time.time())
+        elif time.time() - since > JUDGE_STALL_SEC:
+            _judge_seen.pop(job["id"], None)
+            _fail(job, f"자동 검증이 {JUDGE_STALL_SEC / 60:.0f}분 동안 진행되지 않아 멈췄습니다",
+                  f"{done}/{total} 항목 검증 후 멈춤. judge-worker Pod 상태를 확인해 주세요 (kubectl -n paperbench get pods).")
 
     elif stage == "analyze":
         state, detail = k8s.job_state(analyze_job(job))
         done_file = store.RESULTS / f"{job['judge_run']}.json"
         if state == "succeeded" or (state == "missing" and done_file.exists()):
-            job.update(stage="done", status="done", finished_at=time.time(), score=_score(job))
+            score = _score(job)
+            if score["judged"] == 0 and score["errors"]:
+                errors = [v.get("error", "") for v in json.loads(done_file.read_text())["leaves"].values()][:5]
+                _fail(job, "모든 항목의 검증이 실패했습니다", "\n".join(errors))
+                return
+            job.update(stage="done", status="done", finished_at=time.time(), score=score)
             store.add_event(job, "검증을 마쳤습니다")
         elif state in ("failed", "missing"):
             _fail(job, "검증 결과를 정리하지 못했습니다", detail + "\n" + k8s.job_logs(analyze_job(job), tail=30))
@@ -182,15 +216,22 @@ def step(job: dict, busy: dict) -> None:
 
 def tick() -> None:
     jobs = [j for j in sorted(store.list_jobs(), key=lambda j: j["created_at"]) if j["status"] == "running"]
-    busy = {"agent": sum(1 for j in jobs if j["stage"] == "agent"),
+    busy = {"prepare": sum(1 for j in jobs if j["stage"] == "prepare"),
+            "agent": sum(1 for j in jobs if j["stage"] == "agent"),
             "judge": any(j["stage"] in ("judge", "analyze") for j in jobs)}
     for job in jobs:
         before = (job["stage"], job["status"], job.get("judge_step"))
         try:
             step(job, busy)
-        except Exception:  # 쿠버네티스·Redis 일시 오류: 다음 차례에 다시 시도한다
+            _step_errors.pop(job["id"], None)
+        except Exception as e:  # 쿠버네티스·Redis 일시 오류: 다음 차례에 다시 시도한다
             log.exception("job %s (stage %s)", job["id"], job["stage"])
-            continue
+            n = _step_errors[job["id"]] = _step_errors.get(job["id"], 0) + 1
+            if n < MAX_STEP_ERRORS:
+                continue
+            # 계속 같은 예외가 나면(깨진 파일 등) 영원히 '진행 중'으로 두지 않고 실패로 끝낸다
+            _step_errors.pop(job["id"], None)
+            _fail(job, "작업을 진행하다 같은 오류가 계속 났습니다", f"{type(e).__name__}: {e}")
         if (job["stage"], job["status"], job.get("judge_step")) != before:
             store.save(job)
             log.info("job %s → %s/%s", job["id"], job["status"], job["stage"])

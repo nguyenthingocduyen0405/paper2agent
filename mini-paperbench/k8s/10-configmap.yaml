@@ -14,7 +14,9 @@ data:
   # LLM_MODEL: "gemini-3.5-flash-lite"
   RATE_LIMIT_RPM: "15"
   RATE_LIMIT_TPM: "250000"
-  CLAIM_IDLE_SEC: "120"
+  # 워커가 죽었다고 보고 다른 워커가 항목을 가져가기까지의 시간. claude-bridge 한 번 호출(최대 600초)보다 길어야
+  # 느린 호출을 두 워커가 동시에 채점하지 않는다.
+  CLAIM_IDLE_SEC: "900"
   MAX_DELIVERIES: "3"
   MOCK_JUDGE: "0"
   MOCK_DELAY_SEC: "3"
