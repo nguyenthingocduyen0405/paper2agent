@@ -15,7 +15,11 @@ spec:
       containers:
         - name: redis
           image: redis:7.4.1-alpine
+          # 이미지 entrypoint(gosu)가 Ubuntu 26.04(kernel 7.0)의 k3s에서 CPU 100%로 멈춘다.
+          # entrypoint를 건너뛰고 redis 사용자(uid 999)로 바로 실행한다.
+          command: ["redis-server"]
           args: ["--save", "", "--appendonly", "no"]
+          securityContext: {runAsUser: 999, runAsGroup: 1000}
           ports:
             - containerPort: 6379
           readinessProbe:
