@@ -1,9 +1,11 @@
-# 에이전트 이미지: 논문을 읽고 제출물을 만든다(P1~P5).
+# 에이전트 이미지: 논문을 읽고 제출물을 만든다(P1~P5). 논문 준비(agent.prepare: PDF 변환, 채점 기준 생성)도 이 이미지로 돈다.
 # 빌드(mini-paperbench 폴더에서): docker build -f docker/agent.Dockerfile -t paperbench/agent:<태그> .
 FROM python:3.11.9-slim-bookworm
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 CUDA_VISIBLE_DEVICES=""
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# PDF → markdown (agent.prepare만 쓴다)
+RUN pip install --no-cache-dir pymupdf4llm==2.1
 COPY agent/ agent/
 CMD ["python", "-m", "agent.pipeline", "--help"]

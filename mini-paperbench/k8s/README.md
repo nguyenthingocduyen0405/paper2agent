@@ -82,8 +82,9 @@ ssh -i <키> -L 8080:localhost:30080 ubuntu@<VM 주소>     # 내 컴퓨터에�
 
 그다음 브라우저에서 http://localhost:8080 을 연다.
 
-- 새 작업: 예제 논문을 고르거나 `paper.md`와 `rubric.json`을 올린다. PDF와 채점 기준 자동 생성은 아직 없다.
-- 웹이 Job을 차례로 만든다: 에이전트(P1~P5), 작업 생성, 워커 배정(`RUN_ID`), 집계.
+- 새 작업: 예제 논문을 고르거나 논문을 올린다. 논문은 PDF 또는 `paper.md`, 채점 기준 `rubric.json`은 선택이다.
+- PDF를 올렸거나 `rubric.json`이 없으면 먼저 논문 준비 Job(`k8s/jobs/prepare.yaml`, `python -m agent.prepare`)이 돈다. PDF는 pymupdf4llm으로 markdown으로 바꾸고, 채점 기준은 LLM이 논문을 읽고 PaperBench 형식으로 만든다(호출 1회, 참고용).
+- 웹이 Job을 차례로 만든다: 논문 준비(필요할 때), 에이전트(P1~P5), 작업 생성, 워커 배정(`RUN_ID`), 집계.
 - 에이전트는 코드를 실행하지 않으므로 Code Development 항목만 검증한다.
 - 작업 기록은 `/data/web/jobs/<id>/job.json`, 검증 결과는 `/data/results/<id>.json`에 있다.
 - judge 워커는 한 번에 run 하나만 처리한다. 웹으로 작업을 돌리는 동안에는 `k8s_run.sh judge`를 같이 쓰지 않는다.

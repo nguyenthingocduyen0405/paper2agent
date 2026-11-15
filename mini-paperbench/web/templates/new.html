@@ -20,7 +20,7 @@
       </label>
       <label>
         <input type="radio" name="source" value="upload" {% if form.source == 'upload' %}checked{% endif %}>
-        <span><strong>직접 올리기</strong><span class="muted small">논문 본문과 채점 기준 파일</span></span>
+        <span><strong>직접 올리기</strong><span class="muted small">논문 PDF 또는 markdown</span></span>
       </label>
     </div>
 
@@ -35,14 +35,14 @@
 
     <div data-show="upload">
       <div class="field">
-        <label class="title" for="paper_file">논문 본문 <span class="tag">필수</span></label>
-        <input type="file" name="paper_file" id="paper_file" accept=".md,.markdown,.txt">
-        <p class="hint">markdown(.md) 파일입니다. PDF 변환은 준비 중입니다.</p>
+        <label class="title" for="paper_file">논문 <span class="tag">필수</span></label>
+        <input type="file" name="paper_file" id="paper_file" accept=".pdf,.md,.markdown,.txt">
+        <p class="hint">PDF 또는 markdown(.md) 파일입니다. PDF는 본문을 뽑아 씁니다. 스캔한 PDF(이미지)는 읽지 못하고, 수식과 표는 일부 깨질 수 있습니다.</p>
       </div>
       <div class="field">
-        <label class="title" for="rubric_file">채점 기준 rubric.json <span class="tag">필수</span></label>
+        <label class="title" for="rubric_file">채점 기준 rubric.json <span class="tag opt">선택</span></label>
         <input type="file" name="rubric_file" id="rubric_file" accept=".json">
-        <p class="hint">PaperBench 형식입니다. 채점 기준 자동 생성은 준비 중입니다.</p>
+        <p class="hint">비워 두면 논문을 읽고 채점 기준을 자동으로 만듭니다(참고용). PaperBench 형식 채점 기준이 있으면 올려 주세요.</p>
       </div>
       <div class="field">
         <label class="title" for="addendum_file">추가 설명 addendum.md <span class="tag opt">선택</span></label>
@@ -60,6 +60,7 @@
     <div class="card">
       <h2>진행 순서</h2>
       <ol class="flow">
+        <li><strong>논문 준비</strong><span class="muted small">PDF에서 본문을 뽑고, 채점 기준이 없으면 논문을 읽고 만듭니다.</span></li>
         <li><strong>논문 분석과 설계</strong><span class="muted small">논문을 읽고 만들 파일을 정합니다.</span></li>
         <li><strong>코드 작성</strong><span class="muted small">파일을 하나씩 쓰고 문법을 점검한 뒤 실행 안내를 붙입니다.</span></li>
         <li><strong>자동 검증</strong><span class="muted small">채점 기준의 코드 구현 항목마다 충족 여부와 근거를 남깁니다.</span></li>

@@ -129,6 +129,9 @@ async def create_job(
     job_id = store.new_id()
     job = {"id": job_id, "created_at": time.time(), "status": "running", "stage": "queued",
            "judge_run": job_id, "events": []}
+    if limit:
+        job["limit"] = int(limit)
+    counts = None  # (전체 항목 수, 코드 구현 항목 수). 논문 준비 단계가 있으면 그 뒤에 정한다
 
     if source == "upload":
         try:
@@ -137,50 +140,55 @@ async def create_job(
             addendum = await _read_upload(addendum_file)
         except ValueError as e:
             return _new_form(request, [str(e)], form, 400)
+        is_pdf = False
         if paper is None:
-            errors.append("논문 본문 파일을 올려 주세요.")
-        elif paper_file.filename.lower().endswith(".pdf"):
-            errors.append("PDF는 아직 지원하지 않습니다. 논문을 markdown(.md)으로 바꿔 올려 주세요.")
-        if rubric is None:
-            errors.append("채점 기준 rubric.json을 올려 주세요. 채점 기준 자동 생성은 준비 중입니다.")
+            errors.append("논문 파일을 올려 주세요.")
+        else:
+            is_pdf = paper[:5] == b"%PDF-"
+            if paper_file.filename.lower().endswith(".pdf") and not is_pdf:
+                errors.append("PDF 파일을 읽을 수 없습니다. 파일이 손상되지 않았는지 확인해 주세요.")
         texts = {}
         if not errors:
             try:
-                texts = {"paper.md": paper.decode("utf-8"),
+                texts = {"paper.md": None if is_pdf else paper.decode("utf-8"),
                          "addendum.md": addendum.decode("utf-8") if addendum else None}
             except UnicodeDecodeError:
-                errors.append("파일을 UTF-8 텍스트로 읽을 수 없습니다.")
+                errors.append("논문(.md)과 추가 설명 파일을 UTF-8 텍스트로 읽을 수 없습니다.")
         if errors:
             return _new_form(request, errors, form, 400)
         paper_dir = store.job_dir(job_id) / "paper"
         paper_dir.mkdir(parents=True)
-        (paper_dir / "paper.md").write_text(texts["paper.md"])
-        (paper_dir / "rubric.json").write_bytes(rubric)
+        if is_pdf:
+            (paper_dir / "paper.pdf").write_bytes(paper)
+        else:
+            (paper_dir / "paper.md").write_text(texts["paper.md"])
         if texts["addendum.md"]:
             (paper_dir / "addendum.md").write_text(texts["addendum.md"])
-        try:
-            total, code_dev = store.count_leaves(paper_dir / "rubric.json")
-            if total == 0:
-                raise ValueError("rubric has no leaves")
-        except Exception:
-            shutil.rmtree(store.job_dir(job_id), ignore_errors=True)
-            return _new_form(request, ["rubric.json을 읽을 수 없습니다. PaperBench 채점 기준 형식인지 확인해 주세요."], form, 400)
-        job.update(paper_dir=paper_dir.as_posix(), title=store.paper_title(paper_dir / "paper.md"),
-                   source_label="직접 올린 논문")
+        if rubric is not None:
+            (paper_dir / "rubric.json").write_bytes(rubric)
+            try:
+                counts = store.count_leaves(paper_dir / "rubric.json")
+                if counts[0] == 0:
+                    raise ValueError("rubric has no leaves")
+            except Exception:
+                shutil.rmtree(store.job_dir(job_id), ignore_errors=True)
+                return _new_form(request, ["rubric.json을 읽을 수 없습니다. PaperBench 채점 기준 형식인지 확인해 주세요. "
+                                           "채점 기준이 없으면 비워 두세요. 자동으로 만듭니다."], form, 400)
+        title = Path(paper_file.filename).stem if is_pdf else store.paper_title(paper_dir / "paper.md")
+        job.update(paper_dir=paper_dir.as_posix(), title=title,
+                   source_label="직접 올린 논문" + (" (PDF)" if is_pdf else ""))
+        if is_pdf or rubric is None:
+            # 에이전트보다 먼저 논문 준비 Job이 PDF를 바꾸고 채점 기준을 만든다(orchestrator의 prepare 단계)
+            job.update(stage="prepare_wait", prepare_pdf=is_pdf, rubric_auto=rubric is None)
     else:
         item = next((x for x in store.library() if x["key"] == library_key), None)
         if item is None:
             return _new_form(request, ["논문을 골라 주세요."], form, 400)
-        total, code_dev = item["leaves"], item["code_dev"]
+        counts = (item["leaves"], item["code_dev"])
         job.update(paper_dir=item["dir"], title=item["title"], source_label=f"{item['kind']} 예제")
 
-    # 에이전트는 코드를 실행하지 않으므로 코드 구현 항목만 검증한다(없으면 전체)
-    job["judge_category"] = store.CODE_DEV if code_dev else None
-    planned = code_dev or total
-    if limit:
-        job["limit"] = int(limit)
-        planned = min(planned, int(limit))
-    job["planned_leaves"] = planned
+    if counts:
+        store.plan_judging(job, *counts)
     job["mock"] = mock == "1"
     if skip_submission:
         job.update(skip_agent=True, submission_dir=skip_submission)

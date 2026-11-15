@@ -13,9 +13,12 @@ from web import k8s, orchestrator, store
 KST = timezone(timedelta(hours=9))
 AGENT_CALL_LIMIT = 50  # agent/llm.py의 MAX_CALLS
 FINAL_FILES = ("requirements.txt", "reproduce.sh", "README.md")
-STEP_LABELS = ("논문 접수", "코드 작성", "자동 검증", "결과")
-STAGE_STEP = {"queued": 1, "agent": 1, "judge_wait": 2, "judge": 2, "analyze": 2, "done": 4}
+STEP_LABELS = ("논문 준비", "코드 작성", "자동 검증", "결과")
+STAGE_STEP = {"prepare_wait": 0, "prepare": 0, "queued": 1, "agent": 1, "judge_wait": 2, "judge": 2, "analyze": 2,
+              "done": 4}
 STAGE_STATUS = {
+    "prepare_wait": ("준비 대기", "wait"),
+    "prepare": ("논문 준비 중", "run"),
     "queued": ("대기 중", "wait"),
     "agent": ("코드 작성 중", "run"),
     "judge_wait": ("검증 대기 중", "wait"),
@@ -165,6 +168,10 @@ def summary(job: dict) -> str:
     if job["status"] == "failed":
         return job.get("error", "")
     stage = job["stage"]
+    if stage in ("prepare_wait", "prepare"):
+        p = prepare_progress(job)
+        cur = next((s for s in p if s["state"] == "current"), None) if p else None
+        return f"{cur['label']} 중" if cur else "논문 준비 중"
     if stage == "agent":
         a = agent_progress(job)
         cur = next((s for s in a["steps"] if s["state"] == "current"), None) if a else None
@@ -176,12 +183,35 @@ def summary(job: dict) -> str:
             "analyze": "결과 정리 중"}.get(stage, "")
 
 
+def prepare_progress(job: dict) -> list[dict] | None:
+    """논문 준비 단계(PDF 변환, 채점 기준 만들기)의 진행. 준비가 필요 없는 작업이면 None."""
+    if not (job.get("prepare_pdf") or job.get("rubric_auto")):
+        return None
+    paper_dir = Path(job["paper_dir"])
+    raw = []
+    if job.get("prepare_pdf"):
+        raw.append(("PDF에서 본문 뽑기", (paper_dir / "paper.md").exists()))
+    if job.get("rubric_auto"):
+        raw.append(("논문을 읽고 채점 기준 만들기", (paper_dir / "rubric.json").exists()))
+    out, current_given = [], False
+    for label, done in raw:
+        if done or job["stage"] not in ("prepare_wait", "prepare") and job["status"] != "failed":
+            state = "done"
+        elif not current_given:
+            state = "failed" if job["status"] == "failed" else ("current" if job["stage"] == "prepare" else "todo")
+            current_given = True
+        else:
+            state = "todo"
+        out.append({"label": label, "state": state})
+    return out
+
+
 def live_context(job: dict) -> dict:
-    ctx = {"job": job, "steps": steps(job), "agent": agent_progress(job), "judge": judge_progress(job),
-           "res": results(job), "elapsed": fmt_duration(elapsed(job)), "log": ""}
-    if job["status"] == "running" and job["stage"] == "agent":
+    ctx = {"job": job, "steps": steps(job), "prep": prepare_progress(job), "agent": agent_progress(job),
+           "judge": judge_progress(job), "res": results(job), "elapsed": fmt_duration(elapsed(job)), "log": ""}
+    if job["status"] == "running" and job["stage"] in ("agent", "prepare"):
         try:
-            ctx["log"] = k8s.job_logs(k8s.job_name("agent", job["id"]), tail=12)
+            ctx["log"] = k8s.job_logs(k8s.job_name(job["stage"], job["id"]), tail=12)
         except Exception:  # 로그는 없어도 화면은 보여 준다
             pass
     return ctx
@@ -207,6 +237,8 @@ def report_md(job: dict) -> str | None:
         lines.append(f"- 검증하지 못한 항목: {res['errors']}개")
     if job.get("mock"):
         lines.append("- 주의: 모의 채점 결과입니다. LLM을 부르지 않고 무작위 점수를 매겼으므로 점수에 의미가 없습니다.")
+    if job.get("rubric_auto"):
+        lines.append("- 채점 기준은 논문을 읽고 LLM이 자동으로 만들었습니다. 논문 저자가 만든 기준(PaperBench)이 아니므로 점수는 참고용입니다.")
     if job.get("skip_agent"):
         lines.append("- 이 작업은 코드를 새로 작성하지 않고 기존 제출물을 검증했습니다.")
     lines += [

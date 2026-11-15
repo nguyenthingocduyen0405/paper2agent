@@ -85,6 +85,15 @@ def count_leaves(rubric: Path) -> tuple[int, int]:
     return len(leaves), sum(1 for leaf in leaves if leaf["task_category"] == CODE_DEV)
 
 
+def plan_judging(job: dict, total: int, code_dev: int) -> None:
+    """검증할 항목을 정한다. 에이전트는 코드를 실행하지 않으므로 코드 구현 항목만 검증한다(없으면 전체)."""
+    job["judge_category"] = CODE_DEV if code_dev else None
+    planned = code_dev or total
+    if job.get("limit"):
+        planned = min(planned, job["limit"])
+    job["planned_leaves"] = planned
+
+
 def library() -> list[dict]:
     """서버에 있는 논문(PaperBench, 합성 논문). paper.md와 rubric.json이 모두 있는 폴더만."""
     items = []

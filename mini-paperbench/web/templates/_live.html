@@ -27,6 +27,36 @@
   <div class="cols">
     <div class="col-main">
 
+      {% if prep and ((job.status == 'running' and job.stage in ('prepare_wait', 'prepare')) or (job.status == 'failed' and job.failed_stage == 'prepare')) %}
+      <div class="card">
+        <div class="cardhead">
+          <h2>논문 준비</h2>
+          <span class="muted small">보통 1~3분 걸립니다</span>
+        </div>
+        <div class="split">
+          <div>
+            <ul class="steps">
+              {% for s in prep %}
+              <li class="{{ s.state }}">
+                <span class="icon {{ s.state }}">{% if s.state == 'done' %}&#10003;{% elif s.state == 'failed' %}!{% endif %}</span>
+                <span class="name">{{ s.label }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+            {% if job.rubric_auto %}
+            <p class="small muted mt">채점 기준(rubric)이 없어 논문을 읽고 자동으로 만듭니다. 논문 저자가 만든 기준이 아니므로 점수는 참고용입니다.</p>
+            {% endif %}
+          </div>
+          {% if log %}
+          <div>
+            <h3 class="split-head">실행 기록</h3>
+            <pre class="log">{{ log }}</pre>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
       {% if job.status == 'running' and job.stage == 'queued' %}
       <div class="card notice">
         <h2>차례를 기다리고 있습니다</h2>
@@ -102,6 +132,9 @@
       {% if res %}
       {% if job.mock %}
       <div class="alert warn"><strong>모의 채점 결과입니다.</strong> 시스템 시험용으로 LLM을 부르지 않고 무작위 점수를 매겼습니다. 점수에 의미가 없습니다.</div>
+      {% endif %}
+      {% if job.rubric_auto %}
+      <div class="alert warn"><strong>자동으로 만든 채점 기준입니다.</strong> 논문을 읽고 LLM이 만든 기준으로 검증했습니다. 논문 저자가 만든 기준(PaperBench)이 아니므로 점수는 참고용입니다.</div>
       {% endif %}
       <div class="stats">
         <div class="stat">

@@ -1,0 +1,27 @@
+# Job 템플릿: 논문 준비(PDF → markdown, 채점 기준 자동 생성). 에이전트 이미지를 쓴다.
+# 웹(web/orchestrator.py)이 __NAME__, __TAG__, __ARGS__를 채워서 만든다.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: __NAME__
+  namespace: paperbench
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: prepare
+          image: paperbench/agent:__TAG__
+          imagePullPolicy: Never
+          command: ["python", "-m", "agent.prepare"]
+          args: __ARGS__
+          envFrom:
+            - configMapRef: {name: llm-config}
+            - secretRef: {name: llm-keys}
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+      volumes:
+        - name: data
+          hostPath: {path: /data, type: DirectoryOrCreate}
