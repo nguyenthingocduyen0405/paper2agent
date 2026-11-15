@@ -12,7 +12,7 @@
 <div class="card flush"{% if running %} data-autorefresh{% endif %}>
   <table class="list jobs">
     <thead>
-      <tr><th>논문</th><th>상태</th><th class="hide-sm">진행</th><th class="hide-sm">시작</th></tr>
+      <tr><th>논문</th><th class="col-status">상태</th><th class="hide-sm col-progress">진행</th><th class="hide-sm col-time">시작</th></tr>
     </thead>
     <tbody>
       {% for j in jobs %}

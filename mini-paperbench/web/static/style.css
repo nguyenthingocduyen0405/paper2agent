@@ -34,8 +34,23 @@ a:hover { text-decoration: underline; }
 code, pre, .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 code { font-size: 0.9em; background: #f2f4f7; padding: 1px 6px; border-radius: 5px; }
 
-.wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+.wrap { max-width: 1680px; margin: 0 auto; padding: 0 32px; }
 main.wrap { padding-top: 28px; padding-bottom: 64px; }
+
+/* 기본 화면은 16:9 (1920x1080, 1280x720 프로젝터). 본문 + 옆 칸 두 줄로 나눈다 */
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) clamp(320px, 26%, 440px); gap: 20px; align-items: start; }
+.col-main, .col-side { min-width: 0; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 24px; align-items: start; }
+.split-head { margin-top: 2px; }
+.col-side .files { columns: 1; }
+.col-side details.adv { border-top: 0; padding-top: 0; margin: 0; }
+.col-side details.adv:not([open]) summary { margin-bottom: 0; }
+.col-main > :last-child, .col-side > :last-child { margin-bottom: 0; }
+.flow { margin: 0; padding-left: 20px; }
+.flow li { margin: 0 0 10px; }
+.flow li:last-child { margin-bottom: 0; }
+.flow li strong { display: block; font-size: 14.5px; }
+.flow li::marker { color: var(--accent); font-weight: 700; }
 
 header.top { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
 header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
@@ -99,6 +114,9 @@ table.list { width: 100%; border-collapse: collapse; }
 .list tr.click { cursor: pointer; }
 .list tr.click:hover { background: #fafbfc; }
 .list a.title { color: var(--text); font-weight: 600; }
+.jobs .col-status { width: 130px; }
+.jobs .col-progress { width: 34%; }
+.jobs .col-time { width: 170px; }
 .rubric td, .rubric th { padding-left: 0; }
 .rubric .num-col { width: 36px; }
 .rubric .res-col { width: 80px; }
@@ -111,6 +129,7 @@ table.list { width: 100%; border-collapse: collapse; }
 .statusline { display: flex; align-items: center; gap: 10px; margin: 18px 0 14px; }
 .stepper { display: flex; list-style: none; padding: 0; margin: 0 0 20px; gap: 6px; }
 .stepper li { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); min-width: 0; }
+.stepper li:last-child { flex: none; }
 .stepper li:not(:last-child)::after { content: ""; flex: 1; height: 2px; background: var(--line); margin: 0 4px; min-width: 12px; }
 .stepper li.done:not(:last-child)::after { background: var(--ok); }
 .stepper .dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12.5px; font-weight: 700; background: #e9ecf0; color: var(--muted); flex: none; }
@@ -149,6 +168,7 @@ pre.log {
   background: #111827; color: #d1d9e6; padding: 14px 16px; border-radius: 8px; font-size: 12.5px; line-height: 1.55;
   max-height: 300px; overflow: auto; white-space: pre-wrap; word-break: break-all; margin: 0;
 }
+pre.log.tall { max-height: 420px; }
 pre.code {
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px;
   font-size: 13px; line-height: 1.6; overflow: auto; white-space: pre; margin: 0;
@@ -202,12 +222,27 @@ select:focus, input:focus { outline: 2px solid var(--accent-weak); border-color:
 details.adv { border-top: 1px solid var(--line); padding-top: 16px; margin: 4px 0 20px; }
 details.adv summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--muted); margin-bottom: 14px; }
 
+/* 큰 화면에서는 글자를 조금 키운다(프로젝터에서 읽기 쉽게) */
+@media (min-width: 1600px) {
+  body { font-size: 16px; }
+  .small { font-size: 13.5px; }
+}
+
+/* 16:9가 아닌 좁은 화면: 한 줄로 */
+@media (max-width: 1100px) {
+  .cols { grid-template-columns: minmax(0, 1fr); }
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .split-head { margin-top: 20px; }
+}
+
 @media (max-width: 720px) {
+  .wrap { padding: 0 16px; }
   .stats { grid-template-columns: 1fr; }
   .choice { grid-template-columns: 1fr; }
   .files { columns: 1; }
   .hide-sm { display: none; }
   .stepper .lbl { display: none; }
   .stepper li.current .lbl, .stepper li.failed .lbl { display: inline; }
+  .stepper li.current, .stepper li.failed { flex: 2; }
   .pagehead { flex-direction: column; }
 }

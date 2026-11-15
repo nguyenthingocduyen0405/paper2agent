@@ -10,71 +10,87 @@
 </div>
 {% endif %}
 
-<form method="post" action="/jobs" enctype="multipart/form-data" class="card form" id="new-job">
-  <h2>논문</h2>
-  <div class="choice">
-    <label>
-      <input type="radio" name="source" value="library" {% if form.source != 'upload' %}checked{% endif %}>
-      <span><strong>예제 논문에서 고르기</strong><span class="muted small">서버에 준비된 논문과 채점 기준</span></span>
-    </label>
-    <label>
-      <input type="radio" name="source" value="upload" {% if form.source == 'upload' %}checked{% endif %}>
-      <span><strong>직접 올리기</strong><span class="muted small">논문 본문과 채점 기준 파일</span></span>
-    </label>
-  </div>
+<form method="post" action="/jobs" enctype="multipart/form-data" class="cols" id="new-job">
+  <div class="col-main card form">
+    <h2>논문</h2>
+    <div class="choice">
+      <label>
+        <input type="radio" name="source" value="library" {% if form.source != 'upload' %}checked{% endif %}>
+        <span><strong>예제 논문에서 고르기</strong><span class="muted small">서버에 준비된 논문과 채점 기준</span></span>
+      </label>
+      <label>
+        <input type="radio" name="source" value="upload" {% if form.source == 'upload' %}checked{% endif %}>
+        <span><strong>직접 올리기</strong><span class="muted small">논문 본문과 채점 기준 파일</span></span>
+      </label>
+    </div>
 
-  <div class="field" data-show="library">
-    <label class="title" for="library_key">논문</label>
-    <select name="library_key" id="library_key">
-      {% for p in library %}
-      <option value="{{ p.key }}" {% if form.library_key == p.key %}selected{% endif %}>[{{ p.kind }}] {{ p.title }} (검증 항목 {{ p.code_dev or p.leaves }}개)</option>
-      {% endfor %}
-    </select>
-  </div>
-
-  <div data-show="upload">
-    <div class="field">
-      <label class="title" for="paper_file">논문 본문 <span class="tag">필수</span></label>
-      <input type="file" name="paper_file" id="paper_file" accept=".md,.markdown,.txt">
-      <p class="hint">markdown(.md) 파일입니다. PDF 변환은 준비 중입니다.</p>
-    </div>
-    <div class="field">
-      <label class="title" for="rubric_file">채점 기준 rubric.json <span class="tag">필수</span></label>
-      <input type="file" name="rubric_file" id="rubric_file" accept=".json">
-      <p class="hint">PaperBench 형식입니다. 채점 기준 자동 생성은 준비 중입니다.</p>
-    </div>
-    <div class="field">
-      <label class="title" for="addendum_file">추가 설명 addendum.md <span class="tag opt">선택</span></label>
-      <input type="file" name="addendum_file" id="addendum_file" accept=".md,.markdown,.txt">
-    </div>
-  </div>
-
-  <details class="adv" {% if form.limit or form.mock or form.skip_submission %}open{% endif %}>
-    <summary>실험용 설정</summary>
-    <div class="field">
-      <label class="title" for="limit">검증 항목 수 제한</label>
-      <input type="number" min="1" name="limit" id="limit" value="{{ form.limit or '' }}" placeholder="비우면 전체">
-      <p class="hint">LLM 사용량을 줄이려면 앞에서부터 N개 항목만 검증합니다.</p>
-    </div>
-    <div class="field">
-      <label class="check"><input type="checkbox" name="mock" value="1" {% if form.mock %}checked{% endif %}> 모의 채점</label>
-      <p class="hint">LLM을 부르지 않고 무작위 점수를 매깁니다. 시스템이 끝까지 도는지 시험할 때 씁니다.</p>
-    </div>
-    <div class="field">
-      <label class="title" for="skip_submission">코드 작성 건너뛰기</label>
-      <select name="skip_submission" id="skip_submission">
-        <option value="">건너뛰지 않음 (코드를 새로 작성)</option>
-        {% for s in submissions %}
-        <option value="{{ s.dir }}" {% if form.skip_submission == s.dir %}selected{% endif %}>{{ s.label }}</option>
+    <div class="field" data-show="library">
+      <label class="title" for="library_key">논문</label>
+      <select name="library_key" id="library_key">
+        {% for p in library %}
+        <option value="{{ p.key }}" {% if form.library_key == p.key %}selected{% endif %}>[{{ p.kind }}] {{ p.title }} (검증 항목 {{ p.code_dev or p.leaves }}개)</option>
         {% endfor %}
       </select>
-      <p class="hint">이미 있는 제출물을 바로 검증합니다. 고른 논문과 같은 논문의 제출물이어야 합니다.</p>
     </div>
-  </details>
 
-  <div class="actions">
-    <button class="btn btn-primary" type="submit">시작하기</button>
-    <span class="muted small">코드 작성에는 수십 분이 걸릴 수 있습니다. 창을 닫아도 작업은 계속됩니다.</span>
+    <div data-show="upload">
+      <div class="field">
+        <label class="title" for="paper_file">논문 본문 <span class="tag">필수</span></label>
+        <input type="file" name="paper_file" id="paper_file" accept=".md,.markdown,.txt">
+        <p class="hint">markdown(.md) 파일입니다. PDF 변환은 준비 중입니다.</p>
+      </div>
+      <div class="field">
+        <label class="title" for="rubric_file">채점 기준 rubric.json <span class="tag">필수</span></label>
+        <input type="file" name="rubric_file" id="rubric_file" accept=".json">
+        <p class="hint">PaperBench 형식입니다. 채점 기준 자동 생성은 준비 중입니다.</p>
+      </div>
+      <div class="field">
+        <label class="title" for="addendum_file">추가 설명 addendum.md <span class="tag opt">선택</span></label>
+        <input type="file" name="addendum_file" id="addendum_file" accept=".md,.markdown,.txt">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">시작하기</button>
+      <span class="muted small">코드 작성에는 수십 분이 걸릴 수 있습니다. 창을 닫아도 작업은 계속됩니다.</span>
+    </div>
   </div>
+
+  <aside class="col-side">
+    <div class="card">
+      <h2>진행 순서</h2>
+      <ol class="flow">
+        <li><strong>논문 분석과 설계</strong><span class="muted small">논문을 읽고 만들 파일을 정합니다.</span></li>
+        <li><strong>코드 작성</strong><span class="muted small">파일을 하나씩 쓰고 문법을 점검한 뒤 실행 안내를 붙입니다.</span></li>
+        <li><strong>자동 검증</strong><span class="muted small">채점 기준의 코드 구현 항목마다 충족 여부와 근거를 남깁니다.</span></li>
+        <li><strong>결과</strong><span class="muted small">코드와 보고서를 내려받습니다.</span></li>
+      </ol>
+    </div>
+
+    <div class="card form">
+      <details class="adv" {% if form.limit or form.mock or form.skip_submission %}open{% endif %}>
+        <summary>실험용 설정</summary>
+        <div class="field">
+          <label class="title" for="limit">검증 항목 수 제한</label>
+          <input type="number" min="1" name="limit" id="limit" value="{{ form.limit or '' }}" placeholder="비우면 전체">
+          <p class="hint">LLM 사용량을 줄이려면 앞에서부터 N개 항목만 검증합니다.</p>
+        </div>
+        <div class="field">
+          <label class="check"><input type="checkbox" name="mock" value="1" {% if form.mock %}checked{% endif %}> 모의 채점</label>
+          <p class="hint">LLM을 부르지 않고 무작위 점수를 매깁니다. 시스템이 끝까지 도는지 시험할 때 씁니다.</p>
+        </div>
+        <div class="field">
+          <label class="title" for="skip_submission">코드 작성 건너뛰기</label>
+          <select name="skip_submission" id="skip_submission">
+            <option value="">건너뛰지 않음 (코드를 새로 작성)</option>
+            {% for s in submissions %}
+            <option value="{{ s.dir }}" {% if form.skip_submission == s.dir %}selected{% endif %}>{{ s.label }}</option>
+            {% endfor %}
+          </select>
+          <p class="hint">이미 있는 제출물을 바로 검증합니다. 고른 논문과 같은 논문의 제출물이어야 합니다.</p>
+        </div>
+      </details>
+    </div>
+  </aside>
 </form>
 {% endblock %}
