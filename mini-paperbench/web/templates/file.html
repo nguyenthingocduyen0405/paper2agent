@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}{{ path }} - PaperAgent{% endblock %}
+{% block content %}
+<a class="back small" href="/jobs/{{ job.id }}">작업으로 돌아가기</a>
+<h1 class="mono">{{ path }}</h1>
+<p class="sub">{{ job.title }}</p>
+<pre class="code">{{ text }}</pre>
+{% endblock %}

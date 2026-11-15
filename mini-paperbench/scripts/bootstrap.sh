@@ -41,7 +41,7 @@ step "3/6 images (tag $TAG)"
 if ! command -v docker >/dev/null; then
   sudo apt-get update && sudo apt-get install -y docker.io
 fi
-IMAGES="judge-worker agent"
+IMAGES="judge-worker agent web"
 [ "$USE_BRIDGE" = 1 ] && IMAGES="$IMAGES claude-bridge"
 for img in $IMAGES; do
   if sudo k3s ctr images ls -q | grep -q "paperbench/$img:$TAG"; then
@@ -81,11 +81,11 @@ if [ "$USE_BRIDGE" = 1 ]; then
     --from-env-file=/dev/stdin --dry-run=client -o yaml | $KUBECTL apply -f -
 fi
 
-# 6. 상시 실행되는 것들: ConfigMap, Redis, (claude-bridge), judge 워커
+# 6. 상시 실행되는 것들: ConfigMap, Redis, (claude-bridge), judge 워커, 웹
 step "6/6 apply"
 MANIFESTS="k8s/10-configmap.yaml k8s/20-redis.yaml"
 [ "$USE_BRIDGE" = 1 ] && MANIFESTS="$MANIFESTS k8s/25-claude-bridge.yaml"
-for f in $MANIFESTS k8s/30-judge-worker.yaml; do
+for f in $MANIFESTS k8s/30-judge-worker.yaml k8s/40-web.yaml; do
   sed "s/__TAG__/$TAG/g" "$f" | $KUBECTL apply -f -
 done
 if [ "$USE_BRIDGE" = 1 ]; then
@@ -95,6 +95,8 @@ if [ "$USE_BRIDGE" = 1 ]; then
 fi
 $KUBECTL -n paperbench rollout status deployment/redis --timeout=120s
 $KUBECTL -n paperbench rollout status deployment/judge-worker --timeout=120s
+$KUBECTL -n paperbench rollout status deployment/web --timeout=120s
 $KUBECTL -n paperbench get pods
 echo
 echo "done. next: scripts/k8s_run.sh judge <run> <작업 수>   (자세한 사용법은 k8s/README.md)"
+echo "웹 화면: 내 컴퓨터에서 ssh -i <키> -L 8080:localhost:30080 ubuntu@<이 VM 주소> 를 실행하고 http://localhost:8080 을 연다"

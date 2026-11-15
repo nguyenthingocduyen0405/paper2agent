@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} - PaperAgent{% endblock %}
+{% block content %}
+<a class="back small" href="/">작업 목록으로</a>
+<h1 class="paper-title">{{ job.title }}</h1>
+<div class="meta small muted">
+  <span>작업 {{ job.id }}</span>
+  <span>{{ job.source_label }}</span>
+  <span>{{ fmt_time(job.created_at) }} 시작</span>
+  {% if job.mock %}<span class="badge wait">모의 채점</span>{% endif %}
+</div>
+<div id="live" data-url="/jobs/{{ job.id }}/live">
+  {% include "_live.html" %}
+</div>
+{% endblock %}

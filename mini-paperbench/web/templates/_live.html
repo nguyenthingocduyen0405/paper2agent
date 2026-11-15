@@ -1,0 +1,177 @@
+{% set st = status_label(job) %}
+<div data-status="{{ job.status }}">
+  <div class="statusline">
+    <span class="badge {{ st[1] }}">{{ st[0] }}</span>
+    <span class="muted small">{% if job.status == 'running' %}진행 {{ elapsed }}{% else %}걸린 시간 {{ elapsed }}{% endif %}</span>
+  </div>
+
+  <ol class="stepper">
+    {% for s in steps %}
+    <li class="{{ s.state }}">
+      <span class="dot">{% if s.state == 'done' %}&#10003;{% elif s.state == 'failed' %}!{% else %}{{ loop.index }}{% endif %}</span>
+      <span class="lbl">{{ s.label }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+
+  {% if job.status == 'failed' %}
+  <div class="alert bad">
+    <strong>{{ job.error }}</strong>
+    {% if job.error_detail %}
+    <details><summary class="small">자세히 보기</summary><pre class="log">{{ job.error_detail }}</pre></details>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if job.status == 'running' and job.stage == 'queued' %}
+  <div class="card notice">
+    <h2>차례를 기다리고 있습니다</h2>
+    <p class="muted">앞선 작업의 코드 작성이 끝나면 바로 시작합니다.</p>
+  </div>
+  {% endif %}
+
+  {% if job.status == 'running' and job.stage == 'judge_wait' %}
+  <div class="card notice">
+    <h2>검증 차례를 기다리고 있습니다</h2>
+    <p class="muted">검증 워커는 한 번에 작업 하나를 맡습니다. 앞선 작업의 검증이 끝나면 시작합니다.</p>
+  </div>
+  {% endif %}
+
+  {% if agent and ((job.status == 'running' and job.stage in ('agent', 'judge_wait')) or (job.status == 'failed' and job.failed_stage == 'agent')) %}
+  <div class="card">
+    <div class="cardhead">
+      <h2>코드 작성</h2>
+      <span class="muted small">LLM 호출 {{ agent.calls }} / 최대 {{ agent.call_limit }}</span>
+    </div>
+    <ul class="steps">
+      {% for s in agent.steps %}
+      <li class="{{ s.state }}">
+        <span class="icon {{ s.state }}">{% if s.state == 'done' %}&#10003;{% elif s.state == 'failed' %}!{% endif %}</span>
+        <span class="name"><span class="code-tag">{{ s.code }}</span>{{ s.label }}</span>
+        <span class="muted small detail">{{ s.detail }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if agent.files %}
+    <h3 class="mt">지금까지 만든 파일</h3>
+    <div class="chips">{% for f in agent.files %}<code class="chip">{{ f }}</code>{% endfor %}</div>
+    {% endif %}
+    {% if log %}
+    <h3 class="mt">실행 기록</h3>
+    <pre class="log">{{ log }}</pre>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if judge and job.status != 'done' %}
+  <div class="card">
+    <div class="cardhead">
+      <h2>자동 검증</h2>
+      <span class="muted small">{{ judge.done }} / {{ judge.total or job.planned_leaves }} 항목</span>
+    </div>
+    <div class="bar"><span style="width: {{ judge.pct }}%"></span></div>
+    <p class="small muted mt-s">
+      {% if job.stage == 'analyze' %}모든 항목을 검증했습니다. 결과를 정리하고 있습니다.
+      {% elif not judge.total %}검증 항목을 준비하고 있습니다.
+      {% else %}지금까지 {{ judge.done }}개 가운데 {{ judge.passed }}개 충족{% endif %}
+    </p>
+    {% if judge.recent %}
+    <h3 class="mt">최근 검증한 항목</h3>
+    <ul class="recent">
+      {% for x in judge.recent %}
+      <li>
+        {% if x.score %}<span class="badge ok">충족</span>{% else %}<span class="badge bad">미충족</span>{% endif %}
+        <span>{{ x.requirements|truncate(160) }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if res %}
+  {% if job.mock %}
+  <div class="alert warn"><strong>모의 채점 결과입니다.</strong> 시스템 시험용으로 LLM을 부르지 않고 무작위 점수를 매겼습니다. 점수에 의미가 없습니다.</div>
+  {% endif %}
+  <div class="stats">
+    <div class="stat">
+      <div class="muted small">자동 검증</div>
+      <div class="num">{{ res.passed }}<span class="of"> / {{ res.judged }}</span></div>
+      <div class="small muted">항목 충족 ({{ res.pct }}%)</div>
+    </div>
+    <div class="stat">
+      <div class="muted small">만든 파일</div>
+      <div class="num">{{ res.files|length }}</div>
+      <div class="small muted">{% if job.skip_agent %}기존 제출물{% else %}코드와 실행 안내{% endif %}</div>
+    </div>
+    <div class="stat">
+      <div class="muted small">걸린 시간</div>
+      <div class="num sm">{{ elapsed }}</div>
+      <div class="small muted">접수부터 검증 완료까지</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>결과 내려받기</h2>
+    <div class="actions">
+      <a class="btn btn-primary" href="/jobs/{{ job.id }}/code.zip">코드와 보고서 (.zip)</a>
+      <a class="btn" href="/jobs/{{ job.id }}/report.md">보고서만 (.md)</a>
+    </div>
+    <h3 class="mt">받은 뒤 할 일</h3>
+    <ol class="howto">
+      <li>압축을 풀고 <code>README.md</code>를 읽습니다.</li>
+      <li>터미널에서 <code>bash reproduce.sh</code>를 실행합니다. 필요한 패키지는 <code>requirements.txt</code>에 있습니다.</li>
+      <li>출력된 결과를 논문의 표와 그림에 나온 수치와 비교합니다.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>만든 파일</h2>
+    <ul class="files">
+      {% for f in res.files %}
+      <li><a href="/jobs/{{ job.id }}/files/{{ f.path }}">{{ f.path }}</a><span class="muted small">{{ f.size_label }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="cardhead">
+      <h2>항목별 검증 결과</h2>
+      <div class="filter">
+        <button type="button" class="btn btn-sm active" data-filter="all">전체 {{ res.rows|length }}</button>
+        <button type="button" class="btn btn-sm" data-filter="1">충족 {{ res.passed }}</button>
+        <button type="button" class="btn btn-sm" data-filter="0">미충족 {{ res.failed }}</button>
+      </div>
+    </div>
+    <p class="small muted">논문의 채점 기준 가운데 코드 구현 항목입니다. 코드는 실행하지 않고 내용만 검증했습니다. 검증도 LLM이 하므로 항목마다 근거를 확인해 주세요.</p>
+    <table class="list rubric">
+      <thead><tr><th class="num-col">#</th><th>기준</th><th class="res-col">결과</th></tr></thead>
+      <tbody>
+        {% for x in res.rows %}
+        <tr data-score="{% if x.error %}e{% else %}{{ x.score }}{% endif %}">
+          <td class="muted">{{ x.n }}</td>
+          <td>
+            <div>{{ x.requirements }}</div>
+            <details><summary class="small">근거 보기</summary><p class="small reason">{{ x.reason or x.error }}</p></details>
+          </td>
+          <td>
+            {% if x.error %}<span class="badge wait">오류</span>
+            {% elif x.score %}<span class="badge ok">충족</span>
+            {% else %}<span class="badge bad">미충족</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h3>기록</h3>
+    <ul class="events">
+      {% for e in job.events|reverse %}
+      <li><span class="muted small nowrap">{{ fmt_time(e.t) }}</span><span>{{ e.text }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

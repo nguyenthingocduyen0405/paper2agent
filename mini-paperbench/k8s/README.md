@@ -71,3 +71,20 @@ sudo systemctl stop k3s       # 클러스터 끄기 (다시 켤 때: sudo system
 - 데이터는 노드의 `/data`(hostPath)에 있다. 노드가 1개라서 이렇게 해도 된다.
 - 장애 복구는 로컬과 같다. Pod가 지워지면 그 Pod가 처리하던 작업은 `CLAIM_IDLE_SEC`(120초) 뒤 다른 워커가 가져간다.
 - 주의: Redis Pod가 다시 뜨면 큐가 비워진다. 실험 중에는 Redis Pod를 지우지 않는다.
+
+## 웹 화면
+
+`bootstrap.sh`가 웹(`k8s/40-web.yaml`)도 띄운다. 보안 그룹에 포트를 열지 않고 SSH 터널로 접속한다.
+
+```bash
+ssh -i <키> -L 8080:localhost:30080 ubuntu@<VM 주소>     # 내 컴퓨터에서
+```
+
+그다음 브라우저에서 http://localhost:8080 을 연다.
+
+- 새 작업: 예제 논문을 고르거나 `paper.md`와 `rubric.json`을 올린다. PDF와 채점 기준 자동 생성은 아직 없다.
+- 웹이 Job을 차례로 만든다: 에이전트(P1~P5), 작업 생성, 워커 배정(`RUN_ID`), 집계.
+- 에이전트는 코드를 실행하지 않으므로 Code Development 항목만 검증한다.
+- 작업 기록은 `/data/web/jobs/<id>/job.json`, 검증 결과는 `/data/results/<id>.json`에 있다.
+- judge 워커는 한 번에 run 하나만 처리한다. 웹으로 작업을 돌리는 동안에는 `k8s_run.sh judge`를 같이 쓰지 않는다.
+- 실험용 설정: 검증 항목 수 제한, 모의 채점(LLM 없이 무작위 점수), 기존 제출물로 코드 작성 건너뛰기.
