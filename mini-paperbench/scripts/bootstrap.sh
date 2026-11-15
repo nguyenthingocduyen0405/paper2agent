@@ -3,6 +3,7 @@
 # 여러 번 실행해도 안전하다. 이미 된 단계는 건너뛴다.
 #
 # 준비: 이 저장소를 VM에 clone하고, mini-paperbench/.env에 LLM_API_KEY를 넣는다.
+#       LLM을 Claude 구독(claude-bridge)으로 쓰면 CLAUDE_CODE_OAUTH_TOKEN도 넣는다.
 # 사용(mini-paperbench 폴더에서): scripts/bootstrap.sh
 #
 # 단계: 1 스왑 → 2 k3s → 3 이미지 빌드 → 4 /data 준비 → 5 Secret → 6 kubectl apply
@@ -12,6 +13,9 @@ cd "$(dirname "$0")/.."
 TAG=$(git rev-parse --short HEAD)   # 이미지 태그 = 커밋 해시 (latest를 쓰지 않는다)
 KUBECTL="sudo k3s kubectl"
 step() { echo; echo "=== $* ==="; }
+# ConfigMap의 LLM_BASE_URL이 claude-bridge를 가리키면 브리지도 띄운다
+USE_BRIDGE=0
+grep -q '^ *LLM_BASE_URL: *"http://claude-bridge' k8s/10-configmap.yaml && USE_BRIDGE=1
 
 # 1. 스왑: 메모리가 작은 VM에서 빌드·실행이 죽지 않게 2GB를 만든다
 step "1/6 swap"
@@ -37,7 +41,9 @@ step "3/6 images (tag $TAG)"
 if ! command -v docker >/dev/null; then
   sudo apt-get update && sudo apt-get install -y docker.io
 fi
-for img in judge-worker agent; do
+IMAGES="judge-worker agent"
+[ "$USE_BRIDGE" = 1 ] && IMAGES="$IMAGES claude-bridge"
+for img in $IMAGES; do
   if sudo k3s ctr images ls -q | grep -q "paperbench/$img:$TAG"; then
     echo "skip: paperbench/$img:$TAG already in k3s"
     continue
@@ -67,12 +73,26 @@ if [ ! -f .env ] || ! grep -q '^LLM_API_KEY=.\+' .env; then
 fi
 grep '^LLM_API_KEY=' .env | $KUBECTL -n paperbench create secret generic llm-keys \
   --from-env-file=/dev/stdin --dry-run=client -o yaml | $KUBECTL apply -f -
+if [ "$USE_BRIDGE" = 1 ]; then
+  if ! grep -q '^CLAUDE_CODE_OAUTH_TOKEN=.\+' .env; then
+    echo "ERROR: put CLAUDE_CODE_OAUTH_TOKEN=... (claude setup-token) in mini-paperbench/.env first"; exit 1
+  fi
+  grep '^CLAUDE_CODE_OAUTH_TOKEN=' .env | $KUBECTL -n paperbench create secret generic claude-token \
+    --from-env-file=/dev/stdin --dry-run=client -o yaml | $KUBECTL apply -f -
+fi
 
-# 6. 상시 실행되는 것들: ConfigMap, Redis, judge 워커
+# 6. 상시 실행되는 것들: ConfigMap, Redis, (claude-bridge), judge 워커
 step "6/6 apply"
-for f in k8s/10-configmap.yaml k8s/20-redis.yaml k8s/30-judge-worker.yaml; do
+MANIFESTS="k8s/10-configmap.yaml k8s/20-redis.yaml"
+[ "$USE_BRIDGE" = 1 ] && MANIFESTS="$MANIFESTS k8s/25-claude-bridge.yaml"
+for f in $MANIFESTS k8s/30-judge-worker.yaml; do
   sed "s/__TAG__/$TAG/g" "$f" | $KUBECTL apply -f -
 done
+if [ "$USE_BRIDGE" = 1 ]; then
+  # Secret이 바뀌어도 Pod는 그대로라서, 다시 띄워 새 토큰을 읽게 한다
+  $KUBECTL -n paperbench rollout restart deployment/claude-bridge
+  $KUBECTL -n paperbench rollout status deployment/claude-bridge --timeout=180s
+fi
 $KUBECTL -n paperbench rollout status deployment/redis --timeout=120s
 $KUBECTL -n paperbench rollout status deployment/judge-worker --timeout=120s
 $KUBECTL -n paperbench get pods

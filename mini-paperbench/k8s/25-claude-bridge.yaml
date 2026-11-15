@@ -1,0 +1,50 @@
+# claude-bridge: 워커와 에이전트가 부르는 LLM 주소(LLM_BASE_URL). Claude 구독으로 답한다.
+# 토큰은 Secret claude-token(CLAUDE_CODE_OAUTH_TOKEN)에 있다. bootstrap.sh가 .env에서 만든다.
+# 브리지 접속 키는 Secret llm-keys의 LLM_API_KEY를 같이 쓴다(워커가 보내는 키와 같아야 한다).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: claude-bridge
+  namespace: paperbench
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: claude-bridge}
+  template:
+    metadata:
+      labels: {app: claude-bridge}
+    spec:
+      containers:
+        - name: bridge
+          image: paperbench/claude-bridge:__TAG__
+          imagePullPolicy: Never   # 이미지는 bootstrap.sh가 k3s에 직접 넣는다
+          ports:
+            - containerPort: 8080
+          env:
+            - name: CLAUDE_CODE_OAUTH_TOKEN
+              valueFrom: {secretKeyRef: {name: claude-token, key: CLAUDE_CODE_OAUTH_TOKEN}}
+            - name: BRIDGE_API_KEY
+              valueFrom: {secretKeyRef: {name: llm-keys, key: LLM_API_KEY}}
+            - name: CLAUDE_MODEL          # 요청의 model이 sonnet/opus/haiku/claude-*가 아니면 이 값
+              value: "sonnet"
+            - name: BRIDGE_MAX_CONCURRENCY   # 동시에 띄우는 Claude Code 프로세스 수(하나에 약 200MB)
+              value: "4"
+            - name: BRIDGE_TIMEOUT_SECONDS
+              value: "600"
+          readinessProbe:
+            httpGet: {path: /health, port: 8080}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 200m, memory: 512Mi}
+            limits: {memory: 3Gi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: claude-bridge
+  namespace: paperbench
+spec:
+  selector: {app: claude-bridge}
+  ports:
+    - port: 8080
+      targetPort: 8080

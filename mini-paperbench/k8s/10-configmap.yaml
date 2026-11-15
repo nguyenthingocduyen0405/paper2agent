@@ -5,8 +5,13 @@ metadata:
   name: llm-config
   namespace: paperbench
 data:
-  LLM_BASE_URL: "https://generativelanguage.googleapis.com/v1beta/openai/"
-  LLM_MODEL: "gemini-3.5-flash-lite"
+  # Claude 구독: 클러스터 안의 claude-bridge가 답한다(k8s/25-claude-bridge.yaml).
+  # LLM_MODEL: sonnet | opus | haiku
+  LLM_BASE_URL: "http://claude-bridge:8080/v1"
+  LLM_MODEL: "sonnet"
+  # Gemini로 돌아가려면 위 두 줄을 아래 값으로 바꾸고 .env의 LLM_API_KEY에 Gemini 키를 넣는다.
+  # LLM_BASE_URL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  # LLM_MODEL: "gemini-3.5-flash-lite"
   RATE_LIMIT_RPM: "15"
   RATE_LIMIT_TPM: "250000"
   CLAIM_IDLE_SEC: "120"
