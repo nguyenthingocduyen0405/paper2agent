@@ -1,0 +1,58 @@
+# Hermes Agent settings for the PaperAgent Slack assistant (copied to /opt/data/config.yaml at every start).
+# Keys checked against hermes-agent v0.23.1 (hermes_cli/config_defaults.py, cli-config.yaml.example).
+# Goal: the only things Hermes can do are the five PaperAgent tools in paper_mcp.py.
+
+model:
+  default: sonnet
+  provider: custom
+  base_url: http://claude-bridge:8080/v1   # in-cluster Claude subscription bridge (k8s/25-claude-bridge.yaml)
+  key_env: LLM_API_KEY                     # bridge key from Secret llm-keys
+  context_length: 200000
+
+# Slack gets only the PaperAgent MCP server; every built-in toolset is also switched off below.
+platform_toolsets:
+  slack: [paperapi]
+  cli: [paperapi]
+
+agent:
+  max_turns: 20
+  disabled_toolsets: [terminal, file, code_execution, web, search, x_search, browser, computer_use,
+                      delegation, memory, skills, session_search, cronjob, kanban, connections,
+                      image_gen, video_gen, tts, vision, video, todo]
+
+# Memory and session search are shared by every Slack user of one profile, so they are off.
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+  nudge_interval: 0
+
+skills:
+  creation_nudge_interval: 0
+
+auxiliary:
+  background_review:
+    enabled: false
+
+curator:
+  enabled: false
+
+security:
+  allow_lazy_installs: false
+
+stt:
+  enabled: false
+
+timezone: Asia/Seoul
+
+slack:
+  require_mention: true        # in channels it answers only when @mentioned; DMs always work
+
+mcp_servers:
+  paperapi:
+    command: /opt/hermes/.venv/bin/python
+    args: [/opt/paperagent/paper_mcp.py]
+    env:
+      PAPERAGENT_API: http://web:8000
+      UPLOAD_ROOT: /opt/data/cache/documents
+    tools:
+      include: [submit_paper, job_status, job_report, list_code_files, read_code_file]

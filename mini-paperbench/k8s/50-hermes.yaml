@@ -1,0 +1,94 @@
+# Slack 도우미: Hermes Agent(Nous Research)가 Slack에서 논문을 받아 PaperAgent 웹 API로 작업을 만들고,
+# 진행 상황과 보고서, 만든 코드를 설명한다. 배포: scripts/hermes_up.sh
+#
+# 막아 둔 것
+#   도구      hermes/config.yaml: Slack에는 PaperAgent 도구(hermes/paper_mcp.py) 5개만. shell, 파일, 웹, 메모리 끔
+#   권한      ServiceAccount 토큰을 넣지 않는다(쿠버네티스 API를 부를 수 없다)
+#   비밀      Claude 토큰(claude-token)은 넣지 않는다. 브리지 키(llm-keys)와 Slack 토큰(hermes-slack)만
+#   네트워크  NetworkPolicy: 웹(8000), claude-bridge(8080), DNS, 그리고 인터넷 443(Slack)만.
+#             노드, 클러스터 내부, EC2 메타데이터(169.254.169.254)로는 나갈 수 없다
+#   사용자    Secret의 SLACK_ALLOWED_USERS에 있는 사람만 대화할 수 있다(Hermes 기본값: 나머지는 거절)
+#
+# Hermes 이미지는 root로 시작해 s6가 hermes 사용자(UID 10000)로 바꿔 실행한다(--user 실행은 지원하지 않음).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes
+  namespace: paperbench
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate       # Slack Socket Mode 연결이 둘이 되지 않게
+  selector:
+    matchLabels: {app: hermes}
+  template:
+    metadata:
+      labels: {app: hermes}
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      initContainers:
+        # 설정은 매번 ConfigMap의 것으로 덮어쓴다(Hermes가 실행 중 바꾼 값이 남지 않게)
+        - name: config
+          image: nousresearch/hermes-agent:v0.23.1@sha256:276d44685c65c0cb2a25f190b63c65c8906f9dc76486fb1c05ae71b5826bda08
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "cp /opt/paperagent/config.yaml /opt/paperagent/SOUL.md /opt/data/ && chown 10000:10000 /opt/data/config.yaml /opt/data/SOUL.md"]
+          volumeMounts:
+            - {name: home, mountPath: /opt/data}
+            - {name: files, mountPath: /opt/paperagent, readOnly: true}
+      containers:
+        - name: hermes
+          image: nousresearch/hermes-agent:v0.23.1@sha256:276d44685c65c0cb2a25f190b63c65c8906f9dc76486fb1c05ae71b5826bda08
+          imagePullPolicy: IfNotPresent
+          args: ["gateway", "run"]
+          env:
+            - name: LLM_API_KEY
+              valueFrom: {secretKeyRef: {name: llm-keys, key: LLM_API_KEY}}
+          envFrom:
+            - secretRef: {name: hermes-slack}   # SLACK_BOT_TOKEN, SLACK_APP_TOKEN, SLACK_ALLOWED_USERS
+          securityContext:
+            allowPrivilegeEscalation: false
+            seccompProfile: {type: RuntimeDefault}
+          volumeMounts:
+            - {name: home, mountPath: /opt/data}
+            - {name: files, mountPath: /opt/paperagent, readOnly: true}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {memory: 1536Mi}
+      volumes:
+        - name: home        # 대화 기록(state.db), Slack에서 받은 파일 캐시. 논문 데이터(/data)와 따로 둔다
+          hostPath: {path: /var/lib/paperagent-hermes, type: DirectoryOrCreate}
+        - name: files       # hermes/ 폴더: config.yaml, SOUL.md, paper_mcp.py
+          configMap: {name: hermes-files}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hermes
+  namespace: paperbench
+spec:
+  podSelector:
+    matchLabels: {app: hermes}
+  policyTypes: [Ingress, Egress]
+  ingress: []           # 들어오는 연결은 없다(Slack Socket Mode는 Hermes가 밖으로 연결한다)
+  egress:
+    - to:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
+          podSelector: {matchLabels: {k8s-app: kube-dns}}
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+    - to:
+        - podSelector: {matchLabels: {app: web}}
+      ports:
+        - {protocol: TCP, port: 8000}
+    - to:
+        - podSelector: {matchLabels: {app: claude-bridge}}
+      ports:
+        - {protocol: TCP, port: 8080}
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, 100.64.0.0/10, 127.0.0.0/8]
+      ports:
+        - {protocol: TCP, port: 443}

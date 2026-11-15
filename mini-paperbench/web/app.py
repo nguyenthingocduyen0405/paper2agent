@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -230,6 +230,27 @@ def job_api(job_id: str) -> dict:
     judge = views.judge_progress(job)
     out["judge"] = {key: v for key, v in judge.items() if key != "recent"} if judge else None
     return out
+
+
+@app.get("/api/jobs/{job_id}/files")
+def job_files_api(job_id: str) -> dict:
+    """만든 코드 파일 목록. Slack 도우미(hermes/paper_mcp.py)가 코드를 설명할 때 쓴다."""
+    job = _job_or_404(job_id)
+    return {"id": job_id, "files": [{"path": f["path"], "size": f["size"]}
+                                     for f in views.files_in(_submission_dir(job))]}
+
+
+@app.get("/api/jobs/{job_id}/raw/{path:path}")
+def job_file_raw(job_id: str, path: str):
+    """코드 파일 하나의 내용(텍스트). 숨김 파일과 제출물 밖의 경로는 주지 않는다."""
+    job = _job_or_404(job_id)
+    sub = _submission_dir(job)
+    target = (sub / path).resolve()
+    if not target.is_relative_to(sub) or not target.is_file() or not views.is_shown(target.relative_to(sub)):
+        raise HTTPException(404, "파일을 찾을 수 없습니다")
+    if target.stat().st_size > MAX_VIEW:
+        raise HTTPException(413, "파일이 너무 큽니다")
+    return PlainTextResponse(target.read_text(errors="replace"))
 
 
 @app.get("/jobs/{job_id}/code.zip")
