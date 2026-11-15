@@ -81,6 +81,15 @@ def job_logs(name: str, tail: int = 40) -> str:
         return ""
 
 
+def worker_run() -> tuple[str | None, str | None]:
+    """judge 워커가 지금 맡은 (RUN_ID, MOCK_JUDGE)."""
+    _, _, apps = _api()
+    dep = apps.read_namespaced_deployment("judge-worker", NAMESPACE)
+    container = next(c for c in dep.spec.template.spec.containers if c.name == "worker")
+    env = {e.name: e.value for e in (container.env or [])}
+    return env.get("RUN_ID"), env.get("MOCK_JUDGE")
+
+
 def assign_workers(run: str, mock: bool) -> None:
     """judge 워커에게 이 run을 맡긴다. 환경 변수가 바뀌므로 워커 Pod가 새로 뜬다(k8s_run.sh의 set env와 같다)."""
     _, _, apps = _api()

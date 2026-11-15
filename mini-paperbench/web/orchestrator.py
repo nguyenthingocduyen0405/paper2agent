@@ -114,6 +114,11 @@ def step(job: dict, busy: dict) -> None:
         if total is None:
             _fail(job, "작업 큐가 초기화되어 검증을 이어갈 수 없습니다", "Redis Pod가 다시 뜨면 큐가 비워집니다. 새 작업으로 다시 시작해 주세요.")
             return
+        mock = "1" if job.get("mock") else "0"
+        if k8s.worker_run() != (run, mock):
+            # bootstrap.sh를 다시 돌리거나 k8s_run.sh를 쓰면 워커의 RUN_ID가 바뀐다. 다시 맡긴다.
+            log.warning("job %s: workers were reassigned elsewhere, assigning back", job["id"])
+            k8s.assign_workers(run, bool(job.get("mock")))
         if r.hlen(k(run, "results")) >= int(total):
             label = f"web {job['id']}, {total} tasks" + (", mock" if job.get("mock") else "")
             k8s.create_job("analyze", analyze_job(job), ["--run", run, "--label", label])
