@@ -51,7 +51,7 @@ def job_state(name: str) -> tuple[str, str]:
     """("missing" | "running" | "succeeded" | "failed", 설명)"""
     batch, core, _ = _api()
     try:
-        job = batch.read_namespaced_job_status(name, NAMESPACE)
+        job = batch.read_namespaced_job(name, NAMESPACE)
     except ApiException as e:
         if e.status == 404:
             return "missing", ""
