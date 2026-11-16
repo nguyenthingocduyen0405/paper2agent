@@ -54,7 +54,8 @@ def _row(job: dict) -> dict:
         "updated_at": job.get("updated_at"), "finished_at": job.get("finished_at"),
         "prepare_sec": _span(job, "prepare_started_at", "prepare_finished_at"),
         "agent_sec": _span(job, "agent_started_at", "agent_finished_at"),
-        "judge_sec": _span(job, "judge_started_at", "finished_at") if job["status"] == "done" else None,
+        "judge_sec": (_span(job, "judge_started_at", "judge_finished_at") if job.get("judge_finished_at")
+                      else _span(job, "judge_started_at", "finished_at")) if job["status"] == "done" else None,
         "score_passed": score.get("passed"), "score_judged": score.get("judged"), "score_errors": score.get("errors"),
         "archived_at": job.get("archived_at"),
         "doc": json.dumps(job, ensure_ascii=False),

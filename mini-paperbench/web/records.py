@@ -235,6 +235,16 @@ def after_judge(job: dict) -> None:
     _safe(lambda: ingest_results(job), "results", job)
 
 
+def after_repair(job: dict) -> None:
+    """자동 수정이 끝났다: 수정에 쓴 LLM 호출을 남긴다."""
+    _safe(lambda: ingest_calls(job, "repair", agent_dir(job) / "repair" / "calls.jsonl"), "repair calls", job)
+
+
+def after_rejudge(job: dict) -> None:
+    """고친 코드의 재검증이 끝났다: 항목 점수를 최종 결과로 바꾸고, 재검증 호출은 따로 남긴다."""
+    _safe(lambda: ingest_results(job, stage="rejudge"), "rejudge results", job)
+
+
 def gpu_dir(job: dict) -> Path:
     return agent_dir(job) / "gpu"
 
@@ -308,6 +318,11 @@ def archive(job: dict) -> bool:
         _put_if(store.RESULTS / f"agent_run_{job['id']}.json", pre + "agent/agent_run.json", "application/json")
         for name in ("analysis.md", "plan.json", "calls.jsonl"):
             _put_if(agent_dir(job) / name, pre + f"agent/{name}")
+        rep = job.get("repair") or {}
+        if rep.get("first_run") and rep["first_run"] != job["judge_run"]:
+            _put_if(store.RESULTS / f"{rep['first_run']}.json", pre + "results_before_repair.json", "application/json")
+        for name in REPAIR_FILES:
+            _put_if(agent_dir(job) / "repair" / name, pre + f"agent/repair/{name}")
         paper_dir = Path(job.get("paper_dir", ""))
         if job.get("paper_dir") and paper_dir.resolve().is_relative_to(store.JOBS_DIR.resolve()):
             for name in ("paper.md", "rubric.json", "meta.json", "addendum.md", "prepare/calls.jsonl"):
@@ -332,6 +347,7 @@ def archive(job: dict) -> bool:
 
 
 GPU_ZIP_SKIP = ("code/", "judged/")
+REPAIR_FILES = ("summary.json", "plan.json", "calls.jsonl", "changes.diff")
 GPU_FILE_MAX = 5 * 1024 * 1024
 
 
@@ -416,6 +432,16 @@ def ensure_local(job: dict) -> list[str]:
                 p = agent_dir(job) / name
                 if not p.is_file() and blob.get_file(pre + f"agent/{name}", p):
                     restored.append(name)
+            rep = job.get("repair") or {}
+            if rep.get("first_run") and rep["first_run"] != job["judge_run"]:
+                p = store.RESULTS / f"{rep['first_run']}.json"
+                if not p.is_file() and blob.get_file(pre + "results_before_repair.json", p):
+                    restored.append("results before repair")
+            if rep.get("finished_at"):
+                for name in REPAIR_FILES:
+                    p = agent_dir(job) / "repair" / name
+                    if not p.is_file() and blob.get_file(pre + f"agent/repair/{name}", p):
+                        restored.append(f"repair/{name}")
         g = job.get("gpu") or {}
         # 진행 중인 실행은 되살리지 않는다(지금 Job이 쓰고 있는 파일이다). 끝난 실행만
         if g.get("result") and g.get("status") in ("done", "failed", "cancelled") \

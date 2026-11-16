@@ -1,7 +1,10 @@
 """작업 진행: 몇 초마다 실행 중인 작업을 한 단계씩 앞으로 보낸다.
 
 [prepare_wait → prepare(논문 준비 Job)] → queued → agent(P1~P5 Job) → judge_wait
-  → judge(작업 생성 Job, 워커 배정, 채점) → analyze(집계 Job) → done
+  → judge(작업 생성 Job, 워커 배정, 채점) → analyze(집계 Job)
+  → [repair_wait → repair(자동 수정 Job) → judge_wait → judge → analyze(고친 코드 전체 재검증)] → done
+- 자동 수정은 첫 검증에서 미충족 항목이 있을 때 한 번 한다(MAX_REPAIR_ROUNDS). 수정이나 재검증이 실패하면
+  작업을 실패로 두지 않고 고치기 전 코드와 첫 검증 결과로 마친다.
 - 논문 준비는 PDF를 올렸거나 채점 기준 없이 올렸을 때만 한다(PDF → markdown, 채점 기준 자동 생성).
 - 에이전트 Job은 동시에 MAX_AGENT_JOBS개까지 돌린다.
 - judge 워커는 한 번에 run 하나만 처리하므로 채점은 작업마다 차례로 한다.
@@ -13,6 +16,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
 import time
 from pathlib import Path
 
@@ -22,6 +26,8 @@ from web import blob, gpu, k8s, records, store
 log = logging.getLogger("orchestrator")
 MAX_AGENT_JOBS = int(os.environ.get("MAX_AGENT_JOBS", "1"))
 MAX_PREPARE_JOBS = int(os.environ.get("MAX_PREPARE_JOBS", "2"))
+# 첫 검증에서 미충족 항목이 있으면 judge의 이유를 근거로 코드를 고치고 다시 검증한다(0이면 끈다)
+MAX_REPAIR_ROUNDS = int(os.environ.get("MAX_REPAIR_ROUNDS", "1"))
 # 채점 결과가 이 시간 동안 하나도 늘지 않으면 멈춘 것으로 본다(워커 Pod가 없거나 이미지 문제 등).
 # 한 항목은 claude-bridge 제한 시간(600초)과 재시도를 합쳐도 이보다 짧다.
 JUDGE_STALL_SEC = float(os.environ.get("JUDGE_STALL_SEC", "1800"))
@@ -48,6 +54,10 @@ def agent_job(job: dict) -> str:
     return k8s.job_name("agent", job["id"])
 
 
+def repair_job(job: dict) -> str:
+    return k8s.job_name("repair", job["id"])
+
+
 def gen_job(job: dict) -> str:
     return k8s.job_name("gen", job["judge_run"])
 
@@ -70,6 +80,43 @@ def _fail(job: dict, message: str, detail: str = "") -> None:
     job.update(status="failed", failed_stage=job["stage"], error=message,
                error_detail=detail.strip()[-4000:], finished_at=time.time())
     store.add_event(job, message)
+
+
+def _rejudging(job: dict) -> bool:
+    return bool((job.get("repair") or {}).get("rejudge"))
+
+
+def _wants_repair(job: dict, score: dict) -> bool:
+    return (MAX_REPAIR_ROUNDS > 0 and not job.get("repair") and not job.get("mock") and not job.get("skip_agent")
+            and score["judged"] > score["passed"])
+
+
+def _finish(job: dict, score: dict, text: str = "검증을 마쳤습니다") -> None:
+    job.update(stage="done", status="done", finished_at=time.time(), score=score)
+    store.add_event(job, text)
+
+
+def _undo_repair(job: dict, message: str, detail: str = "") -> None:
+    """자동 수정이나 재검증이 실패했다: 고치기 전 코드로 되돌리고 첫 검증 결과로 마친다."""
+    rep = job["repair"]
+    before = records.agent_dir(job) / "submission_before_repair"
+    sub = Path(job["submission_dir"])
+    if before.is_dir():
+        shutil.rmtree(sub, ignore_errors=True)
+        shutil.copytree(before, sub)
+    rep.update(rejudge=False, undone=True, error=message, error_detail=detail.strip()[-2000:])
+    job["judge_run"] = rep["first_run"]
+    _finish(job, rep["before"], message)
+    records.after_judge(job)
+
+
+def _judge_fail(job: dict, message: str, detail: str = "") -> None:
+    """검증 단계의 실패. 고친 코드를 다시 검증하던 중이면 작업 전체를 실패로 두지 않는다."""
+    if _rejudging(job):
+        _judge_seen.pop(job["id"], None)
+        _undo_repair(job, f"{message}. 고치기 전 코드와 첫 검증 결과로 마칩니다", detail)
+    else:
+        _fail(job, message, detail)
 
 
 def _score(job: dict) -> dict:
@@ -162,9 +209,13 @@ def step(job: dict, busy: dict) -> None:
             if job.get("limit"):
                 args += ["--limit", str(job["limit"])]
             k8s.create_job("task-generator", gen_job(job), args)
-            job.update(stage="judge", judge_step="gen", judge_started_at=time.time())
             busy["judge"] = True
-            store.add_event(job, "자동 검증을 시작했습니다")
+            if _rejudging(job):
+                job.update(stage="judge", judge_step="gen", rejudge_started_at=time.time())
+                store.add_event(job, "고친 코드를 처음부터 다시 검증합니다")
+            else:
+                job.update(stage="judge", judge_step="gen", judge_started_at=time.time())
+                store.add_event(job, "자동 검증을 시작했습니다")
 
     elif stage == "judge":
         r = redis()
@@ -176,16 +227,16 @@ def step(job: dict, busy: dict) -> None:
                 k8s.assign_workers(run, bool(job.get("mock")))
                 job["judge_step"] = "scoring"
             elif state in ("failed", "missing"):
-                _fail(job, "검증 항목을 만들지 못했습니다", detail + "\n" + k8s.job_logs(gen_job(job), tail=30))
+                _judge_fail(job, "검증 항목을 만들지 못했습니다", detail + "\n" + k8s.job_logs(gen_job(job), tail=30))
             return
         if r.get(k(run, "aborted")):
             _judge_seen.pop(job["id"], None)
-            _fail(job, "Claude 사용 한도에 걸렸거나 인증에 실패해 검증을 멈췄습니다", r.get(k(run, "aborted")) or "")
+            _judge_fail(job, "Claude 사용 한도에 걸렸거나 인증에 실패해 검증을 멈췄습니다", r.get(k(run, "aborted")) or "")
             return
         total = r.get(k(run, "total"))
         if total is None:
             _judge_seen.pop(job["id"], None)
-            _fail(job, "작업 큐가 초기화되어 검증을 이어갈 수 없습니다", "Redis의 채점 기록(AOF)이 지워졌습니다. 새 작업으로 다시 시작해 주세요.")
+            _judge_fail(job, "작업 큐가 초기화되어 검증을 이어갈 수 없습니다", "Redis의 채점 기록(AOF)이 지워졌습니다. 새 작업으로 다시 시작해 주세요.")
             return
         mock = "1" if job.get("mock") else "0"
         if k8s.worker_run() != (run, mock):
@@ -205,8 +256,41 @@ def step(job: dict, busy: dict) -> None:
             _judge_seen[job["id"]] = (done, time.time())
         elif time.time() - since > JUDGE_STALL_SEC:
             _judge_seen.pop(job["id"], None)
-            _fail(job, f"자동 검증이 {JUDGE_STALL_SEC / 60:.0f}분 동안 진행되지 않아 멈췄습니다",
+            _judge_fail(job, f"자동 검증이 {JUDGE_STALL_SEC / 60:.0f}분 동안 진행되지 않아 멈췄습니다",
                   f"{done}/{total} 항목 검증 후 멈춤. judge-worker Pod 상태를 확인해 주세요 (kubectl -n paperbench get pods).")
+
+    elif stage == "repair_wait":
+        if busy["agent"] < MAX_AGENT_JOBS:
+            args = ["--run-id", job["id"], "--paper-dir", job["paper_dir"], "--results", f"results/{job['judge_run']}.json"]
+            if job.get("judge_category"):
+                args += ["--category", job["judge_category"]]
+            k8s.create_job("agent-repair", repair_job(job), args)
+            busy["agent"] += 1
+            job["stage"] = "repair"
+            job["repair"]["started_at"] = time.time()
+
+    elif stage == "repair":
+        state, detail = k8s.job_state(repair_job(job))
+        summary_path = records.agent_dir(job) / "repair" / "summary.json"
+        rep = job["repair"]
+        if state == "succeeded" or (state == "missing" and summary_path.exists()):
+            _save_log(job, repair_job(job), "repair.log")
+            s = json.loads(summary_path.read_text())
+            rep.update(finished_at=time.time(), changed=s["changed_files"], reverted=s.get("reverted", []),
+                       not_fixable=len(s.get("not_fixable", [])))
+            records.after_repair(job)
+            if s["changed_files"]:
+                run = f"{job['id']}r1"
+                rep.update(rejudge=True, run=run)
+                job.update(judge_run=run, stage="judge_wait")
+                store.add_event(job, f"코드를 고쳤습니다(파일 {len(s['changed_files'])}개: {', '.join(s['changed_files'])})")
+            else:
+                _finish(job, rep["before"], "코드를 고쳐서 충족할 수 있는 미충족 항목이 없어 첫 검증 결과로 마칩니다")
+        elif state in ("failed", "missing"):
+            _save_log(job, repair_job(job), "repair.log")
+            records.after_repair(job)
+            _undo_repair(job, "검증 결과로 코드를 고치다 오류가 나서 고치기 전 코드와 첫 검증 결과로 마칩니다",
+                         detail + "\n" + k8s.job_logs(repair_job(job), tail=30))
 
     elif stage == "analyze":
         state, detail = k8s.job_state(analyze_job(job))
@@ -215,20 +299,33 @@ def step(job: dict, busy: dict) -> None:
             score = _score(job)
             if score["judged"] == 0 and score["errors"]:
                 errors = [v.get("error", "") for v in json.loads(done_file.read_text())["leaves"].values()][:5]
-                _fail(job, "모든 항목의 검증이 실패했습니다", "\n".join(errors))
+                _judge_fail(job, "모든 항목의 검증이 실패했습니다", "\n".join(errors))
                 return
-            job.update(stage="done", status="done", finished_at=time.time(), score=score)
-            store.add_event(job, "검증을 마쳤습니다")
-            records.after_judge(job)
+            if _rejudging(job):
+                rep = job["repair"]
+                rep.update(after=score, rejudge=False)
+                b = rep["before"]
+                _finish(job, score, f"다시 검증을 마쳤습니다: 충족 {b['passed']}/{b['judged']} → {score['passed']}/{score['judged']}")
+                records.after_rejudge(job)
+            elif _wants_repair(job, score):
+                job.update(stage="repair_wait", judge_finished_at=time.time(), score=score,
+                           repair={"before": score, "first_run": job["judge_run"]})
+                store.add_event(job, f"첫 검증을 마쳤습니다: {score['judged']}개 중 {score['passed']}개 충족. "
+                                     f"미충족 {score['judged'] - score['passed']}개 항목과 그 이유를 근거로 코드를 고칩니다")
+                records.after_judge(job)
+            else:
+                job["judge_finished_at"] = time.time()
+                _finish(job, score)
+                records.after_judge(job)
         elif state in ("failed", "missing"):
-            _fail(job, "검증 결과를 정리하지 못했습니다", detail + "\n" + k8s.job_logs(analyze_job(job), tail=30))
+            _judge_fail(job, "검증 결과를 정리하지 못했습니다", detail + "\n" + k8s.job_logs(analyze_job(job), tail=30))
 
 
 def tick() -> None:
     jobs = store.running_jobs()
     gpu_jobs = gpu.active_jobs()
     busy = {"prepare": sum(1 for j in jobs if j["stage"] == "prepare"),
-            "agent": sum(1 for j in jobs if j["stage"] == "agent"),
+            "agent": sum(1 for j in jobs if j["stage"] in ("agent", "repair")),
             # judge 워커는 run 하나씩: 코드 검증과 GPU 실행 뒤 실행·결과 검증이 서로 기다린다
             "judge": any(j["stage"] in ("judge", "analyze") for j in jobs) or gpu.judge_busy(gpu_jobs),
             "gpu": sum(1 for j in gpu_jobs if gpu.state(j) == "running")}

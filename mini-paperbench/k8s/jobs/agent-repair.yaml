@@ -1,0 +1,31 @@
+# Job 템플릿: 자동 수정(agent.repair). 첫 검증에서 미충족인 항목과 judge의 이유를 근거로 /data/agent_runs/<id>/submission을 고친다.
+# 웹(web/orchestrator.py)이 __NAME__, __TAG__, __ARGS__를 채워서 만든다. 실패하면 웹이 고치기 전 코드로 되돌린다.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: __NAME__
+  namespace: paperbench
+spec:
+  backoffLimit: 0   # 반쯤 고친 상태에서 다시 시작하지 않는다(웹이 되돌리고 첫 결과로 마친다)
+  activeDeadlineSeconds: 3600
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: agent-repair
+          image: paperbench/agent:__TAG__
+          imagePullPolicy: Never
+          command: ["python", "-m", "agent.repair"]
+          args: __ARGS__
+          envFrom:
+            - configMapRef: {name: llm-config}
+            - secretRef: {name: llm-keys}
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+            - {name: results, mountPath: /app/results}
+      volumes:
+        - name: data
+          hostPath: {path: /data, type: DirectoryOrCreate}
+        - name: results
+          hostPath: {path: /data/results, type: DirectoryOrCreate}

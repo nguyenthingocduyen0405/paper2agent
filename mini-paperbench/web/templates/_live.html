@@ -104,10 +104,23 @@
       </div>
       {% endif %}
 
-      {% if judge and job.status != 'done' %}
+      {% if repair and repair.state == 'repairing' %}
       <div class="card">
         <div class="cardhead">
-          <h2>자동 검증</h2>
+          <h2>검증 결과로 코드 고치기</h2>
+          <span class="muted small">보통 3~10분 걸립니다</span>
+        </div>
+        <p>첫 검증에서 {{ repair.before.judged }}개 중 {{ repair.before.passed }}개가 충족했습니다.
+          미충족 {{ repair.failed_before }}개 항목과 judge가 적은 이유를 근거로 코드를 고치고 있습니다.</p>
+        <p class="small muted">고친 뒤에는 모든 항목을 처음부터 다시 검증합니다. 고치다 오류가 나면 고치기 전 코드와 첫 검증 결과로 마칩니다.</p>
+        {% if log %}<pre class="log">{{ log }}</pre>{% endif %}
+      </div>
+      {% endif %}
+
+      {% if judge and job.status != 'done' and job.stage not in ('repair_wait', 'repair') %}
+      <div class="card">
+        <div class="cardhead">
+          <h2>{% if repair and repair.state == 'rejudging' %}고친 코드 다시 검증{% else %}자동 검증{% endif %}</h2>
           <span class="muted small">{{ judge.done }} / {{ judge.total or job.planned_leaves }} 항목</span>
         </div>
         <div class="bar"><span style="width: {{ judge.pct }}%"></span></div>
@@ -141,7 +154,7 @@
         <div class="stat">
           <div class="muted small">자동 검증</div>
           <div class="num">{{ res.passed }}<span class="of"> / {{ res.judged }}</span></div>
-          <div class="small muted">항목 충족 ({{ res.pct }}%)</div>
+          <div class="small muted">항목 충족 ({{ res.pct }}%){% if repair and repair.state == 'done' %}, 고치기 전 {{ repair.before.passed }} / {{ repair.before.judged }}{% endif %}</div>
         </div>
         <div class="stat">
           <div class="muted small">만든 파일</div>
@@ -154,6 +167,38 @@
           <div class="small muted">접수부터 검증 완료까지</div>
         </div>
       </div>
+
+      {% if repair and repair.state in ('done', 'undone', 'nothing') %}
+      <div class="card">
+        <div class="cardhead">
+          <h2>검증 결과로 코드 고치기</h2>
+          {% if repair.state == 'done' %}<span class="muted small">충족 {{ repair.before.passed }}/{{ repair.before.judged }} → {{ repair.after.passed }}/{{ repair.after.judged }}</span>{% endif %}
+        </div>
+        {% if repair.state == 'done' %}
+        <p>첫 검증에서 미충족이던 {{ repair.failed_before }}개 항목과 judge가 적은 이유를 근거로 코드를 고치고, 모든 항목을 처음부터 다시 검증했습니다.</p>
+        <div class="chips">
+          <span class="badge ok">고쳐서 충족 {{ repair.fixed }}</span>
+          <span class="badge bad">여전히 미충족 {{ repair.still }}</span>
+          {% if repair.broke %}<span class="badge wait">고친 뒤 미충족으로 바뀜 {{ repair.broke }}</span>{% endif %}
+        </div>
+        <h3 class="mt">고친 파일</h3>
+        <ul class="small">
+          {% for f in repair.fixes %}<li><code>{{ f.path }}</code>{% if f.new_file %} (새 파일){% endif %}: {{ f.change }}</li>{% endfor %}
+        </ul>
+        {% if repair.diff %}<details><summary class="small">바뀐 내용 보기 (diff)</summary><pre class="log tall">{{ repair.diff }}</pre></details>{% endif %}
+        {% elif repair.state == 'undone' %}
+        <p>{{ repair.error }}</p>
+        {% else %}
+        <p>첫 검증의 미충족 항목을 살폈지만 코드를 고쳐서 충족할 수 있는 항목이 없어 첫 검증 결과로 마쳤습니다.</p>
+        {% endif %}
+        {% if repair.not_fixable %}
+        <details class="mt"><summary class="small">코드를 고쳐서는 충족할 수 없다고 본 항목 {{ repair.not_fixable|length }}개</summary>
+          <ul class="small">{% for x in repair.not_fixable %}<li>{{ x.requirement }} <span class="muted">(이유: {{ x.why }})</span></li>{% endfor %}</ul>
+        </details>
+        {% endif %}
+        <p class="small muted mt-s">다시 검증할 때도 같은 judge를 썼습니다. 점수가 오른 만큼 judge의 판단에 맞춘 부분도 있을 수 있으니 고친 내용을 함께 확인해 주세요.</p>
+      </div>
+      {% endif %}
 
       <div class="card">
         <div class="cardhead">
@@ -181,6 +226,8 @@
                 {% if x.error %}<span class="badge wait">오류</span>
                 {% elif x.score %}<span class="badge ok">충족</span>
                 {% else %}<span class="badge bad">미충족</span>{% endif %}
+                {% if x.before == 0 and x.score == 1 %}<div class="small muted mt-s">고쳐서 충족</div>
+                {% elif x.before == 1 and x.score == 0 %}<div class="small muted mt-s">고친 뒤 미충족</div>{% endif %}
               </td>
             </tr>
             {% endfor %}

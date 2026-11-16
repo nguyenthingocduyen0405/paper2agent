@@ -11,8 +11,10 @@ from sqlalchemy import and_, case, func, select
 from web import db, store
 
 STAGE_LABEL = {"prepare": "논문 준비(채점 기준 설계)", "agent": "코드 작성", "judge": "자동 검증",
+               "repair": "검증 결과로 코드 고치기", "rejudge": "고친 코드 재검증",
                "gpu_fix": "GPU 실행 중 오류 수정", "exec_judge": "실행·결과 항목 검증"}
 GPU_STAGES = ("gpu_fix", "exec_judge")  # GPU 실행을 한 작업만 쓴다: 그 작업 수로 나눈다
+REPAIR_STAGES = ("repair", "rejudge")  # 미충족 항목이 있던 작업만 쓴다
 STAGE_ORDER = ("prepare", "agent", "judge")
 
 
@@ -54,10 +56,11 @@ def overview(user: dict) -> dict:
             tot = {k: sum(x[k] for x in tokens) for k in ("calls", "input", "cached", "output")}
             tokens.append({"stage": "합계", **tot, "calls": round(tot["calls"], 1),
                            "cache_pct": round(100 * tot["cached"] / tot["input"]) if tot["input"] else 0, "total": True})
-        for st in GPU_STAGES:
+        for st in REPAIR_STAGES + GPU_STAGES:
             r = by_stage.get(st)
             if r and r.jobs:
-                tokens.append({"stage": f"{STAGE_LABEL[st]} (GPU 실행한 {r.jobs}건 평균)", "calls": _avg(r.calls / r.jobs),
+                who = "고친" if st in REPAIR_STAGES else "GPU 실행한"
+                tokens.append({"stage": f"{STAGE_LABEL[st]} ({who} {r.jobs}건 평균)", "calls": _avg(r.calls / r.jobs),
                                "input": round(r.inp / r.jobs), "cached": round(r.cached / r.jobs),
                                "output": round(r.out / r.jobs), "cache_pct": round(100 * r.cached / r.inp) if r.inp else 0})
 

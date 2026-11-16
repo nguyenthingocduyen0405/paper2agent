@@ -17,7 +17,7 @@ AGENT_CALL_LIMIT = 50  # agent/llm.py의 MAX_CALLS
 FINAL_FILES = ("requirements.txt", "reproduce.sh", "README.md")
 STEP_LABELS = ("논문 준비", "코드 작성", "자동 검증", "결과")
 STAGE_STEP = {"prepare_wait": 0, "prepare": 0, "queued": 1, "agent": 1, "judge_wait": 2, "judge": 2, "analyze": 2,
-              "done": 4}
+              "repair_wait": 2, "repair": 2, "done": 4}
 STAGE_STATUS = {
     "prepare_wait": ("준비 대기", "wait"),
     "prepare": ("논문 준비 중", "run"),
@@ -26,7 +26,10 @@ STAGE_STATUS = {
     "judge_wait": ("검증 대기 중", "wait"),
     "judge": ("자동 검증 중", "run"),
     "analyze": ("결과 정리 중", "run"),
+    "repair_wait": ("수정 대기 중", "wait"),
+    "repair": ("코드 고치는 중", "run"),
 }
+REPAIR_DIFF_MAX = 200 * 1024
 
 
 def fmt_time(t: float | None) -> str:
@@ -187,6 +190,11 @@ def results(job: dict) -> dict | None:
     if job["status"] != "done" or not path.exists():
         return None
     items = _scored_rows(job, path)
+    rep = job.get("repair") or {}
+    if rep.get("after") and rep.get("first_run"):
+        before = _leaves(store.RESULTS / f"{rep['first_run']}.json")
+        for x in items:
+            x["before"] = (before.get(x["id"]) or {}).get("score")
     ok = [x for x in items if not x["error"]]
     passed = sum(x["score"] for x in ok)
     return {"rows": items, "judged": len(ok), "passed": passed, "failed": len(ok) - passed,
@@ -194,11 +202,55 @@ def results(job: dict) -> dict | None:
             "files": files_in(Path(job["submission_dir"]))}
 
 
+def _leaves(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text()).get("leaves", {})
+    except (OSError, ValueError):
+        return {}
+
+
+def repair_view(job: dict) -> dict | None:
+    """검증 결과로 코드를 고친 과정: 첫 검증과 재검증 점수, 고친 파일, 항목별 변화, 고칠 수 없다고 본 항목."""
+    rep = job.get("repair")
+    if not rep:
+        return None
+    d = store.DATA / "agent_runs" / job["id"] / "repair"
+    try:
+        s = json.loads((d / "summary.json").read_text())
+    except (OSError, ValueError):
+        s = {}
+    out = {"before": rep.get("before") or {}, "after": rep.get("after"), "undone": rep.get("undone"),
+           "error": rep.get("error"), "changed": s.get("changed_files") or rep.get("changed") or [],
+           "fixes": s.get("fixes") or [], "not_fixable": s.get("not_fixable") or [], "reverted": s.get("reverted") or [],
+           "usage": s.get("usage"), "state": "done"}
+    if job["status"] == "running":
+        out["state"] = "rejudging" if rep.get("rejudge") else "repairing"
+    elif rep.get("undone"):
+        out["state"] = "undone"
+    elif not rep.get("after"):
+        out["state"] = "nothing"
+    b = out["before"]
+    out["failed_before"] = (b.get("judged") or 0) - (b.get("passed") or 0)
+    if rep.get("after") and rep.get("first_run"):
+        before, after = _leaves(store.RESULTS / f"{rep['first_run']}.json"), _leaves(store.RESULTS / f"{job['judge_run']}.json")
+        pairs = [((before.get(lid) or {}).get("score"), v.get("score")) for lid, v in after.items()]
+        out.update(fixed=sum(1 for p in pairs if p == (0, 1)), broke=sum(1 for p in pairs if p == (1, 0)),
+                   still=sum(1 for p in pairs if p == (0, 0)))
+    diff_path = d / "changes.diff"
+    if diff_path.is_file() and not rep.get("undone"):
+        text = diff_path.read_text(errors="replace")
+        out["diff"] = text[:REPAIR_DIFF_MAX] + ("\n... (생략)" if len(text) > REPAIR_DIFF_MAX else "")
+    return out
+
+
 def summary(job: dict) -> str:
     """작업 목록에 보여 줄 한 줄 진행 상황."""
     if job["status"] == "done":
         s = job.get("score") or {}
         text = f"충족 {s.get('passed', '?')}/{s.get('judged', '?')}"
+        rep = job.get("repair") or {}
+        if rep.get("after"):
+            text += f" (고치기 전 {rep['before']['passed']}/{rep['before']['judged']})"
         g = job.get("gpu") or {}
         if gpu.is_active(job):
             text += f", GPU {GPU_STATUS.get(g['status'], (g['status'], ''))[0]}"
@@ -217,9 +269,13 @@ def summary(job: dict) -> str:
         a = agent_progress(job)
         cur = next((s for s in a["steps"] if s["state"] == "current"), None) if a else None
         return f"{cur['code']} {cur['label']} {cur['detail']}".strip() if cur else "코드 작성 중"
+    if stage in ("repair_wait", "repair"):
+        b = (job.get("repair") or {}).get("before") or {}
+        return f"미충족 {(b.get('judged') or 0) - (b.get('passed') or 0)}개 고치는 중"
     if stage == "judge":
         j = judge_progress(job)
-        return f"검증 {j['done']}/{j['total'] or '?'}"
+        again = "다시 " if (job.get("repair") or {}).get("rejudge") else ""
+        return f"{again}검증 {j['done']}/{j['total'] or '?'}"
     return {"queued": "차례를 기다리는 중", "judge_wait": "검증 차례를 기다리는 중",
             "analyze": "결과 정리 중"}.get(stage, "")
 
@@ -288,8 +344,9 @@ def live_context(job: dict) -> dict:
            "agent": agent_progress(job),
            "judge": judge_progress(job), "res": results(job), "elapsed": fmt_duration(elapsed(job)), "log": "",
            "gpu": gpu_view(job), "ask_gpu": gpu.should_ask(job), "gpu_minutes": gpu.GPU_MINUTES,
+           "repair": repair_view(job),
            "gpu_fixes": gpu.GPU_MAX_FIXES}
-    if job["status"] == "running" and job["stage"] in ("agent", "prepare"):
+    if job["status"] == "running" and job["stage"] in ("agent", "prepare", "repair"):
         try:
             ctx["log"] = k8s.job_logs(k8s.job_name(job["stage"], job["id"]), tail=12)
         except Exception:  # 로그는 없어도 화면은 보여 준다
@@ -420,6 +477,9 @@ def bundle_zip(job: dict) -> bytes | None:
         rubric = Path(job["paper_dir"]) / "rubric.json"
         if rubric.is_file():
             z.write(rubric, root / "PAPERAGENT_RUBRIC.json")
+        diff = store.DATA / "agent_runs" / job["id"] / "repair" / "changes.diff"
+        if (job.get("repair") or {}).get("after") and diff.is_file():
+            z.write(diff, root / "PAPERAGENT_REPAIR.diff")
         g = job.get("gpu") or {}
         if g.get("result"):
             run_root = root / "PAPERAGENT_GPU_RUN"
@@ -454,6 +514,10 @@ def report_md(job: dict) -> str | None:
         f"- 만든 파일: {len(res['files'])}개",
         f"- 자동 검증: {res['judged']}개 항목 중 {res['passed']}개 충족 ({res['pct']}%)",
     ]
+    rv = repair_view(job)
+    if rv and rv["state"] == "done":
+        b = rv["before"]
+        lines.append(f"- 첫 검증: {b['judged']}개 항목 중 {b['passed']}개 충족. 미충족 항목을 근거로 코드를 고친 뒤 전체를 다시 검증했습니다.")
     if res["errors"]:
         lines.append(f"- 검증하지 못한 항목: {res['errors']}개")
     if job.get("mock"):
@@ -472,6 +536,24 @@ def report_md(job: dict) -> str | None:
         "",
     ]
     lines += [f"- `{f['path']}`" for f in res["files"]]
+    if rv and rv["state"] != "nothing":
+        lines += ["", "## 검증 결과로 코드 고치기", ""]
+        b = rv["before"]
+        if rv["state"] == "done":
+            lines += [f"첫 검증에서 미충족이던 {rv['failed_before']}개 항목과 judge가 적은 이유를 근거로 코드를 고치고, "
+                      f"모든 항목을 처음부터 다시 검증했습니다. 다시 검증할 때도 같은 judge를 썼습니다.", "",
+                      f"- 충족: {b['passed']}/{b['judged']} → {rv['after']['passed']}/{rv['after']['judged']}",
+                      f"- 고쳐서 충족: {rv.get('fixed', 0)}개, 고친 뒤에도 미충족: {rv.get('still', 0)}개, "
+                      f"고친 뒤 미충족으로 바뀐 항목: {rv.get('broke', 0)}개",
+                      f"- 고친 파일: {', '.join(rv['changed']) or '없음'} (바뀐 내용은 PAPERAGENT_REPAIR.diff)"]
+            for f in rv["fixes"]:
+                lines.append(f"  - `{f['path']}`: {f['change']}")
+        elif rv["state"] == "undone":
+            lines.append(f"- {rv['error']}")
+        if rv["not_fixable"]:
+            lines.append("- 코드를 고쳐서는 충족할 수 없다고 본 항목:")
+            lines += [f"  - {x['requirement']} (이유: {x['why']})" for x in rv["not_fixable"]]
+        lines.append("")
     lines += [
         "",
         "## 항목별 검증 결과",
@@ -481,6 +563,10 @@ def report_md(job: dict) -> str | None:
     ]
     for x in res["rows"]:
         mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
+        if x.get("before") == 0 and x["score"] == 1:
+            mark += " (고쳐서 충족)"
+        elif x.get("before") == 1 and x["score"] == 0:
+            mark += " (고친 뒤 미충족)"
         lines += [f"### {x['n']}. {mark}", "", f"기준: {x['requirements']}", ""]
         lines += _evidence_lines(x.get("evidence"))
         lines += [f"판단 이유: {x['reason'] or x['error']}", ""]
