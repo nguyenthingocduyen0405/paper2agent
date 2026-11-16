@@ -130,6 +130,27 @@ llm_calls = Table(
 )
 Index("ix_calls_job_stage", llm_calls.c.job_id, llm_calls.c.stage)
 
+gpu_runs = Table(
+    "gpu_runs", md,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("job_id", String(16), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False),
+    Column("n", Integer, nullable=False),                 # 이 작업의 몇 번째 GPU 실행인가
+    Column("user_id", Integer, ForeignKey("users.id", ondelete="SET NULL")),
+    Column("state", String(16), nullable=False),          # queued | running | judge_wait | judging | analyze | done | failed | cancelled
+    Column("final", String(16)),                          # succeeded | failed | time_limit | cancelled | error (agent/gpu_run.py)
+    Column("tier", String(32)),
+    Column("attempts", Integer),
+    Column("fixes", Integer),
+    Column("run_sec", Float),                             # JPUShare에서 실제로 돈 시간(마지막 시도)
+    Column("queue_sec", Float),
+    Column("exec_passed", Integer),
+    Column("exec_judged", Integer),
+    Column("requested_at", Float, nullable=False),
+    Column("finished_at", Float),
+    UniqueConstraint("job_id", "n"),
+)
+Index("ix_gpu_runs_state", gpu_runs.c.state)
+
 _engine: Engine | None = None
 _lock = threading.Lock()
 

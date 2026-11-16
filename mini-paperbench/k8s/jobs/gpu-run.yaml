@@ -1,0 +1,33 @@
+# Job 템플릿: GPU 실행(agent/gpu_run.py). 만든 코드를 학교 공용 GPU(JPUShare)에서 실행하고, 오류가 나면 LLM이 고쳐 다시 실행한다.
+# 사용자가 작업 화면에서 실행을 고르면 웹(web/gpu.py)이 __NAME__, __TAG__, __ARGS__를 채워서 만든다.
+# JPUShare API 키(Secret jpushare)는 이 Job에만 들어간다. EC2 메타데이터는 NetworkPolicy(45-network.yaml)로 막혀 있다.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: __NAME__
+  namespace: paperbench
+spec:
+  backoffLimit: 0             # 실패 이유는 result.json에 남긴다. 다시 돌리면 GPU 작업이 겹쳐 제출된다
+  activeDeadlineSeconds: 21600   # 대기열이 길어도 6시간이면 끝낸다
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: gpu-run
+          image: paperbench/agent:__TAG__
+          imagePullPolicy: Never
+          command: ["python", "-m", "agent.gpu_run"]
+          args: __ARGS__
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {memory: 2Gi}   # wheel을 받고 코드 ZIP(최대 수백 MB)을 메모리에서 만든다
+          envFrom:
+            - configMapRef: {name: llm-config}
+            - secretRef: {name: llm-keys}
+            - secretRef: {name: jpushare}   # JPUSHARE_API_KEY
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+      volumes:
+        - name: data
+          hostPath: {path: /data, type: DirectoryOrCreate}

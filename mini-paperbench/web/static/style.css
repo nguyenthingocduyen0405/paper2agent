@@ -302,3 +302,22 @@ h2.pad, p.pad { padding: 18px 20px 0; margin: 0 0 12px; }
 ul.plain { margin: 8px 0 0; padding-left: 18px; }
 @media (max-width: 1100px) { .stats.four { grid-template-columns: repeat(2, 1fr); } .rowform { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 720px) { .stats.four { grid-template-columns: 1fr; } nav .who { border-left: 0; padding-left: 0; } }
+
+/* GPU 실행 */
+dialog.modal { border: 0; border-radius: 16px; padding: 28px; max-width: 520px; width: calc(100% - 32px);
+  box-shadow: 0 20px 60px rgba(16, 24, 40, 0.25); color: var(--text); }
+dialog.modal::backdrop { background: rgba(16, 24, 40, 0.45); }
+dialog.modal h2 { margin: 0 0 10px; font-size: 20px; }
+dialog.modal p { margin: 0 0 10px; line-height: 1.6; }
+dialog.modal ul { margin: 0 0 18px; padding-left: 18px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.phase { display: flex; align-items: center; gap: 10px; font-weight: 600; margin: 12px 0; }
+.spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--accent-weak); border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite; flex: none; }
+.attempts { list-style: none; margin: 0 0 8px; padding: 0; }
+.attempts li { padding: 6px 0; border-top: 1px solid var(--line); }
+.attempts-table td, .attempts-table th { padding: 10px 12px; }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 8px 0 12px; }
+.thumbs a { display: flex; flex-direction: column; gap: 4px; color: var(--muted); }
+.thumbs img { width: 100%; height: 140px; object-fit: contain; background: #fafbfc; border: 1px solid var(--line); border-radius: 8px; }
+

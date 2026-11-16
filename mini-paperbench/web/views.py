@@ -10,7 +10,7 @@ from pathlib import Path
 
 from judge.common import k
 from judge.rubric import load_leaves
-from web import k8s, orchestrator, store
+from web import gpu, k8s, orchestrator, store
 
 KST = timezone(timedelta(hours=9))
 AGENT_CALL_LIMIT = 50  # agent/llm.py의 MAX_CALLS
@@ -145,11 +145,8 @@ def judge_progress(job: dict) -> dict | None:
             "pct": round(100 * len(results) / total) if total else 0, "recent": recent}
 
 
-def results(job: dict) -> dict | None:
-    """끝난 작업의 결과: 항목별 점수(루브릭 순서), 파일 목록."""
-    path = store.RESULTS / f"{job['judge_run']}.json"
-    if job["status"] != "done" or not path.exists():
-        return None
+def _scored_rows(job: dict, path: Path) -> list[dict]:
+    """검증 결과 파일의 항목을 루브릭 순서로."""
     by_id = json.loads(path.read_text()).get("leaves", {})
     try:
         rubric = load_leaves(Path(job["paper_dir"]) / "rubric.json")
@@ -158,8 +155,16 @@ def results(job: dict) -> dict | None:
     known = {leaf["id"] for leaf in rubric}
     ordered = [(leaf["requirements"], by_id[leaf["id"]]) for leaf in rubric if leaf["id"] in by_id]
     ordered += [(v.get("requirements", lid), v) for lid, v in by_id.items() if lid not in known]
-    items = [{"n": i + 1, "requirements": req, "score": v.get("score"), "reason": v.get("reason", ""),
-              "error": v.get("error")} for i, (req, v) in enumerate(ordered)]
+    return [{"n": i + 1, "requirements": req, "score": v.get("score"), "reason": v.get("reason", ""),
+             "error": v.get("error"), "category": v.get("category")} for i, (req, v) in enumerate(ordered)]
+
+
+def results(job: dict) -> dict | None:
+    """끝난 작업의 결과: 항목별 점수(루브릭 순서), 파일 목록."""
+    path = store.RESULTS / f"{job['judge_run']}.json"
+    if job["status"] != "done" or not path.exists():
+        return None
+    items = _scored_rows(job, path)
     ok = [x for x in items if not x["error"]]
     passed = sum(x["score"] for x in ok)
     return {"rows": items, "judged": len(ok), "passed": passed, "failed": len(ok) - passed,
@@ -171,7 +176,14 @@ def summary(job: dict) -> str:
     """작업 목록에 보여 줄 한 줄 진행 상황."""
     if job["status"] == "done":
         s = job.get("score") or {}
-        return f"충족 {s.get('passed', '?')}/{s.get('judged', '?')}"
+        text = f"충족 {s.get('passed', '?')}/{s.get('judged', '?')}"
+        g = job.get("gpu") or {}
+        if gpu.is_active(job):
+            text += f", GPU {GPU_STATUS.get(g['status'], (g['status'], ''))[0]}"
+        elif g.get("exec_score"):
+            e = g["exec_score"]
+            text += f", 실행 검증 {e['passed']}/{e['judged']}"
+        return text
     if job["status"] == "failed":
         return job.get("error", "")
     stage = job["stage"]
@@ -247,13 +259,120 @@ def rubric_view(job: dict) -> dict | None:
 def live_context(job: dict) -> dict:
     ctx = {"job": job, "steps": steps(job), "prep": prepare_progress(job), "rubric": rubric_view(job),
            "agent": agent_progress(job),
-           "judge": judge_progress(job), "res": results(job), "elapsed": fmt_duration(elapsed(job)), "log": ""}
+           "judge": judge_progress(job), "res": results(job), "elapsed": fmt_duration(elapsed(job)), "log": "",
+           "gpu": gpu_view(job), "ask_gpu": gpu.should_ask(job), "gpu_minutes": gpu.GPU_MINUTES,
+           "gpu_fixes": gpu.GPU_MAX_FIXES}
     if job["status"] == "running" and job["stage"] in ("agent", "prepare"):
         try:
             ctx["log"] = k8s.job_logs(k8s.job_name(job["stage"], job["id"]), tail=12)
         except Exception:  # 로그는 없어도 화면은 보여 준다
             pass
     return ctx
+
+
+GPU_STATUS = {
+    "queued": ("실행 대기", "wait"), "running": ("실행 중", "run"), "judge_wait": ("검증 대기", "wait"),
+    "judging": ("실행 결과 검증 중", "run"), "analyze": ("결과 정리 중", "run"), "done": ("끝남", "ok"),
+    "failed": ("실행 못 함", "bad"), "cancelled": ("취소됨", "wait"), "self": ("직접 실행", "wait"),
+}
+GPU_PHASE = {  # agent/gpu_run.py가 status.json에 적는 단계
+    "preparing": "실행 준비 중 (필요한 패키지를 받고 코드를 묶는 중)", "queued": "GPU 대기열에서 차례를 기다리는 중",
+    "running": "GPU에서 실행 중", "checking": "실행 기록과 결과 파일을 받는 중", "fixing": "오류를 고치는 중",
+    "cancelling": "취소하는 중", "done": "실행을 마쳤습니다",
+}
+FINAL_LABEL = {"succeeded": ("끝까지 실행됨", "ok"), "failed": ("오류로 멈춤", "bad"), "time_limit": ("시간 제한에 걸림", "wait"),
+               "cancelled": ("취소됨", "wait"), "error": ("실행 못 함", "bad")}
+JPU_STATE = {"SUCCEEDED": "성공", "FAILED_RUNTIME": "실행 오류", "FAILED_ENV": "환경 오류", "FAILED_OOM_CONFIRMED": "메모리 부족",
+             "FAILED_OOM_SUSPECT": "메모리 부족 의심", "TIMED_OUT": "시간 초과", "CANCELLED": "취소", "KILLED_BY_ADMIN": "관리자가 중지",
+             "FAILED_SUBMISSION": "제출 실패", "UPLOAD_FAILED": "업로드 실패", "RUNNING": "실행 중", "ASSIGNED": "배정됨",
+             "GLOBAL_QUEUE_WAIT": "대기열", "USER_QUEUE_WAIT": "대기열", "ESCALATION_WAIT": "대기열", "SUBMITTED": "제출함",
+             "CANCEL_REQUESTED": "취소 중"}
+IMAGE_EXT = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif"}
+
+
+def _tail_lines(path: Path, n: int) -> str:
+    try:
+        lines = path.read_text(errors="replace").splitlines()
+    except OSError:
+        return ""
+    return "\n".join(lines[-n:])
+
+
+def gpu_final_dir(job: dict) -> Path | None:
+    """마지막 시도의 결과 폴더(gpu/attempts/<n>)."""
+    res = (job.get("gpu") or {}).get("result") or {}
+    attempts = res.get("attempts") or []
+    if not attempts:
+        return None
+    d = gpu.gpu_dir(job) / "attempts" / str(attempts[-1]["n"])
+    return d if d.is_dir() else None
+
+
+def gpu_view(job: dict) -> dict | None:
+    g = job.get("gpu")
+    if not g:
+        return None
+    label, cls = GPU_STATUS.get(g["status"], (g["status"], "wait"))
+    view = {"status": g["status"], "label": label, "cls": cls, "n": g.get("n"), "error": g.get("error"),
+            "minutes": g.get("minutes"), "tier": g.get("tier"), "active": gpu.is_active(job),
+            "can_cancel": g["status"] in ("queued", "running") and not g.get("cancel_requested"),
+            "can_rerun": not gpu.runnable(job), "requested_by": g.get("requested_by"),
+            "elapsed": fmt_duration((g.get("finished_at") or time.time()) - g["requested_at"]) if g.get("requested_at") else ""}
+    if g["status"] == "running":
+        try:
+            st = json.loads((gpu.gpu_dir(job) / "status.json").read_text())
+        except (OSError, ValueError):
+            st = {}
+        if st.get("started_at", 0) >= g.get("started_at", 0) - 5:
+            view["phase"] = GPU_PHASE.get(st.get("state"), "실행 준비 중")
+            view["attempt"] = st.get("attempt")
+            view["live_attempts"] = [{"n": a.get("n"), "state": JPU_STATE.get(a.get("state"), a.get("state")),
+                                      "fix": (a.get("fix") or {}).get("diagnosis")} for a in st.get("attempts") or []]
+        else:
+            view["phase"] = "실행 준비 중"
+        if g.get("cancel_requested"):
+            view["phase"] = "취소하는 중"
+    res = g.get("result")
+    if res:
+        view["final"], view["final_cls"] = FINAL_LABEL.get(res.get("final"), (res.get("final"), "wait"))
+        view["message"] = res.get("message")
+        view["attempts"] = [{**a, "state_label": JPU_STATE.get(a.get("state"), a.get("state")),
+                             "run": fmt_duration(a.get("run_sec")), "queue": fmt_duration(a.get("queue_sec"))}
+                            for a in res.get("attempts") or []]
+        view["changed_files"] = res.get("changed_files") or []
+        final_dir = gpu_final_dir(job)
+        view["log_tail"] = _tail_lines(final_dir / "reproduce.log", 60) if final_dir else ""
+        if final_dir and not view["log_tail"]:
+            view["log_tail"] = _tail_lines(final_dir / "logs" / "stdout.log", 60)
+        view["outputs"] = [{"path": o, "image": Path(o).suffix.lower() in IMAGE_EXT} for o in res.get("outputs") or []][:100]
+        view["n_outputs"] = res.get("n_outputs", len(view["outputs"]))
+    score = g.get("exec_score")
+    path = store.RESULTS / f"{g.get('exec_run')}.json"
+    if score and path.exists():
+        rows = _scored_rows(job, path)
+        view["exec"] = {"rows": rows, **score, "failed": score["judged"] - score["passed"],
+                        "pct": round(100 * score["passed"] / score["judged"]) if score["judged"] else 0}
+    return view
+
+
+def gpu_output_path(job: dict, rel: str) -> Path | None:
+    """실행 결과 파일 하나(마지막 시도의 files/ 아래). 밖으로 나가는 경로는 None."""
+    d = gpu_final_dir(job)
+    if d is None:
+        return None
+    root = (d / "files").resolve()
+    target = (root / rel).resolve()
+    return target if target.is_relative_to(root) and target.is_file() else None
+
+
+def gpu_log_path(job: dict) -> Path | None:
+    d = gpu_final_dir(job)
+    if d is None:
+        return None
+    for p in (d / "reproduce.log", d / "logs" / "stdout.log"):
+        if p.is_file():
+            return p
+    return None
 
 
 def bundle_zip(job: dict) -> bytes | None:
@@ -273,6 +392,21 @@ def bundle_zip(job: dict) -> bytes | None:
         rubric = Path(job["paper_dir"]) / "rubric.json"
         if rubric.is_file():
             z.write(rubric, root / "PAPERAGENT_RUBRIC.json")
+        g = job.get("gpu") or {}
+        if g.get("result"):
+            run_root = root / "PAPERAGENT_GPU_RUN"
+            log_path = gpu_log_path(job)
+            if log_path:
+                z.write(log_path, run_root / "reproduce.log")
+            code = gpu.gpu_dir(job) / "code"
+            for rel in g["result"].get("changed_files") or []:
+                if (code / rel).is_file():
+                    z.write(code / rel, run_root / "fixed_files" / rel)
+            final_dir = gpu_final_dir(job)
+            if final_dir and (final_dir / "files").is_dir():
+                for p in sorted((final_dir / "files").rglob("*")):
+                    if p.is_file() and p.stat().st_size <= 5 * 1024 * 1024:
+                        z.write(p, run_root / "outputs" / p.relative_to(final_dir / "files"))
     return buf.getvalue()
 
 
@@ -342,12 +476,38 @@ def report_md(job: dict) -> str | None:
             if len(later) > 100:
                 lines.append(f"- 외 {len(later) - 100}개 (PAPERAGENT_RUBRIC.json 참고)")
             lines.append("")
-    lines += [
-        "## 한계",
-        "",
-        "- 코드는 실행하지 않았습니다. 검증은 코드 내용이 기준을 구현했는지만 봅니다.",
-        "- 실제 실행 결과와 논문 수치의 비교는 직접 해야 합니다.",
-        "- 검증도 LLM이 하므로 틀릴 수 있습니다. 그래서 항목마다 근거를 함께 적었습니다.",
-        "",
-    ]
+    gv = gpu_view(job)
+    ran = bool(gv and gv.get("attempts"))
+    if ran:
+        lines += ["## GPU 실행", "",
+                  f"학교 공용 GPU(JPUShare, {gv['tier']})에서 `reproduce.sh`를 최대 {gv['minutes']}분 동안 실행했습니다. "
+                  "오류가 나면 PaperAgent가 로그를 읽고 코드를 고쳐 다시 실행했습니다.", "",
+                  f"- 결과: {gv['final']}. {gv.get('message') or ''}".rstrip()]
+        for a in gv["attempts"]:
+            line = f"- {a['n']}번째 실행: {a['state_label']}"
+            if a.get("run"):
+                line += f", {a['run']} 동안 실행"
+            lines.append(line)
+            if a.get("fix"):
+                lines.append(f"  - 고친 내용: {a['fix']['diagnosis']} (파일: {', '.join(a['fix']['files']) or '없음'})")
+        if gv.get("changed_files"):
+            lines.append(f"- 실행하면서 고친 파일은 PAPERAGENT_GPU_RUN/fixed_files/에 있습니다: {', '.join(gv['changed_files'])}")
+        lines.append("- 실행 기록은 PAPERAGENT_GPU_RUN/reproduce.log, 실행 중 생긴 파일은 PAPERAGENT_GPU_RUN/outputs/에 있습니다.")
+        lines.append("")
+        if gv.get("exec"):
+            e = gv["exec"]
+            lines += ["### 실행·결과 항목 검증", "",
+                      f"실행 기록과 결과 파일을 보고 실행(Code Execution)과 결과 확인(Result Analysis) 항목 {e['judged']}개를 검증했습니다. "
+                      f"{e['passed']}개 충족({e['pct']}%).", ""]
+            for x in e["rows"]:
+                mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
+                lines += [f"#### {x['n']}. {mark}", "", f"기준: {x['requirements']}", "", f"근거: {x['reason'] or x['error']}", ""]
+    lines += ["## 한계", ""]
+    if ran:
+        lines += [f"- 공용 GPU에서 {gv['minutes']}분까지만 실행했습니다. 논문 전체 실험이 더 오래 걸리면 결과가 일부만 나옵니다.",
+                  "- 실행 환경에는 인터넷이 없어 데이터셋이나 사전 학습 모델을 내려받는 코드는 실패할 수 있습니다."]
+    else:
+        lines += ["- 코드는 실행하지 않았습니다. 검증은 코드 내용이 기준을 구현했는지만 봅니다.",
+                  "- 실제 실행 결과와 논문 수치의 비교는 직접 해야 합니다."]
+    lines += ["- 검증도 LLM이 하므로 틀릴 수 있습니다. 그래서 항목마다 근거를 함께 적었습니다.", ""]
     return "\n".join(lines)

@@ -6,6 +6,7 @@
 #       LLM을 Claude 구독(claude-bridge)으로 쓰면 CLAUDE_CODE_OAUTH_TOKEN도 넣는다.
 #       웹 로그인과 DB: DATABASE_URL(RDS, scripts/aws_setup.sh가 넣는다), ADMIN_USERNAME, ADMIN_PASSWORD, SERVICE_TOKEN.
 #       S3: S3_BUCKET. 이 값들이 없으면 웹은 로컬 SQLite와 디스크만 쓴다(로그인할 관리자도 없다).
+#       GPU 실행: JPUSHARE_API_KEY(JPUShare에서 만든 jpk_ 키). 없으면 GPU 실행이 "키가 없다"로 끝난다.
 # 사용(mini-paperbench 폴더에서): scripts/bootstrap.sh
 #
 # 단계: 1 스왑 → 2 k3s → 3 이미지 빌드 → 4 /data 준비 → 5 Secret → 6 kubectl apply
@@ -89,6 +90,11 @@ if grep -Eq "$WEB_KEYS" .env; then
     --from-env-file=/dev/stdin --dry-run=client -o yaml | $KUBECTL apply -f -
 fi
 S3_BUCKET=$(grep -E '^S3_BUCKET=' .env | head -1 | cut -d= -f2- | tr -d '\r"' || true)
+# GPU 실행(JPUShare): API 키는 gpu-run Job에만 들어간다(k8s/jobs/gpu-run.yaml)
+if grep -q '^JPUSHARE_API_KEY=.\+' .env; then
+  grep '^JPUSHARE_API_KEY=' .env | $KUBECTL -n paperbench create secret generic jpushare \
+    --from-env-file=/dev/stdin --dry-run=client -o yaml | $KUBECTL apply -f -
+fi
 
 # 6. 상시 실행되는 것들: ConfigMap, Redis, (claude-bridge), judge 워커, 웹
 step "6/6 apply"

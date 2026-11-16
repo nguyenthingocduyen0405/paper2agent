@@ -67,6 +67,22 @@ def save(job: dict) -> None:
         db.upsert(conn, db.jobs, _row(job), ["id"])
 
 
+def patch(job_id: str, **fields) -> dict | None:
+    """작업 기록의 몇 칸만 바꾼다(다시 읽고 바꿔 쓴다). 오래 걸린 일(S3 업로드 등) 사이에 사용자가 바꾼 값을 덮어쓰지 않게."""
+    with db.engine().begin() as conn:
+        q = select(db.jobs.c.doc).where(db.jobs.c.id == job_id)
+        if conn.dialect.name == "postgresql":
+            q = q.with_for_update()
+        doc = conn.execute(q).scalar()
+        if doc is None:
+            return None
+        job = json.loads(doc)
+        job.update(fields)
+        job["updated_at"] = time.time()
+        db.upsert(conn, db.jobs, _row(job), ["id"])
+        return job
+
+
 def load(job_id: str) -> dict | None:
     if not ID_RE.fullmatch(job_id or ""):
         return None

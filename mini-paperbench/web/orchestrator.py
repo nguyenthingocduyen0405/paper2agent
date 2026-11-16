@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 
 from judge.common import connect, k
-from web import blob, k8s, records, store
+from web import blob, gpu, k8s, records, store
 
 log = logging.getLogger("orchestrator")
 MAX_AGENT_JOBS = int(os.environ.get("MAX_AGENT_JOBS", "1"))
@@ -222,9 +222,12 @@ def step(job: dict, busy: dict) -> None:
 
 def tick() -> None:
     jobs = store.running_jobs()
+    gpu_jobs = gpu.active_jobs()
     busy = {"prepare": sum(1 for j in jobs if j["stage"] == "prepare"),
             "agent": sum(1 for j in jobs if j["stage"] == "agent"),
-            "judge": any(j["stage"] in ("judge", "analyze") for j in jobs)}
+            # judge 워커는 run 하나씩: 코드 검증과 GPU 실행 뒤 실행·결과 검증이 서로 기다린다
+            "judge": any(j["stage"] in ("judge", "analyze") for j in jobs) or gpu.judge_busy(gpu_jobs),
+            "gpu": sum(1 for j in gpu_jobs if gpu.state(j) == "running")}
     for job in jobs:
         before = (job["stage"], job["status"], job.get("judge_step"))
         try:
@@ -243,8 +246,9 @@ def tick() -> None:
         if (job["stage"], job["status"], job.get("judge_step")) != before:
             store.save(job)
             log.info("job %s → %s/%s", job["id"], job["status"], job["stage"])
+    gpu.tick(busy)
     if blob.enabled():
         for job in store.unarchived_jobs():
             if records.archive(job):
-                store.save(job)
+                store.patch(job["id"], archived_at=job["archived_at"])
                 log.info("job %s archived to S3", job["id"])

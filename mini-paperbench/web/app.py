@@ -25,7 +25,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.exc import DBAPIError, OperationalError
 
-from web import auth, blob, db, orchestrator, records, stats, store, views
+from web import auth, blob, db, gpu, orchestrator, records, stats, store, views
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 log = logging.getLogger("web")
@@ -553,6 +553,66 @@ def view_file(request: Request, job_id: str, path: str):
     else:
         text = target.read_text(errors="replace")
     return _render(request, "file.html", {"job": job, "path": path, "text": text})
+
+
+# ---------- GPU 실행 ----------
+
+def _owner_or_admin(request: Request, job: dict) -> None:
+    user = _user(request)
+    if user["role"] != "admin" and job.get("user_id") != user["id"]:
+        raise HTTPException(403, "작업을 만든 사람과 관리자만 실행할 수 있습니다")
+
+
+@app.post("/jobs/{job_id}/gpu")
+def gpu_action(request: Request, job_id: str, action: str = Form("")):
+    """action: run(GPU에서 실행), self(직접 실행하기로 함), cancel(실행 취소)."""
+    job = _job_or_404(request, job_id)
+    _owner_or_admin(request, job)
+    if action == "run":
+        reason = gpu.runnable(job)
+        if reason:
+            raise HTTPException(409, reason)
+        gpu.request(job, _user(request))
+        log.info("job %s: GPU run requested by %s", job_id, _user(request)["username"])
+    elif action == "self":
+        if not gpu.is_active(job):
+            gpu.choose_self(job)
+    elif action == "cancel":
+        reason = gpu.cancel(job)
+        if reason:
+            raise HTTPException(409, reason)
+    else:
+        raise HTTPException(400, "알 수 없는 요청입니다")
+    return RedirectResponse(f"/jobs/{job_id}#gpu-card", status_code=303)
+
+
+@app.get("/jobs/{job_id}/gpu/log")
+def gpu_log(request: Request, job_id: str):
+    path = views.gpu_log_path(_job_or_404(request, job_id))
+    if path is None:
+        raise HTTPException(404, "실행 기록이 없습니다")
+    data = path.read_bytes()
+    if len(data) > 2 * MAX_VIEW:
+        data = "(앞부분 생략: 전체 기록은 코드 묶음(.zip)의 PAPERAGENT_GPU_RUN/reproduce.log에 있습니다)\n...\n".encode() \
+            + data[-2 * MAX_VIEW:]
+    return PlainTextResponse(data.decode("utf-8", errors="replace"), headers={"X-Content-Type-Options": "nosniff"})
+
+
+@app.get("/jobs/{job_id}/gpu/files/{path:path}")
+def gpu_file(request: Request, job_id: str, path: str):
+    """실행 중 생긴 파일. 그림은 화면에 보이고, 글은 텍스트로, 나머지는 내려받는다. 실행한 코드가 만든 파일이라 HTML로는 열지 않는다."""
+    target = views.gpu_output_path(_job_or_404(request, job_id), path)
+    if target is None:
+        raise HTTPException(404, "파일을 찾을 수 없습니다")
+    headers = {"X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox; default-src 'none'"}
+    ctype = views.IMAGE_EXT.get(target.suffix.lower())
+    if ctype:
+        return Response(target.read_bytes(), media_type=ctype, headers=headers)
+    if target.suffix.lower() in (".txt", ".log", ".csv", ".tsv", ".json", ".jsonl", ".md", ".yaml", ".yml") \
+            and target.stat().st_size <= MAX_VIEW:
+        return PlainTextResponse(target.read_text(errors="replace"), headers=headers)
+    headers["Content-Disposition"] = f'attachment; filename="{target.name}"'
+    return Response(target.read_bytes(), media_type="application/octet-stream", headers=headers)
 
 
 # ---------- 비교, 통계 ----------

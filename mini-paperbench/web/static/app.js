@@ -9,6 +9,7 @@
     };
     const poll = async () => {
       if (!running()) return;
+      const wasRunning = running();
       try {
         const r = await fetch(live.dataset.url, { cache: "no-store" });
         if (r.ok) {
@@ -19,6 +20,11 @@
           // 논문 준비가 끝나 채점 기준이 막 생겼으면 한 번 새로 고쳐 채점 기준 전체를 보여 준다
           const s = live.querySelector("[data-status]");
           if (s && s.dataset.rubric === "1" && !document.getElementById("rubric-card")) {
+            location.reload();
+            return;
+          }
+          // 작업(또는 GPU 실행)이 막 끝났으면 한 번 새로 고친다: 실행 여부를 묻는 창과 최종 결과를 보여 준다
+          if (wasRunning && !running()) {
             location.reload();
             return;
           }
@@ -70,6 +76,16 @@
       b.textContent = "접수하는 중...";
     });
   }
+
+  // 코드 작성과 검증이 끝나면 GPU에서 바로 실행할지 묻는다
+  const ask = document.getElementById("gpu-ask");
+  if (ask && typeof ask.showModal === "function") ask.showModal();
+
+  // 되돌리기 어려운 요청(GPU 실행, 취소)은 한 번 더 묻는다. #live 안의 폼도 있으므로 문서에 건다
+  document.addEventListener("submit", (e) => {
+    const f = e.target.closest("form[data-confirm]");
+    if (f && !window.confirm(f.dataset.confirm)) e.preventDefault();
+  });
 
   // 결과 표 거르기. #live 내용이 바뀌어도 동작하도록 문서에 한 번만 건다
   document.addEventListener("click", (e) => {

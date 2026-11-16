@@ -1,0 +1,117 @@
+{# GPU 실행 카드: 작업 상세(_live.html)의 본문 칸. gpu = views.gpu_view(job) #}
+{% if gpu and gpu.status != 'self' %}
+<div class="card" id="gpu-card">
+  <div class="cardhead">
+    <h2>GPU 실행</h2>
+    <span class="badge {{ gpu.cls }}">{{ gpu.label }}</span>
+  </div>
+  <p class="small muted">학교 공용 GPU(JPUShare, {{ gpu.tier }})에서 <code>reproduce.sh</code>를 최대 {{ gpu.minutes }}분 동안 실행합니다.
+    {% if gpu.n and gpu.n > 1 %}{{ gpu.n }}번째 실행입니다.{% endif %}{% if gpu.requested_by %} 요청: {{ gpu.requested_by }}{% endif %}{% if gpu.elapsed %}, {{ gpu.elapsed }}{% endif %}</p>
+
+  {% if gpu.status == 'queued' %}
+  <p class="phase"><span class="spin" aria-hidden="true"></span>앞선 GPU 실행이 끝나면 시작합니다. 공용 GPU라서 한 번에 하나씩 돌립니다.</p>
+  {% elif gpu.status == 'running' %}
+  <p class="phase"><span class="spin" aria-hidden="true"></span>{{ gpu.phase }}{% if gpu.attempt %} <span class="muted">({{ gpu.attempt }}번째 시도)</span>{% endif %}</p>
+  {% if gpu.live_attempts %}
+  <ul class="attempts">
+    {% for a in gpu.live_attempts %}
+    <li><strong>{{ a.n }}번째</strong> <span class="muted">{{ a.state }}</span>{% if a.fix %}<div class="small">고친 내용: {{ a.fix }}</div>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% elif gpu.status in ('judge_wait', 'judging', 'analyze') %}
+  <p class="phase"><span class="spin" aria-hidden="true"></span>실행 기록과 결과 파일로 실행·결과 항목을 검증하고 있습니다.</p>
+  {% endif %}
+
+  {% if gpu.error %}<div class="alert {{ 'bad' if gpu.status == 'failed' else 'warn' }}">{{ gpu.error }}</div>{% endif %}
+
+  {% if gpu.attempts %}
+  <div class="alert {{ 'info' if gpu.final_cls == 'ok' else 'warn' if gpu.final_cls == 'wait' else 'bad' }}">
+    <strong>{{ gpu.final }}</strong> {{ gpu.message }}
+  </div>
+  <table class="list attempts-table">
+    <thead><tr><th>시도</th><th>결과</th><th>실행 시간</th><th>대기</th><th>고친 내용</th></tr></thead>
+    <tbody>
+      {% for a in gpu.attempts %}
+      <tr>
+        <td class="nowrap">{{ a.n }}번째</td>
+        <td class="nowrap">{{ a.state_label }}{% if a.time_limit %} (시간 제한){% endif %}</td>
+        <td class="nowrap">{{ a.run or '-' }}</td>
+        <td class="nowrap muted">{{ a.queue or '-' }}</td>
+        <td class="small">{% if a.fix %}{{ a.fix.diagnosis }}{% if a.fix.files %}<div class="chips mt-s">{% for f in a.fix.files %}<code class="chip">{{ f }}</code>{% endfor %}</div>{% endif %}{% else %}<span class="muted">-</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if gpu.log_tail %}
+  <div class="cardhead mt">
+    <h3>실행 기록 (마지막 60줄)</h3>
+    <a class="small" href="/jobs/{{ job.id }}/gpu/log" target="_blank" rel="noopener">전체 기록 보기</a>
+  </div>
+  <pre class="log tall">{{ gpu.log_tail }}</pre>
+  {% endif %}
+  {% if gpu.outputs %}
+  <h3 class="mt">실행하면서 생긴 파일 <span class="muted small">{{ gpu.n_outputs }}개</span></h3>
+  {% set images = gpu.outputs | selectattr('image') | list %}
+  {% if images %}
+  <div class="thumbs">
+    {% for o in images[:6] %}
+    <a href="/jobs/{{ job.id }}/gpu/files/{{ o.path }}" target="_blank" rel="noopener"><img src="/jobs/{{ job.id }}/gpu/files/{{ o.path }}" alt="{{ o.path }}" loading="lazy"><span class="small">{{ o.path }}</span></a>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <ul class="files">
+    {% for o in gpu.outputs %}
+    <li><a href="/jobs/{{ job.id }}/gpu/files/{{ o.path }}" target="_blank" rel="noopener">{{ o.path }}</a></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endif %}
+
+  <div class="actions mt">
+    {% if gpu.can_cancel %}
+    <form method="post" action="/jobs/{{ job.id }}/gpu" class="inline" data-confirm="GPU 실행을 취소할까요? 공용 GPU에서 돌고 있는 작업도 멈춥니다.">
+      <input type="hidden" name="action" value="cancel"><button class="btn" type="submit">실행 취소</button>
+    </form>
+    {% elif gpu.status == 'running' %}<span class="muted small">취소를 요청했습니다. GPU 작업이 멈추면 정리됩니다.</span>{% endif %}
+    {% if gpu.can_rerun and not gpu.active %}
+    <form method="post" action="/jobs/{{ job.id }}/gpu" class="inline" data-confirm="GPU에서 다시 실행할까요? 최대 {{ gpu.minutes }}분 동안 공용 GPU를 씁니다.">
+      <input type="hidden" name="action" value="run"><button class="btn" type="submit">다시 실행하기</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if gpu.exec %}
+<div class="card">
+  <div class="cardhead">
+    <h2>실행·결과 항목 검증</h2>
+    <div class="filter">
+      <button type="button" class="btn btn-sm active" data-filter="all">전체 {{ gpu.exec.rows|length }}</button>
+      <button type="button" class="btn btn-sm" data-filter="1">충족 {{ gpu.exec.passed }}</button>
+      <button type="button" class="btn btn-sm" data-filter="0">미충족 {{ gpu.exec.failed }}</button>
+    </div>
+  </div>
+  <p class="small muted">GPU 실행 기록(reproduce.log)과 실행하면서 생긴 결과 파일을 보고, 채점 기준의 실행 항목과 결과 확인 항목을 검증했습니다. {{ gpu.exec.judged }}개 중 {{ gpu.exec.passed }}개 충족({{ gpu.exec.pct }}%).</p>
+  <table class="list rubric">
+    <thead><tr><th class="num-col">#</th><th>기준</th><th class="res-col">결과</th></tr></thead>
+    <tbody>
+      {% for x in gpu.exec.rows %}
+      <tr data-score="{% if x.error %}e{% else %}{{ x.score }}{% endif %}">
+        <td class="muted">{{ x.n }}</td>
+        <td>
+          <div><span class="badge other cat">{{ '실행' if x.category == 'Code Execution' else '결과 확인' }}</span> {{ x.requirements }}</div>
+          <details><summary class="small">근거 보기</summary><p class="small reason">{{ x.reason or x.error }}</p></details>
+        </td>
+        <td>
+          {% if x.error %}<span class="badge wait">오류</span>
+          {% elif x.score %}<span class="badge ok">충족</span>
+          {% else %}<span class="badge bad">미충족</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endif %}

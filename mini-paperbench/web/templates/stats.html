@@ -75,6 +75,22 @@
   </div>
 </div>
 
+{% if gpu_runs.total %}
+<div class="card flush">
+  <h2 class="pad">GPU 실행 <span class="muted small">{{ gpu_runs.total }}번</span></h2>
+  <table class="list num-table">
+    <thead><tr><th>결과</th><th>횟수</th><th>평균 시도</th><th>평균 실행 시간</th><th>평균 대기</th><th>실행·결과 항목 충족률</th></tr></thead>
+    <tbody>
+      {% for r in gpu_runs.rows %}
+      <tr><td>{{ {"succeeded": "끝까지 실행됨", "failed": "오류로 멈춤", "time_limit": "시간 제한", "cancelled": "취소", "error": "실행 못 함"}.get(r.final, r.final) }}</td>
+        <td>{{ r.n }}</td><td>{{ r.attempts or "-" }}</td><td>{{ fmt_duration(r.run) or "-" }}</td><td>{{ fmt_duration(r.queue) or "-" }}</td>
+        <td>{{ r.pct ~ "%" if r.pct is not none else "-" }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
 <div class="card flush">
   <h2 class="pad">논문별 결과</h2>
   {% if papers %}

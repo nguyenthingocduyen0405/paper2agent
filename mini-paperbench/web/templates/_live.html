@@ -1,5 +1,6 @@
 {% set st = status_label(job) %}
-<div data-status="{{ job.status }}" data-rubric="{{ 1 if rubric else 0 }}">
+{# GPU 실행 중에도 몇 초마다 다시 받는다 #}
+<div data-status="{{ 'running' if job.status == 'running' or (gpu and gpu.active) else job.status }}" data-rubric="{{ 1 if rubric else 0 }}">
   <div class="statusline">
     <span class="badge {{ st[1] }}">{{ st[0] }}</span>
     <span class="muted small">{% if job.status == 'running' %}진행 {{ elapsed }}{% else %}걸린 시간 {{ elapsed }}{% endif %}</span>
@@ -185,6 +186,8 @@
         </table>
       </div>
       {% endif %}
+
+      {% include "_gpu.html" %}
     </div>
 
     <aside class="col-side">
@@ -195,6 +198,7 @@
           <a class="btn btn-primary" href="/jobs/{{ job.id }}/code.zip">코드와 보고서 (.zip)</a>
           <a class="btn" href="/jobs/{{ job.id }}/report.md">보고서만 (.md)</a>
         </div>
+        {% if gpu and gpu.attempts %}<p class="small muted mt-s">GPU 실행 기록, 고친 파일, 결과 파일은 묶음 안의 PAPERAGENT_GPU_RUN 폴더에 있습니다.</p>{% endif %}
         <h3 class="mt">받은 뒤 할 일</h3>
         <ol class="howto">
           <li>압축을 풀고 <code>README.md</code>를 읽습니다.</li>
@@ -202,6 +206,17 @@
           <li>출력된 결과를 논문의 표와 그림에 나온 수치와 비교합니다.</li>
         </ol>
       </div>
+
+      {% if (not gpu or gpu.status == 'self') and res and not job.skip_agent %}
+      <div class="card" id="gpu-card">
+        <h2>GPU에서 실행해 보기</h2>
+        <p class="small muted">학교 공용 GPU에서 <code>reproduce.sh</code>를 최대 {{ gpu_minutes }}분 동안 실행합니다. 오류가 나면 PaperAgent가 고쳐서 {{ gpu_fixes }}번까지 다시 실행하고, 실행 기록으로 실행·결과 항목을 검증합니다.</p>
+        <form method="post" action="/jobs/{{ job.id }}/gpu" data-confirm="GPU에서 실행할까요? 최대 {{ gpu_minutes }}분 동안 공용 GPU를 씁니다.">
+          <input type="hidden" name="action" value="run">
+          <button class="btn btn-primary" type="submit">GPU에서 실행하기</button>
+        </form>
+      </div>
+      {% endif %}
 
       <div class="card">
         <h2>만든 파일</h2>

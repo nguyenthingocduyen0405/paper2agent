@@ -163,8 +163,9 @@ def ingest_calls(job: dict, stage: str, path: Path) -> int:
     return len(rows)
 
 
-def ingest_results(job: dict) -> int:
-    path = store.RESULTS / f"{job['judge_run']}.json"
+def ingest_results(job: dict, run: str | None = None, stage: str = "judge") -> int:
+    """검증 결과(results/<run>.json)를 item_scores와 llm_calls에 옮긴다. 코드 검증(judge)과 실행 검증(exec_judge)이 같은 함수를 쓴다."""
+    path = store.RESULTS / f"{run or job['judge_run']}.json"
     if not path.is_file():
         return 0
     leaves = json.loads(path.read_text()).get("leaves", {})
@@ -177,13 +178,15 @@ def ingest_results(job: dict) -> int:
                        "score": None if err else v.get("score"), "reason": v.get("reason"), "error": err, "sec": sec})
         u = v.get("usage") or {}
         if u:
-            calls.append({"job_id": job["id"], "stage": "judge", "step": lid[:32], "model": model,
+            calls.append({"job_id": job["id"], "stage": stage, "step": lid[:32], "model": model,
                           "calls": int(u.get("calls") or 1), "input_tokens": int(u.get("input_tokens") or 0),
                           "cached_tokens": int(u.get("cached_tokens") or 0),
                           "output_tokens": int(u.get("output_tokens") or 0), "sec": sec, "finish_reason": None})
     with db.engine().begin() as conn:
-        conn.execute(delete(db.item_scores).where(db.item_scores.c.job_id == job["id"]))
-        conn.execute(delete(db.llm_calls).where(db.llm_calls.c.job_id == job["id"], db.llm_calls.c.stage == "judge"))
+        ids = [x["leaf_id"] for x in scores]
+        if ids:
+            conn.execute(delete(db.item_scores).where(db.item_scores.c.job_id == job["id"], db.item_scores.c.leaf_id.in_(ids)))
+        conn.execute(delete(db.llm_calls).where(db.llm_calls.c.job_id == job["id"], db.llm_calls.c.stage == stage))
         if scores:
             conn.execute(db.item_scores.insert(), scores)
         if calls:
@@ -230,6 +233,21 @@ def after_agent(job: dict) -> None:
 
 def after_judge(job: dict) -> None:
     _safe(lambda: ingest_results(job), "results", job)
+
+
+def gpu_dir(job: dict) -> Path:
+    return agent_dir(job) / "gpu"
+
+
+def after_gpu(job: dict) -> None:
+    """GPU 실행이 끝났다: 오류를 고칠 때 쓴 LLM 호출을 남긴다."""
+    _safe(lambda: ingest_calls(job, "gpu_fix", gpu_dir(job) / "calls.jsonl"), "gpu fix calls", job)
+
+
+def after_exec_judge(job: dict) -> None:
+    run = (job.get("gpu") or {}).get("exec_run")
+    if run:
+        _safe(lambda: ingest_results(job, run, "exec_judge"), "exec results", job)
 
 
 def after_failure(job: dict) -> None:
@@ -294,6 +312,10 @@ def archive(job: dict) -> bool:
         if job.get("paper_dir") and paper_dir.resolve().is_relative_to(store.JOBS_DIR.resolve()):
             for name in ("paper.md", "rubric.json", "meta.json", "addendum.md", "prepare/calls.jsonl"):
                 _put_if(paper_dir / name, pre + f"paper/{name}")
+        g = job.get("gpu") or {}
+        if g.get("result") and gpu_dir(job).is_dir():
+            blob.put_bytes(gpu_zip(job), pre + "gpu.zip", "application/zip")
+            _put_if(store.RESULTS / f"{g.get('exec_run')}.json", pre + f"gpu/{g.get('exec_run')}.json", "application/json")
         jd = store.job_dir(job["id"])
         if jd.is_dir():
             for log_file in jd.glob("*.log"):
@@ -307,6 +329,30 @@ def archive(job: dict) -> bool:
         return False
     _archive_failed_at.pop(job["id"], None)
     return True
+
+
+GPU_ZIP_SKIP = ("code/", "judged/")
+GPU_FILE_MAX = 5 * 1024 * 1024
+
+
+def gpu_zip(job: dict) -> bytes:
+    """GPU 실행 기록 묶음(S3 보관용): 진행·결과 JSON, 시도별 로그와 결과 파일, 고친 코드 파일, judge가 본 reproduce.log."""
+    base = gpu_dir(job)
+    changed = set(((job.get("gpu") or {}).get("result") or {}).get("changed_files") or [])
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        for p in sorted(base.rglob("*")):
+            if not p.is_file() or p.stat().st_size > GPU_FILE_MAX:
+                continue
+            rel = p.relative_to(base).as_posix()
+            if rel.startswith("code/") and rel[5:] not in changed:
+                continue
+            if rel.startswith("judged/") and rel != "judged/reproduce.log":
+                continue
+            if rel == "cancel":
+                continue
+            z.write(p, rel)
+    return buf.getvalue()
 
 
 def bundle_key(job: dict) -> str:
@@ -334,6 +380,17 @@ def _extract_code(data: bytes, sub: Path, job_id: str) -> None:
     tmp.rename(sub)
 
 
+def _extract_into(data: bytes, dest: Path) -> None:
+    root = dest.resolve()
+    with zipfile.ZipFile(io.BytesIO(data)) as z:
+        for info in z.infolist():
+            target = (dest / info.filename).resolve()
+            if info.is_dir() or not target.is_relative_to(root):
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(z.read(info))
+
+
 def ensure_local(job: dict) -> list[str]:
     """화면에 필요한 파일이 디스크에 없으면 S3에서 되살린다(EC2 디스크가 바뀌었거나 /data를 지운 경우)."""
     restored: list[str] = []
@@ -359,6 +416,19 @@ def ensure_local(job: dict) -> list[str]:
                 p = agent_dir(job) / name
                 if not p.is_file() and blob.get_file(pre + f"agent/{name}", p):
                     restored.append(name)
+        g = job.get("gpu") or {}
+        # 진행 중인 실행은 되살리지 않는다(지금 Job이 쓰고 있는 파일이다). 끝난 실행만
+        if g.get("result") and g.get("status") in ("done", "failed", "cancelled") \
+                and not (gpu_dir(job) / "result.json").is_file():
+            tmp = store.DATA / "web" / f".restore-{job['id']}-gpu.zip"
+            if blob.get_file(pre + "gpu.zip", tmp):
+                _extract_into(tmp.read_bytes(), gpu_dir(job))
+                tmp.unlink(missing_ok=True)
+                restored.append("gpu")
+        if g.get("exec_score"):
+            er = store.RESULTS / f"{g['exec_run']}.json"
+            if not er.is_file() and blob.get_file(pre + f"gpu/{g['exec_run']}.json", er):
+                restored.append("gpu results")
         paper_dir = Path(job.get("paper_dir", ""))
         if job.get("paper_dir") and paper_dir.resolve().is_relative_to(store.JOBS_DIR.resolve()):
             for name in ("paper.md", "rubric.json", "meta.json"):

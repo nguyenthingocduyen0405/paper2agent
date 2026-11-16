@@ -10,7 +10,9 @@ from sqlalchemy import and_, case, func, select
 
 from web import db, store
 
-STAGE_LABEL = {"prepare": "논문 준비(채점 기준 설계)", "agent": "코드 작성", "judge": "자동 검증"}
+STAGE_LABEL = {"prepare": "논문 준비(채점 기준 설계)", "agent": "코드 작성", "judge": "자동 검증",
+               "gpu_fix": "GPU 실행 중 오류 수정", "exec_judge": "실행·결과 항목 검증"}
+GPU_STAGES = ("gpu_fix", "exec_judge")  # GPU 실행을 한 작업만 쓴다: 그 작업 수로 나눈다
 STAGE_ORDER = ("prepare", "agent", "judge")
 
 
@@ -36,7 +38,8 @@ def overview(user: dict) -> dict:
         # 단계별 토큰: 끝난 실제 작업 한 건당 평균
         n_done = t.n or 0
         stage_rows = conn.execute(
-            select(c.c.stage, func.sum(c.c.calls).label("calls"), func.sum(c.c.input_tokens).label("inp"),
+            select(c.c.stage, func.count(func.distinct(c.c.job_id)).label("jobs"),
+                   func.sum(c.c.calls).label("calls"), func.sum(c.c.input_tokens).label("inp"),
                    func.sum(c.c.cached_tokens).label("cached"), func.sum(c.c.output_tokens).label("out"))
             .select_from(c.join(j, c.c.job_id == j.c.id)).where(done_real).group_by(c.c.stage)).all()
         by_stage = {r.stage: r for r in stage_rows}
@@ -51,6 +54,22 @@ def overview(user: dict) -> dict:
             tot = {k: sum(x[k] for x in tokens) for k in ("calls", "input", "cached", "output")}
             tokens.append({"stage": "합계", **tot, "calls": round(tot["calls"], 1),
                            "cache_pct": round(100 * tot["cached"] / tot["input"]) if tot["input"] else 0, "total": True})
+        for st in GPU_STAGES:
+            r = by_stage.get(st)
+            if r and r.jobs:
+                tokens.append({"stage": f"{STAGE_LABEL[st]} (GPU 실행한 {r.jobs}건 평균)", "calls": _avg(r.calls / r.jobs),
+                               "input": round(r.inp / r.jobs), "cached": round(r.cached / r.jobs),
+                               "output": round(r.out / r.jobs), "cache_pct": round(100 * r.cached / r.inp) if r.inp else 0})
+
+        g = db.gpu_runs
+        gq = conn.execute(select(g.c.final, func.count().label("n"), func.avg(g.c.run_sec).label("run"),
+                                 func.avg(g.c.queue_sec).label("queue"), func.avg(g.c.attempts).label("attempts"),
+                                 func.sum(g.c.exec_passed).label("passed"), func.sum(g.c.exec_judged).label("judged"))
+                          .where(g.c.final.is_not(None)).group_by(g.c.final)).all()
+        gpu_runs = {"rows": [{"final": r.final, "n": r.n, "run": r.run, "queue": r.queue,
+                              "attempts": _avg(r.attempts), "pct": round(100 * (r.passed or 0) / r.judged) if r.judged else None}
+                             for r in gq],
+                    "total": sum(r.n for r in gq)}
 
         agent_steps = [{"step": r.step, "calls": _avg(r.calls / n_done), "input": round(r.inp / n_done),
                         "output": round(r.out / n_done)}
@@ -100,6 +119,7 @@ def overview(user: dict) -> dict:
                          .select_from(u.outerjoin(j, j.c.user_id == u.c.id).outerjoin(tok, tok.c.job_id == j.c.id))
                          .group_by(u.c.id, u.c.username, u.c.role).order_by(u.c.id)).all()]
     return {"counts": counts, "mock": mock_n, "times": times, "tokens": tokens, "agent_steps": agent_steps,
+            "gpu_runs": gpu_runs,
             "models": models, "cats": cats, "papers": papers, "users": users}
 
 
