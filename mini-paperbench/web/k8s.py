@@ -107,6 +107,8 @@ def list_pods() -> list[dict]:
         waiting = next((c.state.waiting.reason for c in cs if c.state and c.state.waiting), None)
         out.append({"name": p.metadata.name, "phase": p.status.phase, "reason": waiting,
                     "ready": bool(cs) and all(c.ready for c in cs), "restarts": sum(c.restart_count for c in cs),
+                    "terminating": p.metadata.deletion_timestamp is not None,
+                    "finished": p.status.phase in ("Succeeded", "Failed"),
                     "created": p.metadata.creation_timestamp.timestamp() if p.metadata.creation_timestamp else None,
                     "app": labels.get("app") or labels.get("job-name") or ""})
     return sorted(out, key=lambda x: (x["app"], x["name"]))

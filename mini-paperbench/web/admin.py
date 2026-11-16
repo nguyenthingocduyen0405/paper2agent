@@ -140,7 +140,9 @@ def _cluster() -> dict:
     pods = k8s.list_pods()
     jobs = [x for x in k8s.list_jobs() if x["active"]]
     run, mock = k8s.worker_run()
-    return {"pods": pods, "jobs": jobs, "worker_run": run, "worker_mock": mock == "1",
+    # 끝난 Job의 Pod(검증 항목 만들기, 집계 등)는 많아서 따로 센다
+    return {"pods": [x for x in pods if not x.get("finished")], "finished_pods": [x for x in pods if x.get("finished")],
+            "jobs": jobs, "worker_run": run, "worker_mock": mock == "1",
             "workers": k8s.worker_replicas()}
 
 

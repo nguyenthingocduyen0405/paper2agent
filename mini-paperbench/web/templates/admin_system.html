@@ -74,7 +74,8 @@
         <tbody>
           {% for p in c.pods %}
           <tr><td class="small"><code>{{ p.name }}</code></td>
-            <td>{% if p.phase == 'Running' and p.ready %}<span class="badge ok">실행 중</span>
+            <td>{% if p.terminating %}<span class="badge wait">끄는 중</span>
+              {% elif p.phase == 'Running' and p.ready %}<span class="badge ok">실행 중</span>
               {% elif p.phase == 'Succeeded' %}<span class="badge other">끝남</span>
               {% elif p.phase == 'Failed' %}<span class="badge bad">실패</span>
               {% else %}<span class="badge wait">{{ p.reason or p.phase }}</span>{% endif %}</td>
@@ -82,6 +83,11 @@
           {% endfor %}
         </tbody>
       </table>
+      {% if c.finished_pods %}
+      <details class="mt"><summary class="small">끝난 Job의 Pod {{ c.finished_pods|length }}개 (끝난 뒤 1시간이 지나면 쿠버네티스가 지웁니다)</summary>
+        <ul class="small">{% for p in c.finished_pods %}<li><code>{{ p.name }}</code> {% if p.phase == 'Failed' %}<span class="badge bad">실패</span>{% endif %} {{ fmt_time(p.created) }}</li>{% endfor %}</ul>
+      </details>
+      {% endif %}
       {% if c.jobs %}
       <h3 class="mt">실행 중인 Job</h3>
       <ul class="small">{% for j in c.jobs %}<li><code>{{ j.name }}</code> {{ fmt_time(j.started) }} 시작</li>{% endfor %}</ul>
