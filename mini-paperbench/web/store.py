@@ -68,6 +68,36 @@ def save(job: dict) -> None:
         db.upsert(conn, db.jobs, _row(job), ["id"])
 
 
+KEEP_FROM_DB = ("cancel_requested",)  # orchestrator가 덮어쓰면 안 되는 값(다른 곳에서 적는다)
+
+
+def save_running(job: dict) -> bool:
+    """orchestrator용 저장: DB에서 아직 진행 중일 때만 쓴다(그사이 취소·삭제됐으면 쓰지 않는다).
+    그사이 웹이 적은 취소 요청(cancel_requested)은 지우지 않고 이어 받는다."""
+    with db.engine().begin() as conn:
+        q = select(db.jobs.c.status, db.jobs.c.doc).where(db.jobs.c.id == job["id"])
+        if conn.dialect.name == "postgresql":
+            q = q.with_for_update()
+        row = conn.execute(q).first()
+        if row is None or row.status != "running":
+            return False
+        cur = json.loads(row.doc)
+        for key in KEEP_FROM_DB:
+            if cur.get(key) and key not in job and job.get(f"{key}_done") != cur[key]:
+                job[key] = cur[key]
+        job["updated_at"] = time.time()
+        db.upsert(conn, db.jobs, _row(job), ["id"])
+        return True
+
+
+def delete(job_id: str) -> None:
+    """작업 기록을 지운다. 항목 점수, LLM 호출, GPU 실행 기록도 함께(SQLite는 외래 키 연쇄 삭제가 꺼져 있을 수 있어 직접)."""
+    with db.engine().begin() as conn:
+        for t in (db.item_scores, db.llm_calls, db.gpu_runs):
+            conn.execute(t.delete().where(t.c.job_id == job_id))
+        conn.execute(db.jobs.delete().where(db.jobs.c.id == job_id))
+
+
 def patch(job_id: str, **fields) -> dict | None:
     """작업 기록의 몇 칸만 바꾼다(다시 읽고 바꿔 쓴다). 오래 걸린 일(S3 업로드 등) 사이에 사용자가 바꾼 값을 덮어쓰지 않게."""
     with db.engine().begin() as conn:
@@ -96,11 +126,13 @@ def can_see(user: dict | None, job: dict) -> bool:
     return user is None or user["role"] in SEE_ALL_ROLES or job.get("user_id") == user["id"]
 
 
-def list_jobs(user: dict | None = None) -> list[dict]:
-    """user가 볼 수 있는 작업(관리자와 서비스 계정은 전부). user=None은 내부용으로 전부."""
+def list_jobs(user: dict | None = None, owner: int | None = None) -> list[dict]:
+    """user가 볼 수 있는 작업(관리자와 서비스 계정은 전부). user=None은 내부용으로 전부. owner: 이 사용자의 작업만."""
     q = select(db.jobs.c.doc).order_by(db.jobs.c.created_at.desc())
     if user is not None and user["role"] not in SEE_ALL_ROLES:
         q = q.where(db.jobs.c.user_id == user["id"])
+    if owner is not None:
+        q = q.where(db.jobs.c.user_id == owner)
     with db.engine().connect() as conn:
         return [json.loads(d) for d in conn.execute(q).scalars()]
 
@@ -113,7 +145,7 @@ def running_jobs() -> list[dict]:
 
 def unarchived_jobs(limit: int = 5) -> list[dict]:
     """끝났지만 아직 S3에 올리지 않은 작업."""
-    q = (select(db.jobs.c.doc).where(db.jobs.c.status.in_(("done", "failed")), db.jobs.c.archived_at.is_(None))
+    q = (select(db.jobs.c.doc).where(db.jobs.c.status.in_(("done", "failed", "cancelled")), db.jobs.c.archived_at.is_(None))
          .order_by(db.jobs.c.created_at).limit(limit))
     with db.engine().connect() as conn:
         return [json.loads(d) for d in conn.execute(q).scalars()]

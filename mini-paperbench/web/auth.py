@@ -105,6 +105,18 @@ def update_user(user_id: int, **values) -> None:
             conn.execute(delete(db.sessions).where(db.sessions.c.user_id == user_id))  # 다른 기기의 로그인도 끊는다
 
 
+def end_user_sessions(user_id: int) -> int:
+    """이 사용자의 모든 로그인을 끊는다."""
+    with db.engine().begin() as conn:
+        return conn.execute(delete(db.sessions).where(db.sessions.c.user_id == user_id)).rowcount or 0
+
+
+def active_admins() -> int:
+    with db.engine().connect() as conn:
+        return conn.execute(select(func.count()).select_from(db.users)
+                            .where(db.users.c.role == "admin", db.users.c.disabled.is_(False))).scalar() or 0
+
+
 def _locked(username: str) -> bool:
     now = time.time()
     with _fail_lock:

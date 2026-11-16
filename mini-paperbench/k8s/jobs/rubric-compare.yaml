@@ -1,5 +1,6 @@
 # 실험 Job: 자동 채점 기준을 PaperBench 채점 기준과 비교한다(agent.rubric_compare). 에이전트 이미지를 쓴다.
 # 실행: sed "s/__TAG__/<태그>/" k8s/jobs/rubric-compare.yaml | kubectl apply -f -
+# 논문: /data/paperbench/<이름>/(paper.md, rubric.json). PaperBench 논문을 따로 둬서 웹의 예제 목록에 섞이지 않게 한다.
 # 결과: /data/rubric_compare/summary.md (논문마다 compare.json). 다시 실행하면 끝난 논문은 건너뛴다.
 apiVersion: batch/v1
 kind: Job
@@ -17,7 +18,7 @@ spec:
         - name: rubric-compare
           image: paperbench/agent:__TAG__
           imagePullPolicy: Never
-          command: ["python", "-m", "agent.rubric_compare", "--papers-dir", "data/papers", "--out", "data/rubric_compare",
+          command: ["python", "-m", "agent.rubric_compare", "--papers-dir", "data/paperbench", "--out", "data/rubric_compare",
                     "--workers", "2"]
           resources:
             requests: {cpu: 100m, memory: 256Mi}

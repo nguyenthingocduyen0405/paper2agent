@@ -8,6 +8,8 @@
   <a class="btn btn-primary" href="/new">새 작업</a>
 </div>
 
+{% if request.query_params.get("deleted") %}<div class="alert info">작업 {{ request.query_params.get("deleted") }}을 지웠습니다.</div>{% endif %}
+{% if owner_id %}<div class="alert info">{{ owners.get(owner_id, "알 수 없는 사용자") }}의 작업만 보고 있습니다. <a href="/">전체 보기</a></div>{% endif %}
 {% if jobs %}
 <div class="card flush"{% if running %} data-autorefresh{% endif %}>
   <table class="list jobs">
@@ -20,7 +22,7 @@
       <tr class="click" data-href="/jobs/{{ j.id }}">
         <td>
           <a class="title" href="/jobs/{{ j.id }}">{{ j.title }}</a>
-          <div class="muted small">{{ j.source_label }}{% if j.skip_agent %}, 기존 제출물{% endif %}{% if j.mock %}, 모의 채점{% endif %}{% if owners %}, {{ owners.get(j.user_id, "알 수 없음") }}{% endif %}</div>
+          <div class="muted small">{{ j.source_label }}{% if j.skip_agent %}, 기존 제출물{% endif %}{% if j.mock %}, 모의 채점{% endif %}{% if owners %}, {{ owners.get(j.user_id, "삭제된 계정" if j.user_id is none else "알 수 없음") }}{% endif %}</div>
         </td>
         <td><span class="badge {{ st[1] }}">{{ st[0] }}</span></td>
         <td class="small hide-sm">{{ summaries[j.id] }}</td>

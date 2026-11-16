@@ -81,6 +81,51 @@ def job_logs(name: str, tail: int = 40) -> str:
         return ""
 
 
+def delete_job(name: str) -> None:
+    """Job과 그 Pod를 지운다. 없으면 그냥 지나간다."""
+    batch, _, _ = _api()
+    try:
+        batch.delete_namespaced_job(name, NAMESPACE, propagation_policy="Background")
+    except ApiException as e:
+        if e.status != 404:
+            raise
+
+
+def pods_alive(job_name: str) -> int:
+    """이 Job의 Pod 가운데 아직 끝나지 않은(지우는 중 포함) 것의 수."""
+    _, core, _ = _api()
+    pods = core.list_namespaced_pod(NAMESPACE, label_selector=f"job-name={job_name}").items
+    return sum(1 for p in pods if p.status.phase not in ("Succeeded", "Failed"))
+
+
+def list_pods() -> list[dict]:
+    _, core, _ = _api()
+    out = []
+    for p in core.list_namespaced_pod(NAMESPACE).items:
+        cs = p.status.container_statuses or []
+        labels = p.metadata.labels or {}
+        waiting = next((c.state.waiting.reason for c in cs if c.state and c.state.waiting), None)
+        out.append({"name": p.metadata.name, "phase": p.status.phase, "reason": waiting,
+                    "ready": bool(cs) and all(c.ready for c in cs), "restarts": sum(c.restart_count for c in cs),
+                    "created": p.metadata.creation_timestamp.timestamp() if p.metadata.creation_timestamp else None,
+                    "app": labels.get("app") or labels.get("job-name") or ""})
+    return sorted(out, key=lambda x: (x["app"], x["name"]))
+
+
+def list_jobs() -> list[dict]:
+    batch, _, _ = _api()
+    return [{"name": j.metadata.name, "active": j.status.active or 0, "succeeded": j.status.succeeded or 0,
+             "failed": j.status.failed or 0,
+             "started": j.status.start_time.timestamp() if j.status.start_time else None}
+            for j in batch.list_namespaced_job(NAMESPACE).items]
+
+
+def worker_replicas() -> dict:
+    _, _, apps = _api()
+    dep = apps.read_namespaced_deployment("judge-worker", NAMESPACE)
+    return {"want": dep.spec.replicas or 0, "ready": dep.status.ready_replicas or 0}
+
+
 def worker_run() -> tuple[str | None, str | None]:
     """judge 워커가 지금 맡은 (RUN_ID, MOCK_JUDGE)."""
     _, _, apps = _api()

@@ -4,7 +4,27 @@
   <div class="statusline">
     <span class="badge {{ st[1] }}">{{ st[0] }}</span>
     <span class="muted small">{% if job.status == 'running' %}진행 {{ elapsed }}{% else %}걸린 시간 {{ elapsed }}{% endif %}</span>
+    <span class="job-actions">
+      {% if job.status == 'running' and not job.cancel_requested and (user.role == 'admin' or job.user_id == user.id) %}
+      <form method="post" action="/jobs/{{ job.id }}/cancel" data-confirm="이 작업을 취소할까요? 지금 하던 단계를 멈춥니다. 코드를 고치던 중이면 고치기 전 코드와 첫 검증 결과로 마칩니다.">
+        <button class="btn btn-sm" type="submit">작업 취소</button>
+      </form>
+      {% endif %}
+      {% if user.role == 'admin' and job.status in ('failed', 'cancelled') %}
+      <form method="post" action="/jobs/{{ job.id }}/retry" data-confirm="멈춘 단계부터 다시 시도할까요? 코드 작성은 끝난 부분을 건너뜁니다.">
+        <button class="btn btn-sm" type="submit">다시 시도</button>
+      </form>
+      {% endif %}
+      {% if user.role == 'admin' and job.status != 'running' and not (gpu and gpu.active) %}
+      <form method="post" action="/jobs/{{ job.id }}/delete" data-confirm="이 작업을 지울까요? 만든 코드, 검증 결과, 기록이 디스크·S3·DB에서 모두 지워지고 되돌릴 수 없습니다.">
+        <button class="btn btn-sm btn-danger" type="submit">삭제</button>
+      </form>
+      {% endif %}
+    </span>
   </div>
+  {% if job.cancel_requested and job.status == 'running' %}
+  <div class="alert warn">{{ job.cancel_requested }}님이 취소를 요청했습니다. 실행 중인 Job을 멈추는 중입니다.</div>
+  {% endif %}
 
   <ol class="stepper">
     {% for s in steps %}
@@ -15,8 +35,8 @@
     {% endfor %}
   </ol>
 
-  {% if job.status == 'failed' %}
-  <div class="alert bad">
+  {% if job.status in ('failed', 'cancelled') %}
+  <div class="alert {{ 'bad' if job.status == 'failed' else 'warn' }}">
     <strong>{{ job.error }}</strong>
     {% if job.error_detail %}
     <details><summary class="small">자세히 보기</summary><pre class="log">{{ job.error_detail }}</pre></details>

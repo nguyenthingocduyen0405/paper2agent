@@ -56,7 +56,7 @@
   <h2>비교에 넣지 않은 작업</h2>
   <ul class="plain">
     {% for o in others %}
-    <li><a href="/jobs/{{ o.id }}">{{ o.id }}</a> <span class="muted small">{{ fmt_time(o.created_at) }}, {% if o.status == "running" %}진행 중{% elif o.status == "failed" %}실패{% else %}다른 채점 기준{% endif %}</span></li>
+    <li><a href="/jobs/{{ o.id }}">{{ o.id }}</a> <span class="muted small">{{ fmt_time(o.created_at) }}, {% if o.status == "running" %}진행 중{% elif o.status == "failed" %}실패{% elif o.status == "cancelled" %}취소{% else %}다른 채점 기준{% endif %}</span></li>
     {% endfor %}
   </ul>
 </div>

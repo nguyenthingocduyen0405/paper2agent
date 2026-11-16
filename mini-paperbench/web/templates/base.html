@@ -16,7 +16,7 @@
       <nav>
         <a href="/">작업 목록</a>
         <a href="/stats">통계</a>
-        {% if user.role == "admin" %}<a href="/admin/users">사용자 관리</a>{% endif %}
+        {% if user.role == "admin" %}<a href="/admin/users">사용자 관리</a><a href="/admin/system">시스템</a>{% endif %}
         <a class="btn btn-primary btn-sm" href="/new">새 작업</a>
         <span class="who">
           <a href="/account" title="내 계정">{{ user.username }}</a>

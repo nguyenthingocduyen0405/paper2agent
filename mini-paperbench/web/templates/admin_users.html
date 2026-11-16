@@ -5,24 +5,51 @@
 <p class="sub">계정을 만들고, 하루에 만들 수 있는 작업 수를 정합니다. 작업마다 LLM 사용량이 들기 때문입니다.</p>
 {% if request.query_params.get("created") %}<div class="alert info">{{ request.query_params.get("created") }} 계정을 만들었습니다. 아이디와 비밀번호를 본인에게 직접 전해 주세요.</div>{% endif %}
 {% if request.query_params.get("saved") %}<div class="alert info">{{ request.query_params.get("saved") }} 계정을 저장했습니다.</div>{% endif %}
+{% if request.query_params.get("loggedout") %}<div class="alert info">{{ request.query_params.get("loggedout") }} 계정의 로그인을 모두 끊었습니다.</div>{% endif %}
+{% if request.query_params.get("deleted") %}<div class="alert info">{{ request.query_params.get("deleted") }} 계정을 지웠습니다. 그 사람이 만든 작업은 남아 있고 주인이 '삭제된 계정'으로 보입니다.</div>{% endif %}
 {% if errors %}<div class="alert bad">{% for e in errors %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
 
 <div class="cols">
   <div class="col-main card flush">
     <table class="list">
-      <thead><tr><th>아이디</th><th>역할</th><th colspan="4">하루 작업 수 (비우면 제한 없음), 새 비밀번호, 사용 중지</th></tr></thead>
+      <thead><tr><th>아이디</th><th>사용량</th><th>설정: 역할, 하루 작업 수(비우면 제한 없음), 새 비밀번호, 사용 중지</th></tr></thead>
       <tbody>
         {% for u in users %}
+        {% set us = (usage or {}).get(u.id, {}) %}
         <tr>
-          <td><strong>{{ u.username }}</strong><div class="muted small">{{ fmt_time(u.created_at) }} 만듦</div></td>
-          <td>{% if u.role == "admin" %}관리자{% else %}사용자{% endif %}</td>
-          <td colspan="4">
+          <td>
+            <strong>{{ u.username }}</strong>{% if u.disabled %} <span class="badge wait">중지됨</span>{% endif %}
+            <div class="muted small">{{ fmt_time(u.created_at) }} 만듦</div>
+            <div class="muted small">{% if us.last_login %}최근 로그인 {{ fmt_time(us.last_login) }}{% else %}로그인 중인 기기 없음{% endif %}</div>
+          </td>
+          <td class="small">
+            <div>작업 {{ us.jobs or 0 }}개 (오늘 {{ us.today or 0 }}{% if u.daily_job_limit is not none %}/{{ u.daily_job_limit }}{% endif %}, 진행 중 {{ us.running or 0 }})</div>
+            <div class="muted">LLM 호출 {{ us.calls or 0 }}회, 입력 {{ fmt_tokens(us.input_tokens) }} / 출력 {{ fmt_tokens(us.output_tokens) }} 토큰</div>
+            <div class="muted">GPU 실행 {{ us.gpu_runs or 0 }}회{% if us.last_job %}, 마지막 작업 {{ fmt_time(us.last_job) }}{% endif %}</div>
+            {% if us.jobs %}<a href="/?owner={{ u.id }}">작업 보기</a>{% endif %}
+          </td>
+          <td>
             <form method="post" action="/admin/users/{{ u.id }}" class="rowform">
+              <select name="role" aria-label="역할" {% if u.id == user.id %}disabled{% endif %}>
+                <option value="user" {% if u.role == "user" %}selected{% endif %}>사용자</option>
+                <option value="admin" {% if u.role == "admin" %}selected{% endif %}>관리자</option>
+              </select>
+              {% if u.id == user.id %}<input type="hidden" name="role" value="{{ u.role }}">{% endif %}
               <input type="number" min="0" name="daily_job_limit" value="{{ u.daily_job_limit if u.daily_job_limit is not none else '' }}" placeholder="제한 없음" aria-label="하루 작업 수">
-              <input type="password" name="new_password" placeholder="바꿀 때만" autocomplete="new-password" aria-label="새 비밀번호">
+              <input type="password" name="new_password" placeholder="새 비밀번호(바꿀 때만)" autocomplete="new-password" aria-label="새 비밀번호">
               <label class="check"><input type="checkbox" name="disabled" value="1" {% if u.disabled %}checked{% endif %} {% if u.id == user.id %}disabled{% endif %}> 중지</label>
               <button class="btn btn-sm" type="submit">저장</button>
             </form>
+            <div class="rowform mt-s">
+              <form method="post" action="/admin/users/{{ u.id }}/logout" data-confirm="{{ u.username }} 계정의 로그인을 모든 기기에서 끊을까요?">
+                <button class="btn btn-sm" type="submit" {% if not us.sessions %}disabled{% endif %}>로그인 끊기{% if us.sessions %} ({{ us.sessions }}){% endif %}</button>
+              </form>
+              {% if u.id != user.id %}
+              <form method="post" action="/admin/users/{{ u.id }}/delete" data-confirm="{{ u.username }} 계정을 지울까요? 그 사람이 만든 작업은 남고, 계정만 지워집니다.">
+                <button class="btn btn-sm btn-danger" type="submit">계정 삭제</button>
+              </form>
+              {% endif %}
+            </div>
           </td>
         </tr>
         {% endfor %}

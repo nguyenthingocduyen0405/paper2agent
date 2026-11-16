@@ -25,7 +25,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.exc import DBAPIError, OperationalError
 
-from web import auth, blob, db, gpu, orchestrator, records, stats, store, views
+from web import admin, auth, blob, db, gpu, orchestrator, records, stats, store, views
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 log = logging.getLogger("web")
@@ -79,7 +79,8 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(title="PaperAgent", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 templates = Jinja2Templates(directory=HERE / "templates")
-templates.env.globals.update(fmt_time=views.fmt_time, status_label=views.status_label, fmt_duration=views.fmt_duration)
+templates.env.globals.update(fmt_time=views.fmt_time, status_label=views.status_label, fmt_duration=views.fmt_duration,
+                             fmt_bytes=views.fmt_bytes, fmt_tokens=views.fmt_tokens)
 
 
 def _wait_page(status: int = 503) -> HTMLResponse:
@@ -225,11 +226,47 @@ def _parse_limit(text: str) -> tuple[int | None, str]:
     return int(text), ""
 
 
+def _users_page(request: Request, errors: list[str] | None = None, form: dict | None = None, status: int = 200):
+    return _render(request, "admin_users.html", {
+        "users": auth.list_users(), "usage": admin.user_usage(_kst_midnight()), "errors": errors or [],
+        "form": form or {}, "default_limit": auth.DEFAULT_DAILY_LIMIT, "notice": ""}, status)
+
+
 @app.get("/admin/users", response_class=HTMLResponse)
 def admin_users(request: Request):
     _require_admin(request)
-    return _render(request, "admin_users.html", {"users": auth.list_users(), "errors": [], "form": {},
-                                                 "default_limit": auth.DEFAULT_DAILY_LIMIT, "notice": ""})
+    return _users_page(request)
+
+
+def _target_user(user_id: int) -> dict:
+    target = auth.get_user(user_id)
+    if target is None or target["role"] == "service":
+        raise HTTPException(404, "사용자를 찾을 수 없습니다")
+    return target
+
+
+@app.post("/admin/users/{user_id}/logout")
+def admin_logout_user(request: Request, user_id: int):
+    me = _require_admin(request)
+    target = _target_user(user_id)
+    n = auth.end_user_sessions(user_id)
+    log.info("sessions of %s ended by %s (%d)", target["username"], me["username"], n)
+    if target["id"] == me["id"]:
+        return RedirectResponse("/login", status_code=303)
+    return RedirectResponse("/admin/users?loggedout=" + quote(target["username"]), status_code=303)
+
+
+@app.post("/admin/users/{user_id}/delete")
+def admin_delete_user(request: Request, user_id: int):
+    me = _require_admin(request)
+    target = _target_user(user_id)
+    if target["id"] == me["id"]:
+        return _users_page(request, ["자기 계정은 지울 수 없습니다."], status=400)
+    if target["role"] == "admin" and not target["disabled"] and auth.active_admins() <= 1:
+        return _users_page(request, ["마지막 관리자 계정은 지울 수 없습니다."], status=400)
+    admin.delete_user_rows(user_id)
+    log.warning("user %s deleted by %s", target["username"], me["username"])
+    return RedirectResponse("/admin/users?deleted=" + quote(target["username"]), status_code=303)
 
 
 @app.post("/admin/users")
@@ -244,9 +281,7 @@ def admin_create_user(request: Request, username: str = Form(""), password: str 
     if not errors and auth.find_user(username):
         errors.append("이미 있는 아이디입니다.")
     if errors:
-        return _render(request, "admin_users.html", {
-            "users": auth.list_users(), "errors": errors, "default_limit": auth.DEFAULT_DAILY_LIMIT, "notice": "",
-            "form": {"username": username, "role": role, "daily_job_limit": daily_job_limit}}, 400)
+        return _users_page(request, errors, {"username": username, "role": role, "daily_job_limit": daily_job_limit}, 400)
     auth.create_user(username, password, role, limit)
     log.info("user created: %s (%s) by %s", username, role, _user(request)["username"])
     return RedirectResponse("/admin/users?created=" + quote(username), status_code=303)
@@ -254,21 +289,26 @@ def admin_create_user(request: Request, username: str = Form(""), password: str 
 
 @app.post("/admin/users/{user_id}")
 def admin_update_user(request: Request, user_id: int, daily_job_limit: str = Form(""), new_password: str = Form(""),
-                      disabled: str = Form("")):
+                      disabled: str = Form(""), role: str = Form("")):
     me = _require_admin(request)
-    target = auth.get_user(user_id)
-    if target is None or target["role"] == "service":
-        raise HTTPException(404, "사용자를 찾을 수 없습니다")
+    target = _target_user(user_id)
     limit, err = _parse_limit(daily_job_limit)
     errors = [err] if err else []
+    role = role or target["role"]
+    if role not in auth.ROLES:
+        errors.append("역할을 다시 골라 주세요.")
     if new_password and len(new_password) < auth.MIN_PASSWORD:
         errors.append(f"비밀번호는 {auth.MIN_PASSWORD}자 이상으로 정해 주세요.")
     if target["id"] == me["id"] and disabled:
         errors.append("자기 계정은 사용 중지할 수 없습니다.")
+    if target["id"] == me["id"] and role != target["role"]:
+        errors.append("자기 계정의 역할은 바꿀 수 없습니다. 다른 관리자에게 부탁해 주세요.")
+    losing_admin = target["role"] == "admin" and not target["disabled"] and (role != "admin" or disabled)
+    if losing_admin and auth.active_admins() <= 1:
+        errors.append("마지막 관리자의 역할을 바꾸거나 사용 중지할 수 없습니다.")
     if errors:
-        return _render(request, "admin_users.html", {"users": auth.list_users(), "errors": errors, "form": {},
-                                                     "default_limit": auth.DEFAULT_DAILY_LIMIT, "notice": ""}, 400)
-    values = {"daily_job_limit": limit, "disabled": bool(disabled)}
+        return _users_page(request, errors, status=400)
+    values = {"daily_job_limit": limit, "disabled": bool(disabled), "role": role}
     if new_password:
         values["password"] = new_password
     auth.update_user(user_id, **values)
@@ -280,7 +320,9 @@ def admin_update_user(request: Request, user_id: int, daily_job_limit: str = For
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     user = _user(request)
-    jobs = store.list_jobs(user)
+    owner = request.query_params.get("owner")
+    owner_id = int(owner) if user["role"] == "admin" and owner and owner.isdigit() else None
+    jobs = store.list_jobs(user, owner_id)
     summaries = {}
     for j in jobs:
         try:
@@ -289,7 +331,8 @@ def index(request: Request):
             summaries[j["id"]] = ""
     running = any(j["status"] == "running" for j in jobs)
     owners = {u["id"]: u["username"] for u in auth.list_users()} if user["role"] == "admin" else {}
-    return _render(request, "index.html", {"jobs": jobs, "summaries": summaries, "running": running, "owners": owners})
+    return _render(request, "index.html", {"jobs": jobs, "summaries": summaries, "running": running, "owners": owners,
+                                           "owner_id": owner_id})
 
 
 def _new_form(request: Request, errors: list[str] | None = None, form: dict | None = None, status: int = 200):
@@ -561,6 +604,61 @@ def _owner_or_admin(request: Request, job: dict) -> None:
     user = _user(request)
     if user["role"] != "admin" and job.get("user_id") != user["id"]:
         raise HTTPException(403, "작업을 만든 사람과 관리자만 실행할 수 있습니다")
+
+
+@app.post("/jobs/{job_id}/cancel")
+def job_cancel(request: Request, job_id: str):
+    job = _job_or_404(request, job_id)
+    user = _user(request)
+    if user["role"] != "admin" and job.get("user_id") != user["id"]:
+        raise HTTPException(403, "작업을 만든 사람과 관리자만 취소할 수 있습니다")
+    reason = admin.request_cancel(job, user["username"])
+    if reason:
+        raise HTTPException(409, reason)
+    return RedirectResponse(f"/jobs/{job_id}", status_code=303)
+
+
+@app.post("/jobs/{job_id}/retry")
+def job_retry(request: Request, job_id: str):
+    me = _require_admin(request)
+    reason = admin.retry(_job_or_404(request, job_id), me["username"])
+    if reason:
+        raise HTTPException(409, reason)
+    return RedirectResponse(f"/jobs/{job_id}", status_code=303)
+
+
+@app.post("/jobs/{job_id}/delete")
+def job_delete(request: Request, job_id: str):
+    me = _require_admin(request)
+    job = store.load(job_id)
+    if job is None:
+        raise HTTPException(404, "작업을 찾을 수 없습니다")
+    reason = admin.delete_job(job, me["username"])
+    if reason:
+        raise HTTPException(409, reason)
+    return RedirectResponse("/?deleted=" + quote(job_id), status_code=303)
+
+
+@app.get("/admin/system", response_class=HTMLResponse)
+def admin_system(request: Request):
+    _require_admin(request)
+    status = admin.system_status()
+    owners = {u["id"]: u["username"] for u in auth.list_users()}
+    return _render(request, "admin_system.html", {"s": status, "owners": owners, "error": "",
+                                                  "lab_hours": admin.LAB_SESSION_SEC // 3600})
+
+
+@app.post("/admin/system/rds-stop")
+def admin_rds_stop(request: Request):
+    me = _require_admin(request)
+    try:
+        reason = admin.stop_rds(me["username"])
+    except Exception as e:
+        reason = f"RDS를 끄지 못했습니다: {type(e).__name__}: {str(e)[:300]}"
+    if reason:
+        return _render(request, "admin_system.html", {"s": admin.system_status(), "owners": {}, "error": reason,
+                                                      "lab_hours": admin.LAB_SESSION_SEC // 3600}, 409)
+    return _render(request, "rds_stopping.html", {})
 
 
 @app.post("/jobs/{job_id}/gpu")

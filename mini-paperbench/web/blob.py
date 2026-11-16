@@ -74,6 +74,17 @@ def exists(key: str) -> bool:
         raise
 
 
+def delete_prefix(prefix: str) -> int:
+    """prefix로 시작하는 객체를 모두 지운다. 지운 수를 돌려준다."""
+    n = 0
+    for page in client().get_paginator("list_objects_v2").paginate(Bucket=bucket(), Prefix=prefix):
+        keys = [{"Key": o["Key"]} for o in page.get("Contents", [])]
+        if keys:
+            client().delete_objects(Bucket=bucket(), Delete={"Objects": keys, "Quiet": True})
+            n += len(keys)
+    return n
+
+
 def presign(key: str, filename: str, expires: int = 900) -> str:
     """브라우저가 S3에서 바로 내려받는 주소(15분 동안만 쓸 수 있다)."""
     return client().generate_presigned_url(

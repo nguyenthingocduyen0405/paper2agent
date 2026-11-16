@@ -8,6 +8,7 @@
   <div class="stat"><div class="muted small">끝난 작업</div><div class="num">{{ counts.get("done", 0) }}</div></div>
   <div class="stat"><div class="muted small">실패한 작업</div><div class="num">{{ counts.get("failed", 0) }}</div></div>
   <div class="stat"><div class="muted small">진행 중</div><div class="num">{{ counts.get("running", 0) }}</div></div>
+  {% if counts.get("cancelled") %}<div class="stat"><div class="muted small">취소한 작업</div><div class="num">{{ counts.get("cancelled", 0) }}</div></div>{% endif %}
   <div class="stat"><div class="muted small">한 건 평균 시간</div><div class="num sm">{{ fmt_duration(times.total) or "-" }}</div>
     <div class="muted small">{{ times.n }}건 기준{% if mock %}, 모의 채점 {{ mock }}건 제외{% endif %}</div></div>
 </div>

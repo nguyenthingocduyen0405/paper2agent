@@ -46,16 +46,21 @@ def redis():
     return _redis
 
 
+def _sfx(job: dict) -> str:
+    """관리자가 다시 시도하면 쿠버네티스 Job 이름을 바꾼다(지우는 중인 예전 Job과 이름이 겹치지 않게)."""
+    return f"t{job['retries']}" if job.get("retries") else ""
+
+
 def prepare_job(job: dict) -> str:
-    return k8s.job_name("prepare", job["id"])
+    return k8s.job_name("prepare", job["id"] + _sfx(job))
 
 
 def agent_job(job: dict) -> str:
-    return k8s.job_name("agent", job["id"])
+    return k8s.job_name("agent", job["id"] + _sfx(job))
 
 
 def repair_job(job: dict) -> str:
-    return k8s.job_name("repair", job["id"])
+    return k8s.job_name("repair", job["id"] + _sfx(job))
 
 
 def gen_job(job: dict) -> str:
@@ -146,7 +151,32 @@ def _finish_prepare(job: dict) -> None:
     store.add_event(job, "논문 준비를 마쳤습니다")
 
 
+def _cancel(job: dict) -> None:
+    """웹에서 취소를 요청했다: 이 작업의 쿠버네티스 Job을 지우고 judge 워커를 놓아준다.
+    코드를 고치던 중이면 고치기 전 코드와 첫 검증 결과로 마친다(그 Pod가 완전히 멈춘 뒤에 되돌린다)."""
+    by = job["cancel_requested"]
+    names = [prepare_job(job), agent_job(job), repair_job(job), gen_job(job), analyze_job(job)]
+    for name in names:
+        k8s.delete_job(name)
+    if job["stage"] == "repair" and k8s.pods_alive(repair_job(job)):
+        return  # 다음 차례에 다시 본다
+    if job["stage"] in ("judge", "analyze") and k8s.worker_run()[0] == job["judge_run"]:
+        k8s.assign_workers("idle", False)
+    _judge_seen.pop(job["id"], None)
+    job.pop("cancel_requested", None)
+    job["cancel_requested_done"] = by
+    if job["stage"] in ("repair_wait", "repair") or _rejudging(job):
+        _undo_repair(job, f"{by}님이 코드 수정을 취소해 고치기 전 코드와 첫 검증 결과로 마칩니다")
+        return
+    job.update(status="cancelled", failed_stage=job["stage"], error=f"{by}님이 작업을 취소했습니다",
+               finished_at=time.time())
+    store.add_event(job, job["error"])
+
+
 def step(job: dict, busy: dict) -> None:
+    if job.get("cancel_requested"):
+        _cancel(job)
+        return
     stage = job["stage"]
 
     if stage == "prepare_wait":
@@ -342,11 +372,13 @@ def tick() -> None:
             # 계속 같은 예외가 나면(깨진 파일 등) 영원히 '진행 중'으로 두지 않고 실패로 끝낸다
             _step_errors.pop(job["id"], None)
             _fail(job, "작업을 진행하다 같은 오류가 계속 났습니다", f"{type(e).__name__}: {e}")
-        if job["status"] == "failed" and before[1] == "running":
+        if job["status"] in ("failed", "cancelled") and before[1] == "running":
             records.after_failure(job)
         if (job["stage"], job["status"], job.get("judge_step")) != before:
-            store.save(job)
-            log.info("job %s → %s/%s", job["id"], job["status"], job["stage"])
+            if store.save_running(job):
+                log.info("job %s → %s/%s", job["id"], job["status"], job["stage"])
+            else:
+                log.info("job %s was changed elsewhere (no longer running); this step is not saved", job["id"])
     gpu.tick(busy)
     if blob.enabled():
         for job in store.unarchived_jobs():

@@ -323,3 +323,8 @@ dialog.modal ul { margin: 0 0 18px; padding-left: 18px; }
 .thumbs a { display: flex; flex-direction: column; gap: 4px; color: var(--muted); }
 .thumbs img { width: 100%; height: 140px; object-fit: contain; background: #fafbfc; border: 1px solid var(--line); border-radius: 8px; }
 
+
+.job-actions { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.job-actions form, .rowform form { display: inline; margin: 0; }
+.btn-danger { color: #b42318; border-color: #f4c7c3; }
+.btn-danger:hover { background: #fef3f2; }

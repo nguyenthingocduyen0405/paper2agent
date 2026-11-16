@@ -36,6 +36,22 @@ def fmt_time(t: float | None) -> str:
     return datetime.fromtimestamp(t, KST).strftime("%Y-%m-%d %H:%M") if t else ""
 
 
+def fmt_bytes(n: float | None) -> str:
+    if n is None:
+        return ""
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if n < 1024 or unit == "TB":
+            return f"{n:.0f} {unit}" if unit == "B" else f"{n:.1f} {unit}"
+        n /= 1024
+    return ""
+
+
+def fmt_tokens(n: float | None) -> str:
+    if not n:
+        return "0"
+    return f"{n / 1e6:.2f}M" if n >= 1e6 else (f"{n / 1e3:.0f}k" if n >= 1e3 else str(int(n)))
+
+
 def fmt_duration(sec: float | None) -> str:
     if sec is None:
         return ""
@@ -58,6 +74,10 @@ def status_label(job: dict) -> tuple[str, str]:
         return "완료", "ok"
     if job["status"] == "failed":
         return "실패", "bad"
+    if job["status"] == "cancelled":
+        return "취소됨", "wait"
+    if job.get("cancel_requested"):
+        return "취소하는 중", "wait"
     return STAGE_STATUS.get(job["stage"], (job["stage"], "run"))
 
 
@@ -70,7 +90,7 @@ def steps(job: dict) -> list[dict]:
         if job["status"] == "done" or i < cur:
             state = "done"
         elif i == cur:
-            state = "failed" if job["status"] == "failed" else "current"
+            state = "failed" if job["status"] in ("failed", "cancelled") else "current"
         else:
             state = "todo"
         out.append({"label": label, "state": state})
@@ -258,7 +278,7 @@ def summary(job: dict) -> str:
             e = g["exec_score"]
             text += f", 실행 검증 {e['passed']}/{e['judged']}"
         return text
-    if job["status"] == "failed":
+    if job["status"] in ("failed", "cancelled"):
         return job.get("error", "")
     stage = job["stage"]
     if stage in ("prepare_wait", "prepare"):
@@ -347,8 +367,10 @@ def live_context(job: dict) -> dict:
            "repair": repair_view(job),
            "gpu_fixes": gpu.GPU_MAX_FIXES}
     if job["status"] == "running" and job["stage"] in ("agent", "prepare", "repair"):
+        name = {"agent": orchestrator.agent_job, "prepare": orchestrator.prepare_job,
+                "repair": orchestrator.repair_job}[job["stage"]](job)
         try:
-            ctx["log"] = k8s.job_logs(k8s.job_name(job["stage"], job["id"]), tail=12)
+            ctx["log"] = k8s.job_logs(name, tail=12)
         except Exception:  # 로그는 없어도 화면은 보여 준다
             pass
     return ctx
