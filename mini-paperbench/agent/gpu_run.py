@@ -147,7 +147,11 @@ def _pip_report(lines: list[str], work: Path, constraints: bool) -> list[dict]:
     if constraints:
         (work / "c.txt").write_text(CONSTRAINTS)
         cmd += ["-c", str(work / "c.txt")]
-    p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900)
+    try:
+        # pip 24.0은 다른 플랫폼용 해석에서 멈춘 적이 있다(이미지는 25.1.1). 그래도 오래 걸리면 다음 방법으로 넘어간다
+        p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("pip resolve timed out after 300 s") from None
     if p.returncode != 0:
         raise RuntimeError((p.stderr or p.stdout)[-1500:])
     return json.loads(report.read_text(encoding="utf-8")).get("install", [])
@@ -491,6 +495,8 @@ def main() -> int:
 
     for n in range(1, args.max_fixes + 2):
         save_status(state="preparing", attempt=n)
+        if (base / "cancel").exists():
+            return finish("cancelled", "사용자가 실행을 취소했습니다.", attempt_dir)
         req_text = read_text(code / "requirements.txt")
         keep, dropped, unsupported = split_requirements(req_text)
         try:

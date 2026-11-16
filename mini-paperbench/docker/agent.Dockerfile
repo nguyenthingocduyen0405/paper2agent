@@ -4,7 +4,8 @@ FROM python:3.11.9-slim-bookworm
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 CUDA_VISIBLE_DEVICES=""
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# pip 25: GPU 실행(agent.gpu_run)이 Python 3.12 linux용 wheel을 고를 때 쓴다. 기본 pip 24.0은 이 해석에서 멈췄다
+RUN pip install --no-cache-dir pip==25.1.1 && pip install --no-cache-dir -r requirements.txt
 # PDF → markdown (agent.prepare만 쓴다)
 RUN pip install --no-cache-dir pymupdf4llm==2.1
 COPY agent/ agent/
