@@ -30,7 +30,13 @@ from web import admin, auth, blob, db, gpu, orchestrator, records, stats, store,
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 log = logging.getLogger("web")
 TICK_SEC = float(os.environ.get("TICK_SEC", "5"))
-COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "0") == "1"   # https로 열 때 1
+COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "0") == "1"   # 늘 https로만 열 때 1
+
+
+def _secure_cookie(request: Request) -> bool:
+    """https로 들어온 요청이면 쿠키에 Secure를 붙인다(Cloudflare 임시 주소는 X-Forwarded-Proto: https로 넘어온다).
+    SSH 터널(http://localhost)로 들어오면 붙이지 않는다."""
+    return COOKIE_SECURE or request.headers.get("x-forwarded-proto", "").split(",")[0].strip() == "https"         or '"scheme":"https"' in request.headers.get("cf-visitor", "").replace(" ", "")
 MAX_UPLOAD = 20 * 1024 * 1024
 MIN_PAPER_CHARS = 2000  # agent/prepare.py와 같은 값: 이보다 짧은 글은 논문 본문으로 보지 않는다
 TEXT_EXT = (".md", ".markdown", ".txt")
@@ -177,7 +183,7 @@ def login(request: Request, username: str = Form(""), password: str = Form(""), 
     token = auth.new_session(user["id"])
     resp = RedirectResponse(_safe_next(next), status_code=303)
     resp.set_cookie(auth.COOKIE, token, max_age=auth.SESSION_SEC, httponly=True, samesite="lax",
-                    secure=COOKIE_SECURE, path="/")
+                    secure=_secure_cookie(request), path="/")
     log.info("login: %s", user["username"])
     return resp
 
@@ -213,7 +219,7 @@ def account_save(request: Request, current: str = Form(""), new: str = Form(""),
     token = auth.new_session(user["id"])
     resp = _render(request, "account.html", {"errors": [], "saved": True})
     resp.set_cookie(auth.COOKIE, token, max_age=auth.SESSION_SEC, httponly=True, samesite="lax",
-                    secure=COOKIE_SECURE, path="/")
+                    secure=_secure_cookie(request), path="/")
     return resp
 
 
