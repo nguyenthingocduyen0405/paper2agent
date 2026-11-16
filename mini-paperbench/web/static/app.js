@@ -103,3 +103,23 @@
     });
   });
 })();
+
+// 미리 받기: speculation rules를 모르는 브라우저(Firefox, Safari)는 마우스를 올린 링크를 <link rel=prefetch>로 받아 둔다
+(() => {
+  if (window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports("speculationrules")) return;
+  const skip = /\/(code\.zip|report\.md|files\/|gpu\/|api\/)/;
+  const done = new Set();
+  let timer = null;
+  document.addEventListener("mouseover", (e) => {
+    const a = e.target.closest && e.target.closest("a[href^='/']");
+    if (!a || a.hasAttribute("download") || a.target === "_blank" || skip.test(a.pathname) || done.has(a.href)) return;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      done.add(a.href);
+      const link = document.createElement("link");
+      link.rel = "prefetch";
+      link.href = a.href;
+      document.head.appendChild(link);
+    }, 80);
+  }, { passive: true });
+})();

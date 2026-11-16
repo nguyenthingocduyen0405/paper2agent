@@ -47,6 +47,16 @@
     {% endif %}
     {% block content %}{% endblock %}
   </main>
+  {# 링크에 마우스를 올리면 그 화면을 미리 받아 둔다(Chrome, Edge). 서버가 미국 동부라 한 번 오가는 데 0.2초쯤 걸리기 때문이다.
+     내려받기, 파일 보기, API, 새 창 링크는 미리 받지 않는다 #}
+  <script type="speculationrules">
+  {"prefetch": [{"where": {"and": [
+      {"href_matches": "/*"},
+      {"not": {"href_matches": "/jobs/*/code.zip"}}, {"not": {"href_matches": "/jobs/*/report.md"}},
+      {"not": {"href_matches": "/jobs/*/files/*"}}, {"not": {"href_matches": "/jobs/*/gpu/*"}},
+      {"not": {"href_matches": "/api/*"}}, {"not": {"selector_matches": "[download], [target=_blank]"}}]},
+    "eagerness": "moderate"}]}
+  </script>
   <script src="/static/app.js"></script>
 </body>
 </html>

@@ -190,23 +190,49 @@ def _llm() -> dict:
     return out
 
 
+# AWS API는 한 번에 0.2~0.4초 걸린다. 클라이언트는 한 번만 만들고, 자주 안 바뀌는 값은 잠깐 기억해 둔다
+RDS_CACHE_SEC, S3_CACHE_SEC = 30, 120
+_clients: dict[str, object] = {}
+_cache: dict[str, tuple[float, dict]] = {}
+
+
+def _aws(name: str):
+    if name not in _clients:
+        import boto3
+        _clients[name] = boto3.client(name, region_name=AWS_REGION)
+    return _clients[name]
+
+
+def _cached(key: str, ttl: float, fn) -> dict:
+    hit = _cache.get(key)
+    if hit and time.time() - hit[0] < ttl:
+        return hit[1]
+    value = fn()
+    _cache[key] = (time.time(), value)
+    return value
+
+
 def _rds() -> dict:
-    import boto3
-    inst = boto3.client("rds", region_name=AWS_REGION).describe_db_instances(
-        DBInstanceIdentifier=RDS_INSTANCE_ID)["DBInstances"][0]
-    return {"id": RDS_INSTANCE_ID, "status": inst["DBInstanceStatus"], "class": inst["DBInstanceClass"],
-            "engine": f"{inst['Engine']} {inst['EngineVersion']}", "storage_gb": inst.get("AllocatedStorage")}
+    def read() -> dict:
+        inst = _aws("rds").describe_db_instances(DBInstanceIdentifier=RDS_INSTANCE_ID)["DBInstances"][0]
+        return {"id": RDS_INSTANCE_ID, "status": inst["DBInstanceStatus"], "class": inst["DBInstanceClass"],
+                "engine": f"{inst['Engine']} {inst['EngineVersion']}", "storage_gb": inst.get("AllocatedStorage")}
+    return _cached("rds", RDS_CACHE_SEC, read)
 
 
 def _s3() -> dict:
     if not blob.enabled():
         return {"enabled": False}
-    n = size = 0
-    for page in blob.client().get_paginator("list_objects_v2").paginate(Bucket=blob.bucket(), PaginationConfig={"MaxItems": 20000}):
-        for o in page.get("Contents", []):
-            n += 1
-            size += o["Size"]
-    return {"enabled": True, "bucket": blob.bucket(), "objects": n, "bytes": size}
+
+    def read() -> dict:
+        n = size = 0
+        for page in blob.client().get_paginator("list_objects_v2").paginate(
+                Bucket=blob.bucket(), PaginationConfig={"MaxItems": 20000}):
+            for o in page.get("Contents", []):
+                n += 1
+                size += o["Size"]
+        return {"enabled": True, "bucket": blob.bucket(), "objects": n, "bytes": size}
+    return _cached("s3", S3_CACHE_SEC, read)
 
 
 def public_url() -> str | None:
@@ -233,8 +259,8 @@ def stop_rds(by: str) -> str:
     끄면 이 웹도 DB를 쓰지 못한다. 다음에 EC2가 켜질 때 paperagent-rds 서비스가 다시 켠다."""
     if store.running_jobs() or gpu.active_jobs():
         return "진행 중인 작업이 있어 끌 수 없습니다. 작업이 끝나거나 취소한 뒤에 꺼 주세요."
-    import boto3
-    boto3.client("rds", region_name=AWS_REGION).stop_db_instance(DBInstanceIdentifier=RDS_INSTANCE_ID)
+    _aws("rds").stop_db_instance(DBInstanceIdentifier=RDS_INSTANCE_ID)
+    _cache.pop("rds", None)
     log.warning("RDS %s stop requested by %s", RDS_INSTANCE_ID, by)
     return ""
 
