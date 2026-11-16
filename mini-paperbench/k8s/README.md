@@ -64,13 +64,13 @@ sudo systemctl stop k3s       # 클러스터 끄기 (다시 켤 때: sudo system
 | Namespace `paperbench` | 모든 것이 여기에 있다 |
 | ConfigMap `llm-config` | 모델 이름, 주소, 제한값, MOCK 설정 |
 | Secret `llm-keys` | API 키. 파일로 커밋하지 않는다 |
-| Deployment+Service `redis` | 큐와 결과 저장소. 디스크에 저장하지 않는다 |
+| Deployment+Service `redis` | 큐와 결과 저장소. AOF로 노드의 /var/lib/paperagent/redis에 1초마다 기록한다 |
 | Deployment `judge-worker` | 워커. `RUN_ID`로 처리할 run을 정한다 |
 | Job `task-generator`, `analyze`, `agent-run` | `k8s/jobs/`의 템플릿. `k8s_run.sh`가 채워서 실행한다 |
 
 - 데이터는 노드의 `/data`(hostPath)에 있다. 노드가 1개라서 이렇게 해도 된다.
 - 장애 복구는 로컬과 같다. Pod가 지워지면 그 Pod가 처리하던 작업은 `CLAIM_IDLE_SEC`(120초) 뒤 다른 워커가 가져간다.
-- 주의: Redis Pod가 다시 뜨면 큐가 비워진다. 실험 중에는 Redis Pod를 지우지 않는다.
+- Redis Pod나 EC2가 다시 떠도 AOF에서 큐와 결과를 되살린다. 큐를 비우려면 Redis Pod를 내리고 /var/lib/paperagent/redis를 지운다.
 
 ## 웹 화면
 

@@ -185,7 +185,7 @@ def step(job: dict, busy: dict) -> None:
         total = r.get(k(run, "total"))
         if total is None:
             _judge_seen.pop(job["id"], None)
-            _fail(job, "작업 큐가 초기화되어 검증을 이어갈 수 없습니다", "Redis Pod가 다시 뜨면 큐가 비워집니다. 새 작업으로 다시 시작해 주세요.")
+            _fail(job, "작업 큐가 초기화되어 검증을 이어갈 수 없습니다", "Redis의 채점 기록(AOF)이 지워졌습니다. 새 작업으로 다시 시작해 주세요.")
             return
         mock = "1" if job.get("mock") else "0"
         if k8s.worker_run() != (run, mock):

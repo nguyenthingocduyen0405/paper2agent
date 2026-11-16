@@ -1,4 +1,6 @@
-# 큐와 결과 저장소. 디스크에 저장하지 않는다(Pod가 다시 뜨면 큐가 비워진다).
+# 큐와 결과 저장소. AOF로 노드 디스크(/var/lib/paperagent/redis)에 1초마다 기록한다.
+# Pod나 EC2가 다시 떠도 대기 중인 채점 작업, 결과, consumer group이 남아 이어서 진행한다.
+# 논문·코드가 있는 /data와 따로 둔다(/data를 마운트하는 다른 Pod가 AOF 파일을 건드리지 못하게).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +8,7 @@ metadata:
   namespace: paperbench
 spec:
   replicas: 1
+  strategy: {type: Recreate}  # 두 Redis가 같은 AOF 파일에 동시에 쓰지 않게
   selector:
     matchLabels: {app: redis}
   template:
@@ -18,7 +21,9 @@ spec:
           # 이미지 entrypoint(gosu)가 Ubuntu 26.04(kernel 7.0)의 k3s에서 CPU 100%로 멈춘다.
           # entrypoint를 건너뛰고 redis 사용자(uid 999)로 바로 실행한다.
           command: ["redis-server"]
-          args: ["--save", "", "--appendonly", "no"]
+          args: ["--save", "", "--appendonly", "yes", "--appendfsync", "everysec", "--dir", "/redis-data"]
+          volumeMounts:
+            - {name: redis-data, mountPath: /redis-data}
           securityContext: {runAsUser: 999, runAsGroup: 1000}
           ports:
             - containerPort: 6379
@@ -29,6 +34,17 @@ spec:
           resources:
             requests: {cpu: 100m, memory: 128Mi}
             limits: {memory: 512Mi}
+      initContainers:
+        # hostPath 폴더는 root 소유로 만들어진다. redis 사용자(999)가 쓸 수 있게 넘겨준다
+        - name: chown
+          image: redis:7.4.1-alpine
+          command: ["sh", "-c", "chown 999:1000 /redis-data && chmod 700 /redis-data"]
+          securityContext: {runAsUser: 0}
+          volumeMounts:
+            - {name: redis-data, mountPath: /redis-data}
+      volumes:
+        - name: redis-data
+          hostPath: {path: /var/lib/paperagent/redis, type: DirectoryOrCreate}
 ---
 apiVersion: v1
 kind: Service
