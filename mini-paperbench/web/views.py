@@ -145,6 +145,26 @@ def judge_progress(job: dict) -> dict | None:
             "pct": round(100 * len(results) / total) if total else 0, "recent": recent}
 
 
+def leaf_evidence(job: dict) -> dict[str, dict]:
+    """자동으로 설계한 채점 기준이면 리프 id → {"text": 논문 근거 문장, "found": 원문에서 찾았는가}."""
+    try:
+        root = json.loads((Path(job["paper_dir"]) / "rubric.json").read_text())
+    except (OSError, ValueError):
+        return {}
+    out: dict[str, dict] = {}
+
+    def walk(node: dict) -> None:
+        if not node.get("sub_tasks"):
+            if node.get("paper_evidence"):
+                out[node["id"]] = {"text": node["paper_evidence"], "found": bool(node.get("evidence_found"))}
+            return
+        for child in node["sub_tasks"]:
+            walk(child)
+
+    walk(root)
+    return out
+
+
 def _scored_rows(job: dict, path: Path) -> list[dict]:
     """검증 결과 파일의 항목을 루브릭 순서로."""
     by_id = json.loads(path.read_text()).get("leaves", {})
@@ -152,11 +172,13 @@ def _scored_rows(job: dict, path: Path) -> list[dict]:
         rubric = load_leaves(Path(job["paper_dir"]) / "rubric.json")
     except (OSError, ValueError, KeyError):
         rubric = []
+    evidence = leaf_evidence(job)
     known = {leaf["id"] for leaf in rubric}
-    ordered = [(leaf["requirements"], by_id[leaf["id"]]) for leaf in rubric if leaf["id"] in by_id]
-    ordered += [(v.get("requirements", lid), v) for lid, v in by_id.items() if lid not in known]
-    return [{"n": i + 1, "requirements": req, "score": v.get("score"), "reason": v.get("reason", ""),
-             "error": v.get("error"), "category": v.get("category")} for i, (req, v) in enumerate(ordered)]
+    ordered = [(leaf["id"], leaf["requirements"], by_id[leaf["id"]]) for leaf in rubric if leaf["id"] in by_id]
+    ordered += [(lid, v.get("requirements", lid), v) for lid, v in by_id.items() if lid not in known]
+    return [{"n": i + 1, "id": lid, "requirements": req, "score": v.get("score"), "reason": v.get("reason", ""),
+             "error": v.get("error"), "category": v.get("category"), "evidence": evidence.get(lid)}
+            for i, (lid, req, v) in enumerate(ordered)]
 
 
 def results(job: dict) -> dict | None:
@@ -247,11 +269,16 @@ def rubric_view(job: dict) -> dict | None:
     sections = []
     for group in root.get("sub_tasks") or [root]:
         items = [{"requirement": leaf["requirements"],
-                  "cat": CATEGORY_LABEL.get(leaf.get("task_category"), (leaf.get("task_category") or "기타", "other"))}
+                  "cat": CATEGORY_LABEL.get(leaf.get("task_category"), (leaf.get("task_category") or "기타", "other")),
+                  "evidence": ({"text": leaf["paper_evidence"], "found": bool(leaf.get("evidence_found"))}
+                               if leaf.get("paper_evidence") else None)}
                  for leaf in leaves(group)]
         sections.append({"name": group["requirements"] if group is not root else "", "items": items})
     items = [i for s in sections for i in s["items"]]
+    with_ev = [i for i in items if i["evidence"]]
     return {"sections": sections, "total": len(items), "code_dev": sum(1 for i in items if i["cat"][1] == "cd"),
+            "evidence": {"total": len(with_ev), "found": sum(1 for i in with_ev if i["evidence"]["found"])}
+            if with_ev else None,
             "auto": bool(job.get("rubric_auto")) or job.get("rubric_origin") == "auto",
             "reused_from": job.get("rubric_from") if not job.get("rubric_auto") else None}
 
@@ -454,14 +481,19 @@ def report_md(job: dict) -> str | None:
     ]
     for x in res["rows"]:
         mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
-        lines += [f"### {x['n']}. {mark}", "", f"기준: {x['requirements']}", "",
-                  f"근거: {x['reason'] or x['error']}", ""]
+        lines += [f"### {x['n']}. {mark}", "", f"기준: {x['requirements']}", ""]
+        lines += _evidence_lines(x.get("evidence"))
+        lines += [f"판단 이유: {x['reason'] or x['error']}", ""]
     rub = rubric_view(job)
     if rub:
         lines += ["## 채점 기준", ""]
         if rub["auto"]:
             lines.append("PaperAgent가 논문을 읽고 설계한 채점 기준입니다. 논문의 핵심 기여마다 영역을 나누고, "
                          "영역마다 확인할 수 있는 세부 항목을 정했습니다.")
+            if rub.get("evidence"):
+                ev = rub["evidence"]
+                lines.append(f"항목마다 그 기준이 나온 논문 문장을 함께 적었고, {ev['total']}개 중 {ev['found']}개는 "
+                             "논문 원문에서 같은 문장을 찾아 확인했습니다. 찾지 못한 문장은 표시해 두었습니다.")
         else:
             lines.append("서버에 준비된 채점 기준을 썼습니다(PaperBench 예제는 논문 저자가 만든 기준).")
         judged_all = not job.get("judge_category")  # 코드 구현 항목이 없는 기준이면 전체를 검증했다
@@ -503,7 +535,9 @@ def report_md(job: dict) -> str | None:
                       f"{e['passed']}개 충족({e['pct']}%).", ""]
             for x in e["rows"]:
                 mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
-                lines += [f"#### {x['n']}. {mark}", "", f"기준: {x['requirements']}", "", f"근거: {x['reason'] or x['error']}", ""]
+                lines += [f"#### {x['n']}. {mark}", "", f"기준: {x['requirements']}", ""]
+                lines += _evidence_lines(x.get("evidence"))
+                lines += [f"판단 이유: {x['reason'] or x['error']}", ""]
     lines += ["## 한계", ""]
     if ran:
         lines += [f"- 공용 GPU에서 {gv['minutes']}분까지만 실행했습니다. 논문 전체 실험이 더 오래 걸리면 결과가 일부만 나옵니다.",
@@ -511,5 +545,12 @@ def report_md(job: dict) -> str | None:
     else:
         lines += ["- 코드는 실행하지 않았습니다. 검증은 코드 내용이 기준을 구현했는지만 봅니다.",
                   "- 실제 실행 결과와 논문 수치의 비교는 직접 해야 합니다."]
-    lines += ["- 검증도 LLM이 하므로 틀릴 수 있습니다. 그래서 항목마다 근거를 함께 적었습니다.", ""]
+    lines += ["- 검증도 LLM이 하므로 틀릴 수 있습니다. 그래서 항목마다 판단 이유를 함께 적었습니다.", ""]
     return "\n".join(lines)
+
+
+def _evidence_lines(ev: dict | None) -> list[str]:
+    if not ev:
+        return []
+    note = "" if ev["found"] else " (논문 원문에서 같은 문장을 찾지 못했습니다. 직접 확인해 주세요)"
+    return [f"논문 근거: “{ev['text']}”{note}", ""]

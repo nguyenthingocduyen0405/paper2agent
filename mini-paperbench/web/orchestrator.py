@@ -91,7 +91,11 @@ def _finish_prepare(job: dict) -> None:
     store.plan_judging(job, total, code_dev)
     if job.get("rubric_auto"):
         sections = len(json.loads((paper_dir / "rubric.json").read_text()).get("sub_tasks", []))
-        store.add_event(job, f"채점 기준을 설계했습니다: {sections}개 영역, {total}개 항목 (코드 구현 {code_dev}개)")
+        text = f"채점 기준을 설계했습니다: {sections}개 영역, {total}개 항목 (코드 구현 {code_dev}개)"
+        if meta.get("evidence_total"):
+            job["evidence"] = {"found": meta["evidence_found"], "total": meta["evidence_total"]}
+            text += f". 항목마다 단 논문 근거 문장 중 {meta['evidence_found']}개를 원문에서 그대로 찾았습니다"
+        store.add_event(job, text)
     store.add_event(job, "논문 준비를 마쳤습니다")
 
 

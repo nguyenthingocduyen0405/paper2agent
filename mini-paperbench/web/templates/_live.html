@@ -173,7 +173,9 @@
               <td class="muted">{{ x.n }}</td>
               <td>
                 <div>{{ x.requirements }}</div>
-                <details><summary class="small">근거 보기</summary><p class="small reason">{{ x.reason or x.error }}</p></details>
+                <details><summary class="small">근거 보기</summary>
+                  {% if x.evidence %}<p class="small evidence">논문: “{{ x.evidence.text }}”{% if not x.evidence.found %} <span class="badge wait">원문에서 못 찾음</span>{% endif %}</p>{% endif %}
+                  <p class="small reason">{% if x.evidence %}판단 이유: {% endif %}{{ x.reason or x.error }}</p></details>
               </td>
               <td>
                 {% if x.error %}<span class="badge wait">오류</span>

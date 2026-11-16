@@ -123,6 +123,8 @@ table.list { width: 100%; border-collapse: collapse; }
 .rubric tbody tr:first-child td { border-top: 1px solid var(--line); }
 .rubric details { margin-top: 4px; }
 .rubric summary { color: var(--accent); cursor: pointer; }
+.evidence { display: block; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; margin: 6px 0 0; }
+.evidence .badge { font-style: normal; }
 .reason { white-space: pre-wrap; background: #fafbfc; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 6px 0 0; }
 
 /* 단계 표시 */

@@ -15,6 +15,7 @@ import argparse
 import json
 import os
 import re
+import unicodedata
 import uuid
 from pathlib import Path
 from typing import Literal
@@ -50,12 +51,17 @@ Item categories:
 
 Write {MIN_ITEMS} to {MAX_ITEMS} items in total, at least two thirds of them "Code Development".
 Cover every core contribution. Do not write items about the writing, related work, or anything the paper (or the addendum, if given) puts out of scope.
+
+For every item also give "evidence": the passage of the paper (or the addendum) that the requirement comes from,
+copied word for word, about 5 to 40 words, so that a reader can find it in the paper. Do not paraphrase, translate, or join passages
+from different places. If the requirement rests on a formula or a table, copy a sentence that introduces it or the table caption.
 Also return the paper's title exactly as written in the paper, in normal capitalization."""
 
 
 class Item(BaseModel):
     requirement: str = Field(description="One specific, checkable requirement")
     category: Literal["Code Development", "Code Execution", "Result Analysis"]
+    evidence: str = Field(description="The passage of the paper this requirement comes from, copied word for word")
 
 
 class Section(BaseModel):
@@ -100,14 +106,38 @@ def first_heading(md: str) -> str | None:
     return " ".join(m.group(1).replace("*", "").split()) if m else None
 
 
-def build_rubric(draft: RubricDraft) -> dict:
-    """LLM 초안(섹션 > 항목)을 PaperBench 루브릭 트리로 바꾼다. 리프는 sub_tasks가 빈 노드."""
+def _norm(text: str) -> str:
+    """원문 대조용: 글자와 숫자만 남긴다. PDF 변환이 남긴 줄바꿈, 하이픈, 굵게(**), 표 구분선(|) 차이를 없앤다."""
+    return re.sub(r"[\W_]+", "", unicodedata.normalize("NFKC", text).lower())
+
+
+def evidence_found(quote: str, sources: list[str]) -> bool:
+    """LLM이 옮겨 적은 근거 문장이 논문(또는 addendum)에 그대로 있는가. sources는 _norm을 거친 글이다.
+    중간을 줄임표로 생략했으면 조각마다 찾는다. 너무 짧은 조각(12자 미만)은 어디에나 있을 수 있어 근거로 치지 않는다."""
+    parts = [_norm(p) for p in re.split(r"\.\.\.|…|\[\.\.\.\]", quote)]
+    parts = [p for p in parts if p]
+    if not parts or sum(len(p) for p in parts) < 12:
+        return False
+    return any(all(p in src for p in parts) for src in sources)
+
+
+def build_rubric(draft: RubricDraft, sources: list[str] | None = None) -> dict:
+    """LLM 초안(섹션 > 항목)을 PaperBench 루브릭 트리로 바꾼다. 리프는 sub_tasks가 빈 노드.
+    리프에는 PaperBench 형식에 없는 paper_evidence(논문 근거 문장)와 evidence_found(원문에서 찾았는가)를 덧붙인다.
+    judge는 requirements만 읽으므로 채점에는 영향이 없다."""
+    normed = [_norm(s) for s in sources or [] if s]
+
     def node(requirements: str, sub_tasks: list, category: str | None = None) -> dict:
         return {"id": str(uuid.uuid4()), "requirements": requirements.strip(), "weight": 1,
                 "sub_tasks": sub_tasks, "task_category": category, "finegrained_task_category": None}
 
-    sections = [node(s.name, [node(i.requirement, [], i.category) for i in s.items if i.requirement.strip()])
-                for s in draft.sections]
+    def leaf(item: Item) -> dict:
+        n = node(item.requirement, [], item.category)
+        n["paper_evidence"] = " ".join(item.evidence.split())
+        n["evidence_found"] = evidence_found(item.evidence, normed)
+        return n
+
+    sections = [node(s.name, [leaf(i) for i in s.items if i.requirement.strip()]) for s in draft.sections]
     sections = [s for s in sections if s["sub_tasks"]]
     leaves = [leaf for s in sections for leaf in s["sub_tasks"]]
     if not any(leaf["task_category"] == "Code Development" for leaf in leaves):
@@ -163,13 +193,17 @@ def main() -> None:
     if args.make_rubric and not rubric_path.exists():
         print("rubric: asking the LLM ...", flush=True)
         addendum_path = paper_dir / "addendum.md"
-        draft = make_rubric(paper_dir, paper_md, addendum_path.read_text() if addendum_path.exists() else None)
-        rubric = build_rubric(draft)
+        addendum = addendum_path.read_text() if addendum_path.exists() else None
+        draft = make_rubric(paper_dir, paper_md, addendum)
+        rubric = build_rubric(draft, [paper_md, addendum])
         write_atomic(rubric_path, json.dumps(rubric, ensure_ascii=False, indent=2))
-        meta.update(title=draft.title.strip() or meta.get("title"), rubric_generated=True)
-        n = sum(len(s["sub_tasks"]) for s in rubric["sub_tasks"])
-        code_dev = sum(1 for s in rubric["sub_tasks"] for leaf in s["sub_tasks"] if leaf["task_category"] == "Code Development")
-        print(f"rubric.json: {len(rubric['sub_tasks'])} sections, {n} items ({code_dev} Code Development)", flush=True)
+        leaves = [leaf for s in rubric["sub_tasks"] for leaf in s["sub_tasks"]]
+        found = sum(1 for leaf in leaves if leaf["evidence_found"])
+        meta.update(title=draft.title.strip() or meta.get("title"), rubric_generated=True,
+                    evidence_found=found, evidence_total=len(leaves))
+        code_dev = sum(1 for leaf in leaves if leaf["task_category"] == "Code Development")
+        print(f"rubric.json: {len(rubric['sub_tasks'])} sections, {len(leaves)} items ({code_dev} Code Development), "
+              f"evidence found in the paper for {found}/{len(leaves)}", flush=True)
     if not rubric_path.exists():
         raise SystemExit("rubric.json is missing (run with --make-rubric to generate it)")
 
