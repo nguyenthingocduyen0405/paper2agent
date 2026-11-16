@@ -49,7 +49,7 @@
     <h3>실행 기록 (마지막 60줄)</h3>
     <a class="small" href="/jobs/{{ job.id }}/gpu/log" target="_blank" rel="noopener">전체 기록 보기</a>
   </div>
-  <pre class="log tall">{{ gpu.log_tail }}</pre>
+  <pre class="log tall" data-end>{{ gpu.log_tail }}</pre>
   {% endif %}
   {% if gpu.outputs %}
   <h3 class="mt">실행하면서 생긴 파일 <span class="muted small">{{ gpu.n_outputs }}개</span></h3>

@@ -77,6 +77,11 @@
     });
   }
 
+  // 실행 기록은 마지막 줄이 보이게 아래로 내려 둔다(#live를 다시 받아도)
+  const toEnd = () => document.querySelectorAll("pre[data-end]").forEach((p) => { p.scrollTop = p.scrollHeight; });
+  toEnd();
+  if (live) new MutationObserver(toEnd).observe(live, { childList: true });
+
   // 코드 작성과 검증이 끝나면 GPU에서 바로 실행할지 묻는다
   const ask = document.getElementById("gpu-ask");
   if (ask && typeof ask.showModal === "function") ask.showModal();
