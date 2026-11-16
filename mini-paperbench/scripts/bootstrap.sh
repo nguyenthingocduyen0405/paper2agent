@@ -4,6 +4,8 @@
 #
 # 준비: 이 저장소를 VM에 clone하고, mini-paperbench/.env에 LLM_API_KEY를 넣는다.
 #       LLM을 Claude 구독(claude-bridge)으로 쓰면 CLAUDE_CODE_OAUTH_TOKEN도 넣는다.
+#       웹 로그인과 DB: DATABASE_URL(RDS, scripts/aws_setup.sh가 넣는다), ADMIN_USERNAME, ADMIN_PASSWORD, SERVICE_TOKEN.
+#       S3: S3_BUCKET. 이 값들이 없으면 웹은 로컬 SQLite와 디스크만 쓴다(로그인할 관리자도 없다).
 # 사용(mini-paperbench 폴더에서): scripts/bootstrap.sh
 #
 # 단계: 1 스왑 → 2 k3s → 3 이미지 빌드 → 4 /data 준비 → 5 Secret → 6 kubectl apply
@@ -80,14 +82,22 @@ if [ "$USE_BRIDGE" = 1 ]; then
   grep '^CLAUDE_CODE_OAUTH_TOKEN=' .env | $KUBECTL -n paperbench create secret generic claude-token \
     --from-env-file=/dev/stdin --dry-run=client -o yaml | $KUBECTL apply -f -
 fi
+# 웹: DB 주소, 첫 관리자, 서비스 토큰. 값은 Secret에만 두고 화면에 찍지 않는다
+WEB_KEYS='^(DATABASE_URL|ADMIN_USERNAME|ADMIN_PASSWORD|SERVICE_TOKEN)=.'
+if grep -Eq "$WEB_KEYS" .env; then
+  grep -E "$WEB_KEYS" .env | $KUBECTL -n paperbench create secret generic web-secrets \
+    --from-env-file=/dev/stdin --dry-run=client -o yaml | $KUBECTL apply -f -
+fi
+S3_BUCKET=$(grep -E '^S3_BUCKET=' .env | head -1 | cut -d= -f2- | tr -d '\r"' || true)
 
 # 6. 상시 실행되는 것들: ConfigMap, Redis, (claude-bridge), judge 워커, 웹
 step "6/6 apply"
 MANIFESTS="k8s/10-configmap.yaml k8s/20-redis.yaml"
 [ "$USE_BRIDGE" = 1 ] && MANIFESTS="$MANIFESTS k8s/25-claude-bridge.yaml"
-for f in $MANIFESTS k8s/30-judge-worker.yaml k8s/40-web.yaml; do
-  sed "s/__TAG__/$TAG/g" "$f" | $KUBECTL apply -f -
+for f in $MANIFESTS k8s/30-judge-worker.yaml k8s/40-web.yaml k8s/45-network.yaml; do
+  sed -e "s/__TAG__/$TAG/g" -e "s/__S3_BUCKET__/${S3_BUCKET:-}/g" "$f" | $KUBECTL apply -f -
 done
+$KUBECTL -n paperbench rollout restart deployment/web   # Secret web-secrets가 바뀌었을 수 있다
 if [ "$USE_BRIDGE" = 1 ]; then
   # Secret이 바뀌어도 Pod는 그대로라서, 다시 띄워 새 토큰을 읽게 한다
   $KUBECTL -n paperbench rollout restart deployment/claude-bridge

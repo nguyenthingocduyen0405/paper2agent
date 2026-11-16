@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}통계 - PaperAgent{% endblock %}
+{% block content %}
+<h1>통계</h1>
+<p class="sub">DB에 쌓인 작업 기록으로 계산합니다. 토큰과 시간은 끝난 실제 작업(모의 채점, 코드 작성 건너뛰기 제외) 한 건당 평균입니다.</p>
+
+<div class="stats four">
+  <div class="stat"><div class="muted small">끝난 작업</div><div class="num">{{ counts.get("done", 0) }}</div></div>
+  <div class="stat"><div class="muted small">실패한 작업</div><div class="num">{{ counts.get("failed", 0) }}</div></div>
+  <div class="stat"><div class="muted small">진행 중</div><div class="num">{{ counts.get("running", 0) }}</div></div>
+  <div class="stat"><div class="muted small">한 건 평균 시간</div><div class="num sm">{{ fmt_duration(times.total) or "-" }}</div>
+    <div class="muted small">{{ times.n }}건 기준{% if mock %}, 모의 채점 {{ mock }}건 제외{% endif %}</div></div>
+</div>
+
+<div class="split">
+  <div class="card flush">
+    <h2 class="pad">단계별 LLM 토큰 (작업 한 건당)</h2>
+    {% if tokens %}
+    <table class="list num-table">
+      <thead><tr><th>단계</th><th>호출</th><th>입력</th><th>그중 캐시</th><th>출력</th></tr></thead>
+      <tbody>
+        {% for t in tokens %}
+        <tr{% if t.total %} class="total"{% endif %}><td>{{ t.stage }}</td><td>{{ t.calls }}</td><td>{{ "{:,}".format(t.input) }}</td>
+          <td>{{ "{:,}".format(t.cached) }} <span class="muted small">({{ t.cache_pct }}%)</span></td><td>{{ "{:,}".format(t.output) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="pad muted">아직 끝난 작업이 없습니다.</p>{% endif %}
+  </div>
+  <div class="card flush">
+    <h2 class="pad">단계별 시간 (작업 한 건당)</h2>
+    <table class="list num-table">
+      <thead><tr><th>단계</th><th>평균</th></tr></thead>
+      <tbody>
+        <tr><td>논문 준비</td><td>{{ fmt_duration(times.prepare) or "-" }}</td></tr>
+        <tr><td>코드 작성</td><td>{{ fmt_duration(times.agent) or "-" }}</td></tr>
+        <tr><td>자동 검증(대기 포함)</td><td>{{ fmt_duration(times.judge) or "-" }}</td></tr>
+        <tr class="total"><td>접수부터 끝까지</td><td>{{ fmt_duration(times.total) or "-" }}</td></tr>
+      </tbody>
+    </table>
+    {% if agent_steps %}
+    <h2 class="pad">코드 작성 단계별 토큰</h2>
+    <table class="list num-table">
+      <thead><tr><th>단계</th><th>호출</th><th>입력</th><th>출력</th></tr></thead>
+      <tbody>
+        {% for a in agent_steps %}<tr><td>{{ a.step }}</td><td>{{ a.calls }}</td><td>{{ "{:,}".format(a.input) }}</td><td>{{ "{:,}".format(a.output) }}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+</div>
+
+<div class="split">
+  <div class="card flush">
+    <h2 class="pad">항목 종류별 충족률</h2>
+    {% if cats %}
+    <table class="list num-table">
+      <thead><tr><th>종류</th><th>검증한 항목</th><th>충족</th><th>검증 오류</th><th>충족률</th></tr></thead>
+      <tbody>
+        {% for c in cats %}<tr><td>{{ c.category }}</td><td>{{ c.n }}</td><td>{{ c.passed }}</td><td>{{ c.errors }}</td><td>{{ c.pct }}%</td></tr>{% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="pad muted">아직 검증 결과가 없습니다.</p>{% endif %}
+  </div>
+  <div class="card flush">
+    <h2 class="pad">LLM별 (작업 한 건당)</h2>
+    {% if models %}
+    <table class="list num-table">
+      <thead><tr><th>LLM</th><th>작업</th><th>입력 토큰</th><th>출력 토큰</th></tr></thead>
+      <tbody>
+        {% for m in models %}<tr><td>{{ m.model }}</td><td>{{ m.jobs }}</td><td>{{ "{:,}".format(m.input) }}</td><td>{{ "{:,}".format(m.output) }}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="pad muted">아직 끝난 작업이 없습니다.</p>{% endif %}
+  </div>
+</div>
+
+<div class="card flush">
+  <h2 class="pad">논문별 결과</h2>
+  {% if papers %}
+  <table class="list">
+    <thead><tr><th>논문</th><th>끝난 작업</th><th>평균 충족률</th><th class="hide-sm">마지막 작업</th></tr></thead>
+    <tbody>
+      {% for p in papers %}
+      <tr class="click" data-href="/papers/{{ p.id }}">
+        <td><a class="title" href="/papers/{{ p.id }}">{{ p.title }}</a><div class="muted small">{% if p.kind == "library" %}예제 논문{% elif p.kind == "pdf" %}PDF{% else %}markdown{% endif %}</div></td>
+        <td>{{ p.runs }}</td><td>{{ p.pct ~ "%" if p.pct is not none else "-" }}</td><td class="small muted hide-sm">{{ fmt_time(p.last) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="pad muted">아직 끝난 작업이 없습니다.</p>{% endif %}
+</div>
+
+{% if users %}
+<div class="card flush">
+  <h2 class="pad">사용자별 사용량</h2>
+  <table class="list num-table">
+    <thead><tr><th>아이디</th><th>작업</th><th>끝남</th><th>실패</th><th>입력 토큰</th><th>출력 토큰</th><th class="hide-sm">마지막 작업</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr><td>{{ u.username }}{% if u.role == "service" %} <span class="muted small">(Slack 도우미)</span>{% endif %}</td><td>{{ u.jobs }}</td><td>{{ u.done }}</td><td>{{ u.failed }}</td>
+        <td>{{ "{:,}".format(u.input) }}</td><td>{{ "{:,}".format(u.output) }}</td><td class="small muted hide-sm">{{ fmt_time(u.last) }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

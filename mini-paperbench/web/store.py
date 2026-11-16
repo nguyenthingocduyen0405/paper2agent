@@ -1,31 +1,37 @@
 """작업 기록과 논문 목록.
 
-작업 하나 = data/web/jobs/<id>/job.json. 직접 올린 논문은 같은 폴더의 paper/에 둔다.
+작업 하나 = DB jobs 테이블의 한 행(doc 열에 작업 전체 JSON, web/db.py). 직접 올린 논문은 data/web/jobs/<id>/paper/에 둔다.
 경로는 모두 /app 기준 상대 경로다. Job Pod도 같은 볼륨을 /app/data에 붙이므로 그대로 넘길 수 있다.
+예전 버전이 남긴 data/web/jobs/<id>/job.json은 import_legacy()가 DB로 옮긴다.
 """
 from __future__ import annotations
 
 import json
-import os
+import logging
 import re
 import secrets
 import time
 from pathlib import Path
 
-from judge.rubric import load_leaves
+from sqlalchemy import select
 
+from judge.rubric import load_leaves
+from web import db
+
+log = logging.getLogger("store")
 DATA = Path("data")
 RESULTS = Path("results")
 JOBS_DIR = DATA / "web" / "jobs"
 CODE_DEV = "Code Development"
 ID_RE = re.compile(r"w[0-9a-f]{6}")
+SEE_ALL_ROLES = ("admin", "service")
 
 
 def new_id() -> str:
     """w + 16진수 6자리. 쿠버네티스 Job 이름과 Redis run 이름에 그대로 쓴다."""
     while True:
         job_id = "w" + secrets.token_hex(3)
-        if not (JOBS_DIR / job_id).exists():
+        if not (JOBS_DIR / job_id).exists() and load(job_id) is None:
             return job_id
 
 
@@ -33,31 +39,86 @@ def job_dir(job_id: str) -> Path:
     return JOBS_DIR / job_id
 
 
+def _span(job: dict, start: str, end: str) -> float | None:
+    a, b = job.get(start), job.get(end)
+    return round(b - a, 1) if a and b else None
+
+
+def _row(job: dict) -> dict:
+    score = job.get("score") or {}
+    return {
+        "id": job["id"], "user_id": job.get("user_id"), "paper_id": job.get("paper_id"),
+        "rubric_id": job.get("rubric_id"), "title": job.get("title"), "status": job["status"],
+        "stage": job["stage"], "llm_model": job.get("llm_model"), "mock": bool(job.get("mock")),
+        "skip_agent": bool(job.get("skip_agent")), "created_at": job["created_at"],
+        "updated_at": job.get("updated_at"), "finished_at": job.get("finished_at"),
+        "prepare_sec": _span(job, "prepare_started_at", "prepare_finished_at"),
+        "agent_sec": _span(job, "agent_started_at", "agent_finished_at"),
+        "judge_sec": _span(job, "judge_started_at", "finished_at") if job["status"] == "done" else None,
+        "score_passed": score.get("passed"), "score_judged": score.get("judged"), "score_errors": score.get("errors"),
+        "archived_at": job.get("archived_at"),
+        "doc": json.dumps(job, ensure_ascii=False),
+    }
+
+
 def save(job: dict) -> None:
-    d = job_dir(job["id"])
-    d.mkdir(parents=True, exist_ok=True)
     job["updated_at"] = time.time()
-    tmp = d / f"job.json.{os.getpid()}.{secrets.token_hex(3)}.tmp"  # 쓰는 쪽마다 다른 임시 파일
-    tmp.write_text(json.dumps(job, ensure_ascii=False, indent=1))
-    os.replace(tmp, d / "job.json")  # 읽는 쪽이 반쯤 쓴 파일을 보지 않게 한다
+    with db.engine().begin() as conn:
+        db.upsert(conn, db.jobs, _row(job), ["id"])
 
 
 def load(job_id: str) -> dict | None:
     if not ID_RE.fullmatch(job_id or ""):
         return None
-    p = job_dir(job_id) / "job.json"
-    return json.loads(p.read_text()) if p.exists() else None
+    with db.engine().connect() as conn:
+        doc = conn.execute(select(db.jobs.c.doc).where(db.jobs.c.id == job_id)).scalar()
+    return json.loads(doc) if doc else None
 
 
-def list_jobs() -> list[dict]:
-    jobs = []
-    if JOBS_DIR.is_dir():
-        for p in JOBS_DIR.glob("*/job.json"):
-            try:
-                jobs.append(json.loads(p.read_text()))
-            except (OSError, ValueError):
-                continue
-    return sorted(jobs, key=lambda j: j["created_at"], reverse=True)
+def can_see(user: dict | None, job: dict) -> bool:
+    return user is None or user["role"] in SEE_ALL_ROLES or job.get("user_id") == user["id"]
+
+
+def list_jobs(user: dict | None = None) -> list[dict]:
+    """user가 볼 수 있는 작업(관리자와 서비스 계정은 전부). user=None은 내부용으로 전부."""
+    q = select(db.jobs.c.doc).order_by(db.jobs.c.created_at.desc())
+    if user is not None and user["role"] not in SEE_ALL_ROLES:
+        q = q.where(db.jobs.c.user_id == user["id"])
+    with db.engine().connect() as conn:
+        return [json.loads(d) for d in conn.execute(q).scalars()]
+
+
+def running_jobs() -> list[dict]:
+    q = select(db.jobs.c.doc).where(db.jobs.c.status == "running").order_by(db.jobs.c.created_at)
+    with db.engine().connect() as conn:
+        return [json.loads(d) for d in conn.execute(q).scalars()]
+
+
+def unarchived_jobs(limit: int = 5) -> list[dict]:
+    """끝났지만 아직 S3에 올리지 않은 작업."""
+    q = (select(db.jobs.c.doc).where(db.jobs.c.status.in_(("done", "failed")), db.jobs.c.archived_at.is_(None))
+         .order_by(db.jobs.c.created_at).limit(limit))
+    with db.engine().connect() as conn:
+        return [json.loads(d) for d in conn.execute(q).scalars()]
+
+
+def import_legacy(owner_id: int | None) -> list[str]:
+    """예전 버전이 파일(job.json)로 남긴 작업 중 DB에 없는 것을 옮긴다. 주인은 owner_id(관리자)로 한다."""
+    imported = []
+    if not JOBS_DIR.is_dir():
+        return imported
+    for p in sorted(JOBS_DIR.glob("*/job.json")):
+        try:
+            job = json.loads(p.read_text())
+        except (OSError, ValueError):
+            continue
+        if not ID_RE.fullmatch(job.get("id", "")) or load(job["id"]) is not None:
+            continue
+        job.setdefault("user_id", owner_id)
+        with db.engine().begin() as conn:
+            db.upsert(conn, db.jobs, _row(job), ["id"])
+        imported.append(job["id"])
+    return imported
 
 
 def add_event(job: dict, text: str) -> None:

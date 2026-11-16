@@ -133,8 +133,8 @@
       {% if job.mock %}
       <div class="alert warn"><strong>모의 채점 결과입니다.</strong> 시스템 시험용으로 LLM을 부르지 않고 무작위 점수를 매겼습니다. 점수에 의미가 없습니다.</div>
       {% endif %}
-      {% if job.rubric_auto %}
-      <div class="alert info">채점 기준은 PaperAgent가 논문을 읽고 설계했습니다. 아래 <a href="#rubric-card">채점 기준 전체</a>에서 볼 수 있습니다.</div>
+      {% if job.rubric_auto or job.rubric_origin == "auto" %}
+      <div class="alert info">채점 기준은 PaperAgent가 논문을 읽고 설계했습니다{% if job.rubric_from and not job.rubric_auto %}(같은 논문의 작업 {{ job.rubric_from }}에서 설계한 기준을 다시 씀){% endif %}. 아래 <a href="#rubric-card">채점 기준 전체</a>에서 볼 수 있습니다.</div>
       {% endif %}
       <div class="stats">
         <div class="stat">

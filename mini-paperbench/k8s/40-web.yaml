@@ -2,6 +2,8 @@
 # Job을 만들고 judge 워커의 RUN_ID를 바꾸므로 ServiceAccount에 그 권한만 준다.
 # 접속: NodePort 30080. 보안 그룹은 열지 않고 SSH 터널로 연다.
 #   ssh -i paperagent.pem -L 8080:localhost:30080 ubuntu@<EC2 IP>  →  http://localhost:8080
+# 저장: 작업·사용자·결과는 RDS PostgreSQL(DATABASE_URL, Secret web-secrets), 파일은 /data와 S3(S3_BUCKET).
+#   S3와 RDS 시작/정지 권한은 EC2에 붙인 LabRole에서 온다(메타데이터 서비스). 이 Pod만 메타데이터에 갈 수 있다(45-network.yaml).
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -66,8 +68,14 @@ spec:
               value: "__TAG__"
             - name: MAX_AGENT_JOBS     # 동시에 돌리는 에이전트(코드 작성) Job 수
               value: "1"
+            - name: S3_BUCKET          # 비우면 S3를 쓰지 않는다
+              value: "__S3_BUCKET__"
+            - name: AWS_REGION
+              value: "us-east-1"
           envFrom:
-            - configMapRef: {name: llm-config}   # REDIS_URL
+            - configMapRef: {name: llm-config}   # REDIS_URL, LLM_MODEL
+            # DATABASE_URL, ADMIN_USERNAME, ADMIN_PASSWORD, SERVICE_TOKEN (bootstrap.sh가 .env에서 만든다)
+            - secretRef: {name: web-secrets, optional: true}
           readinessProbe:
             httpGet: {path: /healthz, port: 8000}
             periodSeconds: 10
@@ -75,8 +83,8 @@ spec:
             - {name: data, mountPath: /app/data}
             - {name: results, mountPath: /app/results}
           resources:
-            requests: {cpu: 100m, memory: 128Mi}
-            limits: {memory: 512Mi}
+            requests: {cpu: 100m, memory: 192Mi}
+            limits: {memory: 768Mi}
       volumes:
         - name: data
           hostPath: {path: /data, type: DirectoryOrCreate}

@@ -213,7 +213,7 @@ label.check input { accent-color: var(--accent); width: 16px; height: 16px; }
 .tag { display: inline-block; font-size: 11.5px; font-weight: 600; color: var(--bad); background: var(--bad-weak); border-radius: 4px; padding: 0 6px; margin-left: 4px; vertical-align: 1px; }
 .tag.opt { color: var(--muted); background: #f2f4f7; }
 .hint { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
-select, input[type=number], input[type=file] {
+select, input[type=number], input[type=file], input[type=text], input[type=password] {
   width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
   font: inherit; font-size: 14px; color: var(--text);
 }
@@ -277,3 +277,28 @@ details.adv summary { cursor: pointer; font-weight: 600; font-size: 14px; color:
   .stepper li.current, .stepper li.failed { flex: 2; }
   .pagehead { flex-direction: column; }
 }
+
+/* 로그인, 계정, 사용자 관리 */
+.narrow { max-width: 440px; margin: 40px auto 0; }
+nav .who { display: flex; gap: 10px; align-items: center; padding-left: 14px; border-left: 1px solid var(--line); }
+form.inline { display: inline; margin: 0; }
+.linklike { background: none; border: 0; padding: 0; font: inherit; color: var(--muted); cursor: pointer; }
+.linklike:hover { color: var(--accent); }
+.rowform { display: grid; grid-template-columns: 110px minmax(120px, 1fr) auto auto; gap: 10px; align-items: center; }
+.rowform input { padding: 6px 10px; }
+
+/* 통계, 비교 */
+.stats.four { grid-template-columns: repeat(4, 1fr); }
+h2.pad, p.pad { padding: 18px 20px 0; margin: 0 0 12px; }
+.num-table td:not(:first-child), .num-table th:not(:first-child) { text-align: right; white-space: nowrap; }
+.list tr.total td { font-weight: 700; background: #fafbfc; }
+.split > .card { margin-bottom: 16px; }
+.scroll-x { overflow-x: auto; }
+.compare th.req-col { min-width: 360px; }
+.compare th.job-col { min-width: 110px; font-size: 12.5px; }
+.compare .sumrow th { font-weight: 600; color: var(--text); background: #fff; font-size: 13px; }
+.compare td { padding: 10px 16px; }
+.compare tr.differs td { background: var(--wait-weak); }
+ul.plain { margin: 8px 0 0; padding-left: 18px; }
+@media (max-width: 1100px) { .stats.four { grid-template-columns: repeat(2, 1fr); } .rowform { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 720px) { .stats.four { grid-template-columns: 1fr; } nav .who { border-left: 0; padding-left: 0; } }

@@ -1,0 +1,21 @@
+# EC2 메타데이터 서비스(169.254.169.254)는 웹 Pod만 쓸 수 있게 한다.
+# EC2에 LabRole(instance profile)을 붙였으므로 메타데이터에서 S3·RDS 권한이 나온다. LabRole은 권한이 넓고
+# Learner Lab에서는 줄일 수 없으므로, LLM이 다루는 Pod(에이전트, 논문 준비, 채점 워커, claude-bridge)는 막는다.
+# 나머지 통신(클러스터 안, 인터넷)은 그대로 둔다. Slack 도우미(hermes)는 50-hermes.yaml에 따로 더 좁은 규칙이 있다.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: no-instance-metadata
+  namespace: paperbench
+spec:
+  podSelector:
+    matchExpressions:
+      - {key: app, operator: NotIn, values: [web, hermes]}   # app 라벨이 없는 Job Pod도 여기에 든다
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: {}        # 클러스터 안의 모든 Pod(DNS, Redis, claude-bridge)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [169.254.169.254/32]

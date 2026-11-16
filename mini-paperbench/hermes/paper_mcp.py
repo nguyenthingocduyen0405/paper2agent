@@ -29,6 +29,16 @@ import uuid
 
 API = os.environ.get("PAPERAGENT_API", "http://web:8000").rstrip("/")
 UPLOAD_ROOT = os.path.realpath(os.environ.get("UPLOAD_ROOT", "/opt/data/cache/documents"))
+# 웹은 로그인이 필요하다. 서비스 토큰(Secret web-secrets의 SERVICE_TOKEN)을 파일로 받아 Bearer로 보낸다.
+TOKEN_FILE = os.environ.get("PAPERAGENT_TOKEN_FILE", "/opt/paperagent-secret/SERVICE_TOKEN")
+
+
+def _token() -> str:
+    try:
+        with open(TOKEN_FILE, encoding="utf-8") as f:
+            return f.read().strip()
+    except OSError:
+        return ""
 MAX_UPLOAD = 20 * 1024 * 1024          # same limit as the web form and the Slack adapter
 MAX_TEXT = 60_000                       # characters returned to the model per call
 TIMEOUT = 30
@@ -103,7 +113,11 @@ _opener = urllib.request.build_opener(_NoRedirect)
 
 
 def _request(method: str, path: str, body: bytes | None = None, headers: dict | None = None):
-    req = urllib.request.Request(API + path, data=body, method=method, headers=headers or {})
+    headers = dict(headers or {})
+    token = _token()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(API + path, data=body, method=method, headers=headers)
     try:
         with _opener.open(req, timeout=TIMEOUT) as r:
             return r.status, dict(r.headers), r.read()

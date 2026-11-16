@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}내 계정 - PaperAgent{% endblock %}
+{% block content %}
+<div class="narrow">
+  <h1>내 계정</h1>
+  <p class="sub">{{ user.username }} ({% if user.role == "admin" %}관리자{% else %}사용자{% endif %}){% if user.daily_job_limit is not none %}, 하루 작업 {{ user.daily_job_limit }}개까지{% endif %}</p>
+  {% if saved %}<div class="alert info">비밀번호를 바꿨습니다. 다른 기기의 로그인은 끊겼습니다.</div>{% endif %}
+  {% if errors %}<div class="alert bad">{% for e in errors %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
+  <form method="post" action="/account" class="card form">
+    <h2>비밀번호 바꾸기</h2>
+    <div class="field">
+      <label class="title" for="current">지금 비밀번호</label>
+      <input type="password" name="current" id="current" autocomplete="current-password" required>
+    </div>
+    <div class="field">
+      <label class="title" for="new">새 비밀번호</label>
+      <input type="password" name="new" id="new" autocomplete="new-password" minlength="8" required>
+    </div>
+    <div class="field">
+      <label class="title" for="confirm">새 비밀번호 확인</label>
+      <input type="password" name="confirm" id="confirm" autocomplete="new-password" minlength="8" required>
+    </div>
+    <button class="btn btn-primary" type="submit">바꾸기</button>
+  </form>
+</div>
+{% endblock %}

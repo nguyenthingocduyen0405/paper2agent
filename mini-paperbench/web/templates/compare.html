@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}결과 비교 - PaperAgent{% endblock %}
+{% block content %}
+<a class="back small" href="/stats">통계로</a>
+<h1 class="paper-title">{{ paper.title or "(제목 없음)" }}</h1>
+<p class="sub">같은 논문을 같은 채점 기준으로 돌린 작업들의 항목별 결과입니다. 결과가 서로 다른 항목은 강조해 둡니다.</p>
+
+{% if rubrics|length > 1 %}
+<div class="card">
+  <strong>채점 기준</strong>
+  <span class="muted small">이 논문에는 기준이 {{ rubrics|length }}개 있습니다. 기준이 다르면 결과를 나란히 비교할 수 없습니다.</span>
+  <div class="actions mt-s">
+    {% for r in rubrics %}
+    <a class="btn btn-sm{% if r.id == rubric_id %} btn-primary{% endif %}" href="?rubric={{ r.id }}">기준 {{ loop.index }}{% if r.job_id %} ({{ r.job_id }}){% endif %}, 작업 {{ r.jobs }}건</a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if columns %}
+<div class="card flush scroll-x">
+  <table class="list compare">
+    <thead>
+      <tr>
+        <th class="req-col">항목 <span class="muted">({{ rows|length }}개, 결과가 갈린 항목 {{ differs }}개)</span></th>
+        {% for c in columns %}
+        <th class="job-col"><a href="/jobs/{{ c.id }}">{{ c.id }}</a><div class="muted">{{ fmt_time(c.created_at) }}</div><div class="muted">{{ c.model }}</div></th>
+        {% endfor %}
+      </tr>
+      <tr class="sumrow">
+        <th>충족 / 검증</th>
+        {% for c in columns %}<th>{{ c.passed }} / {{ c.judged }}{% if c.pct is not none %} <span class="muted">({{ c.pct }}%)</span>{% endif %}</th>{% endfor %}
+      </tr>
+      <tr class="sumrow">
+        <th>걸린 시간, 토큰(입력/출력)</th>
+        {% for c in columns %}<th class="muted">{{ c.minutes }}분<br>{{ "{:,}".format(c.input) }} / {{ "{:,}".format(c.output) }}</th>{% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr{% if r.differs %} class="differs"{% endif %}>
+        <td class="small">{{ r.requirement }}{% if r.section and r.section != r.requirement %}<div class="muted">{{ r.section }}</div>{% endif %}</td>
+        {% for cell in r.cells %}<td>{% if cell.mark %}<span class="badge {{ cell.cls }}" title="{{ cell.title }}">{{ cell.mark }}</span>{% else %}<span class="muted">-</span>{% endif %}</td>{% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="hint">칸에 마우스를 올리면 검증 근거가 보입니다.</p>
+{% else %}
+<div class="card empty"><p class="muted">이 논문으로 끝난 작업이 아직 없습니다.</p></div>
+{% endif %}
+
+{% if others %}
+<div class="card">
+  <h2>비교에 넣지 않은 작업</h2>
+  <ul class="plain">
+    {% for o in others %}
+    <li><a href="/jobs/{{ o.id }}">{{ o.id }}</a> <span class="muted small">{{ fmt_time(o.created_at) }}, {% if o.status == "running" %}진행 중{% elif o.status == "failed" %}실패{% else %}다른 채점 기준{% endif %}</span></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endblock %}

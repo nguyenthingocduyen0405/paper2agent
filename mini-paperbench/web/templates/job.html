@@ -8,6 +8,7 @@
   <span>{{ job.source_label }}</span>
   <span>{{ fmt_time(job.created_at) }} 시작</span>
   {% if job.mock %}<span class="badge wait">모의 채점</span>{% endif %}
+  {% if compare_n > 1 %}<a href="/papers/{{ job.paper_id }}">같은 논문의 결과 {{ compare_n }}건 비교</a>{% endif %}
 </div>
 <div id="live" data-url="/jobs/{{ job.id }}/live">
   {% include "_live.html" %}
@@ -19,7 +20,8 @@
   <details class="rubric-all" id="rubric-all">
     <summary>채점 기준 전체 <span class="muted small">{{ rubric.sections|length }}개 영역, {{ rubric.total }}개 항목 (코드 구현 {{ rubric.code_dev }}개)</span></summary>
     <p class="small muted">
-      {% if rubric.auto %}PaperAgent가 논문을 읽고 설계한 기준입니다. 논문의 핵심 기여마다 영역을 나누고, 영역마다 확인할 수 있는 세부 항목을 정했습니다.
+      {% if rubric.reused_from %}같은 논문을 처음 올렸을 때(작업 {{ rubric.reused_from }}) 설계한 기준을 다시 썼습니다. 같은 기준으로 돌린 결과끼리 비교할 수 있습니다.
+      {% elif rubric.auto %}PaperAgent가 논문을 읽고 설계한 기준입니다. 논문의 핵심 기여마다 영역을 나누고, 영역마다 확인할 수 있는 세부 항목을 정했습니다.
       {% else %}서버에 준비된 채점 기준입니다. PaperBench 예제는 논문 저자가 만든 기준입니다.{% endif %}
       코드 구현 항목은 자동으로 검증하고, 실행과 결과 확인 항목은 코드를 실행한 뒤 직접 확인할 항목으로 보고서에 적습니다.
     </p>

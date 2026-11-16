@@ -1,8 +1,10 @@
 """화면에 보여 줄 값: 상태 이름, 단계, 에이전트 진행, 채점 진행, 결과, 보고서."""
 from __future__ import annotations
 
+import io
 import json
 import time
+import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -238,7 +240,8 @@ def rubric_view(job: dict) -> dict | None:
         sections.append({"name": group["requirements"] if group is not root else "", "items": items})
     items = [i for s in sections for i in s["items"]]
     return {"sections": sections, "total": len(items), "code_dev": sum(1 for i in items if i["cat"][1] == "cd"),
-            "auto": bool(job.get("rubric_auto"))}
+            "auto": bool(job.get("rubric_auto")) or job.get("rubric_origin") == "auto",
+            "reused_from": job.get("rubric_from") if not job.get("rubric_auto") else None}
 
 
 def live_context(job: dict) -> dict:
@@ -251,6 +254,26 @@ def live_context(job: dict) -> dict:
         except Exception:  # 로그는 없어도 화면은 보여 준다
             pass
     return ctx
+
+
+def bundle_zip(job: dict) -> bytes | None:
+    """내려받기 묶음: 만든 코드(숨김 파일 제외) + 보고서 + 채점 기준. 코드가 아직 없으면 None."""
+    sub = Path(job["submission_dir"]).resolve()
+    if not sub.is_dir():
+        return None
+    root = Path(f"paperagent-{job['id']}")
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        for p in sorted(sub.rglob("*")):
+            if p.is_file() and is_shown(p.relative_to(sub)):
+                z.write(p, root / p.relative_to(sub))
+        report = report_md(job)
+        if report:
+            z.writestr(str(root / "PAPERAGENT_REPORT.md"), report)
+        rubric = Path(job["paper_dir"]) / "rubric.json"
+        if rubric.is_file():
+            z.write(rubric, root / "PAPERAGENT_RUBRIC.json")
+    return buf.getvalue()
 
 
 def report_md(job: dict) -> str | None:

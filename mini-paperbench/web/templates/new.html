@@ -22,8 +22,11 @@
     </label>
     <p class="hint">따로 준비할 파일은 없습니다. 스캔한 PDF(글자가 이미지인 파일)는 읽지 못합니다.</p>
 
+    {% if quota %}
+    <p class="hint">오늘 {{ quota.used }}개를 만들었습니다. {{ quota.left }}개를 더 만들 수 있습니다(하루 {{ quota.limit }}개).</p>
+    {% endif %}
     <div class="actions mt">
-      <button class="btn btn-primary" type="submit">시작하기</button>
+      <button class="btn btn-primary" type="submit"{% if quota and quota.left <= 0 %} disabled{% endif %}>시작하기</button>
       <span class="muted small">끝까지 수십 분이 걸릴 수 있습니다. 창을 닫아도 작업은 계속됩니다.</span>
     </div>
   </div>
@@ -40,8 +43,9 @@
       </ol>
     </div>
 
+    {% if admin %}
     <div class="card form">
-      <details class="adv" {% if form.library_key or form.limit or form.mock or form.skip_submission %}open{% endif %}>
+      <details class="adv" {% if form.library_key or form.limit or form.mock or form.skip_submission or form.new_rubric %}open{% endif %}>
         <summary>실험용 설정 (개발자용)</summary>
         <div class="field">
           <label class="title" for="library_key">예제 논문으로 시험</label>
@@ -72,8 +76,13 @@
           </select>
           <p class="hint">이미 있는 제출물을 바로 검증합니다. 고른 논문과 같은 논문의 제출물이어야 합니다.</p>
         </div>
+        <div class="field">
+          <label class="check"><input type="checkbox" name="new_rubric" value="1" {% if form.new_rubric %}checked{% endif %}> 채점 기준 새로 설계</label>
+          <p class="hint">같은 논문을 다시 올리면 보통 전에 설계한 기준을 다시 씁니다(결과를 비교할 수 있게). 기준 설계 자체를 다시 시험할 때만 고릅니다.</p>
+        </div>
       </details>
     </div>
+    {% endif %}
   </aside>
 </form>
 {% endblock %}

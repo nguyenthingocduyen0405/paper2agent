@@ -12,10 +12,18 @@
   <header class="top">
     <div class="wrap">
       <a class="brand" href="/">Paper<span>Agent</span></a>
+      {% if user %}
       <nav>
         <a href="/">작업 목록</a>
+        <a href="/stats">통계</a>
+        {% if user.role == "admin" %}<a href="/admin/users">사용자 관리</a>{% endif %}
         <a class="btn btn-primary btn-sm" href="/new">새 작업</a>
+        <span class="who">
+          <a href="/account" title="내 계정">{{ user.username }}</a>
+          <form method="post" action="/logout" class="inline"><button class="linklike" type="submit">로그아웃</button></form>
+        </span>
       </nav>
+      {% endif %}
     </div>
   </header>
   <main class="wrap">

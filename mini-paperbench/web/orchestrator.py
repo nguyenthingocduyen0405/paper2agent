@@ -5,7 +5,8 @@
 - 논문 준비는 PDF를 올렸거나 채점 기준 없이 올렸을 때만 한다(PDF → markdown, 채점 기준 자동 생성).
 - 에이전트 Job은 동시에 MAX_AGENT_JOBS개까지 돌린다.
 - judge 워커는 한 번에 run 하나만 처리하므로 채점은 작업마다 차례로 한다.
-상태는 job.json에만 있다. 웹 Pod가 다시 떠도 이어서 진행한다.
+상태는 DB(jobs 테이블)에 있다. 웹 Pod가 다시 떠도 이어서 진행한다.
+단계가 끝나면 records가 LLM 호출, 채점 기준, 검증 결과를 DB에 적고, 끝난 작업은 S3에 올린다.
 """
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ import time
 from pathlib import Path
 
 from judge.common import connect, k
-from web import k8s, store
+from web import blob, k8s, records, store
 
 log = logging.getLogger("orchestrator")
 MAX_AGENT_JOBS = int(os.environ.get("MAX_AGENT_JOBS", "1"))
@@ -58,7 +59,9 @@ def analyze_job(job: dict) -> str:
 def _save_log(job: dict, name: str, filename: str) -> None:
     text = k8s.job_logs(name, tail=300)
     if text:
-        (store.job_dir(job["id"]) / filename).write_text(text)
+        d = store.job_dir(job["id"])  # 예제 논문으로 만든 작업은 폴더가 아직 없을 수 있다
+        d.mkdir(parents=True, exist_ok=True)
+        (d / filename).write_text(text)
 
 
 def _fail(job: dict, message: str, detail: str = "") -> None:
@@ -114,6 +117,7 @@ def step(job: dict, busy: dict) -> None:
             _save_log(job, prepare_job(job), "prepare.log")
             _finish_prepare(job)
             job.update(stage="queued", prepare_finished_at=time.time())
+            records.after_prepare(job)
         elif state == "failed":
             _save_log(job, prepare_job(job), "prepare.log")
             reason_file = paper_dir / "prepare_error.txt"  # agent.prepare가 남긴 사용자용 실패 이유
@@ -139,6 +143,7 @@ def step(job: dict, busy: dict) -> None:
             _save_log(job, agent_job(job), "agent.log")
             job.update(stage="judge_wait", agent_finished_at=time.time())
             store.add_event(job, "코드 작성을 마쳤습니다")
+            records.after_agent(job)
         elif state == "failed":
             _save_log(job, agent_job(job), "agent.log")
             _fail(job, "코드 작성 단계에서 오류가 났습니다", detail + "\n" + k8s.job_logs(agent_job(job), tail=30))
@@ -210,12 +215,13 @@ def step(job: dict, busy: dict) -> None:
                 return
             job.update(stage="done", status="done", finished_at=time.time(), score=score)
             store.add_event(job, "검증을 마쳤습니다")
+            records.after_judge(job)
         elif state in ("failed", "missing"):
             _fail(job, "검증 결과를 정리하지 못했습니다", detail + "\n" + k8s.job_logs(analyze_job(job), tail=30))
 
 
 def tick() -> None:
-    jobs = [j for j in sorted(store.list_jobs(), key=lambda j: j["created_at"]) if j["status"] == "running"]
+    jobs = store.running_jobs()
     busy = {"prepare": sum(1 for j in jobs if j["stage"] == "prepare"),
             "agent": sum(1 for j in jobs if j["stage"] == "agent"),
             "judge": any(j["stage"] in ("judge", "analyze") for j in jobs)}
@@ -232,6 +238,13 @@ def tick() -> None:
             # 계속 같은 예외가 나면(깨진 파일 등) 영원히 '진행 중'으로 두지 않고 실패로 끝낸다
             _step_errors.pop(job["id"], None)
             _fail(job, "작업을 진행하다 같은 오류가 계속 났습니다", f"{type(e).__name__}: {e}")
+        if job["status"] == "failed" and before[1] == "running":
+            records.after_failure(job)
         if (job["stage"], job["status"], job.get("judge_step")) != before:
             store.save(job)
             log.info("job %s → %s/%s", job["id"], job["status"], job["stage"])
+    if blob.enabled():
+        for job in store.unarchived_jobs():
+            if records.archive(job):
+                store.save(job)
+                log.info("job %s archived to S3", job["id"])

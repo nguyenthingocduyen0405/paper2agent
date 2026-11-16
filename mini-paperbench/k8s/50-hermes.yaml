@@ -4,7 +4,7 @@
 # 막아 둔 것
 #   도구      hermes/config.yaml: Slack에는 PaperAgent 도구(hermes/paper_mcp.py) 5개만. shell, 파일, 웹, 메모리 끔
 #   권한      ServiceAccount 토큰을 넣지 않는다(쿠버네티스 API를 부를 수 없다)
-#   비밀      Claude 토큰(claude-token)은 넣지 않는다. 브리지 키(llm-keys)와 Slack 토큰(hermes-slack)만
+#   비밀      Claude 토큰(claude-token)은 넣지 않는다. 브리지 키(llm-keys), Slack 토큰(hermes-slack), 웹 서비스 토큰만
 #   네트워크  NetworkPolicy: 웹(8000), claude-bridge(8080), DNS, 그리고 인터넷 443(Slack)만.
 #             노드, 클러스터 내부, EC2 메타데이터(169.254.169.254)로는 나갈 수 없다
 #   사용자    Secret의 SLACK_ALLOWED_USERS에 있는 사람만 대화할 수 있다(Hermes 기본값: 나머지는 거절)
@@ -52,6 +52,7 @@ spec:
           volumeMounts:
             - {name: home, mountPath: /opt/data}
             - {name: files, mountPath: /opt/paperagent, readOnly: true}
+            - {name: web-token, mountPath: /opt/paperagent-secret, readOnly: true}
           resources:
             requests: {cpu: 100m, memory: 256Mi}
             limits: {memory: 1536Mi}
@@ -60,6 +61,11 @@ spec:
           hostPath: {path: /var/lib/paperagent-hermes, type: DirectoryOrCreate}
         - name: files       # hermes/ 폴더: config.yaml, SOUL.md, paper_mcp.py
           configMap: {name: hermes-files}
+        - name: web-token   # 웹 API 서비스 토큰(웹이 로그인을 요구한다). 이 키 하나만 파일로 넣는다
+          secret:
+            secretName: web-secrets
+            optional: true
+            items: [{key: SERVICE_TOKEN, path: SERVICE_TOKEN}]
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
