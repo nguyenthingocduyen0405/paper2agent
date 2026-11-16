@@ -1,0 +1,46 @@
+# 임시 공개 주소: Cloudflare quick tunnel(https://<무작위>.trycloudflare.com)로 웹을 인터넷에 연다.
+# - AWS 보안 그룹에서 포트를 열지 않는다. cloudflared가 Cloudflare로 나가는 연결만 쓴다. 계정과 도메인이 필요 없다.
+# - HTTPS는 Cloudflare가 맡는다. 웹은 로그인해야 볼 수 있다(로그인 화면만 공개).
+# - Pod가 새로 뜰 때마다(EC2를 켤 때마다) 주소가 바뀐다. 지금 주소는 웹의 /admin/system에서 본다
+#   (웹이 cloudflared의 metrics 포트에서 /quicktunnel을 읽는다).
+# - Cloudflare 안내대로 quick tunnel은 시험·시연용이다. 고정 주소가 필요하면 Cloudflare 계정과 도메인으로 named tunnel을 만든다.
+# bootstrap.sh는 .env에 PUBLIC_TUNNEL=1이 있을 때만 이 파일을 적용한다.
+# 끄기: kubectl -n paperbench scale deployment/cloudflared --replicas=0   (다시 켜면 주소가 바뀐다)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: paperbench
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: cloudflared}
+  template:
+    metadata:
+      labels: {app: cloudflared}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: cloudflared
+          image: cloudflare/cloudflared:2026.10.7
+          args: ["tunnel", "--no-autoupdate", "--metrics", "0.0.0.0:2000", "--url", "http://web:8000"]
+          ports:
+            - containerPort: 2000
+          readinessProbe:
+            httpGet: {path: /ready, port: 2000}
+            periodSeconds: 10
+          securityContext: {runAsNonRoot: true, runAsUser: 65532, allowPrivilegeEscalation: false}
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {memory: 128Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudflared
+  namespace: paperbench
+spec:
+  selector: {app: cloudflared}
+  ports:
+    - port: 2000
+      targetPort: 2000

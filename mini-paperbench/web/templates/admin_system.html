@@ -12,6 +12,16 @@
 
 {% macro failed(sec) %}{% if not sec.ok %}<div class="alert bad small">읽지 못했습니다: {{ sec.error }}</div>{% endif %}{% endmacro %}
 
+{% if s.public.ok and s.public.url %}
+<div class="card">
+  <div class="cardhead"><h2>외부 공개 주소</h2><span class="muted small">Cloudflare 임시 주소, 이번 실습 세션 동안만</span></div>
+  <p><a href="{{ s.public.url }}" target="_blank" rel="noopener"><code>{{ s.public.url }}</code></a></p>
+  <p class="small muted">팀원에게 이 주소와 계정을 보내면 브라우저에서 바로 들어옵니다(HTTPS). EC2를 다시 켜면 주소가 바뀌므로 그때마다 여기서 새 주소를 확인해 보내 주세요.</p>
+</div>
+{% elif s.public.ok %}
+<p class="small muted">외부 공개 주소가 없습니다. .env에 PUBLIC_TUNNEL=1을 넣고 bootstrap.sh를 실행하면 Cloudflare 임시 주소가 생깁니다.</p>
+{% endif %}
+
 {% set h = s.host %}
 <div class="stats">
   <div class="stat">

@@ -100,6 +100,8 @@ fi
 step "6/6 apply"
 MANIFESTS="k8s/10-configmap.yaml k8s/20-redis.yaml"
 [ "$USE_BRIDGE" = 1 ] && MANIFESTS="$MANIFESTS k8s/25-claude-bridge.yaml"
+# 임시 공개 주소(Cloudflare quick tunnel)는 .env에 PUBLIC_TUNNEL=1이 있을 때만 연다
+grep -q '^PUBLIC_TUNNEL=1' .env 2>/dev/null && MANIFESTS="$MANIFESTS k8s/55-cloudflared.yaml"
 for f in $MANIFESTS k8s/30-judge-worker.yaml k8s/40-web.yaml k8s/45-network.yaml; do
   sed -e "s/__TAG__/$TAG/g" -e "s/__S3_BUCKET__/${S3_BUCKET:-}/g" "$f" | $KUBECTL apply -f -
 done
@@ -114,5 +116,15 @@ $KUBECTL -n paperbench rollout status deployment/judge-worker --timeout=120s
 $KUBECTL -n paperbench rollout status deployment/web --timeout=120s
 $KUBECTL -n paperbench get pods
 echo
+if grep -q '^PUBLIC_TUNNEL=1' .env 2>/dev/null; then
+  $KUBECTL -n paperbench rollout status deployment/cloudflared --timeout=120s || true
+  URL=""
+  for _ in $(seq 1 20); do
+    URL=$($KUBECTL -n paperbench logs deployment/cloudflared 2>/dev/null | grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' | tail -1)
+    [ -n "$URL" ] && break
+    sleep 3
+  done
+  echo "외부 공개 주소(이번 세션 동안): ${URL:-아직 없음. 웹의 /admin/system에서 확인}"
+fi
 echo "done. next: scripts/k8s_run.sh judge <run> <작업 수>   (자세한 사용법은 k8s/README.md)"
 echo "웹 화면: 내 컴퓨터에서 ssh -i <키> -L 8080:localhost:30080 ubuntu@<이 VM 주소> 를 실행하고 http://localhost:8080 을 연다"

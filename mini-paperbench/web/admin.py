@@ -19,6 +19,7 @@ from web import blob, db, gpu, k8s, orchestrator, store
 log = logging.getLogger("admin")
 LAB_SESSION_SEC = 4 * 3600  # AWS Academy Learner Lab 한 번의 세션
 RDS_INSTANCE_ID = os.environ.get("RDS_INSTANCE_ID", "paperagent-db")
+TUNNEL_METRICS = os.environ.get("TUNNEL_METRICS", "http://cloudflared:2000")  # k8s/55-cloudflared.yaml
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 RETRY_FROM = {"prepare_wait": "prepare_wait", "prepare": "prepare_wait", "queued": "queued", "agent": "queued",
               "judge_wait": "judge_wait", "judge": "judge_wait", "analyze": "judge_wait"}
@@ -197,8 +198,23 @@ def _s3() -> dict:
     return {"enabled": True, "bucket": blob.bucket(), "objects": n, "bytes": size}
 
 
+def public_url() -> str | None:
+    """Cloudflare quick tunnel이 받은 임시 공개 주소. 터널을 켜지 않았거나 아직 못 받았으면 None."""
+    import urllib.request
+    try:
+        with urllib.request.urlopen(f"{TUNNEL_METRICS}/quicktunnel", timeout=2) as r:
+            host = json.loads(r.read().decode()).get("hostname")
+    except Exception:
+        return None
+    return f"https://{host}" if host else None
+
+
+def _public() -> dict:
+    return {"url": public_url()}
+
+
 def system_status() -> dict:
-    return {"host": _section(_host), "cluster": _section(_cluster), "queue": _section(_queue), "redis": _section(_redis),
+    return {"public": _section(_public), "host": _section(_host), "cluster": _section(_cluster), "queue": _section(_queue), "redis": _section(_redis),
             "llm": _section(_llm), "rds": _section(_rds), "s3": _section(_s3), "at": time.time()}
 
 
