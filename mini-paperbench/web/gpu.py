@@ -159,6 +159,7 @@ def _summary(result: dict) -> dict:
             "packages": len(a.get("packages") or []), "error": a.get("error"),
             "fix": {"diagnosis": a["fix"].get("diagnosis"), "files": a["fix"].get("files")} if a.get("fix") else None})
     return {"final": result.get("final"), "message": result.get("message"), "attempts": attempts,
+            "quick": bool(result.get("quick")),
             "changed_files": result.get("changed_files") or [], "outputs": (result.get("outputs") or [])[:300],
             "n_outputs": len(result.get("outputs") or []), "judged_dir": result.get("judged_dir")}
 

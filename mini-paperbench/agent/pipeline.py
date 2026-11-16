@@ -210,7 +210,9 @@ Respond with exactly ONE fenced code block containing the whole file, and nothin
     def p5_finish(self) -> None:
         tasks = [
             ("requirements.txt", "List the pip packages (with versions where important) needed by the code in src/."),
-            ("reproduce.sh", "Write a bash script that installs requirements and runs the full reproduction end to end, producing all results (tables) in the paper. It must use the code in src/. Assume API keys are provided as environment variables."),
+            ("reproduce.sh", "Write a bash script that installs requirements and runs the full reproduction end to end, producing all results (tables) in the paper. It must use the code in src/. Assume API keys are provided as environment variables. "
+                             "Also support a reduced-budget mode when the environment variable QUICK=1 is set: the same experiments and output files with fewer steps, seeds or data, so that the whole script finishes in about 20 minutes on one GPU. "
+                             "Write result tables and figures under results/ so they can be collected after the run."),
             ("README.md", "Write a README: what the paper is, how the code is organized (each file in src/), how to run reproduce.sh, and which paper results each part reproduces."),
         ]
         for path, instruction in tasks:

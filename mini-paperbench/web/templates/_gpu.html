@@ -6,6 +6,7 @@
     <span class="badge {{ gpu.cls }}">{{ gpu.label }}</span>
   </div>
   <p class="small muted">학교 공용 GPU(JPUShare, {{ gpu.tier }})에서 <code>reproduce.sh</code>를 최대 {{ gpu.minutes }}분 동안 실행합니다.
+    {% if gpu.quick %}코드의 빠른 모드(QUICK=1, 줄인 단계와 시드)로 실행했습니다.{% endif %}
     {% if gpu.n and gpu.n > 1 %}{{ gpu.n }}번째 실행입니다.{% endif %}{% if gpu.requested_by %} 요청: {{ gpu.requested_by }}{% endif %}{% if gpu.elapsed %}, {{ gpu.elapsed }}{% endif %}</p>
 
   {% if gpu.status == 'queued' %}

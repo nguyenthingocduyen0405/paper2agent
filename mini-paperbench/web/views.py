@@ -336,6 +336,7 @@ def gpu_view(job: dict) -> dict | None:
     if res:
         view["final"], view["final_cls"] = FINAL_LABEL.get(res.get("final"), (res.get("final"), "wait"))
         view["message"] = res.get("message")
+        view["quick"] = res.get("quick")
         view["attempts"] = [{**a, "state_label": JPU_STATE.get(a.get("state"), a.get("state")),
                              "run": fmt_duration(a.get("run_sec")), "queue": fmt_duration(a.get("queue_sec"))}
                             for a in res.get("attempts") or []]
@@ -480,8 +481,9 @@ def report_md(job: dict) -> str | None:
     ran = bool(gv and gv.get("attempts"))
     if ran:
         lines += ["## GPU 실행", "",
-                  f"학교 공용 GPU(JPUShare, {gv['tier']})에서 `reproduce.sh`를 최대 {gv['minutes']}분 동안 실행했습니다. "
-                  "오류가 나면 PaperAgent가 로그를 읽고 코드를 고쳐 다시 실행했습니다.", "",
+                  f"학교 공용 GPU(JPUShare, {gv['tier']})에서 `reproduce.sh`를 최대 {gv['minutes']}분 동안 실행했습니다"
+                  + (" (빠른 모드 QUICK=1: 논문보다 줄인 단계와 시드). " if gv.get("quick") else ". ")
+                  + "오류가 나면 PaperAgent가 로그를 읽고 코드를 고쳐 다시 실행했습니다.", "",
                   f"- 결과: {gv['final']}. {gv.get('message') or ''}".rstrip()]
         for a in gv["attempts"]:
             line = f"- {a['n']}번째 실행: {a['state_label']}"

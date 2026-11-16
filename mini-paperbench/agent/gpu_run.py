@@ -482,6 +482,10 @@ def main() -> int:
         return finish("error", "reproduce.sh가 없어 실행할 수 없습니다.", None)
     original.update({p.relative_to(code).as_posix(): p.read_bytes() for p in code.rglob("*") if p.is_file()})
     llm = LLM(base)
+    # 공용 GPU라 시간을 아낀다: reproduce.sh가 빠른 모드(QUICK=1)를 지원하면 그 모드로 돌린다(에이전트 P5가 만들게 되어 있다)
+    quick = "QUICK" in read_text(code / "reproduce.sh")
+    run_env = {"QUICK": "1"} if quick else {}
+    result["quick"] = status["quick"] = quick
     run_sec = args.minutes * 60
     attempt_dir = None
 
@@ -499,7 +503,7 @@ def main() -> int:
         try:
             jid = jpu.submit(art, "bash .paperagent/run.sh", f"paperagent-{args.run_id}-{n}",
                              f"PaperAgent: run reproduce.sh of job {args.run_id} (attempt {n}) for paper reproduction",
-                             args.tier, run_sec + 900, {})
+                             args.tier, run_sec + 900, run_env)
         except Exception as e:
             return finish("error", f"JPUShare에 제출하지 못했습니다: {str(e)[-300:]}", attempt_dir)
         rec = {"n": n, "jpushare_id": jid, "state": "SUBMITTED", "submitted_at": time.time(), "started_at": None,
