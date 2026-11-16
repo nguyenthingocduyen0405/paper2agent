@@ -251,6 +251,19 @@ def _target_user(user_id: int) -> dict:
     return target
 
 
+def _user_page(request: Request, target: dict, errors: list[str] | None = None, status: int = 200):
+    usage = admin.user_usage(_kst_midnight()).get(target["id"], {})
+    recent = store.list_jobs(None, target["id"])[:10]
+    return _render(request, "admin_user.html", {"target": target, "usage": usage, "recent": recent,
+                                                 "errors": errors or []}, status)
+
+
+@app.get("/admin/users/{user_id}", response_class=HTMLResponse)
+def admin_user(request: Request, user_id: int):
+    _require_admin(request)
+    return _user_page(request, _target_user(user_id))
+
+
 @app.post("/admin/users/{user_id}/logout")
 def admin_logout_user(request: Request, user_id: int):
     me = _require_admin(request)
@@ -259,7 +272,7 @@ def admin_logout_user(request: Request, user_id: int):
     log.info("sessions of %s ended by %s (%d)", target["username"], me["username"], n)
     if target["id"] == me["id"]:
         return RedirectResponse("/login", status_code=303)
-    return RedirectResponse("/admin/users?loggedout=" + quote(target["username"]), status_code=303)
+    return RedirectResponse(f"/admin/users/{user_id}?loggedout=1", status_code=303)
 
 
 @app.post("/admin/users/{user_id}/delete")
@@ -267,9 +280,9 @@ def admin_delete_user(request: Request, user_id: int):
     me = _require_admin(request)
     target = _target_user(user_id)
     if target["id"] == me["id"]:
-        return _users_page(request, ["자기 계정은 지울 수 없습니다."], status=400)
+        return _user_page(request, target, ["자기 계정은 지울 수 없습니다."], status=400)
     if target["role"] == "admin" and not target["disabled"] and auth.active_admins() <= 1:
-        return _users_page(request, ["마지막 관리자 계정은 지울 수 없습니다."], status=400)
+        return _user_page(request, target, ["마지막 관리자 계정은 지울 수 없습니다."], status=400)
     admin.delete_user_rows(user_id)
     log.warning("user %s deleted by %s", target["username"], me["username"])
     return RedirectResponse("/admin/users?deleted=" + quote(target["username"]), status_code=303)
@@ -313,12 +326,12 @@ def admin_update_user(request: Request, user_id: int, daily_job_limit: str = For
     if losing_admin and auth.active_admins() <= 1:
         errors.append("마지막 관리자의 역할을 바꾸거나 사용 중지할 수 없습니다.")
     if errors:
-        return _users_page(request, errors, status=400)
+        return _user_page(request, target, errors, status=400)
     values = {"daily_job_limit": limit, "disabled": bool(disabled), "role": role}
     if new_password:
         values["password"] = new_password
     auth.update_user(user_id, **values)
-    return RedirectResponse("/admin/users?saved=" + quote(target["username"]), status_code=303)
+    return RedirectResponse(f"/admin/users/{user_id}?saved=1", status_code=303)
 
 
 # ---------- 작업 ----------
@@ -612,8 +625,16 @@ def _owner_or_admin(request: Request, job: dict) -> None:
         raise HTTPException(403, "작업을 만든 사람과 관리자만 실행할 수 있습니다")
 
 
+def _back(next_url: str, default: str, **params: str) -> RedirectResponse:
+    """관리 화면(/admin/...)에서 눌렀으면 그 화면으로, 아니면 default로 돌아간다. 알림은 쿼리로 붙인다."""
+    url = next_url if next_url.startswith("/admin/") and not next_url.startswith("//") else default
+    if params:
+        url += ("&" if "?" in url else "?") + "&".join(f"{k}={quote(v)}" for k, v in params.items())
+    return RedirectResponse(url, status_code=303)
+
+
 @app.post("/jobs/{job_id}/cancel")
-def job_cancel(request: Request, job_id: str):
+def job_cancel(request: Request, job_id: str, next: str = Form("")):
     job = _job_or_404(request, job_id)
     user = _user(request)
     if user["role"] != "admin" and job.get("user_id") != user["id"]:
@@ -621,20 +642,24 @@ def job_cancel(request: Request, job_id: str):
     reason = admin.request_cancel(job, user["username"])
     if reason:
         raise HTTPException(409, reason)
+    if next.startswith("/admin/"):
+        return _back(next, "", cancelled=job_id)
     return RedirectResponse(f"/jobs/{job_id}", status_code=303)
 
 
 @app.post("/jobs/{job_id}/retry")
-def job_retry(request: Request, job_id: str):
+def job_retry(request: Request, job_id: str, next: str = Form("")):
     me = _require_admin(request)
     reason = admin.retry(_job_or_404(request, job_id), me["username"])
     if reason:
         raise HTTPException(409, reason)
+    if next.startswith("/admin/"):
+        return _back(next, "", retried=job_id)
     return RedirectResponse(f"/jobs/{job_id}", status_code=303)
 
 
 @app.post("/jobs/{job_id}/delete")
-def job_delete(request: Request, job_id: str):
+def job_delete(request: Request, job_id: str, next: str = Form("")):
     me = _require_admin(request)
     job = store.load(job_id)
     if job is None:
@@ -642,16 +667,64 @@ def job_delete(request: Request, job_id: str):
     reason = admin.delete_job(job, me["username"])
     if reason:
         raise HTTPException(409, reason)
-    return RedirectResponse("/?deleted=" + quote(job_id), status_code=303)
+    return _back(next, "/", deleted=job_id)
 
 
-@app.get("/admin/system", response_class=HTMLResponse)
-def admin_system(request: Request):
+# ---------- 관리 메뉴: 개요, 작업 관리, 사용자, 서버·Pod, 저장소 ----------
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin_overview(request: Request):
     _require_admin(request)
-    status = admin.system_status()
-    owners = {u["id"]: u["username"] for u in auth.list_users()}
-    return _render(request, "admin_system.html", {"s": status, "owners": owners, "error": "",
-                                                  "lab_hours": admin.LAB_SESSION_SEC // 3600})
+    return _render(request, "admin_overview.html", {"s": admin.status("public", "host", "queue", "llm", "rds"),
+                                                    "lab_hours": admin.LAB_SESSION_SEC // 3600})
+
+
+@app.get("/admin/system")
+def admin_system_moved(request: Request):
+    _require_admin(request)
+    return RedirectResponse("/admin", status_code=303)
+
+
+JOB_FILTERS = ("running", "done", "failed", "cancelled")
+
+
+@app.get("/admin/jobs", response_class=HTMLResponse)
+def admin_jobs(request: Request, status: str = "", owner: str = ""):
+    _require_admin(request)
+    owner_id = int(owner) if owner.isdigit() else None
+    every = store.list_jobs(None, owner_id)
+    counts = {"": len(every), **{k: sum(1 for j in every if j["status"] == k) for k in JOB_FILTERS}}
+    status = status if status in JOB_FILTERS else ""
+    jobs = [j for j in every if not status or j["status"] == status]
+    summaries = {}
+    for j in jobs:
+        try:
+            summaries[j["id"]] = views.summary(j)
+        except Exception:
+            summaries[j["id"]] = ""
+    users = auth.list_users()
+    return _render(request, "admin_jobs.html", {
+        "jobs": jobs, "summaries": summaries, "counts": counts, "status": status, "owner_id": owner_id,
+        "users": users, "owners": {u["id"]: u["username"] for u in users},
+        "next_url": f"/admin/jobs?status={status}&owner={owner_id or ''}",
+        "running": any(j["status"] == "running" for j in jobs)})
+
+
+@app.get("/admin/servers", response_class=HTMLResponse)
+def admin_servers(request: Request):
+    _require_admin(request)
+    return _render(request, "admin_servers.html", {"s": admin.status("cluster", "host")})
+
+
+def _storage_page(request: Request, error: str = "", status: int = 200):
+    return _render(request, "admin_storage.html", {"s": admin.status("rds", "s3", "redis", "host"), "error": error},
+                   status)
+
+
+@app.get("/admin/storage", response_class=HTMLResponse)
+def admin_storage(request: Request):
+    _require_admin(request)
+    return _storage_page(request)
 
 
 @app.post("/admin/system/rds-stop")
@@ -662,8 +735,7 @@ def admin_rds_stop(request: Request):
     except Exception as e:
         reason = f"RDS를 끄지 못했습니다: {type(e).__name__}: {str(e)[:300]}"
     if reason:
-        return _render(request, "admin_system.html", {"s": admin.system_status(), "owners": {}, "error": reason,
-                                                      "lab_hours": admin.LAB_SESSION_SEC // 3600}, 409)
+        return _storage_page(request, reason, 409)
     return _render(request, "rds_stopping.html", {})
 
 

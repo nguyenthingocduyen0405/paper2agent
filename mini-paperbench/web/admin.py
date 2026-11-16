@@ -115,12 +115,23 @@ def user_usage(since_today: float) -> dict[int, dict]:
 
 # ---------- 시스템 상태 ----------
 
-def _section(fn):
+SECTIONS = ("public", "host", "cluster", "queue", "redis", "llm", "rds", "s3")
+
+
+def _section(name: str) -> dict:
+    fn = globals()[f"_{name}"]  # 시험에서 바꿔 끼울 수 있게 부를 때 찾는다
     try:
         return {"ok": True, **fn()}
     except Exception as e:  # 한 칸이 실패해도 화면은 보여 준다
-        log.exception("system status: %s", fn.__name__)
+        log.exception("system status: %s", name)
         return {"ok": False, "error": f"{type(e).__name__}: {str(e)[:300]}"}
+
+
+def status(*names: str) -> dict:
+    """관리 화면의 칸들. 화면마다 필요한 칸만 읽는다(S3 목록 등은 느리다)."""
+    out = {n: _section(n) for n in names}
+    out["at"] = time.time()
+    return out
 
 
 def _host() -> dict:
@@ -214,8 +225,7 @@ def _public() -> dict:
 
 
 def system_status() -> dict:
-    return {"public": _section(_public), "host": _section(_host), "cluster": _section(_cluster), "queue": _section(_queue), "redis": _section(_redis),
-            "llm": _section(_llm), "rds": _section(_rds), "s3": _section(_s3), "at": time.time()}
+    return status(*SECTIONS)
 
 
 def stop_rds(by: str) -> str:

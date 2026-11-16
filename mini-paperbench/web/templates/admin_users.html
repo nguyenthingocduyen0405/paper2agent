@@ -1,87 +1,58 @@
 {% extends "base.html" %}
-{% block title %}사용자 관리 - PaperAgent{% endblock %}
+{% import "_admin.html" as m with context %}
+{% block title %}사용자 - PaperAgent{% endblock %}
 {% block content %}
-<h1>사용자 관리</h1>
-<p class="sub">계정을 만들고, 하루에 만들 수 있는 작업 수를 정합니다. 작업마다 LLM 사용량이 들기 때문입니다.</p>
+{{ m.head("사용자", "계정을 만들고, 사람마다 사용량을 보고 설정을 바꿉니다. 작업마다 LLM 사용량이 들기 때문에 하루 작업 수를 정해 둡니다.") }}
 {% if request.query_params.get("created") %}<div class="alert info">{{ request.query_params.get("created") }} 계정을 만들었습니다. 아이디와 비밀번호를 본인에게 직접 전해 주세요.</div>{% endif %}
-{% if request.query_params.get("saved") %}<div class="alert info">{{ request.query_params.get("saved") }} 계정을 저장했습니다.</div>{% endif %}
-{% if request.query_params.get("loggedout") %}<div class="alert info">{{ request.query_params.get("loggedout") }} 계정의 로그인을 모두 끊었습니다.</div>{% endif %}
 {% if request.query_params.get("deleted") %}<div class="alert info">{{ request.query_params.get("deleted") }} 계정을 지웠습니다. 그 사람이 만든 작업은 남아 있고 주인이 '삭제된 계정'으로 보입니다.</div>{% endif %}
 {% if errors %}<div class="alert bad">{% for e in errors %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
 
-<div class="cols">
-  <div class="col-main card flush">
-    <table class="list">
-      <thead><tr><th>아이디</th><th>사용량</th><th>설정: 역할, 하루 작업 수(비우면 제한 없음), 새 비밀번호, 사용 중지</th></tr></thead>
-      <tbody>
-        {% for u in users %}
-        {% set us = (usage or {}).get(u.id, {}) %}
-        <tr>
-          <td>
-            <strong>{{ u.username }}</strong>{% if u.disabled %} <span class="badge wait">중지됨</span>{% endif %}
-            <div class="muted small">{{ fmt_time(u.created_at) }} 만듦</div>
-            <div class="muted small">{% if us.last_login %}최근 로그인 {{ fmt_time(us.last_login) }}{% else %}로그인 중인 기기 없음{% endif %}</div>
-          </td>
-          <td class="small">
-            <div>작업 {{ us.jobs or 0 }}개 (오늘 {{ us.today or 0 }}{% if u.daily_job_limit is not none %}/{{ u.daily_job_limit }}{% endif %}, 진행 중 {{ us.running or 0 }})</div>
-            <div class="muted">LLM 호출 {{ us.calls or 0 }}회, 입력 {{ fmt_tokens(us.input_tokens) }} / 출력 {{ fmt_tokens(us.output_tokens) }} 토큰</div>
-            <div class="muted">GPU 실행 {{ us.gpu_runs or 0 }}회{% if us.last_job %}, 마지막 작업 {{ fmt_time(us.last_job) }}{% endif %}</div>
-            {% if us.jobs %}<a href="/?owner={{ u.id }}">작업 보기</a>{% endif %}
-          </td>
-          <td>
-            <form method="post" action="/admin/users/{{ u.id }}" class="rowform">
-              <select name="role" aria-label="역할" {% if u.id == user.id %}disabled{% endif %}>
-                <option value="user" {% if u.role == "user" %}selected{% endif %}>사용자</option>
-                <option value="admin" {% if u.role == "admin" %}selected{% endif %}>관리자</option>
-              </select>
-              {% if u.id == user.id %}<input type="hidden" name="role" value="{{ u.role }}">{% endif %}
-              <input type="number" min="0" name="daily_job_limit" value="{{ u.daily_job_limit if u.daily_job_limit is not none else '' }}" placeholder="제한 없음" aria-label="하루 작업 수">
-              <input type="password" name="new_password" placeholder="새 비밀번호(바꿀 때만)" autocomplete="new-password" aria-label="새 비밀번호">
-              <label class="check"><input type="checkbox" name="disabled" value="1" {% if u.disabled %}checked{% endif %} {% if u.id == user.id %}disabled{% endif %}> 중지</label>
-              <button class="btn btn-sm" type="submit">저장</button>
-            </form>
-            <div class="rowform mt-s">
-              <form method="post" action="/admin/users/{{ u.id }}/logout" data-confirm="{{ u.username }} 계정의 로그인을 모든 기기에서 끊을까요?">
-                <button class="btn btn-sm" type="submit" {% if not us.sessions %}disabled{% endif %}>로그인 끊기{% if us.sessions %} ({{ us.sessions }}){% endif %}</button>
-              </form>
-              {% if u.id != user.id %}
-              <form method="post" action="/admin/users/{{ u.id }}/delete" data-confirm="{{ u.username }} 계정을 지울까요? 그 사람이 만든 작업은 남고, 계정만 지워집니다.">
-                <button class="btn btn-sm btn-danger" type="submit">계정 삭제</button>
-              </form>
-              {% endif %}
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <aside class="col-side">
-    <form method="post" action="/admin/users" class="card form">
-      <h2>계정 만들기</h2>
-      <div class="field">
-        <label class="title" for="username">아이디</label>
-        <input type="text" name="username" id="username" value="{{ form.username or '' }}" required autocomplete="off">
-        <p class="hint">영문, 숫자, 점, 밑줄, 하이픈으로 3~32자</p>
-      </div>
-      <div class="field">
-        <label class="title" for="password">처음 비밀번호</label>
-        <input type="password" name="password" id="password" minlength="8" required autocomplete="new-password">
-        <p class="hint">8자 이상. 본인이 로그인한 뒤 내 계정에서 바꿉니다.</p>
-      </div>
-      <div class="field">
-        <label class="title" for="role">역할</label>
-        <select name="role" id="role">
-          <option value="user" {% if form.role != "admin" %}selected{% endif %}>사용자: 자기 작업만 봅니다</option>
-          <option value="admin" {% if form.role == "admin" %}selected{% endif %}>관리자: 모든 작업, 사용자 관리, 실험용 설정</option>
-        </select>
-      </div>
-      <div class="field">
-        <label class="title" for="daily_job_limit">하루 작업 수</label>
-        <input type="number" min="0" name="daily_job_limit" id="daily_job_limit" value="{{ form.daily_job_limit if form.daily_job_limit is defined else default_limit }}" placeholder="비우면 제한 없음">
-      </div>
-      <button class="btn btn-primary" type="submit">만들기</button>
-    </form>
-  </aside>
+<details class="card create"{% if form %} open{% endif %}>
+  <summary><strong>계정 만들기</strong></summary>
+  <form method="post" action="/admin/users" class="form grid-form">
+    <div class="field">
+      <label class="title" for="username">아이디</label>
+      <input type="text" name="username" id="username" value="{{ form.username or '' }}" required autocomplete="off">
+      <p class="hint">영문, 숫자, 점, 밑줄, 하이픈으로 3~32자</p>
+    </div>
+    <div class="field">
+      <label class="title" for="password">처음 비밀번호</label>
+      <input type="password" name="password" id="password" minlength="8" required autocomplete="new-password">
+      <p class="hint">8자 이상. 본인이 로그인한 뒤 내 계정에서 바꿉니다.</p>
+    </div>
+    <div class="field">
+      <label class="title" for="role">역할</label>
+      <select name="role" id="role">
+        <option value="user" {% if form.role != "admin" %}selected{% endif %}>사용자: 자기 작업만 봅니다</option>
+        <option value="admin" {% if form.role == "admin" %}selected{% endif %}>관리자: 모든 작업, 관리 메뉴</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="title" for="daily_job_limit">하루 작업 수</label>
+      <input type="number" min="0" name="daily_job_limit" id="daily_job_limit" value="{{ form.daily_job_limit if form.daily_job_limit is defined else default_limit }}" placeholder="비우면 제한 없음">
+    </div>
+    <div class="field end"><button class="btn btn-primary" type="submit">만들기</button></div>
+  </form>
+</details>
+
+<div class="card flush">
+  <table class="list users">
+    <thead><tr><th>아이디</th><th>역할</th><th>작업</th><th class="hide-sm">LLM 토큰(입력/출력)</th><th class="hide-sm">GPU 실행</th><th class="hide-sm">최근 로그인</th><th></th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      {% set us = (usage or {}).get(u.id, {}) %}
+      <tr class="click" data-href="/admin/users/{{ u.id }}">
+        <td><a class="title" href="/admin/users/{{ u.id }}">{{ u.username }}</a>{% if u.id == user.id %} <span class="muted small">(나)</span>{% endif %}
+          {% if u.disabled %}<span class="badge wait">중지됨</span>{% endif %}</td>
+        <td class="small">{% if u.role == "admin" %}<span class="badge run">관리자</span>{% else %}사용자{% endif %}</td>
+        <td class="small">{{ us.jobs or 0 }}개 <span class="muted">(오늘 {{ us.today or 0 }}{% if u.daily_job_limit is not none %}/{{ u.daily_job_limit }}{% endif %}{% if us.running %}, 진행 중 {{ us.running }}{% endif %})</span></td>
+        <td class="small hide-sm">{{ fmt_tokens(us.input_tokens) }} / {{ fmt_tokens(us.output_tokens) }}</td>
+        <td class="small hide-sm">{{ us.gpu_runs or 0 }}회</td>
+        <td class="small muted hide-sm nowrap">{% if us.last_login %}{{ fmt_time(us.last_login) }}{% else %}-{% endif %}</td>
+        <td><a class="btn btn-sm" href="/admin/users/{{ u.id }}">관리</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

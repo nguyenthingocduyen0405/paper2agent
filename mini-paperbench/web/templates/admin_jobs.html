@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% import "_admin.html" as m with context %}
+{% block title %}작업 관리 - PaperAgent{% endblock %}
+{% block content %}
+{{ m.head("작업 관리", "모든 사용자의 작업을 상태와 사용자로 걸러 보고, 취소·다시 시도·삭제합니다.") }}
+{% if request.query_params.get("deleted") %}<div class="alert info">작업 {{ request.query_params.get("deleted") }}을 지웠습니다.</div>{% endif %}
+{% if request.query_params.get("cancelled") %}<div class="alert info">작업 {{ request.query_params.get("cancelled") }}의 취소를 요청했습니다. 몇 초 안에 멈춥니다.</div>{% endif %}
+{% if request.query_params.get("retried") %}<div class="alert info">작업 {{ request.query_params.get("retried") }}을 다시 시도합니다.</div>{% endif %}
+
+<form method="get" action="/admin/jobs" class="toolbar">
+  <div class="filter">
+    {% for key, label in (("", "전체"), ("running", "진행 중"), ("done", "완료"), ("failed", "실패"), ("cancelled", "취소됨")) %}
+    <a class="btn btn-sm{% if status == key %} active{% endif %}" href="/admin/jobs?status={{ key }}{% if owner_id %}&owner={{ owner_id }}{% endif %}">{{ label }} {{ counts.get(key, 0) }}</a>
+    {% endfor %}
+  </div>
+  <label class="small muted">사용자
+    <select name="owner" onchange="this.form.submit()">
+      <option value="">모두</option>
+      {% for u in users %}<option value="{{ u.id }}" {% if owner_id == u.id %}selected{% endif %}>{{ u.username }}</option>{% endfor %}
+    </select>
+  </label>
+  <input type="hidden" name="status" value="{{ status }}">
+</form>
+
+{% if jobs %}
+<div class="card flush"{% if running %} data-autorefresh{% endif %}>
+  <table class="list">
+    <thead><tr><th>작업</th><th class="hide-sm">사용자</th><th class="col-status">상태</th><th class="hide-sm">진행·결과</th><th class="hide-sm">시작</th><th>동작</th></tr></thead>
+    <tbody>
+      {% for j in jobs %}
+      {% set st = status_label(j) %}
+      <tr>
+        <td><a class="title" href="/jobs/{{ j.id }}">{{ j.title }}</a>
+          <div class="muted small">{{ j.id }}{% if j.skip_agent %}, 기존 제출물{% endif %}{% if j.mock %}, 모의 채점{% endif %}{% if j.retries %}, {{ j.retries }}번 다시 시도{% endif %}</div></td>
+        <td class="small hide-sm">{{ owners.get(j.user_id, "삭제된 계정" if j.user_id is none else "알 수 없음") }}</td>
+        <td><span class="badge {{ st[1] }}">{{ st[0] }}</span></td>
+        <td class="small hide-sm">{{ summaries[j.id] }}</td>
+        <td class="small muted nowrap hide-sm">{{ fmt_time(j.created_at) }}</td>
+        <td>{{ m.job_actions(j, next_url) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card empty"><p class="muted">조건에 맞는 작업이 없습니다.</p></div>
+{% endif %}
+{% endblock %}

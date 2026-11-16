@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% import "_admin.html" as m with context %}
+{% block title %}저장소 - PaperAgent{% endblock %}
+{% block content %}
+{{ m.head("저장소", "작업 기록(RDS), 결과 파일(S3), 작업 큐(Redis), EC2 디스크를 봅니다.", s.at) }}
+<div class="cols">
+  <div class="col-main">
+    {% set s3 = s.s3 %}
+    <div class="card">
+      <div class="cardhead"><h2>S3: 결과 파일 보관</h2></div>
+      {{ m.failed(s3) }}
+      {% if s3.ok and s3.enabled %}
+      <p><code>{{ s3.bucket }}</code></p>
+      <p class="small">객체 {{ s3.objects }}개, {{ fmt_bytes(s3.bytes) }}. 끝난 작업의 코드 묶음, 검증 결과, 논문 파일, 실행 기록이 있습니다.</p>
+      {% elif s3.ok %}<p class="small muted">S3를 쓰지 않습니다.</p>{% endif %}
+    </div>
+    {% set rd = s.redis %}
+    <div class="card">
+      <div class="cardhead"><h2>Redis: 작업 큐</h2>{% if rd.ok %}<span class="badge {{ 'ok' if rd.aof else 'wait' }}">디스크 기록 {% if rd.aof %}켜짐{% else %}꺼짐{% endif %}</span>{% endif %}</div>
+      {{ m.failed(rd) }}
+      {% if rd.ok %}<p class="small">메모리 {{ rd.memory }}, 키 {{ rd.nkeys }}개{% if rd.aof %}, 마지막 기록 {{ rd.aof_status }}{% endif %}. 1초마다 노드 디스크에 기록하므로 Pod나 EC2가 다시 떠도 큐와 결과가 남습니다.</p>{% endif %}
+    </div>
+    {% set h = s.host %}
+    <div class="card">
+      <div class="cardhead"><h2>EC2 디스크(/data)</h2></div>
+      {{ m.failed(h) }}
+      {% if h.ok %}
+      <div class="bar"><span style="width: {{ (100 * (h.disk_total - h.disk_free) / h.disk_total)|round|int }}%"></span></div>
+      <p class="small mt-s">{{ fmt_bytes(h.disk_total - h.disk_free) }} / {{ fmt_bytes(h.disk_total) }} 사용, 남은 공간 {{ fmt_bytes(h.disk_free) }}</p>
+      {% endif %}
+    </div>
+  </div>
+  <aside class="col-side">
+    {{ m.rds_card(s.rds, error) }}
+  </aside>
+</div>
+{% endblock %}

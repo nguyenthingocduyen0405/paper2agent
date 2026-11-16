@@ -1,0 +1,46 @@
+{# 관리 화면들이 같이 쓰는 조각 #}
+{% macro failed(sec) %}{% if not sec.ok %}<div class="alert bad small">읽지 못했습니다: {{ sec.error }}</div>{% endif %}{% endmacro %}
+
+{% macro head(title, sub, at=None) %}
+<div class="pagehead">
+  <div>
+    <h1>{{ title }}</h1>
+    <p class="sub">{{ sub }}{% if at %} {{ fmt_time(at) }} 기준.{% endif %}</p>
+  </div>
+  {% if at %}<a class="btn btn-sm" href="">새로 고침</a>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro rds_card(r, error="") %}
+<div class="card">
+  <div class="cardhead"><h2>RDS (PostgreSQL)</h2>{% if r.ok %}<span class="badge {{ 'ok' if r.status == 'available' else 'wait' }}">{{ r.status }}</span>{% endif %}</div>
+  {{ failed(r) }}
+  {% if error %}<div class="alert bad small">{{ error }}</div>{% endif %}
+  {% if r.ok %}<p class="small muted"><code>{{ r.id }}</code> · {{ r.class }} · {{ r.engine }} · {{ r.storage_gb }} GB</p>{% endif %}
+  <p class="small">실습 세션이 끝날 때는 AWS가 권한을 먼저 막아서 RDS를 자동으로 끄지 못합니다. 그대로 두면 다음 세션까지 켜진 채로 크레딧을 씁니다. 실습을 마치기 전에 꺼 주세요.</p>
+  <p class="small muted">끄면 이 웹도 DB를 쓰지 못해 멈춥니다. 다음에 EC2가 켜질 때 자동으로 다시 켜집니다(몇 분 걸림).</p>
+  <form method="post" action="/admin/system/rds-stop" data-confirm="RDS를 끌까요? 이 웹은 다음에 EC2를 켤 때까지 쓸 수 없습니다.">
+    <button class="btn btn-danger" type="submit" {% if not r.ok or r.status != 'available' %}disabled{% endif %}>RDS 끄기</button>
+  </form>
+</div>
+{% endmacro %}
+
+{% macro job_actions(j, next) %}
+<span class="job-actions">
+  {% if j.status == 'running' and not j.cancel_requested %}
+  <form method="post" action="/jobs/{{ j.id }}/cancel" data-confirm="작업 {{ j.id }}을 취소할까요? 지금 하던 단계를 멈춥니다.">
+    <input type="hidden" name="next" value="{{ next }}"><button class="btn btn-sm" type="submit">취소</button>
+  </form>
+  {% endif %}
+  {% if j.status in ('failed', 'cancelled') %}
+  <form method="post" action="/jobs/{{ j.id }}/retry" data-confirm="작업 {{ j.id }}을 멈춘 단계부터 다시 시도할까요?">
+    <input type="hidden" name="next" value="{{ next }}"><button class="btn btn-sm" type="submit">다시 시도</button>
+  </form>
+  {% endif %}
+  {% if j.status != 'running' %}
+  <form method="post" action="/jobs/{{ j.id }}/delete" data-confirm="작업 {{ j.id }}을 지울까요? 만든 코드, 검증 결과, 기록이 디스크·S3·DB에서 모두 지워지고 되돌릴 수 없습니다.">
+    <input type="hidden" name="next" value="{{ next }}"><button class="btn btn-sm btn-danger" type="submit">삭제</button>
+  </form>
+  {% endif %}
+</span>
+{% endmacro %}

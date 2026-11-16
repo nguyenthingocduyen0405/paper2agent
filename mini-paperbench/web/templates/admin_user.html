@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ target.username }} - 사용자 - PaperAgent{% endblock %}
+{% block content %}
+{% set us = usage %}
+{% set me = target.id == user.id %}
+<a class="back small" href="/admin/users">사용자 목록으로</a>
+<div class="pagehead">
+  <div>
+    <h1>{{ target.username }}{% if me %} <span class="muted small">(나)</span>{% endif %}</h1>
+    <p class="sub">
+      {% if target.role == "admin" %}<span class="badge run">관리자</span>{% else %}<span class="badge other">사용자</span>{% endif %}
+      {% if target.disabled %}<span class="badge wait">중지됨</span>{% endif %}
+      {{ fmt_time(target.created_at) }} 만듦 · {% if us.last_login %}최근 로그인 {{ fmt_time(us.last_login) }}{% else %}로그인 중인 기기 없음{% endif %}
+    </p>
+  </div>
+</div>
+{% if request.query_params.get("saved") %}<div class="alert info">저장했습니다.</div>{% endif %}
+{% if request.query_params.get("loggedout") %}<div class="alert info">모든 기기의 로그인을 끊었습니다.</div>{% endif %}
+{% if errors %}<div class="alert bad">{% for e in errors %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
+
+<div class="stats four">
+  <div class="stat"><div class="muted small">작업</div><div class="num">{{ us.jobs or 0 }}</div>
+    <div class="small muted">끝남 {{ us.done or 0 }} · 진행 중 {{ us.running or 0 }}</div></div>
+  <div class="stat"><div class="muted small">오늘 만든 작업</div><div class="num">{{ us.today or 0 }}{% if target.daily_job_limit is not none %}<span class="of"> / {{ target.daily_job_limit }}</span>{% endif %}</div>
+    <div class="small muted">{% if target.daily_job_limit is none %}제한 없음{% else %}하루 한도{% endif %}</div></div>
+  <div class="stat"><div class="muted small">LLM 사용</div><div class="num sm">{{ fmt_tokens(us.input_tokens) }}<span class="of"> / {{ fmt_tokens(us.output_tokens) }}</span></div>
+    <div class="small muted">입력 / 출력 토큰, 호출 {{ us.calls or 0 }}회</div></div>
+  <div class="stat"><div class="muted small">GPU 실행</div><div class="num">{{ us.gpu_runs or 0 }}</div>
+    <div class="small muted">JPUShare</div></div>
+</div>
+
+<div class="cols">
+  <div class="col-main">
+    <form method="post" action="/admin/users/{{ target.id }}" class="card form">
+      <h2>설정</h2>
+      <div class="grid-form">
+        <div class="field">
+          <label class="title" for="role">역할</label>
+          <select name="role" id="role" {% if me %}disabled{% endif %}>
+            <option value="user" {% if target.role == "user" %}selected{% endif %}>사용자: 자기 작업만 봅니다</option>
+            <option value="admin" {% if target.role == "admin" %}selected{% endif %}>관리자: 모든 작업, 관리 메뉴</option>
+          </select>
+          {% if me %}<input type="hidden" name="role" value="{{ target.role }}"><p class="hint">자기 계정의 역할은 바꿀 수 없습니다.</p>{% endif %}
+        </div>
+        <div class="field">
+          <label class="title" for="daily_job_limit">하루 작업 수</label>
+          <input type="number" min="0" name="daily_job_limit" id="daily_job_limit" value="{{ target.daily_job_limit if target.daily_job_limit is not none else '' }}" placeholder="비우면 제한 없음">
+        </div>
+        <div class="field">
+          <label class="title" for="new_password">새 비밀번호</label>
+          <input type="password" name="new_password" id="new_password" placeholder="바꿀 때만" autocomplete="new-password">
+          <p class="hint">바꾸면 그 사람의 모든 로그인이 끊깁니다.</p>
+        </div>
+        <div class="field">
+          <span class="title">사용 중지</span>
+          <label class="check"><input type="checkbox" name="disabled" value="1" {% if target.disabled %}checked{% endif %} {% if me %}disabled{% endif %}> 로그인과 새 작업을 막습니다</label>
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit">저장</button>
+    </form>
+
+    <div class="card flush">
+      <div class="cardhead pad"><h2>최근 작업</h2>{% if us.jobs %}<a class="small" href="/admin/jobs?owner={{ target.id }}">모두 보기 ({{ us.jobs }})</a>{% endif %}</div>
+      {% if recent %}
+      <table class="list">
+        <tbody>
+          {% for j in recent %}{% set st = status_label(j) %}
+          <tr class="click" data-href="/jobs/{{ j.id }}"><td><a class="title" href="/jobs/{{ j.id }}">{{ j.title }}</a><div class="muted small">{{ j.id }}</div></td>
+            <td><span class="badge {{ st[1] }}">{{ st[0] }}</span></td><td class="small muted nowrap">{{ fmt_time(j.created_at) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<p class="muted pad">아직 작업이 없습니다.</p>{% endif %}
+    </div>
+  </div>
+  <aside class="col-side">
+    <div class="card">
+      <h2>로그인</h2>
+      <p class="small">{% if us.sessions %}로그인한 기기 {{ us.sessions }}개{% else %}로그인한 기기가 없습니다{% endif %}</p>
+      <form method="post" action="/admin/users/{{ target.id }}/logout" data-confirm="{{ target.username }} 계정의 로그인을 모든 기기에서 끊을까요?">
+        <button class="btn" type="submit" {% if not us.sessions %}disabled{% endif %}>모든 기기에서 로그아웃</button>
+      </form>
+    </div>
+    {% if not me %}
+    <div class="card danger-zone">
+      <h2>계정 삭제</h2>
+      <p class="small muted">계정만 지웁니다. 이 사람이 만든 작업은 남고, 주인이 '삭제된 계정'으로 보입니다.</p>
+      <form method="post" action="/admin/users/{{ target.id }}/delete" data-confirm="{{ target.username }} 계정을 지울까요? 되돌릴 수 없습니다.">
+        <button class="btn btn-danger" type="submit">계정 삭제</button>
+      </form>
+    </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

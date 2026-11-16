@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% import "_admin.html" as m with context %}
+{% block title %}서버·Pod - PaperAgent{% endblock %}
+{% block content %}
+{{ m.head("서버·Pod", "EC2 한 대의 k3s에서 도는 Pod와 Job, judge 워커가 맡은 일을 봅니다.", s.at) }}
+{% set c = s.cluster %}{% set h = s.host %}
+{{ m.failed(c) }}
+{% if c.ok %}
+{% set running = c.pods|selectattr("phase", "equalto", "Running")|list %}
+<div class="stats four">
+  <div class="stat"><div class="muted small">실행 중인 Pod</div><div class="num">{{ running|length }}<span class="of"> / {{ c.pods|length }}</span></div>
+    <div class="small muted">끝난 Job의 Pod {{ c.finished_pods|length }}개는 아래에 접어 두었습니다</div></div>
+  <div class="stat"><div class="muted small">judge 워커</div><div class="num">{{ c.workers.ready }}<span class="of"> / {{ c.workers.want }}</span></div>
+    <div class="small muted">맡은 run: {{ c.worker_run }}{% if c.worker_mock %} (모의){% endif %}</div></div>
+  <div class="stat"><div class="muted small">실행 중인 Job</div><div class="num">{{ c.jobs|length }}</div>
+    <div class="small muted">논문 준비, 코드 작성, 검증, GPU 실행</div></div>
+  <div class="stat"><div class="muted small">EC2 부하</div>
+    {% if h.ok %}<div class="num sm">{{ '%.2f'|format(h.load[0]) }}</div><div class="small muted">메모리 {{ fmt_bytes(h.mem_total - h.mem_avail) }} / {{ fmt_bytes(h.mem_total) }}</div>{% else %}<div class="small">-</div>{% endif %}</div>
+</div>
+
+<div class="cols">
+  <div class="col-main">
+    <div class="card flush">
+      <div class="cardhead pad"><h2>Pod</h2></div>
+      <table class="list">
+        <thead><tr><th>Pod</th><th>상태</th><th>재시작</th><th class="hide-sm">시작</th></tr></thead>
+        <tbody>
+          {% for p in c.pods %}
+          <tr><td class="small"><code>{{ p.name }}</code></td>
+            <td>{% if p.terminating %}<span class="badge wait">끄는 중</span>
+              {% elif p.phase == 'Running' and p.ready %}<span class="badge ok">실행 중</span>
+              {% else %}<span class="badge wait">{{ p.reason or p.phase }}</span>{% endif %}</td>
+            <td class="small">{{ p.restarts }}</td><td class="small muted nowrap hide-sm">{{ fmt_time(p.created) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if c.finished_pods %}
+      <details class="pad"><summary class="small">끝난 Job의 Pod {{ c.finished_pods|length }}개 (끝난 뒤 1시간이 지나면 쿠버네티스가 지웁니다)</summary>
+        <ul class="small">{% for p in c.finished_pods %}<li><code>{{ p.name }}</code> {% if p.phase == 'Failed' %}<span class="badge bad">실패</span>{% endif %} {{ fmt_time(p.created) }}</li>{% endfor %}</ul>
+      </details>
+      {% endif %}
+    </div>
+  </div>
+  <aside class="col-side">
+    <div class="card">
+      <h2>실행 중인 Job</h2>
+      {% if c.jobs %}<ul class="small">{% for j in c.jobs %}<li><code>{{ j.name }}</code> <span class="muted">{{ fmt_time(j.started) }} 시작</span></li>{% endfor %}</ul>
+      {% else %}<p class="small muted">없습니다.</p>{% endif %}
+    </div>
+  </aside>
+</div>
+{% endif %}
+{% endblock %}

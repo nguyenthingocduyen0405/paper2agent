@@ -9,24 +9,42 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+  {# 지금 보는 화면이 어느 메뉴에 속하는가: 주소로 정한다 #}
+  {% set p = request.url.path %}
+  {% if p.startswith('/admin') %}{% set sec = 'admin' %}
+  {% elif p == '/new' %}{% set sec = 'new' %}
+  {% elif p.startswith('/stats') or p.startswith('/papers') %}{% set sec = 'stats' %}
+  {% elif p == '/account' %}{% set sec = 'account' %}
+  {% else %}{% set sec = 'jobs' %}{% endif %}
   <header class="top">
-    <div class="wrap">
+    <div class="wrap topbar">
       <a class="brand" href="/">Paper<span>Agent</span></a>
       {% if user %}
-      <nav>
-        <a href="/">작업 목록</a>
-        <a href="/stats">통계</a>
-        {% if user.role == "admin" %}<a href="/admin/users">사용자 관리</a><a href="/admin/system">시스템</a>{% endif %}
-        <a class="btn btn-primary btn-sm" href="/new">새 작업</a>
-        <span class="who">
-          <a href="/account" title="내 계정">{{ user.username }}</a>
-          <form method="post" action="/logout" class="inline"><button class="linklike" type="submit">로그아웃</button></form>
-        </span>
-      </nav>
+      <div class="who">
+        <a href="/account" class="me{% if sec == 'account' %} on{% endif %}" title="내 계정">{{ user.username }}{% if user.role == 'admin' %}<span class="role">관리자</span>{% endif %}</a>
+        <form method="post" action="/logout" class="inline"><button class="linklike" type="submit">로그아웃</button></form>
+      </div>
       {% endif %}
     </div>
+    {% if user %}
+    <nav class="tabs wrap" aria-label="메뉴">
+      <a href="/"{% if sec == 'jobs' %} class="on" aria-current="page"{% endif %}>{% if user.role in ('admin', 'service') %}작업 목록{% else %}내 작업{% endif %}</a>
+      <a href="/new"{% if sec == 'new' %} class="on" aria-current="page"{% endif %}>새 작업</a>
+      <a href="/stats"{% if sec == 'stats' %} class="on" aria-current="page"{% endif %}>통계</a>
+      {% if user.role == 'admin' %}<a href="/admin"{% if sec == 'admin' %} class="on" aria-current="page"{% endif %}>관리</a>{% endif %}
+    </nav>
+    {% endif %}
   </header>
   <main class="wrap">
+    {% if user and sec == 'admin' and user.role == 'admin' %}
+    <nav class="subtabs" aria-label="관리 메뉴">
+      <a href="/admin"{% if p == '/admin' %} class="on"{% endif %}>개요</a>
+      <a href="/admin/jobs"{% if p.startswith('/admin/jobs') %} class="on"{% endif %}>작업 관리</a>
+      <a href="/admin/users"{% if p.startswith('/admin/users') %} class="on"{% endif %}>사용자</a>
+      <a href="/admin/servers"{% if p.startswith('/admin/servers') %} class="on"{% endif %}>서버·Pod</a>
+      <a href="/admin/storage"{% if p.startswith('/admin/storage') %} class="on"{% endif %}>저장소</a>
+    </nav>
+    {% endif %}
     {% block content %}{% endblock %}
   </main>
   <script src="/static/app.js"></script>

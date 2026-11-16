@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% import "_admin.html" as m with context %}
+{% block title %}관리 - PaperAgent{% endblock %}
+{% block content %}
+{{ m.head("관리 개요", "실습 세션, 진행 중인 작업, 자원, 데이터베이스, LLM 사용량을 한눈에 봅니다.", s.at) }}
+
+{% set pub = s.public %}
+{% if pub.ok and pub.url %}
+<div class="card public-url">
+  <div>
+    <div class="muted small">외부 공개 주소 (이번 실습 세션 동안)</div>
+    <a href="{{ pub.url }}" target="_blank" rel="noopener"><code>{{ pub.url }}</code></a>
+  </div>
+  <p class="small muted">팀원에게 이 주소와 계정을 보내면 브라우저에서 바로 들어옵니다(HTTPS). EC2를 다시 켜면 주소가 바뀌므로 그때마다 여기서 새 주소를 확인해 보내 주세요.</p>
+</div>
+{% elif pub.ok %}
+<p class="small muted">외부 공개 주소가 없습니다. .env에 PUBLIC_TUNNEL=1을 넣고 bootstrap.sh를 실행하면 Cloudflare 임시 주소가 생깁니다.</p>
+{% endif %}
+
+{% set h = s.host %}{% set q = s.queue %}
+<div class="stats four">
+  <div class="stat">
+    <div class="muted small">실습 세션 남은 시간(추정)</div>
+    {% if h.ok %}<div class="num sm">{% if h.lab_left > 0 %}{{ fmt_duration(h.lab_left) }}{% else %}지남{% endif %}</div>
+    <div class="small muted">EC2를 켠 지 {{ fmt_duration(h.uptime) }}, 세션 {{ lab_hours }}시간 기준</div>{% else %}<div class="small">-</div>{% endif %}
+  </div>
+  <div class="stat">
+    <div class="muted small">진행 중인 작업</div>
+    {% if q.ok %}<div class="num">{{ q.running|length }}</div>
+    <div class="small muted">GPU 실행 {{ q.gpu|length }}개 · <a href="/admin/jobs?status=running">작업 관리에서 보기</a></div>{% endif %}
+  </div>
+  <div class="stat">
+    <div class="muted small">메모리</div>
+    {% if h.ok %}<div class="num sm">{{ fmt_bytes(h.mem_total - h.mem_avail) }}<span class="of"> / {{ fmt_bytes(h.mem_total) }}</span></div>
+    <div class="small muted">스왑 {{ fmt_bytes(h.swap_total - h.swap_free) }} 사용, 부하 {{ '%.2f'|format(h.load[0]) }}</div>{% endif %}
+  </div>
+  <div class="stat">
+    <div class="muted small">디스크(/data)</div>
+    {% if h.ok %}<div class="num sm">{{ fmt_bytes(h.disk_total - h.disk_free) }}<span class="of"> / {{ fmt_bytes(h.disk_total) }}</span></div>
+    <div class="small muted">남은 공간 {{ fmt_bytes(h.disk_free) }}</div>{% endif %}
+  </div>
+</div>
+{{ m.failed(h) }}{{ m.failed(q) }}
+<p class="small muted">실습 세션 시간은 EC2가 켜진 시각으로 어림합니다. AWS Academy에서 Start Lab을 다시 누르면 세션이 늘어나지만 이 화면은 그것을 알 수 없습니다.</p>
+
+<div class="cols">
+  <div class="col-main">
+    {% set l = s.llm %}
+    <div class="card">
+      <h2>LLM 사용량</h2>
+      {{ m.failed(l) }}
+      {% if l.ok %}
+      <table class="list small">
+        <thead><tr><th></th><th>호출</th><th>입력 토큰</th><th>출력 토큰</th></tr></thead>
+        <tbody>
+          <tr><td>최근 5시간</td><td>{{ l.h5.calls }}</td><td>{{ fmt_tokens(l.h5.input) }}</td><td>{{ fmt_tokens(l.h5.output) }}</td></tr>
+          <tr><td>최근 24시간</td><td>{{ l.h24.calls }}</td><td>{{ fmt_tokens(l.h24.input) }}</td><td>{{ fmt_tokens(l.h24.output) }}</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted mt-s">그 시간 안에 움직인 작업의 호출을 더했습니다. Claude 구독 한도는 5시간 단위로 다시 채워집니다.</p>
+      {% if l.limited %}<div class="alert warn small">최근 24시간에 사용 한도로 멈춘 작업: {% for x in l.limited %}<a href="/jobs/{{ x.id }}">{{ x.id }}</a> {% endfor %}</div>{% endif %}
+      {% endif %}
+    </div>
+  </div>
+  <aside class="col-side">
+    {{ m.rds_card(s.rds) }}
+  </aside>
+</div>
+{% endblock %}
