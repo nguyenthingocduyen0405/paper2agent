@@ -23,7 +23,8 @@ spec:
       containers:
         - name: cloudflared
           image: cloudflare/cloudflared:2026.10.7
-          args: ["tunnel", "--no-autoupdate", "--metrics", "0.0.0.0:2000", "--url", "http://web:8000"]
+          # http2(TCP 7844): 학교 망은 QUIC(UDP)을 막아 기본값으로는 연결이 안 된다
+          args: ["tunnel", "--no-autoupdate", "--protocol", "http2", "--metrics", "0.0.0.0:2000", "--url", "http://web:8000"]
           ports:
             - containerPort: 2000
           readinessProbe:
