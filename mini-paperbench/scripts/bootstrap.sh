@@ -7,7 +7,7 @@
 #       웹 로그인과 DB: DATABASE_URL(RDS, scripts/aws_setup.sh가 넣는다), ADMIN_USERNAME, ADMIN_PASSWORD, SERVICE_TOKEN.
 #       S3: S3_BUCKET. 이 값들이 없으면 웹은 로컬 SQLite와 디스크만 쓴다(로그인할 관리자도 없다).
 #       GPU 실행: JPUSHARE_API_KEY(JPUShare에서 만든 jpk_ 키). 없으면 GPU 실행을 묻지도, 버튼을 보이지도 않는다.
-#       고정 공개 주소: PUBLIC_URL(예: 학교 서버 http://113.198.66.77:18127). 있으면 VM의 80번을 웹으로 연다.
+#       고정 공개 주소: PUBLIC_URL(예: 학교 서버 http://<NAT 주소>:<포트>). 있으면 VM의 80번을 웹으로 연다.
 # 사용(mini-paperbench 폴더에서): scripts/bootstrap.sh
 #
 # 단계: 1 스왑 → 2 k3s → 3 이미지 빌드 → 4 /data 준비 → 5 Secret → 6 kubectl apply
