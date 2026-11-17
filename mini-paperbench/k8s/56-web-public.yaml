@@ -1,0 +1,16 @@
+# 고정 공개 주소: VM의 80번 포트를 웹으로 보낸다(k3s 기본 ServiceLB).
+# 학교 jcloud VM은 NAT가 113.198.66.77:18127을 이 VM의 80번으로 넘긴다.
+# bootstrap.sh가 .env에 PUBLIC_URL이 있을 때만 적용한다. AWS EC2에서는 쓰지 않는다(보안 그룹이 22번만 연다).
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-public
+  namespace: paperbench
+spec:
+  type: LoadBalancer
+  selector:
+    app: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000

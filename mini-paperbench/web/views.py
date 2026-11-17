@@ -58,6 +58,8 @@ def fmt_duration(sec: float | None) -> str:
     sec = int(sec)
     h, rem = divmod(sec, 3600)
     m, s = divmod(rem, 60)
+    if h >= 24:
+        return f"{h // 24}일 {h % 24}시간"
     if h:
         return f"{h}시간 {m}분"
     if m:
@@ -363,7 +365,7 @@ def live_context(job: dict) -> dict:
     ctx = {"job": job, "steps": steps(job), "prep": prepare_progress(job), "rubric": rubric_view(job),
            "agent": agent_progress(job),
            "judge": judge_progress(job), "res": results(job), "elapsed": fmt_duration(elapsed(job)), "log": "",
-           "gpu": gpu_view(job), "ask_gpu": gpu.should_ask(job), "gpu_minutes": gpu.GPU_MINUTES,
+           "gpu": gpu_view(job), "ask_gpu": gpu.should_ask(job), "gpu_enabled": gpu.ENABLED, "gpu_minutes": gpu.GPU_MINUTES,
            "repair": repair_view(job),
            "gpu_fixes": gpu.GPU_MAX_FIXES}
     if job["status"] == "running" and job["stage"] in ("agent", "prepare", "repair"):

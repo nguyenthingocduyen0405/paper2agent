@@ -6,7 +6,8 @@
 #       LLM을 Claude 구독(claude-bridge)으로 쓰면 CLAUDE_CODE_OAUTH_TOKEN도 넣는다.
 #       웹 로그인과 DB: DATABASE_URL(RDS, scripts/aws_setup.sh가 넣는다), ADMIN_USERNAME, ADMIN_PASSWORD, SERVICE_TOKEN.
 #       S3: S3_BUCKET. 이 값들이 없으면 웹은 로컬 SQLite와 디스크만 쓴다(로그인할 관리자도 없다).
-#       GPU 실행: JPUSHARE_API_KEY(JPUShare에서 만든 jpk_ 키). 없으면 GPU 실행이 "키가 없다"로 끝난다.
+#       GPU 실행: JPUSHARE_API_KEY(JPUShare에서 만든 jpk_ 키). 없으면 GPU 실행을 묻지도, 버튼을 보이지도 않는다.
+#       고정 공개 주소: PUBLIC_URL(예: 학교 서버 http://113.198.66.77:18127). 있으면 VM의 80번을 웹으로 연다.
 # 사용(mini-paperbench 폴더에서): scripts/bootstrap.sh
 #
 # 단계: 1 스왑 → 2 k3s → 3 이미지 빌드 → 4 /data 준비 → 5 Secret → 6 kubectl apply
@@ -90,6 +91,9 @@ if grep -Eq "$WEB_KEYS" .env; then
     --from-env-file=/dev/stdin --dry-run=client -o yaml | $KUBECTL apply -f -
 fi
 S3_BUCKET=$(grep -E '^S3_BUCKET=' .env | head -1 | cut -d= -f2- | tr -d '\r"' || true)
+PUBLIC_URL=$(grep -E '^PUBLIC_URL=' .env | head -1 | cut -d= -f2- | tr -d '\r"' || true)
+GPU_RUN=0
+grep -q '^JPUSHARE_API_KEY=.\+' .env && GPU_RUN=1
 # GPU 실행(JPUShare): API 키는 gpu-run Job에만 들어간다(k8s/jobs/gpu-run.yaml)
 if grep -q '^JPUSHARE_API_KEY=.\+' .env; then
   grep '^JPUSHARE_API_KEY=' .env | $KUBECTL -n paperbench create secret generic jpushare \
@@ -102,8 +106,10 @@ MANIFESTS="k8s/10-configmap.yaml k8s/20-redis.yaml"
 [ "$USE_BRIDGE" = 1 ] && MANIFESTS="$MANIFESTS k8s/25-claude-bridge.yaml"
 # 임시 공개 주소(Cloudflare quick tunnel)는 .env에 PUBLIC_TUNNEL=1이 있을 때만 연다
 grep -q '^PUBLIC_TUNNEL=1' .env 2>/dev/null && MANIFESTS="$MANIFESTS k8s/55-cloudflared.yaml"
+[ -n "$PUBLIC_URL" ] && MANIFESTS="$MANIFESTS k8s/56-web-public.yaml"
 for f in $MANIFESTS k8s/30-judge-worker.yaml k8s/40-web.yaml k8s/45-network.yaml; do
-  sed -e "s/__TAG__/$TAG/g" -e "s/__S3_BUCKET__/${S3_BUCKET:-}/g" "$f" | $KUBECTL apply -f -
+  sed -e "s/__TAG__/$TAG/g" -e "s/__S3_BUCKET__/${S3_BUCKET:-}/g" -e "s|__PUBLIC_URL__|${PUBLIC_URL:-}|g" \
+      -e "s/__GPU_RUN__/$GPU_RUN/g" "$f" | $KUBECTL apply -f -
 done
 $KUBECTL -n paperbench rollout restart deployment/web   # Secret web-secrets가 바뀌었을 수 있다
 if [ "$USE_BRIDGE" = 1 ]; then
@@ -126,5 +132,6 @@ if grep -q '^PUBLIC_TUNNEL=1' .env 2>/dev/null; then
   done
   echo "외부 공개 주소(이번 세션 동안): ${URL:-아직 없음. 웹의 /admin/system에서 확인}"
 fi
+[ -n "$PUBLIC_URL" ] && echo "고정 공개 주소: $PUBLIC_URL"
 echo "done. next: scripts/k8s_run.sh judge <run> <작업 수>   (자세한 사용법은 k8s/README.md)"
 echo "웹 화면: 내 컴퓨터에서 ssh -i <키> -L 8080:localhost:30080 ubuntu@<이 VM 주소> 를 실행하고 http://localhost:8080 을 연다"

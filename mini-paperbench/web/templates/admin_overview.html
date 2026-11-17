@@ -2,10 +2,19 @@
 {% import "_admin.html" as m with context %}
 {% block title %}관리 - PaperAgent{% endblock %}
 {% block content %}
-{{ m.head("관리 개요", "실습 세션, 진행 중인 작업, 자원, 데이터베이스, LLM 사용량을 한눈에 봅니다.", s.at) }}
+{{ m.head("관리 개요", "서버, 진행 중인 작업, 자원, 데이터베이스, LLM 사용량을 한눈에 봅니다.", s.at) }}
 
 {% set pub = s.public %}
-{% if pub.ok and pub.url %}
+{% if pub.ok and pub.fixed %}
+<div class="card public-url">
+  <div>
+    <div class="muted small">외부 공개 주소</div>
+    <a href="{{ pub.fixed }}" target="_blank" rel="noopener"><code>{{ pub.fixed }}</code></a>
+    {% if pub.url %}<div class="small muted mt-s">HTTPS 주소(서버를 다시 켜면 바뀜): <a href="{{ pub.url }}" target="_blank" rel="noopener">{{ pub.url }}</a></div>{% endif %}
+  </div>
+  <p class="small muted">이 서버는 늘 켜져 있고 주소도 바뀌지 않습니다. 팀원에게 이 주소와 계정을 보내면 브라우저에서 바로 들어옵니다.</p>
+</div>
+{% elif pub.ok and pub.url %}
 <div class="card public-url">
   <div>
     <div class="muted small">외부 공개 주소 (이번 실습 세션 동안)</div>
@@ -20,9 +29,15 @@
 {% set h = s.host %}{% set q = s.queue %}
 <div class="stats four">
   <div class="stat">
+    {% if h.ok and h.lab_left is none %}
+    <div class="muted small">서버 가동 시간</div>
+    <div class="num sm">{{ fmt_duration(h.uptime) }}</div>
+    <div class="small muted">늘 켜 두는 서버입니다</div>
+    {% else %}
     <div class="muted small">실습 세션 남은 시간(추정)</div>
     {% if h.ok %}<div class="num sm">{% if h.lab_left > 0 %}{{ fmt_duration(h.lab_left) }}{% else %}지남{% endif %}</div>
     <div class="small muted">EC2를 켠 지 {{ fmt_duration(h.uptime) }}, 세션 {{ lab_hours }}시간 기준</div>{% else %}<div class="small">-</div>{% endif %}
+    {% endif %}
   </div>
   <div class="stat">
     <div class="muted small">진행 중인 작업</div>
@@ -41,7 +56,7 @@
   </div>
 </div>
 {{ m.failed(h) }}{{ m.failed(q) }}
-<p class="small muted">실습 세션 시간은 EC2가 켜진 시각으로 어림합니다. AWS Academy에서 Start Lab을 다시 누르면 세션이 늘어나지만 이 화면은 그것을 알 수 없습니다.</p>
+{% if h.ok and h.lab_left is not none %}<p class="small muted">실습 세션 시간은 EC2가 켜진 시각으로 어림합니다. AWS Academy에서 Start Lab을 다시 누르면 세션이 늘어나지만 이 화면은 그것을 알 수 없습니다.</p>{% endif %}
 
 <div class="cols">
   <div class="col-main">

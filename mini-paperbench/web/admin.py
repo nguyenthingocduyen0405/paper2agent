@@ -26,6 +26,12 @@ RETRY_FROM = {"prepare_wait": "prepare_wait", "prepare": "prepare_wait", "queued
 STAGE_NAME = {"prepare_wait": "논문 준비", "queued": "코드 작성", "judge_wait": "자동 검증"}
 
 
+def on_aws_lab() -> bool:
+    """AWS Academy 실습(EC2 + RDS)에서 도는가. 그때만 실습 세션 시계와 RDS 칸, RDS 끄기를 보인다.
+    학교 서버처럼 늘 켜 두는 곳은 DATABASE_URL이 없어 SQLite를 쓴다."""
+    return "rds.amazonaws.com" in db.url()
+
+
 # ---------- 작업 ----------
 
 def request_cancel(job: dict, by: str) -> str:
@@ -141,7 +147,7 @@ def _host() -> dict:
         k, v = line.split(":", 1)
         mem[k] = int(v.split()[0]) * 1024
     disk = shutil.disk_usage(store.DATA if store.DATA.exists() else ".")
-    left = LAB_SESSION_SEC - uptime
+    left = LAB_SESSION_SEC - uptime if on_aws_lab() else None
     return {"boot_at": time.time() - uptime, "uptime": uptime, "lab_left": left,
             "mem_total": mem.get("MemTotal", 0), "mem_avail": mem.get("MemAvailable", 0),
             "swap_total": mem.get("SwapTotal", 0), "swap_free": mem.get("SwapFree", 0),
@@ -213,9 +219,17 @@ def _cached(key: str, ttl: float, fn) -> dict:
 
 
 def _rds() -> dict:
+    if not on_aws_lab():  # RDS를 쓰지 않으면 지금 쓰는 DB만 알린다
+        u = db.url()
+        out = {"enabled": False, "engine": "SQLite" if u.startswith("sqlite") else u.split(":", 1)[0]}
+        if u.startswith("sqlite:///"):
+            p = Path(u.split("///", 1)[1])
+            out.update(path=str(p), bytes=p.stat().st_size if p.exists() else None)
+        return out
+
     def read() -> dict:
         inst = _aws("rds").describe_db_instances(DBInstanceIdentifier=RDS_INSTANCE_ID)["DBInstances"][0]
-        return {"id": RDS_INSTANCE_ID, "status": inst["DBInstanceStatus"], "class": inst["DBInstanceClass"],
+        return {"enabled": True, "id": RDS_INSTANCE_ID, "status": inst["DBInstanceStatus"], "class": inst["DBInstanceClass"],
                 "engine": f"{inst['Engine']} {inst['EngineVersion']}", "storage_gb": inst.get("AllocatedStorage")}
     return _cached("rds", RDS_CACHE_SEC, read)
 
@@ -247,7 +261,8 @@ def public_url() -> str | None:
 
 
 def _public() -> dict:
-    return {"url": public_url()}
+    """fixed: 늘 같은 주소(학교 서버, .env의 PUBLIC_URL). url: Cloudflare 임시 HTTPS 주소."""
+    return {"fixed": os.environ.get("PUBLIC_URL") or None, "url": public_url()}
 
 
 def system_status() -> dict:
@@ -257,6 +272,8 @@ def system_status() -> dict:
 def stop_rds(by: str) -> str:
     """RDS를 끈다. 실습 세션이 끝날 때는 AWS가 권한을 먼저 막아 자동으로 끄지 못하므로, 나가기 전에 관리자가 끈다.
     끄면 이 웹도 DB를 쓰지 못한다. 다음에 EC2가 켜질 때 paperagent-rds 서비스가 다시 켠다."""
+    if not on_aws_lab():
+        return "이 서버는 RDS를 쓰지 않습니다."
     if store.running_jobs() or gpu.active_jobs():
         return "진행 중인 작업이 있어 끌 수 없습니다. 작업이 끝나거나 취소한 뒤에 꺼 주세요."
     _aws("rds").stop_db_instance(DBInstanceIdentifier=RDS_INSTANCE_ID)

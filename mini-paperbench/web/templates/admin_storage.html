@@ -2,7 +2,7 @@
 {% import "_admin.html" as m with context %}
 {% block title %}저장소 - PaperAgent{% endblock %}
 {% block content %}
-{{ m.head("저장소", "작업 기록(RDS), 결과 파일(S3), 작업 큐(Redis), EC2 디스크를 봅니다.", s.at) }}
+{{ m.head("저장소", "작업 기록 DB, 결과 파일(S3), 작업 큐(Redis), 서버 디스크를 봅니다.", s.at) }}
 <div class="cols">
   <div class="col-main">
     {% set s3 = s.s3 %}
@@ -22,7 +22,7 @@
     </div>
     {% set h = s.host %}
     <div class="card">
-      <div class="cardhead"><h2>EC2 디스크(/data)</h2></div>
+      <div class="cardhead"><h2>서버 디스크(/data)</h2></div>
       {{ m.failed(h) }}
       {% if h.ok %}
       <div class="bar"><span style="width: {{ (100 * (h.disk_total - h.disk_free) / h.disk_total)|round|int }}%"></span></div>

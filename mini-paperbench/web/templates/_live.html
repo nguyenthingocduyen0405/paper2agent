@@ -276,7 +276,7 @@
         </ol>
       </div>
 
-      {% if (not gpu or gpu.status == 'self') and res and not job.skip_agent %}
+      {% if gpu_enabled and (not gpu or gpu.status == 'self') and res and not job.skip_agent %}
       <div class="card" id="gpu-card">
         <h2>GPU에서 실행해 보기</h2>
         <p class="small muted">학교 공용 GPU에서 <code>reproduce.sh</code>를 최대 {{ gpu_minutes }}분 동안 실행합니다. 오류가 나면 PaperAgent가 고쳐서 {{ gpu_fixes }}번까지 다시 실행하고, 실행 기록으로 실행·결과 항목을 검증합니다.</p>

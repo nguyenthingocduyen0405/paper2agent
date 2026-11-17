@@ -30,6 +30,9 @@ JUDGE_STALL_SEC = float(os.environ.get("JUDGE_STALL_SEC", "1800"))
 _redis = None
 _seen: dict[str, tuple[int, float]] = {}
 
+# JPUShare 키가 있는 곳(bootstrap.sh가 GPU_RUN=1)만 GPU 실행을 묻고 버튼을 보인다
+ENABLED = os.environ.get("GPU_RUN", "1") != "0"
+
 
 def redis():
     global _redis
@@ -52,6 +55,8 @@ def is_active(job: dict) -> bool:
 
 def runnable(job: dict) -> str:
     """실행할 수 없으면 그 이유, 할 수 있으면 빈 문자열."""
+    if not ENABLED:
+        return "이 서버에서는 GPU 실행을 쓰지 않습니다."
     if job.get("status") != "done":
         return "작업이 끝난 뒤에 실행할 수 있습니다."
     if job.get("skip_agent"):

@@ -72,6 +72,10 @@ spec:
               value: "__S3_BUCKET__"
             - name: AWS_REGION
               value: "us-east-1"
+            - name: PUBLIC_URL         # 늘 같은 공개 주소(학교 서버). 비우면 없음
+              value: "__PUBLIC_URL__"
+            - name: GPU_RUN            # 1: JPUShare 키가 있어 GPU 실행을 보인다
+              value: "__GPU_RUN__"
           envFrom:
             - configMapRef: {name: llm-config}   # REDIS_URL, LLM_MODEL
             # DATABASE_URL, ADMIN_USERNAME, ADMIN_PASSWORD, SERVICE_TOKEN (bootstrap.sh가 .env에서 만든다)
