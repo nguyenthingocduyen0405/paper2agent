@@ -522,141 +522,281 @@ def bundle_zip(job: dict) -> bytes | None:
     return buf.getvalue()
 
 
+REPORT_FORMAT = "ML Reproducibility Challenge 재현 보고서 형식(재현 요약, 재현 범위, 방법, 결과, 논의)"
+KIND_ORDER = ("코드 구현", "실행", "결과 확인")
+
+
+def _cell(text) -> str:
+    """마크다운 표의 한 칸: 줄바꿈과 |를 없앤다."""
+    return " ".join(str(text).split()).replace("|", "\\|")
+
+
+def _short(text: str, n: int = 90) -> str:
+    t = " ".join(str(text).split())
+    return t if len(t) <= n else t[: n - 1] + "…"
+
+
+def _tree_leaves(node: dict) -> list[dict]:
+    if not node.get("sub_tasks"):
+        return [node]
+    return [leaf for child in node["sub_tasks"] for leaf in _tree_leaves(child)]
+
+
+def _report_areas(job: dict, rows: list[dict]) -> list[dict]:
+    """채점 기준의 최상위 영역마다 이름, 종류별 항목 수, 검증한 항목의 충족과 미충족."""
+    try:
+        root = json.loads((Path(job["paper_dir"]) / "rubric.json").read_text())
+    except (OSError, ValueError):
+        root = None
+    areas: list[dict] = []
+    where: dict[str, int] = {}
+    if root:
+        groups = root.get("sub_tasks") or [root]
+        for i, g in enumerate(groups):
+            kinds: dict[str, int] = {}
+            leaves = _tree_leaves(g)
+            for leaf in leaves:
+                where[leaf["id"]] = i
+                label = CATEGORY_LABEL.get(leaf.get("task_category"), (leaf.get("task_category") or "기타", "other"))[0]
+                kinds[label] = kinds.get(label, 0) + 1
+            areas.append({"name": g["requirements"] if g is not root else job["title"], "total": len(leaves),
+                          "kinds": kinds, "rows": []})
+    other = None
+    for x in rows:
+        i = where.get(x["id"])
+        if i is None:  # 채점 기준 파일에 없는 항목(기준을 못 읽었거나 바뀐 경우)
+            if other is None:
+                areas.append({"name": "기타", "total": 0, "kinds": {}, "rows": []})
+                other = len(areas) - 1
+            i = other
+            areas[i]["total"] += 1
+        areas[i]["rows"].append(x)
+    for n, a in enumerate(areas, 1):
+        ok = [x for x in a["rows"] if not x["error"]]
+        a.update(n=n, judged=len(ok), passed=sum(x["score"] for x in ok), errors=len(a["rows"]) - len(ok))
+        a["failed"] = a["judged"] - a["passed"]
+    return areas
+
+
+def _mark(x: dict) -> str:
+    mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
+    if x.get("before") == 0 and x["score"] == 1:
+        mark += " (고쳐서 충족)"
+    elif x.get("before") == 1 and x["score"] == 0:
+        mark += " (고친 뒤 미충족)"
+    return mark
+
+
+def _item_lines(x: dict, head: str) -> list[str]:
+    return ([f"{head} {x['n']}. {_mark(x)}", "", f"기준: {x['requirements']}", ""]
+            + _evidence_lines(x.get("evidence")) + [f"판단 이유: {x['reason'] or x['error']}", ""])
+
+
 def report_md(job: dict) -> str | None:
+    """결과 보고서. ML Reproducibility Challenge의 재현 보고서 형식(맨 앞의 재현 요약, 재현 범위, 방법, 결과, 논의)을
+    따르고, 어디까지 확인했는지는 ACM 아티팩트 배지의 구분(코드, 실행, 결과 재현)으로 적는다.
+    결과는 시험 보고서처럼 미충족 항목을 먼저 보이고, 항목별 자세한 내용은 부록에 둔다."""
     res = results(job)
     if res is None:
         return None
-    lines = [
-        "# PaperAgent 결과 보고서",
-        "",
-        f"논문: {job['title']}",
-        f"작업 ID: {job['id']}",
-        f"작업 시각: {fmt_time(job['created_at'])} ~ {fmt_time(job.get('finished_at'))} (한국 시간)",
-        "",
-        "## 요약",
-        "",
-        f"- 만든 파일: {len(res['files'])}개",
-        f"- 자동 검증: {res['judged']}개 항목 중 {res['passed']}개 충족 ({res['pct']}%)",
-    ]
-    rv = repair_view(job)
-    if rv and rv["state"] == "done":
-        b = rv["before"]
-        lines.append(f"- 첫 검증: {b['judged']}개 항목 중 {b['passed']}개 충족. 미충족 항목을 근거로 코드를 고친 뒤 전체를 다시 검증했습니다.")
-    if res["errors"]:
-        lines.append(f"- 검증하지 못한 항목: {res['errors']}개")
-    if job.get("mock"):
-        lines.append("- 주의: 모의 채점 결과입니다. LLM을 부르지 않고 무작위 점수를 매겼으므로 점수에 의미가 없습니다.")
-    if job.get("skip_agent"):
-        lines.append("- 이 작업은 코드를 새로 작성하지 않고 기존 제출물을 검증했습니다.")
-    lines += [
-        "",
-        "## 코드 사용 방법",
-        "",
-        "1. 압축을 풀고 README.md를 읽습니다.",
-        "2. 터미널에서 `bash reproduce.sh`를 실행합니다. 필요한 패키지는 requirements.txt에 있습니다.",
-        "3. 출력된 결과를 논문의 표와 그림에 나온 수치와 비교합니다.",
-        "",
-        "## 만든 파일",
-        "",
-    ]
-    lines += [f"- `{f['path']}`" for f in res["files"]]
-    if rv and rv["state"] != "nothing":
-        lines += ["", "## 검증 결과로 코드 고치기", ""]
-        b = rv["before"]
-        if rv["state"] == "done":
-            lines += [f"첫 검증에서 미충족이던 {rv['failed_before']}개 항목과 judge가 적은 이유를 근거로 코드를 고치고, "
-                      f"모든 항목을 처음부터 다시 검증했습니다. 다시 검증할 때도 같은 judge를 썼습니다.", "",
-                      f"- 충족: {b['passed']}/{b['judged']} → {rv['after']['passed']}/{rv['after']['judged']}",
-                      f"- 고쳐서 충족: {rv.get('fixed', 0)}개, 고친 뒤에도 미충족: {rv.get('still', 0)}개, "
-                      f"고친 뒤 미충족으로 바뀐 항목: {rv.get('broke', 0)}개",
-                      f"- 고친 파일: {', '.join(rv['changed']) or '없음'} (바뀐 내용은 PAPERAGENT_REPAIR.diff)"]
-            for f in rv["fixes"]:
-                lines.append(f"  - `{f['path']}`: {f['change']}")
-        elif rv["state"] == "undone":
-            lines.append(f"- {rv['error']}")
-        if rv["not_fixable"]:
-            lines.append("- 코드를 고쳐서는 충족할 수 없다고 본 항목:")
-            lines += [f"  - {x['requirement']} (이유: {x['why']})" for x in rv["not_fixable"]]
-        lines.append("")
-    lines += [
-        "",
-        "## 항목별 검증 결과",
-        "",
-        "논문의 채점 기준(rubric) 가운데 코드 구현에 관한 항목(Code Development)을 하나씩 검증했습니다.",
-        "",
-    ]
-    for x in res["rows"]:
-        mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
-        if x.get("before") == 0 and x["score"] == 1:
-            mark += " (고쳐서 충족)"
-        elif x.get("before") == 1 and x["score"] == 0:
-            mark += " (고친 뒤 미충족)"
-        lines += [f"### {x['n']}. {mark}", "", f"기준: {x['requirements']}", ""]
-        lines += _evidence_lines(x.get("evidence"))
-        lines += [f"판단 이유: {x['reason'] or x['error']}", ""]
+    rows = res["rows"]
     rub = rubric_view(job)
-    if rub:
-        lines += ["## 채점 기준", ""]
-        if rub["auto"]:
-            lines.append("PaperAgent가 논문을 읽고 설계한 채점 기준입니다. 논문의 핵심 기여마다 영역을 나누고, "
-                         "영역마다 확인할 수 있는 세부 항목을 정했습니다.")
-            if rub.get("evidence"):
-                ev = rub["evidence"]
-                lines.append(f"항목마다 그 기준이 나온 논문 문장을 함께 적었고, {ev['total']}개 중 {ev['found']}개는 "
-                             "논문 원문에서 같은 문장을 찾아 확인했습니다. 찾지 못한 문장은 표시해 두었습니다.")
-        else:
-            lines.append("서버에 준비된 채점 기준을 썼습니다(PaperBench 예제는 논문 저자가 만든 기준).")
-        judged_all = not job.get("judge_category")  # 코드 구현 항목이 없는 기준이면 전체를 검증했다
-        target = "항목" if judged_all else "코드 구현 항목"
-        limited = f"(실험용 설정에 따라 앞에서부터 {job['limit']}개만)" if job.get("limit") else ""
-        lines += ["", f"전체 {len(rub['sections'])}개 영역, {rub['total']}개 항목 가운데 {target} "
-                      f"{len(res['rows'])}개를 자동 검증했습니다{limited}. 전체 기준은 PAPERAGENT_RUBRIC.json에 있습니다.", ""]
-        later = [(s["name"], i) for s in rub["sections"] for i in s["items"] if i["cat"][1] != "cd"]
-        if later and not judged_all:
-            lines += ["## 직접 실행해서 확인할 항목", "",
-                      "코드를 실행한 뒤 확인할 항목입니다. 자동 검증에는 넣지 않았습니다.", ""]
-            lines += [f"- [{i['cat'][0]}] {i['requirement']}" for _, i in later[:100]]
-            if len(later) > 100:
-                lines.append(f"- 외 {len(later) - 100}개 (PAPERAGENT_RUBRIC.json 참고)")
-            lines.append("")
+    rv = repair_view(job)
     gv = gpu_view(job)
     ran = bool(gv and gv.get("attempts"))
+    ex = gv.get("exec") if ran else None
+    areas = _report_areas(job, rows)
+    judged_all = not job.get("judge_category")  # 코드 구현 항목이 없는 기준이면 전체를 검증했다
+    target = "항목" if judged_all else "코드 구현 항목"
+    limited = f"(실험용 설정에 따라 앞에서부터 {job['limit']}개만)" if job.get("limit") else ""
+    total = rub["total"] if rub else len(rows)
+    repaired = bool(rv and rv["state"] == "done")
+    failed_rows = [x for x in rows if not x["error"] and not x["score"]]
+    error_rows = [x for x in rows if x["error"]]
+
+    L = [f"# 논문 재현 보고서: {job['title']}", "",
+         "| 구분 | 내용 |", "|---|---|",
+         f"| 논문 | {_cell(job['title'])} |",
+         f"| 작업 ID | {job['id']} |",
+         f"| 작업 시각 | {fmt_time(job['created_at'])} ~ {fmt_time(job.get('finished_at'))} (한국 시간) |",
+         "| 작성 | PaperAgent가 자동으로 작성 |",
+         f"| 형식 | {REPORT_FORMAT} |", ""]
+    if job.get("mock"):
+        L += ["> 주의: 모의 채점 결과입니다. LLM을 부르지 않고 무작위 점수를 매겼으므로 점수에 의미가 없습니다.", ""]
+    if job.get("skip_agent"):
+        L += ["> 이 작업은 코드를 새로 작성하지 않고 기존 제출물을 검증했습니다.", ""]
+
+    # 1. 재현 요약: 한 쪽 안에 범위, 방법, 결과, 잘 된 점과 부족한 점
+    how = "기존 제출물을" if job.get("skip_agent") else "PaperAgent가 논문만 읽고 작성한 코드를"
+    method = f"{how} LLM 검증기가 항목마다 읽고 충족 여부를 판단했습니다."
+    if repaired:
+        method += " 첫 검증에서 미충족인 항목과 그 이유를 근거로 코드를 한 번 고친 뒤 전체를 다시 검증했습니다."
+    elif rv and rv["state"] == "undone":
+        method += " 첫 검증 뒤 코드를 고치려 했지만 되돌리고 첫 검증 결과를 썼습니다."
+    method += " 공용 GPU에서 코드를 실행해 실행 기록으로도 검증했습니다." if ran else " 코드는 실행하지 않았습니다."
+    result = f"{res['judged']}개 항목 중 {res['passed']}개 충족({res['pct']}%)."
+    if repaired:
+        b = rv["before"]
+        result += f" 첫 검증: {b['judged']}개 항목 중 {b['passed']}개 충족."
+    if res["errors"]:
+        result += f" 검증하지 못한 항목 {res['errors']}개."
+    if ex:
+        result += f" 실행과 결과 확인 항목은 {ex['judged']}개 중 {ex['passed']}개 충족."
+    full = [a for a in areas if a["judged"] and not a["failed"] and not a["errors"]]
+    weak = [a for a in areas if a["failed"]]
+    L += ["## 1. 재현 요약", "",
+          f"- 재현 범위: 논문의 핵심 기여를 {len(areas)}개 영역, {total}개 항목으로 나눴습니다. "
+          f"그중 {target} {len(rows)}개를 자동 검증했습니다{limited}.",
+          f"- 방법: {method}",
+          f"- 결과: {result}"]
+    L.append(f"- 잘 된 부분: 모든 항목을 충족한 영역 {len(full)}개" if full else "- 잘 된 부분: 모든 항목을 충족한 영역은 없습니다.")
+    L += [f"  - 영역 {a['n']}. {_short(a['name'])}" for a in full]
+    if failed_rows:
+        L.append(f"- 부족한 부분: 미충족 {len(failed_rows)}개 항목. 항목과 판단 이유는 4.2에 있습니다.")
+        L += [f"  - 영역 {a['n']}. {_short(a['name'])} (미충족 {a['failed']}개)" for a in weak]
+    else:
+        L.append("- 부족한 부분: 미충족 항목이 없습니다.")
+
+    L += ["", "### 확인 수준", "",
+          "ACM 아티팩트 배지의 구분을 따라, 코드가 갖춰졌는지, 실행되는지, 논문 결과가 다시 나오는지를 나눠 적었습니다.", "",
+          "| 수준 | 결과 | 확인한 방법 |", "|---|---|---|",
+          f"| 코드 구현 | {res['passed']}/{res['judged']} 충족 | LLM 검증기가 코드를 읽고 항목별로 판단 |"]
     if ran:
-        lines += ["## GPU 실행", "",
-                  f"학교 공용 GPU(JPUShare, {gv['tier']})에서 `reproduce.sh`를 최대 {gv['minutes']}분 동안 실행했습니다"
-                  + (" (빠른 모드 QUICK=1: 논문보다 줄인 단계와 시드). " if gv.get("quick") else ". ")
-                  + "오류가 나면 PaperAgent가 로그를 읽고 코드를 고쳐 다시 실행했습니다.", "",
-                  f"- 결과: {gv['final']}. {gv.get('message') or ''}".rstrip()]
+        L.append(f"| 실행 | {gv['final']} | 공용 GPU에서 최대 {gv['minutes']}분 실행 |")
+        L.append("| 논문 결과 재현 | " + (f"실행과 결과 확인 항목 {ex['passed']}/{ex['judged']} 충족" if ex else "확인 안 함")
+                 + " | 실행 기록과 결과 파일로 판단. 논문 수치와의 자세한 비교는 직접 확인 |")
+    else:
+        L += ["| 실행 | 확인 안 함 | 코드를 실행하지 않음 |",
+              "| 논문 결과 재현 | 확인 안 함 | 실행 결과를 논문의 표와 그림에 직접 비교해야 함 |"]
+
+    # 2. 재현 범위: 채점 기준이 어디서 왔고, 영역마다 무엇을 보는가
+    L += ["", "## 2. 재현 범위", ""]
+    if rub and rub["auto"]:
+        L.append("PaperAgent가 논문을 읽고 설계한 채점 기준입니다. 논문의 핵심 기여마다 영역을 나누고, "
+                 "영역마다 확인할 수 있는 세부 항목을 정했습니다.")
+        if rub.get("evidence"):
+            ev = rub["evidence"]
+            L.append(f"항목마다 그 기준이 나온 논문 문장을 함께 적었고, {ev['total']}개 중 {ev['found']}개는 "
+                     "논문 원문에서 같은 문장을 찾아 확인했습니다. 찾지 못한 문장은 부록에 표시해 두었습니다.")
+    elif rub:
+        L.append("서버에 준비된 채점 기준을 썼습니다(PaperBench 예제는 논문 저자가 만든 기준).")
+    kinds = list(KIND_ORDER) + sorted({k for a in areas for k in a["kinds"]} - set(KIND_ORDER))
+    L += ["", "| 영역 | 전체 항목 | " + " | ".join(kinds) + " |", "|---|---|" + "---|" * len(kinds)]
+    L += [f"| {a['n']}. {_cell(_short(a['name']))} | {a['total']} | " + " | ".join(str(a["kinds"].get(k, 0)) for k in kinds) + " |"
+          for a in areas]
+    L += ["", f"이 가운데 {target} {len(rows)}개를 자동 검증했습니다{limited}. 전체 기준은 PAPERAGENT_RUBRIC.json에 있습니다.", ""]
+
+    # 3. 방법
+    L += ["## 3. 방법", "", "### 3.1 코드 작성", ""]
+    if job.get("skip_agent"):
+        L.append("코드를 새로 작성하지 않고 기존 제출물을 그대로 검증했습니다.")
+    else:
+        L.append("PaperAgent가 논문 원문만 읽고 코드를 작성했습니다. 사람은 코드를 고치지 않았습니다.")
+    L += ["", f"만든 파일 {len(res['files'])}개:", ""] + [f"- `{f['path']}`" for f in res["files"]]
+    L += ["", "### 3.2 자동 검증", "",
+          f"LLM 검증기가 {target}마다 제출된 코드를 읽고, 기준을 구현했으면 충족(1), 아니면 미충족(0)을 매겼습니다. "
+          "항목마다 판단 이유를 남겼습니다. 이 단계에서는 코드를 실행하지 않습니다."]
+    if rv and rv["state"] != "nothing":
+        L.append("첫 검증에서 미충족 항목이 있으면, 그 항목과 판단 이유를 근거로 코드를 한 번 고친 뒤 모든 항목을 처음부터 "
+                 "다시 검증합니다. 다시 검증할 때도 같은 검증기를 씁니다.")
+    L += ["", "### 3.3 실행 환경과 사용법", "",
+          "1. 압축을 풀고 README.md를 읽습니다.",
+          "2. 터미널에서 `bash reproduce.sh`를 실행합니다. 필요한 패키지는 requirements.txt에 있습니다.",
+          "3. 출력된 결과를 논문의 표와 그림에 나온 수치와 비교합니다."]
+    if ran:
+        L += ["", f"PaperAgent는 학교 공용 GPU(JPUShare, {gv['tier']})에서 `reproduce.sh`를 최대 {gv['minutes']}분 동안 실행했습니다"
+              + (". 빠른 모드(QUICK=1)라 논문보다 단계와 시드를 줄였습니다." if gv.get("quick") else ".")]
+    L.append("")
+
+    # 4. 결과: 영역별 표, 미충족 항목 먼저
+    L += ["## 4. 결과", "", "### 4.1 영역별 결과", "",
+          "| 영역 | 검증한 항목 | 충족 | 미충족 | 검증 오류 |", "|---|---|---|---|---|"]
+    L += [f"| {a['n']}. {_cell(_short(a['name']))} | {a['judged'] + a['errors']} | {a['passed']} | {a['failed']} | {a['errors']} |"
+          for a in areas]
+    L += [f"| 합계 | {len(rows)} | {res['passed']} | {res['failed']} | {res['errors']} |", "",
+          "### 4.2 미충족 항목", ""]
+    if failed_rows:
+        L += ["채점 기준 순서입니다. 번호는 부록 A의 번호와 같습니다.", ""]
+        for x in failed_rows:
+            L += [f"- {x['n']}. {_short(x['requirements'], 200)}", f"  - 판단 이유: {_short(x['reason'], 400)}"]
+    else:
+        L.append("미충족 항목이 없습니다.")
+    if error_rows:
+        L += ["", "검증하지 못한 항목:", ""]
+        L += [f"- {x['n']}. {_short(x['requirements'], 200)} (오류: {_short(x['error'], 200)})" for x in error_rows]
+    L.append("")
+    sub = 3
+    if rv and rv["state"] != "nothing":
+        L += [f"### 4.{sub} 검증 결과로 코드 고치기", ""]
+        sub += 1
+        if rv["state"] == "done":
+            b = rv["before"]
+            L += [f"첫 검증에서 미충족이던 {rv['failed_before']}개 항목과 검증기가 적은 이유를 근거로 코드를 고치고, "
+                  "모든 항목을 처음부터 다시 검증했습니다.", "",
+                  f"- 충족: {b['passed']}/{b['judged']}에서 {rv['after']['passed']}/{rv['after']['judged']}으로",
+                  f"- 고쳐서 충족: {rv.get('fixed', 0)}개, 고친 뒤에도 미충족: {rv.get('still', 0)}개, "
+                  f"고친 뒤 미충족으로 바뀐 항목: {rv.get('broke', 0)}개",
+                  f"- 고친 파일: {', '.join(rv['changed']) or '없음'} (바뀐 내용은 PAPERAGENT_REPAIR.diff)"]
+            L += [f"  - `{f['path']}`: {f['change']}" for f in rv["fixes"]]
+        elif rv["state"] == "undone":
+            L.append(f"- {rv['error']}")
+        if rv["not_fixable"]:
+            L.append("- 코드를 고쳐서는 충족할 수 없다고 본 항목:")
+            L += [f"  - {x['requirement']} (이유: {x['why']})" for x in rv["not_fixable"]]
+        L.append("")
+    if ran:
+        L += [f"### 4.{sub} GPU 실행", "",
+              "오류가 나면 PaperAgent가 실행 기록을 읽고 코드를 고쳐 다시 실행했습니다.", "",
+              f"- 결과: {gv['final']}. {gv.get('message') or ''}".rstrip()]
         for a in gv["attempts"]:
             line = f"- {a['n']}번째 실행: {a['state_label']}"
             if a.get("run"):
                 line += f", {a['run']} 동안 실행"
-            lines.append(line)
+            L.append(line)
             if a.get("fix"):
-                lines.append(f"  - 고친 내용: {a['fix']['diagnosis']} (파일: {', '.join(a['fix']['files']) or '없음'})")
+                L.append(f"  - 고친 내용: {a['fix']['diagnosis']} (파일: {', '.join(a['fix']['files']) or '없음'})")
         if gv.get("changed_files"):
-            lines.append(f"- 실행하면서 고친 파일은 PAPERAGENT_GPU_RUN/fixed_files/에 있습니다: {', '.join(gv['changed_files'])}")
-        lines.append("- 실행 기록은 PAPERAGENT_GPU_RUN/reproduce.log, 실행 중 생긴 파일은 PAPERAGENT_GPU_RUN/outputs/에 있습니다.")
-        lines.append("")
-        if gv.get("exec"):
-            e = gv["exec"]
-            lines += ["### 실행·결과 항목 검증", "",
-                      f"실행 기록과 결과 파일을 보고 실행(Code Execution)과 결과 확인(Result Analysis) 항목 {e['judged']}개를 검증했습니다. "
-                      f"{e['passed']}개 충족({e['pct']}%).", ""]
-            for x in e["rows"]:
-                mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
-                lines += [f"#### {x['n']}. {mark}", "", f"기준: {x['requirements']}", ""]
-                lines += _evidence_lines(x.get("evidence"))
-                lines += [f"판단 이유: {x['reason'] or x['error']}", ""]
-    lines += ["## 한계", ""]
-    if ran:
-        lines += [f"- 공용 GPU에서 {gv['minutes']}분까지만 실행했습니다. 논문 전체 실험이 더 오래 걸리면 결과가 일부만 나옵니다.",
-                  "- 실행 환경에는 인터넷이 없어 데이터셋이나 사전 학습 모델을 내려받는 코드는 실패할 수 있습니다."]
+            L.append(f"- 실행하면서 고친 파일은 PAPERAGENT_GPU_RUN/fixed_files/에 있습니다: {', '.join(gv['changed_files'])}")
+        L += ["- 실행 기록은 PAPERAGENT_GPU_RUN/reproduce.log, 실행 중 생긴 파일은 PAPERAGENT_GPU_RUN/outputs/에 있습니다.", ""]
+        if ex:
+            L += ["#### 실행과 결과 확인 항목 검증", "",
+                  f"실행 기록과 결과 파일을 보고 실행(Code Execution)과 결과 확인(Result Analysis) 항목 {ex['judged']}개를 검증했습니다. "
+                  f"{ex['passed']}개 충족({ex['pct']}%).", ""]
+            for x in ex["rows"]:
+                L += _item_lines(x, "#####")
+
+    # 5. 논의: 남은 확인 거리와 한계
+    L += ["## 5. 논의", ""]
+    later = [i for s in (rub["sections"] if rub else []) for i in s["items"] if i["cat"][1] != "cd"]
+    if later and not judged_all:
+        L += ["### 5.1 직접 실행해서 확인할 항목", "",
+              "코드를 실행한 뒤 확인할 항목입니다. 코드만 읽는 자동 검증에는 넣지 않았습니다."
+              + (" GPU 실행 기록으로 검증한 결과는 4장에 있지만, 논문 수치와의 비교는 직접 확인해 주세요." if ex else ""), ""]
+        L += [f"- [{i['cat'][0]}] {i['requirement']}" for i in later[:100]]
+        if len(later) > 100:
+            L.append(f"- 외 {len(later) - 100}개 (PAPERAGENT_RUBRIC.json 참고)")
+        L += ["", "### 5.2 한계", ""]
     else:
-        lines += ["- 코드는 실행하지 않았습니다. 검증은 코드 내용이 기준을 구현했는지만 봅니다.",
-                  "- 실제 실행 결과와 논문 수치의 비교는 직접 해야 합니다."]
-    lines += ["- 검증도 LLM이 하므로 틀릴 수 있습니다. 그래서 항목마다 판단 이유를 함께 적었습니다.", ""]
-    return "\n".join(lines)
+        L += ["### 5.1 한계", ""]
+    if ran:
+        L += [f"- 공용 GPU에서 {gv['minutes']}분까지만 실행했습니다. 논문 전체 실험이 더 오래 걸리면 결과가 일부만 나옵니다.",
+              "- 실행 환경에는 인터넷이 없어 데이터셋이나 사전 학습 모델을 내려받는 코드는 실패할 수 있습니다."]
+    else:
+        L += ["- 코드는 실행하지 않았습니다. 검증은 코드 내용이 기준을 구현했는지만 봅니다.",
+              "- 실제 실행 결과와 논문 수치의 비교는 직접 해야 합니다."]
+    if rub and rub["auto"]:
+        L.append("- 채점 기준도 LLM이 설계했으므로 논문의 모든 실험과 세부 설정을 담지 못했을 수 있습니다.")
+    L += ["- 검증도 LLM이 하므로 틀릴 수 있습니다. 그래서 항목마다 판단 이유를 함께 적었습니다.", ""]
+
+    # 부록 A: 모든 항목의 기준, 논문 근거, 판단 이유
+    L += ["## 부록 A. 항목별 검증 결과", "", "채점 기준 순서대로 모든 검증 항목의 결과입니다.", ""]
+    for a in areas:
+        if not a["rows"]:
+            continue
+        L += [f"### 영역 {a['n']}. {a['name']}", ""]
+        for x in a["rows"]:
+            L += _item_lines(x, "####")
+    return "\n".join(L)
 
 
 def _evidence_lines(ev: dict | None) -> list[str]:
