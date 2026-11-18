@@ -733,7 +733,7 @@ def report_md(job: dict) -> str | None:
             b = rv["before"]
             L += [f"첫 검증에서 미충족이던 {rv['failed_before']}개 항목과 검증기가 적은 이유를 근거로 코드를 고치고, "
                   "모든 항목을 처음부터 다시 검증했습니다.", "",
-                  f"- 충족: {b['passed']}/{b['judged']}에서 {rv['after']['passed']}/{rv['after']['judged']}으로",
+                  f"- 충족: 고치기 전 {b['passed']}/{b['judged']}, 고친 뒤 {rv['after']['passed']}/{rv['after']['judged']}",
                   f"- 고쳐서 충족: {rv.get('fixed', 0)}개, 고친 뒤에도 미충족: {rv.get('still', 0)}개, "
                   f"고친 뒤 미충족으로 바뀐 항목: {rv.get('broke', 0)}개",
                   f"- 고친 파일: {', '.join(rv['changed']) or '없음'} (바뀐 내용은 PAPERAGENT_REPAIR.diff)"]
