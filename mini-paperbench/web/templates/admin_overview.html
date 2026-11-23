@@ -12,7 +12,11 @@
     <a href="{{ pub.fixed }}" target="_blank" rel="noopener"><code>{{ pub.fixed }}</code></a>
     {% if pub.url %}<div class="small muted mt-s">HTTPS 주소(서버를 다시 켜면 바뀜): <a href="{{ pub.url }}" target="_blank" rel="noopener">{{ pub.url }}</a></div>{% endif %}
   </div>
+  {% if pub.lab %}
+  <p class="small muted">주소는 바뀌지 않습니다(Elastic IP). 다만 실습 세션이 끝나 EC2가 꺼져 있는 동안에는 열리지 않습니다. 팀원에게 이 주소와 계정을 보내면 브라우저에서 바로 들어옵니다.</p>
+  {% else %}
   <p class="small muted">이 서버는 늘 켜져 있고 주소도 바뀌지 않습니다. 팀원에게 이 주소와 계정을 보내면 브라우저에서 바로 들어옵니다.</p>
+  {% endif %}
 </div>
 {% elif pub.ok and pub.url %}
 <div class="card public-url">

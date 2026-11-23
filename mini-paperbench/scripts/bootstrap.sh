@@ -7,7 +7,8 @@
 #       웹 로그인과 DB: DATABASE_URL(RDS, scripts/aws_setup.sh가 넣는다), ADMIN_USERNAME, ADMIN_PASSWORD, SERVICE_TOKEN.
 #       S3: S3_BUCKET. 이 값들이 없으면 웹은 로컬 SQLite와 디스크만 쓴다(로그인할 관리자도 없다).
 #       GPU 실행: JPUSHARE_API_KEY(JPUShare에서 만든 jpk_ 키). 없으면 GPU 실행을 묻지도, 버튼을 보이지도 않는다.
-#       고정 공개 주소: PUBLIC_URL(예: 학교 서버 http://<NAT 주소>:<포트>). 있으면 VM의 80번을 웹으로 연다.
+#       고정 공개 주소: PUBLIC_URL. http://로 시작하면(학교 서버 http://<NAT 주소>:<포트>) VM의 80번을 웹으로 연다.
+#       https://로 시작하면(AWS Elastic IP, https://<IP>.sslip.io) Caddy가 80/443번을 받고 인증서를 저절로 받는다.
 # 사용(mini-paperbench 폴더에서): scripts/bootstrap.sh
 #
 # 단계: 1 스왑 → 2 k3s → 3 이미지 빌드 → 4 /data 준비 → 5 Secret → 6 kubectl apply
@@ -92,6 +93,8 @@ if grep -Eq "$WEB_KEYS" .env; then
 fi
 S3_BUCKET=$(grep -E '^S3_BUCKET=' .env | head -1 | cut -d= -f2- | tr -d '\r"' || true)
 PUBLIC_URL=$(grep -E '^PUBLIC_URL=' .env | head -1 | cut -d= -f2- | tr -d '\r"' || true)
+PUBLIC_HOST=""   # https 주소일 때만: Caddy가 인증서를 받을 이름
+case "$PUBLIC_URL" in https://*) PUBLIC_HOST=${PUBLIC_URL#https://}; PUBLIC_HOST=${PUBLIC_HOST%%/*} ;; esac
 GPU_RUN=0
 grep -q '^JPUSHARE_API_KEY=.\+' .env && GPU_RUN=1
 # GPU 실행(JPUShare): API 키는 gpu-run Job에만 들어간다(k8s/jobs/gpu-run.yaml)
@@ -106,9 +109,16 @@ MANIFESTS="k8s/10-configmap.yaml k8s/20-redis.yaml"
 [ "$USE_BRIDGE" = 1 ] && MANIFESTS="$MANIFESTS k8s/25-claude-bridge.yaml"
 # 임시 공개 주소(Cloudflare quick tunnel)는 .env에 PUBLIC_TUNNEL=1이 있을 때만 연다
 grep -q '^PUBLIC_TUNNEL=1' .env 2>/dev/null && MANIFESTS="$MANIFESTS k8s/55-cloudflared.yaml"
-[ -n "$PUBLIC_URL" ] && MANIFESTS="$MANIFESTS k8s/56-web-public.yaml"
+# 고정 공개 주소: https면 Caddy(80/443), http면 80번만. 둘 다 VM의 80번을 쓰므로 안 쓰는 쪽은 지운다
+if [ -n "$PUBLIC_HOST" ]; then
+  MANIFESTS="$MANIFESTS k8s/57-caddy.yaml"
+  $KUBECTL -n paperbench delete service web-public --ignore-not-found
+else
+  [ -n "$PUBLIC_URL" ] && MANIFESTS="$MANIFESTS k8s/56-web-public.yaml"
+  $KUBECTL -n paperbench delete deployment/caddy service/caddy configmap/caddy --ignore-not-found
+fi
 for f in $MANIFESTS k8s/30-judge-worker.yaml k8s/40-web.yaml k8s/45-network.yaml; do
-  sed -e "s/__TAG__/$TAG/g" -e "s/__S3_BUCKET__/${S3_BUCKET:-}/g" -e "s|__PUBLIC_URL__|${PUBLIC_URL:-}|g" \
+  sed -e "s/__TAG__/$TAG/g" -e "s/__S3_BUCKET__/${S3_BUCKET:-}/g" -e "s|__PUBLIC_URL__|${PUBLIC_URL:-}|g" -e "s|__PUBLIC_HOST__|${PUBLIC_HOST}|g" \
       -e "s/__GPU_RUN__/$GPU_RUN/g" "$f" | $KUBECTL apply -f -
 done
 $KUBECTL -n paperbench rollout restart deployment/web   # Secret web-secrets가 바뀌었을 수 있다
@@ -120,6 +130,7 @@ fi
 $KUBECTL -n paperbench rollout status deployment/redis --timeout=120s
 $KUBECTL -n paperbench rollout status deployment/judge-worker --timeout=120s
 $KUBECTL -n paperbench rollout status deployment/web --timeout=120s
+[ -n "$PUBLIC_HOST" ] && { $KUBECTL -n paperbench rollout status deployment/caddy --timeout=120s || true; }
 $KUBECTL -n paperbench get pods
 echo
 if grep -q '^PUBLIC_TUNNEL=1' .env 2>/dev/null; then

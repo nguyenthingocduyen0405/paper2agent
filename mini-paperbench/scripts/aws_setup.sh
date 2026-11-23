@@ -56,7 +56,7 @@ aws_ s3api put-bucket-encryption --bucket "$BUCKET" --server-side-encryption-con
 
 step "3/6 security group for RDS"
 read -r VPC EC2_SG < <(aws_ ec2 describe-instances --instance-ids "$INSTANCE" \
-  --query "Reservations[0].Instances[0].[VpcId,SecurityGroups[0].GroupId]" --output text)
+  --query "Reservations[0].Instances[0].[VpcId,SecurityGroups[?GroupName!='paperagent-web'] | [0].GroupId]" --output text)
 DB_SG=$(aws_ ec2 describe-security-groups --filters Name=group-name,Values=paperagent-db Name=vpc-id,Values="$VPC" \
   --query "SecurityGroups[0].GroupId" --output text)
 if [ "$DB_SG" = "None" ]; then

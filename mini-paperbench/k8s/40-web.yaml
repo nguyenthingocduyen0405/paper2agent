@@ -72,7 +72,7 @@ spec:
               value: "__S3_BUCKET__"
             - name: AWS_REGION
               value: "us-east-1"
-            - name: PUBLIC_URL         # 늘 같은 공개 주소(학교 서버). 비우면 없음
+            - name: PUBLIC_URL         # 늘 같은 공개 주소(학교 서버, AWS Elastic IP). 비우면 없음
               value: "__PUBLIC_URL__"
             - name: GPU_RUN            # 1: JPUShare 키가 있어 GPU 실행을 보인다
               value: "__GPU_RUN__"

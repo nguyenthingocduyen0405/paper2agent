@@ -1,0 +1,98 @@
+# 고정 HTTPS 공개 주소: Caddy가 VM의 80/443번을 받아 웹(web:8000)으로 넘긴다.
+# - .env의 PUBLIC_URL이 https://로 시작할 때 bootstrap.sh가 56-web-public.yaml 대신 이 파일을 적용한다.
+#   AWS EC2에서는 Elastic IP를 붙이고 PUBLIC_URL=https://<IP의 점을 -로>.sslip.io 로 둔다(scripts/aws_public_ip.sh).
+#   sslip.io는 이름 안의 IP를 그대로 돌려주는 DNS라서 도메인을 사지 않아도 된다.
+# - 인증서는 Caddy가 Let's Encrypt(안 되면 ZeroSSL)에서 저절로 받고 갱신한다. 받으려면 바깥에서 80, 443번이 열려 있어야 한다.
+# - 인증서는 hostPath(/var/lib/paperagent/caddy)에 두어 Pod가 다시 떠도(랩 세션마다) 새로 받지 않는다
+#   (Let's Encrypt는 같은 이름의 인증서를 일주일에 5번까지만 준다).
+# - Caddy는 X-Forwarded-Proto: https를 붙여 넘기므로 웹이 로그인 쿠키에 Secure를 붙인다(web/app.py).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caddy
+  namespace: paperbench
+data:
+  Caddyfile: |
+    {
+      admin off
+      servers {
+        protocols h1 h2
+      }
+    }
+    __PUBLIC_HOST__ {
+      encode gzip
+      reverse_proxy web:8000
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy
+  namespace: paperbench
+spec:
+  replicas: 1
+  strategy: {type: Recreate}   # 인증서 폴더(hostPath)를 두 Pod가 같이 쓰지 않게
+  selector:
+    matchLabels: {app: caddy}
+  template:
+    metadata:
+      labels: {app: caddy}
+      annotations:
+        paperagent/public-host: "__PUBLIC_HOST__"   # 주소가 바뀌면 Pod를 새로 띄운다
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        # root가 아닌 사용자로 80/443번을 열 수 있게 한다(Pod 안의 네트워크에만 적용되는 안전한 sysctl)
+        sysctls:
+          - {name: net.ipv4.ip_unprivileged_port_start, value: "0"}
+      initContainers:
+        # hostPath 폴더는 root 소유로 만들어진다. caddy를 돌리는 사용자(65532)가 쓸 수 있게 넘겨준다
+        - name: chown
+          image: caddy:2.11.7-alpine
+          command: ["sh", "-c", "chown 65532:65532 /data && chmod 700 /data"]
+          securityContext: {runAsUser: 0}
+          volumeMounts:
+            - {name: caddy-data, mountPath: /data}
+      containers:
+        - name: caddy
+          image: caddy:2.11.7-alpine
+          ports:
+            - {name: http, containerPort: 80}
+            - {name: https, containerPort: 443}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            allowPrivilegeEscalation: false
+            # 이미지의 caddy 실행 파일에 cap_net_bind_service가 붙어 있어서, 이 능력까지 빼면 실행이 거부된다
+            capabilities: {drop: [ALL], add: [NET_BIND_SERVICE]}
+          readinessProbe:
+            tcpSocket: {port: 443}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {memory: 256Mi}
+          volumeMounts:
+            - {name: caddyfile, mountPath: /etc/caddy}
+            - {name: caddy-data, mountPath: /data}
+            - {name: caddy-config, mountPath: /config}
+      volumes:
+        - name: caddyfile
+          configMap: {name: caddy}
+        - name: caddy-data
+          hostPath: {path: /var/lib/paperagent/caddy, type: DirectoryOrCreate}
+        - name: caddy-config
+          emptyDir: {}
+---
+# k3s 기본 ServiceLB가 VM의 80/443번을 이 Service로 넘긴다
+apiVersion: v1
+kind: Service
+metadata:
+  name: caddy
+  namespace: paperbench
+spec:
+  type: LoadBalancer
+  selector: {app: caddy}
+  ports:
+    - {name: http, port: 80, targetPort: 80}
+    - {name: https, port: 443, targetPort: 443}

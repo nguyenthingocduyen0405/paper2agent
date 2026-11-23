@@ -261,8 +261,8 @@ def public_url() -> str | None:
 
 
 def _public() -> dict:
-    """fixed: 늘 같은 주소(학교 서버, .env의 PUBLIC_URL). url: Cloudflare 임시 HTTPS 주소."""
-    return {"fixed": os.environ.get("PUBLIC_URL") or None, "url": public_url()}
+    """fixed: 늘 같은 주소(학교 서버나 AWS Elastic IP, .env의 PUBLIC_URL). url: Cloudflare 임시 HTTPS 주소."""
+    return {"fixed": os.environ.get("PUBLIC_URL") or None, "url": public_url(), "lab": on_aws_lab()}
 
 
 def system_status() -> dict:
