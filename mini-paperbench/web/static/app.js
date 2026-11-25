@@ -82,11 +82,7 @@
   toEnd();
   if (live) new MutationObserver(toEnd).observe(live, { childList: true });
 
-  // 코드 작성과 검증이 끝나면 GPU에서 바로 실행할지 묻는다
-  const ask = document.getElementById("gpu-ask");
-  if (ask && typeof ask.showModal === "function") ask.showModal();
-
-  // 되돌리기 어려운 요청(GPU 실행, 취소)은 한 번 더 묻는다. #live 안의 폼도 있으므로 문서에 건다
+  // 되돌리기 어려운 요청(실행 취소 등)은 한 번 더 묻는다. #live 안의 폼도 있으므로 문서에 건다
   document.addEventListener("submit", (e) => {
     const f = e.target.closest("form[data-confirm]");
     if (f && !window.confirm(f.dataset.confirm)) e.preventDefault();

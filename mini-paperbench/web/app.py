@@ -741,7 +741,7 @@ def admin_rds_stop(request: Request):
 
 @app.post("/jobs/{job_id}/gpu")
 def gpu_action(request: Request, job_id: str, action: str = Form("")):
-    """action: run(GPU에서 실행), self(직접 실행하기로 함), cancel(실행 취소)."""
+    """action: run(GPU에서 실행, 작업 화면의 실행 버튼), cancel(실행 취소)."""
     job = _job_or_404(request, job_id)
     _owner_or_admin(request, job)
     if action == "run":
@@ -750,9 +750,6 @@ def gpu_action(request: Request, job_id: str, action: str = Form("")):
             raise HTTPException(409, reason)
         gpu.request(job, _user(request))
         log.info("job %s: GPU run requested by %s", job_id, _user(request)["username"])
-    elif action == "self":
-        if not gpu.is_active(job):
-            gpu.choose_self(job)
     elif action == "cancel":
         reason = gpu.cancel(job)
         if reason:

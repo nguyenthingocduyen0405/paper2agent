@@ -365,7 +365,7 @@ def live_context(job: dict) -> dict:
     ctx = {"job": job, "steps": steps(job), "prep": prepare_progress(job), "rubric": rubric_view(job),
            "agent": agent_progress(job),
            "judge": judge_progress(job), "res": results(job), "elapsed": fmt_duration(elapsed(job)), "log": "",
-           "gpu": gpu_view(job), "ask_gpu": gpu.should_ask(job), "gpu_enabled": gpu.ENABLED, "gpu_minutes": gpu.GPU_MINUTES,
+           "gpu": gpu_view(job), "gpu_can_run": not gpu.runnable(job), "gpu_enabled": gpu.ENABLED, "gpu_minutes": gpu.GPU_MINUTES,
            "repair": repair_view(job),
            "gpu_fixes": gpu.GPU_MAX_FIXES}
     if job["status"] == "running" and job["stage"] in ("agent", "prepare", "repair"):

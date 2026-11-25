@@ -68,11 +68,6 @@ def runnable(job: dict) -> str:
     return ""
 
 
-def should_ask(job: dict) -> bool:
-    """작업이 막 끝났고 아직 실행 여부를 고르지 않았으면 묻는다."""
-    return not job.get("gpu") and not runnable(job)
-
-
 def exec_leaves(job: dict) -> int:
     try:
         return sum(1 for leaf in load_leaves(Path(job["paper_dir"]) / "rubric.json")
@@ -104,13 +99,6 @@ def request(job: dict, user: dict) -> None:
     store.add_event(job, f"GPU 실행을 요청했습니다({n}번째, 최대 {GPU_MINUTES}분)")
     store.save(job)
     _save_run(job)
-
-
-def choose_self(job: dict) -> None:
-    prev = job.get("gpu") or {}
-    job["gpu"] = {"choice": "self", "status": "self", "n": prev.get("n", 0)}
-    store.add_event(job, "코드를 직접 실행하기로 했습니다")
-    store.save(job)
 
 
 def cancel(job: dict) -> str:
