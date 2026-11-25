@@ -165,7 +165,7 @@ def judge_progress(job: dict) -> dict | None:
     total = int(r.get(k(run, "total")) or 0)
     results = [json.loads(v) for v in r.hvals(k(run, "results"))]
     ok = [x for x in results if "error" not in x]
-    recent = sorted(ok, key=lambda x: x.get("finished_at", 0), reverse=True)[:5]
+    recent = [_with_verdict(dict(x), x) for x in sorted(ok, key=lambda x: x.get("finished_at", 0), reverse=True)[:5]]
     return {"total": total, "done": len(results), "passed": sum(x["score"] for x in ok),
             "pct": round(100 * len(results) / total) if total else 0, "recent": recent}
 
@@ -190,6 +190,27 @@ def leaf_evidence(job: dict) -> dict[str, dict]:
     return out
 
 
+# 3단계 판정: (화면 이름, 배지 색, 거르기 키). 3단계 판정 전의 결과(점수만 있음)는 1이면 충족, 0이면 미충족으로 본다
+VERDICT = {"met": ("충족", "ok", "1"), "partial": ("부분 충족", "wait", "p"), "not_met": ("미충족", "bad", "0")}
+
+
+def verdict_of(v: dict) -> str | None:
+    if v.get("error"):
+        return None
+    if v.get("verdict") in VERDICT:
+        return v["verdict"]
+    return {1: "met", 0: "not_met"}.get(v.get("score"))
+
+
+def _with_verdict(x: dict, v: dict) -> dict:
+    """x에 판정(verdict), 화면 이름(v_label), 배지 색(v_cls), 거르기 키(v_key), 한 줄 요약(summary)을 붙인다."""
+    vd = verdict_of(v)
+    label, cls, key = VERDICT.get(vd, ("검증 오류", "other", "e"))
+    x.update(verdict=vd, v_label=label, v_cls=cls, v_key=key, summary=(v.get("summary") or "").strip(),
+             graded3=bool(v.get("verdict")))
+    return x
+
+
 def _scored_rows(job: dict, path: Path) -> list[dict]:
     """검증 결과 파일의 항목을 루브릭 순서로."""
     by_id = json.loads(path.read_text()).get("leaves", {})
@@ -201,8 +222,8 @@ def _scored_rows(job: dict, path: Path) -> list[dict]:
     known = {leaf["id"] for leaf in rubric}
     ordered = [(leaf["id"], leaf["requirements"], by_id[leaf["id"]]) for leaf in rubric if leaf["id"] in by_id]
     ordered += [(lid, v.get("requirements", lid), v) for lid, v in by_id.items() if lid not in known]
-    return [{"n": i + 1, "id": lid, "requirements": req, "score": v.get("score"), "reason": v.get("reason", ""),
-             "error": v.get("error"), "category": v.get("category"), "evidence": evidence.get(lid)}
+    return [_with_verdict({"n": i + 1, "id": lid, "requirements": req, "score": v.get("score"), "reason": v.get("reason", ""),
+                           "error": v.get("error"), "category": v.get("category"), "evidence": evidence.get(lid)}, v)
             for i, (lid, req, v) in enumerate(ordered)]
 
 
@@ -219,7 +240,10 @@ def results(job: dict) -> dict | None:
             x["before"] = (before.get(x["id"]) or {}).get("score")
     ok = [x for x in items if not x["error"]]
     passed = sum(x["score"] for x in ok)
+    partial = sum(1 for x in ok if x["verdict"] == "partial")
+    # failed = 충족하지 못한 항목 전체(부분 충족 + 미충족). graded3: 3단계 판정으로 검증한 작업인가
     return {"rows": items, "judged": len(ok), "passed": passed, "failed": len(ok) - passed,
+            "partial": partial, "unmet": len(ok) - passed - partial, "graded3": any(x["graded3"] for x in ok),
             "errors": len(items) - len(ok), "pct": round(100 * passed / len(ok)) if ok else 0,
             "files": files_in(Path(job["submission_dir"]))}
 
@@ -459,7 +483,9 @@ def gpu_view(job: dict) -> dict | None:
     path = store.RESULTS / f"{g.get('exec_run')}.json"
     if score and path.exists():
         rows = _scored_rows(job, path)
+        part = sum(1 for x in rows if x["verdict"] == "partial")
         view["exec"] = {"rows": rows, **score, "failed": score["judged"] - score["passed"],
+                        "partial": part, "unmet": score["judged"] - score["passed"] - part,
                         "pct": round(100 * score["passed"] / score["judged"]) if score["judged"] else 0}
     return view
 
@@ -573,18 +599,35 @@ def _report_areas(job: dict, rows: list[dict]) -> list[dict]:
         areas[i]["rows"].append(x)
     for n, a in enumerate(areas, 1):
         ok = [x for x in a["rows"] if not x["error"]]
-        a.update(n=n, judged=len(ok), passed=sum(x["score"] for x in ok), errors=len(a["rows"]) - len(ok))
+        a.update(n=n, judged=len(ok), passed=sum(x["score"] for x in ok), errors=len(a["rows"]) - len(ok),
+                 partial=sum(1 for x in ok if x["verdict"] == "partial"))
         a["failed"] = a["judged"] - a["passed"]
+        a["unmet"] = a["failed"] - a["partial"]
     return areas
 
 
 def _mark(x: dict) -> str:
-    mark = "검증 오류" if x["error"] else ("충족" if x["score"] else "미충족")
+    mark = x["v_label"]
     if x.get("before") == 0 and x["score"] == 1:
         mark += " (고쳐서 충족)"
     elif x.get("before") == 1 and x["score"] == 0:
-        mark += " (고친 뒤 미충족)"
+        mark += " (고치기 전에는 충족)"
     return mark
+
+
+def _gap(partial: int, unmet: int, graded3: bool) -> str:
+    """충족하지 못한 항목 수: 3단계 판정이면 부분 충족과 미충족을 나눠 적는다."""
+    if not graded3:
+        return f"미충족 {partial + unmet}개"
+    return ", ".join(s for s in (f"부분 충족 {partial}개" if partial else "", f"미충족 {unmet}개" if unmet else "") if s)
+
+
+def _repair_note(x: dict) -> str:
+    if x.get("before") == 0 and x["score"] == 1:
+        return "(고쳐서 충족) "
+    if x.get("before") == 1 and x["score"] == 0:
+        return "(고치기 전에는 충족) "
+    return ""
 
 
 def _item_lines(x: dict, head: str) -> list[str]:
@@ -634,7 +677,8 @@ def report_md(job: dict) -> str | None:
     elif rv and rv["state"] == "undone":
         method += " 첫 검증 뒤 코드를 고치려 했지만 되돌리고 첫 검증 결과를 썼습니다."
     method += " 공용 GPU에서 코드를 실행해 실행 기록으로도 검증했습니다." if ran else " 코드는 실행하지 않았습니다."
-    result = f"{res['judged']}개 항목 중 {res['passed']}개 충족({res['pct']}%)."
+    result = f"{res['judged']}개 항목 중 {res['passed']}개 충족({res['pct']}%)"
+    result += f", {_gap(res['partial'], res['unmet'], res['graded3'])}." if res["failed"] else "."
     if repaired:
         b = rv["before"]
         result += f" 첫 검증: {b['judged']}개 항목 중 {b['passed']}개 충족."
@@ -652,15 +696,17 @@ def report_md(job: dict) -> str | None:
     L.append(f"- 잘 된 부분: 모든 항목을 충족한 영역 {len(full)}개" if full else "- 잘 된 부분: 모든 항목을 충족한 영역은 없습니다.")
     L += [f"  - 영역 {a['n']}. {_short(a['name'])}" for a in full]
     if failed_rows:
-        L.append(f"- 부족한 부분: 미충족 {len(failed_rows)}개 항목. 항목과 판단 이유는 4.2에 있습니다.")
-        L += [f"  - 영역 {a['n']}. {_short(a['name'])} (미충족 {a['failed']}개)" for a in weak]
+        L.append(f"- 부족한 부분: 충족하지 못한 항목 {len(failed_rows)}개"
+                 f"({_gap(res['partial'], res['unmet'], res['graded3'])}). 표는 4.2, 판단 이유는 4.3에 있습니다.")
+        L += [f"  - 영역 {a['n']}. {_short(a['name'])} ({_gap(a['partial'], a['unmet'], res['graded3'])})" for a in weak]
     else:
-        L.append("- 부족한 부분: 미충족 항목이 없습니다.")
+        L.append("- 부족한 부분: 충족하지 못한 항목이 없습니다.")
 
     L += ["", "### 확인 수준", "",
           "ACM 아티팩트 배지의 구분을 따라, 코드가 갖춰졌는지, 실행되는지, 논문 결과가 다시 나오는지를 나눠 적었습니다.", "",
           "| 수준 | 결과 | 확인한 방법 |", "|---|---|---|",
-          f"| 코드 구현 | {res['passed']}/{res['judged']} 충족 | LLM 검증기가 코드를 읽고 항목별로 판단 |"]
+          f"| 코드 구현 | {res['passed']}/{res['judged']} 충족"
+          + (f" (부분 충족 {res['partial']})" if res["partial"] else "") + " | LLM 검증기가 코드를 읽고 항목별로 판단 |"]
     if ran:
         L.append(f"| 실행 | {gv['final']} | 공용 GPU에서 최대 {gv['minutes']}분 실행 |")
         L.append("| 논문 결과 재현 | " + (f"실행과 결과 확인 항목 {ex['passed']}/{ex['judged']} 충족" if ex else "확인 안 함")
@@ -694,7 +740,8 @@ def report_md(job: dict) -> str | None:
         L.append("PaperAgent가 논문 원문만 읽고 코드를 작성했습니다. 사람은 코드를 고치지 않았습니다.")
     L += ["", f"만든 파일 {len(res['files'])}개:", ""] + [f"- `{f['path']}`" for f in res["files"]]
     L += ["", "### 3.2 자동 검증", "",
-          f"LLM 검증기가 {target}마다 제출된 코드를 읽고, 기준을 구현했으면 충족(1), 아니면 미충족(0)을 매겼습니다. "
+          f"LLM 검증기가 {target}마다 제출된 코드를 읽고 충족, 부분 충족, 미충족 가운데 하나로 판정했습니다. "
+          "충족률에는 충족만 셉니다(부분 충족은 충족으로 세지 않음). "
           "항목마다 판단 이유를 남겼습니다. 이 단계에서는 코드를 실행하지 않습니다."]
     if rv and rv["state"] != "nothing":
         L.append("첫 검증에서 미충족 항목이 있으면, 그 항목과 판단 이유를 근거로 코드를 한 번 고친 뒤 모든 항목을 처음부터 "
@@ -710,22 +757,35 @@ def report_md(job: dict) -> str | None:
 
     # 4. 결과: 영역별 표, 미충족 항목 먼저
     L += ["## 4. 결과", "", "### 4.1 영역별 결과", "",
-          "| 영역 | 검증한 항목 | 충족 | 미충족 | 검증 오류 |", "|---|---|---|---|---|"]
-    L += [f"| {a['n']}. {_cell(_short(a['name']))} | {a['judged'] + a['errors']} | {a['passed']} | {a['failed']} | {a['errors']} |"
-          for a in areas]
-    L += [f"| 합계 | {len(rows)} | {res['passed']} | {res['failed']} | {res['errors']} |", "",
-          "### 4.2 미충족 항목", ""]
+          "| 영역 | 검증한 항목 | 충족 | 부분 충족 | 미충족 | 검증 오류 |", "|---|---|---|---|---|---|"]
+    L += [f"| {a['n']}. {_cell(_short(a['name']))} | {a['judged'] + a['errors']} | {a['passed']} | {a['partial']} | "
+          f"{a['unmet']} | {a['errors']} |" for a in areas]
+    L += [f"| 합계 | {len(rows)} | {res['passed']} | {res['partial']} | {res['unmet']} | {res['errors']} |", ""]
+    # 4.2 판정표: 기준마다 충족, 부분, 미충족 칸 가운데 하나에 표시
+    area_no = {x["id"]: a["n"] for a in areas for x in a["rows"]}
+    L += ["### 4.2 항목별 판정표", "",
+          "평가 기준마다 판정한 칸에 ✓를 표시했습니다. 부분은 기준의 일부만 구현했거나, 논문과 달라 결과가 바뀔 수 있거나, "
+          "코드만으로는 충족 여부를 확정하기 어려운 경우입니다. 부분은 충족으로 세지 않습니다. 판단 이유 전체는 부록 A에 있습니다."]
+    if not res["graded3"]:
+        L.append("이 작업은 3단계 판정을 쓰기 전에 검증해서 충족과 미충족으로만 판정했습니다(부분 칸이 비어 있음).")
+    L += ["", "| # | 영역 | 평가 기준 | 충족 | 부분 | 미충족 | 판단 근거 |", "|---|---|---|:-:|:-:|:-:|---|"]
+    for x in rows:
+        marks = " | ".join("✓" if x["verdict"] == v else "" for v in ("met", "partial", "not_met"))
+        why = f"검증 오류: {_short(x['error'], 100)}" if x["error"] else (x["summary"] or _short(x["reason"], 120))
+        L.append(f"| {x['n']} | {area_no.get(x['id'], '')} | {_cell(_short(x['requirements'], 110))} | {marks} | "
+                 f"{_cell(_repair_note(x) + why)} |")
+    L += ["", "### 4.3 충족하지 못한 항목", ""]
     if failed_rows:
-        L += ["채점 기준 순서입니다. 번호는 부록 A의 번호와 같습니다.", ""]
+        L += ["부분 충족과 미충족 항목입니다. 번호는 4.2 표와 부록 A의 번호와 같습니다.", ""]
         for x in failed_rows:
-            L += [f"- {x['n']}. {_short(x['requirements'], 200)}", f"  - 판단 이유: {_short(x['reason'], 400)}"]
+            L += [f"- {x['n']}. [{x['v_label']}] {_short(x['requirements'], 200)}", f"  - 판단 이유: {_short(x['reason'], 400)}"]
     else:
-        L.append("미충족 항목이 없습니다.")
+        L.append("충족하지 못한 항목이 없습니다.")
     if error_rows:
         L += ["", "검증하지 못한 항목:", ""]
         L += [f"- {x['n']}. {_short(x['requirements'], 200)} (오류: {_short(x['error'], 200)})" for x in error_rows]
     L.append("")
-    sub = 3
+    sub = 4
     if rv and rv["state"] != "nothing":
         L += [f"### 4.{sub} 검증 결과로 코드 고치기", ""]
         sub += 1
@@ -761,7 +821,8 @@ def report_md(job: dict) -> str | None:
         if ex:
             L += ["#### 실행과 결과 확인 항목 검증", "",
                   f"실행 기록과 결과 파일을 보고 실행(Code Execution)과 결과 확인(Result Analysis) 항목 {ex['judged']}개를 검증했습니다. "
-                  f"{ex['passed']}개 충족({ex['pct']}%).", ""]
+                  f"{ex['passed']}개 충족({ex['pct']}%)"
+                  + (f", {_gap(ex['partial'], ex['unmet'], True)}." if ex["partial"] else "."), ""]
             for x in ex["rows"]:
                 L += _item_lines(x, "#####")
 

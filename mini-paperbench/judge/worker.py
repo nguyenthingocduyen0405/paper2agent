@@ -88,6 +88,8 @@ def process(msg_id: str, fields: dict, reclaimed: bool) -> None:
         "category": leaf["task_category"],
         "requirements": leaf["requirements"],
         "score": out["score"],
+        "verdict": out.get("verdict"),
+        "summary": out.get("summary", ""),
         "reason": out["reason"],
         "usage": out["usage"],
         "parse_retries": out["parse_retries"],
@@ -98,7 +100,7 @@ def process(msg_id: str, fields: dict, reclaimed: bool) -> None:
     })
     r.xack(stream, GROUP, msg_id)  # 결과 저장 후 ACK: 저장 전에 죽으면 다시 처리된다
     r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "done", "t": finished}))
-    log(f"done {leaf_id[:8]} score={out['score']} {finished - started:.1f}s")
+    log(f"done {leaf_id[:8]} {out.get('verdict') or out['score']} {finished - started:.1f}s")
 
 
 log("started")

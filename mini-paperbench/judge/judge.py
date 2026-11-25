@@ -11,10 +11,11 @@ import os
 import random
 import time
 from pathlib import Path
+from typing import Literal
 
 from dotenv import load_dotenv
 from openai import APIConnectionError, APIStatusError, APITimeoutError, InternalServerError, OpenAI, RateLimitError
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ValidationError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 load_dotenv()
@@ -57,21 +58,26 @@ TASK_CATEGORY_QUESTIONS = {
     "Result Analysis": "Did the reproduce.sh script execution produce evidence that agrees with these results?",
 }
 
-# 원본 GRADING_PROMPT에서 마지막 출력 형식만 JSON으로 바꿨다.
+# 원본 GRADING_PROMPT에서 출력 형식을 JSON으로 바꾸고, 0/1 점수 대신 3단계 판정(met/partial/not_met)과
+# 보고서 표에 쓸 한국어 한 줄 요약을 받는다. 점수는 met만 1이다(PaperBench의 0/1과 같은 뜻을 지킨다).
 GRADING_PROMPT = """You will now evaluate the submission above for the given criterion.
 
 Think through it in 3 parts:
 1. Expectations: Read the paper carefully to identify the parts relevant to your criterion. Describe what you expect correct resolution to look like, and what you will specifically look for in the submission.
 2. Reality: Explore the files provided for the submission along with the output logs to identify the parts that are relevant to the resolution criteria. Comment on how they compare to your expectations, and whether the attempt meets the resolution criteria. Be explicit about which files you are referring to.
-3. Score: Reason about whether the criteria has been met. Give a score of either 0 or 1 depending on whether the criteria has been met.
+3. Verdict: Reason about whether the criterion has been met, then give exactly one verdict:
+   - "met": everything the criterion requires is there and correct.
+   - "partial": only part of the criterion is met, or it is met with a deviation from the paper that could change the results, or the files are ambiguous so you cannot confirm it either way.
+   - "not_met": the criterion is not met.
+   Use "met" only when nothing the criterion requires is missing.
 
 Other notes:
-- You must always provide a score. If you have any uncertainties, make them clear in your discussion.
+- You must always provide a verdict. If you have any uncertainties, make them clear in your discussion.
 - All the files and logs from the submission attempt have been provided to you. If anything appears to be missing, assume that the attempt failed to produce it (treat it as a failure).
 - Be strict and thorough in grading your resolution criteria, but do not check for things that are outside of your scope.
 
 Respond with a single JSON object and nothing else:
-{"reason": "<your expectations, reality and reasoning, concisely>", "score": <0 or 1>}"""
+{"reason": "<your expectations, reality and reasoning, concisely>", "verdict": "met" | "partial" | "not_met", "summary": "<one short sentence in Korean giving the main reason for the verdict, for a results table>"}"""
 
 # 원본 _get_whitelisted_files의 확장자 목록
 DOC_EXT = {".md", ".txt", ".rst"}
@@ -92,9 +98,18 @@ def is_fatal_llm_error(e: Exception) -> bool:
     return isinstance(e, APIStatusError) and e.status_code in (401, 402, 403)
 
 
+VERDICTS = ("met", "partial", "not_met")
+
+
 class JudgeOutput(BaseModel):
     reason: str
-    score: int = Field(ge=0, le=1)
+    verdict: Literal["met", "partial", "not_met"]
+    summary: str
+
+    @property
+    def score(self) -> int:
+        """PaperBench와 같은 0/1 점수: 기준을 모두 충족했을 때만 1. 부분 충족은 0이다."""
+        return 1 if self.verdict == "met" else 0
 
 
 def read_submission(submission_dir: Path, task_category: str) -> str:
@@ -173,14 +188,16 @@ def _call(client: OpenAI, messages: list[dict]):
 
 
 def judge_leaf(paper_md: str, addendum: str, submission_dir: Path, leaf: dict) -> dict:
-    """리프 1개 채점. {"score", "reason"}에 측정용 "usage", "parse_retries"를 덧붙여 돌려준다.
+    """리프 1개 채점. {"score", "verdict", "summary", "reason"}에 측정용 "usage", "parse_retries"를 덧붙여 돌려준다.
 
-    MOCK_JUDGE=1이면 LLM을 부르지 않고 MOCK_DELAY_SEC 기다린 뒤 무작위 0/1을 돌려준다.
+    MOCK_JUDGE=1이면 LLM을 부르지 않고 MOCK_DELAY_SEC 기다린 뒤 무작위 판정을 돌려준다.
     """
     if os.environ.get("MOCK_JUDGE") == "1":
         time.sleep(float(os.environ.get("MOCK_DELAY_SEC", "3")))
         usage = {"input_tokens": 0, "output_tokens": 0, "cached_tokens": 0, "calls": 0}
-        return {"score": random.randint(0, 1), "reason": "mock", "usage": usage, "parse_retries": 0}
+        verdict = random.choice(VERDICTS)
+        return {"score": int(verdict == "met"), "verdict": verdict, "summary": "모의 채점", "reason": "mock",
+                "usage": usage, "parse_retries": 0}
     client = _client()
     messages = build_messages(paper_md, addendum, submission_dir, leaf)
     usage = {"input_tokens": 0, "output_tokens": 0, "cached_tokens": 0, "calls": 0}
@@ -196,7 +213,8 @@ def judge_leaf(paper_md: str, addendum: str, submission_dir: Path, leaf: dict) -
         text = resp.choices[0].message.content or ""
         try:
             out = JudgeOutput.model_validate(json.loads(text))
-            return {"score": out.score, "reason": out.reason, "usage": usage, "parse_retries": attempt}
+            return {"score": out.score, "verdict": out.verdict, "summary": out.summary.strip(), "reason": out.reason,
+                    "usage": usage, "parse_retries": attempt}
         except (json.JSONDecodeError, ValidationError) as e:
             last_error = f"{type(e).__name__}: {text[:200]!r}"
     raise ValueError(f"judge output not parseable after {1 + MAX_PARSE_RETRIES} calls: {last_error}")
