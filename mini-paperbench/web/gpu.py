@@ -225,6 +225,7 @@ def step(job: dict, busy: dict) -> None:
             args += ["--category", cat]
         if (g.get("result") or {}).get("quick"):
             args += ["--quick"]
+            g["judged_quick"] = True  # 화면에 'QUICK=1 기준'은 검증기가 이 사실을 알았을 때만 쓴다
         if multi:
             args += ["--global-queue"]
             if job.get("mock"):

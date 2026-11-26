@@ -12,4 +12,4 @@ COPY k8s/jobs/ k8s/jobs/
 COPY web/ web/
 # data/ 와 results/ 는 hostPath(/data)로 붙인다
 EXPOSE 8000
-CMD ["uvicorn", "web.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "web.app:app", "--host", "0.0.0.0", "--port", "8000", "--no-server-header"]

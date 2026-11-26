@@ -469,6 +469,8 @@ def gpu_view(job: dict) -> dict | None:
         view["final"], view["final_cls"] = FINAL_LABEL.get(res.get("final"), (res.get("final"), "wait"))
         view["message"] = res.get("message")
         view["quick"] = res.get("quick")
+        view["judged_quick"] = bool(g.get("judged_quick"))
+        view["datasets_missing"] = res.get("datasets_missing") or []
         view["attempts"] = [{**a, "state_label": JPU_STATE.get(a.get("state"), a.get("state")),
                              "run": fmt_duration(a.get("run_sec")), "queue": fmt_duration(a.get("queue_sec"))}
                             for a in res.get("attempts") or []]
@@ -725,7 +727,8 @@ def report_md(job: dict) -> str | None:
     if res["errors"]:
         result += f" 검증하지 못한 항목 {res['errors']}개."
     if ex:
-        result += f" 실행과 결과 확인 항목은 {ex['judged']}개 중 {ex['passed']}개 충족."
+        result += (f" GPU 실행으로 검증한 항목은 실행 {ex['exec_judged']}개 중 {ex['exec_passed']}개, "
+                   f"결과 확인 {ex['res_judged']}개 중 {ex['res_passed']}개 충족.")
     full = [a for a in areas if a["judged"] and not a["failed"] and not a["errors"]]
     weak = [a for a in areas if a["failed"]]
     L += ["## 1. 재현 요약", "",
@@ -844,8 +847,15 @@ def report_md(job: dict) -> str | None:
         L.append("")
     if ran:
         L += [f"### 4.{sub} GPU 실행", "",
-              f"결과: {gv['final']}. {gv.get('message') or ''}".rstrip(),
-              "", "오류가 나면 PaperAgent가 실행 기록을 읽고 코드를 고쳐 다시 실행합니다. 시도마다 결과는 다음과 같습니다.", ""]
+              f"결과: {gv['final']}. {gv.get('message') or ''}".rstrip(), ""]
+        earlier = [e for e in job.get("events") or [] if e.get("text", "").startswith("GPU 실행이 끝났습니다")][:-1]
+        if earlier:
+            L += [f"GPU 실행은 이번이 {len(earlier) + 1}번째입니다. 이 보고서는 마지막 실행을 다룹니다. 앞선 실행의 결과는 다음과 같습니다.", ""]
+            L += _table(["실행", "끝난 시각", "결과"], [
+                [f"{n}번째", time.strftime("%Y-%m-%d %H:%M", time.localtime(e["t"])),
+                 e["text"].split(":", 1)[1].strip() if ":" in e["text"] else e["text"]]
+                for n, e in enumerate(earlier, 1)]) + [""]
+        L += ["오류가 나면 PaperAgent가 실행 기록을 읽고 코드를 고쳐 다시 실행합니다. 시도마다 결과는 다음과 같습니다.", ""]
         L += _table(["시도", "결과", "실행 시간", "고친 내용"], [
             [f"{a['n']}번째", a["state_label"] + (" (시간 제한)" if a.get("time_limit") else ""), a.get("run") or "-",
              (f"{a['fix']['diagnosis']} (파일: {', '.join(a['fix']['files']) or '없음'})" if a.get("fix") else "-")]
@@ -859,6 +869,10 @@ def report_md(job: dict) -> str | None:
                   f"실행 기록과 결과 파일을 보고 실행(Code Execution)과 결과 확인(Result Analysis) 항목 {ex['judged']}개를 검증했습니다. "
                   f"{ex['passed']}개 충족({ex['pct']}%)"
                   + (f", {_gap(ex['partial'], ex['unmet'], True)}." if ex["failed"] else ".")
+                  + f" 실행 항목은 {ex['exec_judged']}개 중 {ex['exec_passed']}개, 결과 확인 항목은 {ex['res_judged']}개 중 "
+                  f"{ex['res_passed']}개 충족입니다."
+                  + (" 빠른 모드(QUICK=1)로 실행했다는 것을 알고 검증했습니다. 결과 확인 항목은 논문 수치가 아니라 "
+                     "결과의 방향(예: 제안 방법이 비교 대상보다 나은지)을 봤습니다." if gv.get("judged_quick") else "")
                   + " 판단 이유 전체는 부록 B에 있습니다.", ""]
             L += _verdict_table(ex["rows"], kind_col=True) + [""]
 
@@ -869,7 +883,15 @@ def report_md(job: dict) -> str | None:
         L += ["### 5.1 직접 실행해서 확인할 항목", "",
               "코드를 실행한 뒤 확인할 항목입니다. 코드만 읽는 자동 검증에는 넣지 않았습니다."
               + (" GPU 실행 기록으로 검증한 결과는 4장에 있지만, 논문 수치와의 비교는 직접 확인해 주세요." if ex else ""), ""]
-        L += _table(["#", "종류", "확인할 내용"], [[n, i["cat"][0], i["requirement"]] for n, i in enumerate(later[:100], 1)])
+        if ex:
+            # GPU 실행으로 이미 검증한 항목은 그 판정을 같이 보여 준다(같은 목록을 두 번 읽지 않게)
+            by_req = {x["requirements"]: x for x in ex["rows"]}
+            L += _table(["#", "종류", "확인할 내용", "GPU 실행 판정"],
+                        [[n, i["cat"][0], i["requirement"],
+                          (by_req[i["requirement"]]["v_label"] if i["requirement"] in by_req else "-")]
+                         for n, i in enumerate(later[:100], 1)])
+        else:
+            L += _table(["#", "종류", "확인할 내용"], [[n, i["cat"][0], i["requirement"]] for n, i in enumerate(later[:100], 1)])
         if len(later) > 100:
             L += ["", f"이 밖에 {len(later) - 100}개 항목이 PAPERAGENT_RUBRIC.json에 있습니다."]
         L += ["", "### 5.2 한계", ""]
@@ -877,7 +899,11 @@ def report_md(job: dict) -> str | None:
         L += ["### 5.1 한계", ""]
     if ran:
         L += [f"- 공용 GPU에서 {gv['minutes']}분까지만 실행했습니다. 논문 전체 실험이 더 오래 걸리면 결과가 일부만 나옵니다.",
-              "- 실행 환경에는 인터넷이 없어 데이터셋이나 사전 학습 모델을 내려받는 코드는 실패할 수 있습니다."]
+              "- 실행 환경에는 인터넷이 없습니다. torchvision의 MNIST, FashionMNIST, CIFAR-10, CIFAR-100은 PaperAgent가 "
+              "미리 넣어 주지만, 다른 데이터셋이나 사전 학습 모델을 내려받는 코드는 실패합니다."]
+        if gv.get("datasets_missing"):
+            L.append(f"- 이번 코드가 쓰는 데이터셋 중 미리 넣지 못한 것: {', '.join(gv['datasets_missing'])}. "
+                     "이 데이터를 쓰는 실험은 직접 실행해서 확인해야 합니다.")
     else:
         L += ["- 코드는 실행하지 않았습니다. 검증은 코드 내용이 기준을 구현했는지만 봅니다.",
               "- 실제 실행 결과와 논문 수치의 비교는 직접 해야 합니다."]

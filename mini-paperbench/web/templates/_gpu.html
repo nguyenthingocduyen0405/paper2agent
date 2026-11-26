@@ -96,7 +96,7 @@
   </div>
   <p class="small muted">GPU 실행 기록(reproduce.log)과 실행하면서 생긴 결과 파일을 보고, 채점 기준의 실행 항목과 결과 확인 항목을 검증했습니다.
     {% if gpu.exec.exec_judged %}<strong>실행 {{ gpu.exec.exec_passed }}/{{ gpu.exec.exec_judged }}</strong>{% endif %}{% if gpu.exec.exec_judged and gpu.exec.res_judged %} · {% endif %}{% if gpu.exec.res_judged %}<strong>결과 확인 {{ gpu.exec.res_passed }}/{{ gpu.exec.res_judged }}</strong>{% endif %}
-    (전체 {{ gpu.exec.passed }}/{{ gpu.exec.judged }}, {{ gpu.exec.pct }}%{% if gpu.quick %}, QUICK=1 기준{% endif %}).</p>
+    (전체 {{ gpu.exec.passed }}/{{ gpu.exec.judged }}, {{ gpu.exec.pct }}%{% if gpu.judged_quick %}, QUICK=1 기준{% endif %}).</p>
   <table class="list rubric">
     <thead><tr><th class="num-col">#</th><th>기준</th><th class="res-col">결과</th></tr></thead>
     <tbody>

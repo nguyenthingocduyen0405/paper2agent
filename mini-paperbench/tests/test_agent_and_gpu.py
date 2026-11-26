@@ -112,3 +112,20 @@ def test_sitecustomize_wraps_fashion_mnist_subclass(tmp_path: Path, monkeypatch)
     FashionMNIST(str(out_root), download=True)
     assert (out_root / "FashionMNIST" / "raw" / "f").read_bytes() == b"fm"
     assert not (out_root / "MNIST").exists()
+
+
+def test_gpu_run_cifar100_bundled_and_unbundled_datasets_reported(tmp_path: Path):
+    code = tmp_path / "code"
+    code.mkdir()
+    (code / "train.py").write_text(
+        "from torchvision import datasets\n"
+        "a = datasets.CIFAR100('./data', download=True)\n"
+        "b = datasets.SVHN('./data', download=True)\n"
+        "c = datasets.ImageFolder('./imgs')\n"
+        "from datasets import load_dataset\n"
+        "d = load_dataset('glue', 'sst2')\n", encoding="utf-8")
+    assert gpu_run.detect_datasets(code) == ["cifar100"]  # CIFAR100( is not mistaken for CIFAR10(
+    assert gpu_run.detect_unbundled_datasets(code) == ["SVHN", "Hugging Face: glue"]
+    assert "CIFAR100" in gpu_run.SITE_CUSTOMIZE_PY
+    prompt = gpu_run.FIX_SYSTEM.format(minutes=30, datasets=gpu_run.BUNDLED_DATASET_NAMES)
+    assert "CIFAR100" in prompt and "not a missing download" in prompt

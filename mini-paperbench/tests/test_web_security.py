@@ -114,3 +114,18 @@ def test_middleware_and_login_flow(temp_db, monkeypatch):
         assert r.status_code == 303
         r = client.get("/account", follow_redirects=False)
         assert r.status_code == 303
+
+
+def test_security_headers_on_every_response(temp_db):
+    from fastapi.testclient import TestClient
+    from web import app as web_app
+
+    web_app._ready.set()
+    with TestClient(web_app.app) as c:
+        for resp in (c.get("/login"), c.post("/login", data={"username": "x", "password": "y"})):
+            assert resp.headers["X-Frame-Options"] == "DENY"
+            assert resp.headers["X-Content-Type-Options"] == "nosniff"
+            assert "frame-ancestors 'none'" in resp.headers["Content-Security-Policy"]
+            assert "Strict-Transport-Security" not in resp.headers  # plain http
+        r = c.get("/login", headers={"X-Forwarded-Proto": "https"})
+        assert r.headers.get("Strict-Transport-Security", "").startswith("max-age=")

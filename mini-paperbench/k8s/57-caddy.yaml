@@ -21,7 +21,13 @@ data:
     }
     __PUBLIC_HOST__ {
       encode gzip
-      reverse_proxy web:8000
+      header -Server
+      reverse_proxy web:8000 {
+        # 클라이언트가 직접 보낸 CF-Connecting-IP는 지운다. 웹은 이 값을 클라이언트 IP로 믿으므로(cloudflared 경로용),
+        # 남겨 두면 IP를 속여 로그인 잠금을 피할 수 있다. Caddy 경로의 IP는 X-Forwarded-For로 넘어간다.
+        header_up -Cf-Connecting-Ip
+        header_down -Server
+      }
     }
 ---
 apiVersion: apps/v1

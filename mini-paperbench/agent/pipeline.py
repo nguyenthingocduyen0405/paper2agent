@@ -146,7 +146,7 @@ Respond with exactly ONE fenced code block containing the whole file, and nothin
         quick_hint = (
             "Keep the paper's exact defaults for full runs, and for any training/evaluation entrypoint also support "
             "a fast reduced-budget option (e.g., --quick or env QUICK=1) with tiny step/epoch counts and 1 seed, "
-            "using vectorized PyTorch ops where equivalent so that the full suite in QUICK=1 finishes in under 5 minutes on one GPU."
+            "using vectorized PyTorch ops where equivalent so that the full suite in QUICK=1 finishes in 3 to 8 minutes on one GPU."
         )
         for f in plan["files"]:
             if (self.sub / f["path"]).exists():

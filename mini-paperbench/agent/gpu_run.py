@@ -222,7 +222,7 @@ def fetch_wheels(lines: list[str], cache_root: Path, log) -> tuple[Path | None, 
     return dest, names, failed
 
 
-# ---------------------------------------------------------------- 표준 데이터셋 오프라인 준비(MNIST / FashionMNIST / CIFAR-10)
+# ---------------------------------------------------------------- 표준 데이터셋 오프라인 준비(MNIST / FashionMNIST / CIFAR-10 / CIFAR-100)
 
 DATASET_SPECS = {
     "mnist": {
@@ -258,12 +258,21 @@ DATASET_SPECS = {
         "subdir": "cifar-10-batches-py",
         "urls": ("https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz",),
     },
+    "cifar100": {
+        "pattern": re.compile(r"\b(?:datasets\.)?CIFAR100\s*\("),
+        "kind": "tar_gz",
+        "subdir": "cifar-100-python",
+        "urls": ("https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz",),
+    },
 }
+BUNDLED_DATASET_NAMES = "MNIST, FashionMNIST, CIFAR10, CIFAR100 (torchvision)"
+# torchvision에서 내려받지 않는 클래스(로컬 폴더를 읽거나 가짜 데이터를 만든다)
+_LOCAL_TV = {"ImageFolder", "DatasetFolder", "VisionDataset", "FakeData"}
+_TV_CALL = re.compile(r"\b(?:torchvision\.)?datasets\.([A-Z][A-Za-z0-9_]*)\s*\(")
+_HF_CALL = re.compile(r"\bload_dataset\s*\(\s*['\"]([^'\"]+)['\"]")
 
 
-def detect_datasets(code: Path) -> list[str]:
-    """제출물 코드에서 torchvision 표준 데이터셋(MNIST, FashionMNIST, CIFAR10) 사용을 감지한다."""
-    found: list[str] = []
+def _code_text(code: Path) -> str:
     texts = []
     for p in sorted(code.rglob("*.py")):
         if any(part in SKIP_DIRS for part in p.relative_to(code).parts):
@@ -272,11 +281,22 @@ def detect_datasets(code: Path) -> list[str]:
             texts.append(p.read_text(errors="replace"))
         except OSError:
             continue
-    blob = "\n".join(texts)
-    for name, spec in DATASET_SPECS.items():
-        if spec["pattern"].search(blob):
-            found.append(name)
-    return found
+    return "\n".join(texts)
+
+
+def detect_datasets(code: Path) -> list[str]:
+    """제출물 코드에서 미리 넣어 줄 수 있는 torchvision 표준 데이터셋(DATASET_SPECS) 사용을 감지한다."""
+    blob = _code_text(code)
+    return [name for name, spec in DATASET_SPECS.items() if spec["pattern"].search(blob)]
+
+
+def detect_unbundled_datasets(code: Path) -> list[str]:
+    """미리 넣어 줄 수 없어 인터넷 없는 GPU에서 실패할 데이터셋(다른 torchvision 데이터셋, Hugging Face load_dataset)."""
+    blob = _code_text(code)
+    bundled = {"MNIST", "FashionMNIST", "CIFAR10", "CIFAR100"}
+    names = sorted({m for m in _TV_CALL.findall(blob) if m not in bundled and m not in _LOCAL_TV})
+    names += sorted({f"Hugging Face: {m}" for m in _HF_CALL.findall(blob)})
+    return names
 
 
 def _download_bytes(urls: tuple[str, ...], timeout: int = 120) -> bytes:
@@ -351,6 +371,7 @@ _MAP = {
     "MNIST": "MNIST",
     "FashionMNIST": "FashionMNIST",
     "CIFAR10": "cifar-10-batches-py",
+    "CIFAR100": "cifar-100-python",
 }
 
 
@@ -513,6 +534,9 @@ FIX_SYSTEM = """You fix a research-paper reproduction codebase that failed when 
 Environment of the run: Linux x86_64, Python 3.12, PyTorch 2.14 with CUDA on NVIDIA TITAN Xp GPUs (12 GB each),
 numpy 2.5. There is NO internet access: nothing can be downloaded (datasets, pretrained weights, pip packages
 beyond the ones already installed). The run has a time limit of {minutes} minutes.
+Bundled offline datasets: {datasets}. They are pre-seeded into whatever root the code passes, so torchvision calls
+like datasets.CIFAR10(root, download=True) work without internet; a failure while loading one of these is a code
+problem you can fix (e.g. a wrong root or split argument), not a missing download.
 
 Rules:
 - Make the smallest change that fixes the error. Keep the experiment faithful to the paper: do not remove experiments,
@@ -553,7 +577,7 @@ def fix_with_llm(llm: LLM, code: Path, attempt_dir: Path, minutes: int, state: s
         files.append(f"<FILE:{rel}>\n{body}\n</FILE:{rel}>")
     orig_req = read_text(code / "requirements.txt")
     messages = [
-        {"role": "system", "content": FIX_SYSTEM.format(minutes=minutes)},
+        {"role": "system", "content": FIX_SYSTEM.format(minutes=minutes, datasets=BUNDLED_DATASET_NAMES)},
         {"role": "user", "content": f"JPUShare final state: {state}\n\nFiles in the codebase:\n{tree}\n\n"
                                     f"requirements.txt:\n{orig_req[:3000]}"},
         {"role": "user", "content": f"End of the run log (stdout and stderr of reproduce.sh):\n<log>\n"
@@ -713,6 +737,10 @@ def main() -> int:
         except Exception as e:
             return finish("error", f"필요한 패키지를 준비하지 못했습니다: {str(e)[-300:]}", attempt_dir)
         bundled_ds = prepare_datasets(detect_datasets(code), Path("data/gpu_datasets"), log)
+        missing_ds = detect_unbundled_datasets(code)
+        if missing_ds:
+            log(f"datasets not bundled (need internet, will likely fail): {missing_ds}")
+        result["datasets_missing"] = missing_ds
         art = pack(code, wheels, names, run_sec, datasets=bundled_ds)
         ds_msg = f", datasets {[d for d, _ in bundled_ds]}" if bundled_ds else ""
         log(f"attempt {n}: zip {len(art) / 1e6:.1f} MB, wheels {len(names)}, preinstalled {len(dropped)}, "

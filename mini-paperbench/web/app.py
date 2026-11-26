@@ -183,6 +183,19 @@ async def auth_middleware(request: Request, call_next):
         return _wait_page()
 
 
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    """모든 응답에 브라우저 보안 헤더를 붙인다. HSTS는 https로 들어온 요청에만 붙인다(학교 서버는 http)."""
+    resp = await call_next(request)
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    resp.headers.setdefault("Content-Security-Policy", "frame-ancestors 'none'")
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("Referrer-Policy", "same-origin")
+    if _secure_cookie(request):
+        resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000")
+    return resp
+
+
 def _render(request: Request, name: str, ctx: dict | None = None, status: int = 200):
     ctx = dict(ctx or {})
     ctx.setdefault("user", getattr(request.state, "user", None))
@@ -232,6 +245,7 @@ def login_form(request: Request, next: str = "/"):
 def login(request: Request, username: str = Form(""), password: str = Form(""), next: str = Form("/")):
     user, error = auth.authenticate(username, password, _client_ip(request))
     if user is None:
+        log.warning("login failed: user=%r ip=%s", username[:64], _client_ip(request))
         return _render(request, "login.html", {"next": _safe_next(next), "error": error, "username": username}, 400)
     token = auth.new_session(user["id"])
     resp = RedirectResponse(_safe_next(next), status_code=303)

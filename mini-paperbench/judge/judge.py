@@ -161,9 +161,15 @@ def build_messages(paper_md: str, addendum: str, submission_dir: Path, leaf: dic
         )
     elif quick and category == "Result Analysis":
         criterion_text += (
-            "\n\nExecution context: reproduce.sh was run in reduced-budget QUICK=1 mode (fewer epochs/steps/seeds). "
-            "If the expected result files/metrics were generated without errors but exact paper numbers were not reached "
-            "solely due to the reduced QUICK=1 budget, explain that clearly and prefer 'partial' over 'not_met'."
+            "\n\nExecution context: reproduce.sh was run in reduced-budget QUICK=1 mode (fewer epochs/steps/seeds), "
+            "so exact paper numbers are not expected. Judge the direction of the result instead:\n"
+            "- met: the outputs show the effect or trend the paper claims for this criterion (e.g. the proposed method "
+            "beats the baseline, the curve has the claimed shape), even if the magnitude is smaller.\n"
+            "- partial: the expected outputs exist and point the same way as the paper's claim, but the evidence is weak "
+            "or incomplete (e.g. the difference is within noise, or only part of the comparison ran).\n"
+            "- not_met: the outputs are missing, or the result contradicts the paper's claim (e.g. the proposed method "
+            "is worse than the baseline, or the trend goes the opposite way). The reduced budget is not a reason to give "
+            "'partial' to a result that points the opposite way; say in the reason that a longer run might change it."
         )
     messages += [
         {"role": "user", "content": criterion_text},

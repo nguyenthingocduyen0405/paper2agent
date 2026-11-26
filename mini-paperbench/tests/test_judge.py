@@ -86,7 +86,10 @@ def test_build_messages_reproduce_log_inclusion(tmp_path: Path):
     assert any("<reproduce.log>" in m["content"] for m in msgs_exec)
     assert not any("QUICK=1" in m["content"] for m in msgs_exec)
     assert any("QUICK=1" in m["content"] for m in msgs_exec_quick)
-    assert any("prefer 'partial'" in m["content"] for m in msgs_res_quick)
+    # QUICK=1: judge the direction; a result that contradicts the paper is not_met, not 'partial'
+    assert any("contradicts the paper's claim" in m["content"] and "not a reason to give" in m["content"]
+               for m in msgs_res_quick)
+    assert not any("prefer 'partial'" in m["content"] for m in msgs_res_quick)
 
 
 def test_is_fatal_llm_error():

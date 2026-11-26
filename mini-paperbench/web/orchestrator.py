@@ -415,7 +415,8 @@ def tick() -> None:
             records.after_failure(job)
         if (job["stage"], job["status"], job.get("judge_step")) != before:
             if store.save_running(job):
-                log.info("job %s → %s/%s", job["id"], job["status"], job["stage"])
+                step_note = f" ({job['judge_step']})" if job["stage"] == "judge" and job.get("judge_step") else ""
+                log.info("job %s → %s/%s%s", job["id"], job["status"], job["stage"], step_note)
             else:
                 log.info("job %s was changed elsewhere (no longer running); this step is not saved", job["id"])
     gpu.tick(busy)
