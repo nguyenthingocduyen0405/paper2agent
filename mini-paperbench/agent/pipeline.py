@@ -143,10 +143,15 @@ Respond with exactly ONE fenced code block containing the whole file, and nothin
 
     def p3_write(self) -> None:
         plan = json.loads((self.run_dir / "plan.json").read_text())
+        quick_hint = (
+            "Keep the paper's exact defaults for full runs, and for any training/evaluation entrypoint also support "
+            "a fast reduced-budget option (e.g., --quick or env QUICK=1) with tiny step/epoch counts and 1 seed, "
+            "using vectorized PyTorch ops where equivalent so that the full suite in QUICK=1 finishes in under 5 minutes on one GPU."
+        )
         for f in plan["files"]:
             if (self.sub / f["path"]).exists():
                 continue
-            self._write_file("P3", f["path"], f"Purpose of this file: {f['purpose']}")
+            self._write_file("P3", f["path"], f"Purpose of this file: {f['purpose']}\n\n{quick_hint}")
             self.log(f"P3 wrote {f['path']}")
 
     # ---------- P4 ----------
@@ -211,7 +216,8 @@ Respond with exactly ONE fenced code block containing the whole file, and nothin
         tasks = [
             ("requirements.txt", "List the pip packages (with versions where important) needed by the code in src/."),
             ("reproduce.sh", "Write a bash script that installs requirements and runs the full reproduction end to end, producing all results (tables) in the paper. It must use the code in src/. Assume API keys are provided as environment variables. "
-                             "Also support a reduced-budget mode when the environment variable QUICK=1 is set: the same experiments and output files with fewer steps, seeds or data, so that the whole script finishes in about 20 minutes on one GPU. "
+                             "Also support a reduced-budget mode when the environment variable QUICK=1 is set: run every experiment and produce all expected output files, "
+                             "but use tiny budgets (1 seed, very few steps/epochs, minimal sweep grids) so that the ENTIRE script finishes strictly in 3 to 8 minutes total on a single GPU (never close to 30 minutes). "
                              "Write result tables and figures under results/ so they can be collected after the run."),
             ("README.md", "Write a README: what the paper is, how the code is organized (each file in src/), how to run reproduce.sh, and which paper results each part reproduces."),
         ]
