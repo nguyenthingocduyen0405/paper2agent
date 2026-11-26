@@ -8,7 +8,9 @@ load_dotenv()
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6380/0")
 GROUP = "workers"
-GLOBAL_STREAM = "pb:global:tasks"
+GLOBAL_STREAM = "pb:global:tasks"   # 예전 공용 스트림. 지금은 남은 메시지만 처리한다
+# multi-run 모드에서 채점 중인 run 목록. 워커가 돌아가며 run마다 한 항목씩 가져간다(라운드 로빈).
+ACTIVE_RUNS = "pb:global:runs"
 MULTI_RUN_IDS = ("multi", "*", "auto")
 
 # 이 시간(초) 동안 XACK되지 않은 메시지는 죽은 워커의 것으로 보고 다른 워커가 가져간다.

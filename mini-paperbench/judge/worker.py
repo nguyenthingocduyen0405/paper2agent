@@ -5,8 +5,11 @@
 결과는 리프 ID를 키로 HSET하므로 같은 리프가 두 번 처리돼도 결과는 1개다.
 
 모드:
-- RUN_ID=multi (또는 *, auto): 공용 스트림(pb:global:tasks)에서 여러 run의 작업을
-  재시작 없이 동시에 처리한다. 각 메시지의 run 필드로 논문·제출물을 찾아 채점한다.
+- RUN_ID=multi (또는 *, auto): 여러 run의 작업을 재시작 없이 동시에 처리한다. 채점 중인 run은
+  목록(pb:global:runs)에 있고, 워커는 그 목록을 돌아가며 run마다 한 항목씩 가져간다(라운드 로빈).
+  그래서 먼저 들어온 큰 작업이 끝날 때까지 뒤 작업이 기다리지 않고 모든 run이 같이 진행된다.
+  항목은 run별 스트림(pb:<run>:tasks)에 있고, 각 메시지의 run 필드로 논문·제출물을 찾아 채점한다.
+  예전 공용 스트림(pb:global:tasks)에 남은 메시지도 처리한다.
 - RUN_ID=<run>: 기존 단일 run 모드(scripts/k8s_run.sh, k8s_bench.sh와 호환).
 
 사용: python -m judge.worker --run multi
@@ -23,12 +26,14 @@ from pathlib import Path
 
 from redis.exceptions import ResponseError
 
-from judge.common import (CLAIM_IDLE_SEC, GLOBAL_STREAM, GROUP, MAX_DELIVERIES,
+from judge.common import (ACTIVE_RUNS, CLAIM_IDLE_SEC, GLOBAL_STREAM, GROUP, MAX_DELIVERIES,
                           MULTI_RUN_IDS, RATE_LIMIT_RPM, RATE_LIMIT_TPM, connect, k)
 from judge.judge import is_fatal_llm_error, judge_leaf
 from judge.ratelimit import RateLimiter
 
 MAX_RUN_CACHE = 16
+# multi-run 모드에서 죽은 워커가 들고 있던 항목을 이 간격(초)마다 찾는다(CLAIM_IDLE_SEC보다 훨씬 짧으면 된다)
+RECLAIM_EVERY_SEC = float(os.environ.get("RECLAIM_EVERY_SEC", "15"))
 
 
 def wait_for_run(r, run: str, poll_sec: float = 5.0) -> None:
@@ -115,7 +120,8 @@ def process_message(r, stream: str, consumer: str, limiter: RateLimiter,
 
     started = time.time()
     r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "start", "t": started}))
-    waited = limiter.acquire(0 if ctx["mock"] else ctx["est_tokens"])
+    # 모의 채점은 LLM을 부르지 않으므로 공용 호출 한도를 쓰지 않는다(실제 작업이 쓸 한도를 뺏지 않게)
+    waited = 0.0 if ctx["mock"] else limiter.acquire(ctx["est_tokens"])
     try:
         out = judge_leaf(ctx["paper_md"], ctx["addendum"], ctx["submission_dir"], leaf,
                          mock=ctx["mock"], quick=ctx["quick"])
@@ -158,27 +164,97 @@ def _ensure_group(r, stream: str) -> None:
             raise
 
 
+def _run_finished(r, run: str) -> bool:
+    """더 채점할 항목이 없는 run인지: 기록이 지워졌거나, 중단됐거나, 결과가 다 모였다."""
+    total = r.get(k(run, "total"))
+    if total is None or r.exists(k(run, "aborted")):
+        return True
+    return r.hlen(k(run, "results")) >= int(total)
+
+
+def _reclaim_one(r, consumer: str, limiter: RateLimiter, cache: collections.OrderedDict) -> bool:
+    """죽은 워커가 CLAIM_IDLE_SEC 넘게 들고 있던 항목을 하나 가져와 채점한다. 채점했으면 True."""
+    streams = [k(run, "tasks") for run in r.lrange(ACTIVE_RUNS, 0, -1)] + [GLOBAL_STREAM]
+    for stream in streams:
+        if not r.exists(stream):  # run 기록이 만료되었거나 지워졌다
+            continue
+        try:
+            resp = r.xautoclaim(stream, GROUP, consumer, min_idle_time=int(CLAIM_IDLE_SEC * 1000), count=1)
+        except ResponseError as e:
+            if "NOGROUP" in str(e):  # run 기록이 만료되어 스트림이 없다
+                continue
+            raise
+        for msg_id, fields in resp[1]:
+            if not fields:  # 이미 지워진 메시지
+                r.xack(stream, GROUP, msg_id)
+                continue
+            print(f"[{consumer}] reclaimed {fields.get('run', '?')}/{fields['leaf_id'][:8]}", flush=True)
+            process_message(r, stream, consumer, limiter, msg_id, fields, reclaimed=True, cache=cache)
+            return True
+    return False
+
+
+def _read_one(r, consumer: str, limiter: RateLimiter, cache: collections.OrderedDict) -> bool:
+    """채점 중인 run을 돌아가며 새 항목 하나를 가져와 채점한다. 채점했으면 True.
+
+    LMOVE로 목록 맨 앞 run을 맨 뒤로 옮기면서 가져오므로, 여러 워커가 같이 돌아도 run마다 차례가 돌아간다.
+    새 항목이 없는 run은 건너뛰고, 다 끝난 run은 목록에서 뺀다.
+    """
+    for _ in range(r.llen(ACTIVE_RUNS)):
+        run = r.lmove(ACTIVE_RUNS, ACTIVE_RUNS, "LEFT", "RIGHT")
+        if run is None:
+            break
+        stream = k(run, "tasks")
+        resp = None
+        if r.exists(stream):  # 없으면 run 기록이 만료되었거나 지워졌다
+            try:
+                resp = r.xreadgroup(GROUP, consumer, {stream: ">"}, count=1)
+            except ResponseError as e:
+                if "NOGROUP" not in str(e):
+                    raise
+        if resp and resp[0][1]:
+            msg_id, fields = resp[0][1][0]
+            process_message(r, stream, consumer, limiter, msg_id, fields, reclaimed=False, cache=cache)
+            return True
+        if _run_finished(r, run):
+            r.lrem(ACTIVE_RUNS, 0, run)
+    return False
+
+
+def multi_step(r, consumer: str, limiter: RateLimiter, cache: collections.OrderedDict, state: dict,
+               block_ms: int | None = 1000) -> bool:
+    """multi-run 워커의 한 번 반복. 항목 하나를 채점했으면 True."""
+    if not state.get("group_ready"):
+        _ensure_group(r, GLOBAL_STREAM)
+        state["group_ready"] = True
+    now = time.time()
+    if now - state.get("last_reclaim", 0.0) >= RECLAIM_EVERY_SEC:
+        state["last_reclaim"] = now
+        if _reclaim_one(r, consumer, limiter, cache):
+            state["last_reclaim"] = 0.0  # 하나 찾았으면 다음 반복에서 또 찾는다
+            return True
+    if _read_one(r, consumer, limiter, cache):
+        return True
+    # 새 항목이 없다: 예전 공용 스트림에 남은 항목을 잠깐 기다리며 본다(빈 반복으로 CPU를 쓰지 않게)
+    resp = r.xreadgroup(GROUP, consumer, {GLOBAL_STREAM: ">"}, count=1, block=block_ms)
+    if resp and resp[0][1]:
+        msg_id, fields = resp[0][1][0]
+        process_message(r, GLOBAL_STREAM, consumer, limiter, msg_id, fields, reclaimed=False, cache=cache)
+        return True
+    return False
+
+
 def run_multi_loop(r, consumer: str, limiter: RateLimiter) -> None:
-    """공용 스트림(pb:global:tasks)에서 여러 run의 리프를 재시작 없이 동시에 처리한다."""
-    stream = GLOBAL_STREAM
-    _ensure_group(r, stream)
+    """채점 중인 여러 run을 재시작 없이 돌아가며 처리한다(라운드 로빈)."""
     cache: collections.OrderedDict = collections.OrderedDict()
-    print(f"[{consumer}] started (multi-run queue: {stream})", flush=True)
+    state: dict = {}
+    print(f"[{consumer}] started (multi-run, round robin over {ACTIVE_RUNS})", flush=True)
     while True:
         try:
-            _, claimed, _ = r.xautoclaim(stream, GROUP, consumer, min_idle_time=int(CLAIM_IDLE_SEC * 1000), count=1)
-            if claimed:
-                msg_id, fields = claimed[0]
-                print(f"[{consumer}] reclaimed {fields.get('run', '?')}/{fields['leaf_id'][:8]}", flush=True)
-                process_message(r, stream, consumer, limiter, msg_id, fields, reclaimed=True, cache=cache)
-                continue
-            resp = r.xreadgroup(GROUP, consumer, {stream: ">"}, count=1, block=2000)
-            if resp:
-                msg_id, fields = resp[0][1][0]
-                process_message(r, stream, consumer, limiter, msg_id, fields, reclaimed=False, cache=cache)
+            multi_step(r, consumer, limiter, cache, state)
         except ResponseError as e:
             if "NOGROUP" in str(e):
-                _ensure_group(r, stream)
+                state["group_ready"] = False  # 예전 공용 스트림이 지워졌다: 다음 반복에서 다시 만든다
                 continue
             print(f"[{consumer}] redis error: {type(e).__name__}: {str(e)[:200]}", flush=True)
             time.sleep(2)

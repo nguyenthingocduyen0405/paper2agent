@@ -212,19 +212,22 @@ def test_multi_run_enqueue_and_process_message(tmp_path: Path, monkeypatch):
     leaf_b = {"id": "lb1", "requirements": "Req B", "task_category": "Code Development", "preceding": []}
     s1 = generate_tasks.enqueue_run(r, "runA", paper_a, sub_a, [leaf_a], global_queue=True, mock=True)
     s2 = generate_tasks.enqueue_run(r, "runB", paper_b, sub_b, [leaf_b], global_queue=True, mock=True)
-    assert s1 == common.GLOBAL_STREAM and s2 == common.GLOBAL_STREAM
-    assert len(r.streams[common.GLOBAL_STREAM]) == 2
+    # Each run gets its own stream and is listed for the round-robin workers
+    assert s1 == common.k("runA", "tasks") and s2 == common.k("runB", "tasks")
+    assert r.lists[common.ACTIVE_RUNS] == ["runA", "runB"]
+    assert all(f["run"] for s in (s1, s2) for f in r.streams[s])
 
-    # Process both interleaved runs on the same worker without restarting
+    # Process both runs on the same worker without restarting
     import collections
     cache = collections.OrderedDict()
-    for idx, fields in enumerate(r.streams[common.GLOBAL_STREAM]):
-        worker.process_message(r, common.GLOBAL_STREAM, "w1", DummyLimiter(), f"{idx}-0", fields, False, cache=cache)
+    for stream in (s1, s2):
+        for idx, fields in enumerate(r.streams[stream]):
+            worker.process_message(r, stream, "w1", DummyLimiter(), f"{idx}-0", fields, False, cache=cache)
 
     assert "la1" in r.hashes[common.k("runA", "results")]
     assert "lb1" in r.hashes[common.k("runB", "results")]
     assert len(r.acked) == 2
-    assert len(r.deleted) == 2  # GLOBAL_STREAM trimmed via XDEL after XACK
+    assert r.deleted == []  # per-run streams are cleaned up by the run TTL; only the old shared stream uses XDEL
 
     # Missing paper.md (deleted job race) returns None cleanly without crashing worker
     r.hset(common.k("runMissing", "meta"), mapping={"paper_dir": str(tmp_path / "gone"), "submission_dir": str(sub_a)})

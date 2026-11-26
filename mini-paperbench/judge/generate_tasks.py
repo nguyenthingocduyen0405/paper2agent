@@ -9,7 +9,7 @@ from pathlib import Path
 
 from redis.exceptions import ResponseError
 
-from judge.common import GLOBAL_STREAM, GROUP, connect, k
+from judge.common import ACTIVE_RUNS, GROUP, connect, k
 from judge.rubric import load_leaves
 
 
@@ -17,7 +17,9 @@ def enqueue_run(r, run: str, paper_dir: Path, submission_dir: Path, leaves: list
                 *, global_queue: bool = False, mock: bool = False, quick: bool = False) -> str:
     if r.exists(k(run, "total")):
         raise SystemExit(f"run '{run}' already exists; use a new --run name")
-    stream = GLOBAL_STREAM if global_queue else k(run, "tasks")
+    # 항목은 항상 run별 스트림에 넣는다. multi-run 워커는 ACTIVE_RUNS 목록의 run을 돌아가며 한 항목씩
+    # 가져가므로, 먼저 들어온 큰 작업이 끝날 때까지 뒤 작업이 기다리지 않는다.
+    stream = k(run, "tasks")
     try:
         r.xgroup_create(stream, GROUP, id="0", mkstream=True)
     except ResponseError as e:
@@ -36,9 +38,9 @@ def enqueue_run(r, run: str, paper_dir: Path, submission_dir: Path, leaves: list
         fields = {"leaf_id": leaf["id"], "leaf": json.dumps(leaf)}
         if global_queue:
             fields["run"] = run
-            target.xadd(stream, fields, maxlen=10000, approximate=True)
-        else:
-            target.xadd(stream, fields)
+        target.xadd(stream, fields)
+    if global_queue:
+        target.rpush(ACTIVE_RUNS, run)  # 항목과 total을 넣은 뒤에 목록에 올린다(빈 run으로 보고 지우지 않게)
     if target is not r:
         target.execute()
     return stream
@@ -51,7 +53,7 @@ def main() -> None:
     ap.add_argument("--submission-dir", default="data/judge_eval/semantic-self-consistency/0/submission")
     ap.add_argument("--limit", type=int, default=None, help="앞에서부터 N개 리프만")
     ap.add_argument("--category", action="append", default=None, help="여러 번 줄 수 있다")
-    ap.add_argument("--global-queue", action="store_true", help="공용 multi-run 스트림(pb:global:tasks)에 넣는다")
+    ap.add_argument("--global-queue", action="store_true", help="multi-run 워커가 돌아가며 처리하는 run 목록(pb:global:runs)에 올린다")
     ap.add_argument("--mock", action="store_true", help="이 run만 모의 채점(MOCK_JUDGE)으로 표시한다")
     ap.add_argument("--quick", action="store_true", help="GPU 실행이 QUICK=1 모드로 돌았음을 judge에 알린다")
     args = ap.parse_args()

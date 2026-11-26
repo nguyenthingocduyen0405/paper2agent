@@ -24,13 +24,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -r web/requirements.txt pytest httpx
+          pip install -r requirements.txt -r web/requirements.txt pytest httpx fakeredis
 
       - name: Syntax and manifest check
         run: |
           python -m compileall -q web judge agent hermes claude-bridge
           python -c "import pathlib, yaml; [list(yaml.safe_load_all(p.read_text(encoding='utf-8'))) for p in pathlib.Path('k8s').rglob('*.yaml')]; print('k8s YAML OK')"
-          bash -n scripts/*.sh
+          for f in scripts/*.sh; do bash -n "$f" || exit 1; done   # bash -n은 첫 파일만 검사하므로 하나씩
 
       - name: Run unit tests
         run: pytest -v
