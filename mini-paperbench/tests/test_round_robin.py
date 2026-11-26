@@ -162,3 +162,32 @@ def test_messages_left_in_the_old_shared_stream_are_still_judged(r, tmp_path):
     r.xadd(common.GLOBAL_STREAM, {"run": "old", "leaf_id": leaf["id"], "leaf": json.dumps(leaf)})
     assert worker.multi_step(r, "w1", CountingLimiter(), collections.OrderedDict(), {}, block_ms=None)
     assert r.hlen(common.k("old", "results")) == 1
+
+
+def test_items_stuck_after_an_outage_are_reclaimed_across_runs(r, tmp_path, monkeypatch):
+    order = _record_order(monkeypatch)
+    for name in ("A", "B", "C"):
+        p, s = _paper(tmp_path, name)
+        stream = generate_tasks.enqueue_run(r, f"run{name}", p, s, _leaves(name.lower(), 4), global_queue=True, mock=True)
+        assert len(r.xreadgroup(common.GROUP, "dead", {stream: ">"}, count=4)[0][1]) == 4  # 장애로 ACK 못 한 항목
+    monkeypatch.setattr(worker, "CLAIM_IDLE_SEC", 0)
+    worker.random.seed(1)
+    _run_all(r)
+    assert sorted(order) == sorted(f"{x}{i}" for x in "abc" for i in range(1, 5))
+    # 앞 작업의 항목을 다 되찾은 뒤에야 다음 작업으로 가지 않는다
+    assert len({leaf[0] for leaf in order[:4]}) >= 2
+
+
+def test_keys_expire_from_the_start(r, tmp_path):
+    pa, sa = _paper(tmp_path, "A")
+    generate_tasks.enqueue_run(r, "runA", pa, sa, _leaves("a", 2), global_queue=True, mock=True)
+    for name in ("tasks", "meta", "total"):
+        assert 0 < r.ttl(common.k("runA", name)) <= common.RUN_TTL_SEC
+
+
+def test_run_cancelled_before_enqueue_is_not_queued(r, tmp_path):
+    pa, sa = _paper(tmp_path, "A")
+    r.set(common.k("runA", "aborted"), "cancelled by admin")
+    assert generate_tasks.enqueue_run(r, "runA", pa, sa, _leaves("a", 2), global_queue=True, mock=True) == ""
+    assert not r.exists(common.k("runA", "tasks")) and not r.exists(common.k("runA", "total"))
+    assert r.llen(common.ACTIVE_RUNS) == 0

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from redis.exceptions import ResponseError
 
-from judge.common import ACTIVE_RUNS, GROUP, connect, k
+from judge.common import ACTIVE_RUNS, GROUP, RUN_TTL_SEC, connect, k
 from judge.rubric import load_leaves
 
 
@@ -17,6 +17,10 @@ def enqueue_run(r, run: str, paper_dir: Path, submission_dir: Path, leaves: list
                 *, global_queue: bool = False, mock: bool = False, quick: bool = False) -> str:
     if r.exists(k(run, "total")):
         raise SystemExit(f"run '{run}' already exists; use a new --run name")
+    if r.exists(k(run, "aborted")):
+        # 이 Job이 뜨는 사이에 작업이 취소됐다. 넣지 않는다(넣으면 아무도 정리하지 않는 키가 남는다).
+        print(f"run '{run}' was cancelled before its tasks were created; nothing enqueued")
+        return ""
     # 항목은 항상 run별 스트림에 넣는다. multi-run 워커는 ACTIVE_RUNS 목록의 run을 돌아가며 한 항목씩
     # 가져가므로, 먼저 들어온 큰 작업이 끝날 때까지 뒤 작업이 기다리지 않는다.
     stream = k(run, "tasks")
@@ -41,6 +45,11 @@ def enqueue_run(r, run: str, paper_dir: Path, submission_dir: Path, leaves: list
         target.xadd(stream, fields)
     if global_queue:
         target.rpush(ACTIVE_RUNS, run)  # 항목과 total을 넣은 뒤에 목록에 올린다(빈 run으로 보고 지우지 않게)
+    if RUN_TTL_SEC > 0:
+        # 처음부터 만료 시간을 둔다. 작업이 끝나면 orchestrator가 끝난 시각부터 다시 잰다(expire_run).
+        # 취소와 겹쳐 아무도 expire_run을 부르지 않아도 키가 영원히 남지 않는다.
+        for name in ("tasks", "meta", "total"):
+            target.expire(k(run, name), RUN_TTL_SEC)
     if target is not r:
         target.execute()
     return stream

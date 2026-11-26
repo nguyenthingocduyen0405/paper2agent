@@ -58,17 +58,31 @@ for img in $IMAGES; do
 done
 
 # 3b. LLM 전용 노드(.env의 LLM_NODE=사설 IP)가 있으면 claude-bridge 이미지를 그 노드에도 넣는다.
-#     레지스트리 없이 노드 사이 SSH(키 ~/.ssh/paperagent_nodes)로 보낸다. 노드가 꺼져 있으면 건너뛴다
-#     (bridge는 그때 이 노드에서 돈다).
+#     레지스트리 없이 노드 사이 SSH(키 ~/.ssh/paperagent_nodes)로 보낸다. 이미지가 그 노드에 있으면
+#     paperagent/bridge-image=<태그> 라벨을 달고, 못 넣으면 라벨을 떼고 계속 진행한다.
+#     bridge는 라벨이 이번 태그와 같을 때만 그 노드로 간다(k8s/25-claude-bridge.yaml). 아니면 이 노드에서 돈다.
 LLM_NODE=$(grep -E '^LLM_NODE=' .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r"' || true)
 if [ "$USE_BRIDGE" = 1 ] && [ -n "$LLM_NODE" ]; then
-  NODE_SSH="ssh -i $HOME/.ssh/paperagent_nodes -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new ubuntu@$LLM_NODE"
+  KEY_HOME=$(getent passwd "${SUDO_USER:-$(id -un)}" | cut -d: -f6)   # sudo로 돌려도 원래 사용자의 키를 쓴다
+  NODE_SSH="ssh -i $KEY_HOME/.ssh/paperagent_nodes -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new ubuntu@$LLM_NODE"
+  LLM_NODE_NAME=$($KUBECTL get nodes -o wide --no-headers | awk -v ip="$LLM_NODE" '$6 == ip {print $1}')
+  BRIDGE_IMAGE_THERE=0
   if ! $NODE_SSH true 2>/dev/null; then
-    echo "skip: LLM node $LLM_NODE unreachable"
+    echo "warn: LLM node $LLM_NODE unreachable; claude-bridge will run on this node"
   elif $NODE_SSH "sudo k3s ctr images ls -q" | grep -q "paperbench/claude-bridge:$TAG"; then
     echo "skip: claude-bridge:$TAG already on $LLM_NODE"
+    BRIDGE_IMAGE_THERE=1
+  elif sudo docker save "paperbench/claude-bridge:$TAG" | $NODE_SSH "sudo k3s ctr images import -"; then
+    BRIDGE_IMAGE_THERE=1
   else
-    sudo docker save "paperbench/claude-bridge:$TAG" | $NODE_SSH "sudo k3s ctr images import -"
+    echo "warn: copying claude-bridge:$TAG to $LLM_NODE failed; claude-bridge will run on this node"
+  fi
+  if [ -z "$LLM_NODE_NAME" ]; then
+    echo "warn: no k3s node with InternalIP $LLM_NODE; claude-bridge will run on this node"
+  elif [ "$BRIDGE_IMAGE_THERE" = 1 ]; then
+    $KUBECTL label node "$LLM_NODE_NAME" "paperagent/bridge-image=$TAG" --overwrite
+  else
+    $KUBECTL label node "$LLM_NODE_NAME" paperagent/bridge-image- >/dev/null 2>&1 || true
   fi
 fi
 

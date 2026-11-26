@@ -203,6 +203,11 @@ def test_multi_run_enqueue_and_process_message(tmp_path: Path, monkeypatch):
         def xdel(self, stream, msg_id):
             self.deleted.append((stream, msg_id))
 
+        def expire(self, key, ttl):
+            self.ttl = getattr(self, "ttl", {})
+            self.ttl[key] = ttl
+            return True
+
     class DummyLimiter:
         def acquire(self, _tokens):
             return 0.0

@@ -291,9 +291,12 @@ def step(job: dict, busy: dict) -> None:
             elif state in ("failed", "missing"):
                 _judge_fail(job, "검증 항목을 만들지 못했습니다", detail + "\n" + k8s.job_logs(gen_job(job), tail=30))
             return
-        if r.get(k(run, "aborted")):
+        aborted = r.get(k(run, "aborted"))
+        if aborted and aborted.startswith("cancelled"):
+            return  # 웹에서 방금 취소했다. 취소 처리(_cancel)는 DB의 취소 요청을 읽는 다음 차례에 한다
+        if aborted:
             _judge_seen.pop(job["id"], None)
-            _judge_fail(job, "Claude 사용 한도에 걸렸거나 인증에 실패해 검증을 멈췄습니다", r.get(k(run, "aborted")) or "")
+            _judge_fail(job, "Claude 사용 한도에 걸렸거나 인증에 실패해 검증을 멈췄습니다", aborted)
             return
         total = r.get(k(run, "total"))
         if total is None:

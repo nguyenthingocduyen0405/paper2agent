@@ -14,6 +14,7 @@ from pathlib import Path
 
 from sqlalchemy import case, delete, func, select
 
+from judge.common import k
 from web import blob, db, gpu, k8s, orchestrator, store
 
 log = logging.getLogger("admin")
@@ -42,6 +43,13 @@ def request_cancel(job: dict, by: str) -> str:
         return ""
     store.patch(job["id"], cancel_requested=by)
     log.info("job %s: cancel requested by %s", job["id"], by)
+    if orchestrator.MULTI_RUN_JUDGE and job.get("stage") in ("judge", "analyze") and job.get("judge_run"):
+        # 워커가 남은 항목을 바로 버리게 지금 표시한다(다음 차례까지 기다리면 그사이 LLM 호출이 더 나간다).
+        # 쿠버네티스 Job 정리와 상태 변경은 orchestrator(_cancel)가 다음 차례에 한다.
+        try:
+            orchestrator.redis().set(k(job["judge_run"], "aborted"), f"cancelled by {by}")
+        except Exception:
+            log.warning("job %s: could not mark run %s aborted", job["id"], job["judge_run"], exc_info=True)
     return ""
 
 

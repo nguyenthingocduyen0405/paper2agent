@@ -56,3 +56,32 @@ def test_step_judge_wait_multi_run_allows_parallel_without_worker_reassign(monke
     assert busy["judge"] == 3
     assert "--global-queue" in created[0][2] and "--mock" in created[0][2]
     assert reassigned == []
+
+
+def test_cancel_marks_run_aborted_at_once_and_is_not_reported_as_llm_failure(monkeypatch):
+    fakeredis = __import__("pytest").importorskip("fakeredis")
+    from judge.common import k
+    from web import admin
+
+    r = fakeredis.FakeRedis(decode_responses=True)
+    monkeypatch.setattr(orchestrator, "_redis", r)
+    monkeypatch.setattr(orchestrator, "MULTI_RUN_JUDGE", True)
+    patched = {}
+    monkeypatch.setattr(admin.store, "patch", lambda job_id, **kw: patched.update(kw))
+
+    job = {"id": "j5", "stage": "judge", "judge_step": "scoring", "status": "running",
+           "judge_run": "j5", "events": []}
+    r.set(k("j5", "total"), 10)
+    assert admin.request_cancel(job, "admin") == ""
+    assert patched == {"cancel_requested": "admin"}
+    assert r.get(k("j5", "aborted")) == "cancelled by admin"  # 워커는 다음 차례를 기다리지 않고 바로 멈춘다
+
+    # 취소 요청을 아직 읽지 못한 차례: 실패로 끝내지 않고 취소 처리를 기다린다
+    orchestrator.step(job, {"prepare": 0, "agent": 0, "judge": 1, "gpu": 0})
+    assert job["status"] == "running" and "error" not in job
+
+    # Claude 한도 등 진짜 중단은 그대로 실패로 처리한다
+    r.set(k("j5", "aborted"), "RateLimitError: subscription rate limit")
+    monkeypatch.setattr(orchestrator, "_expire_run", lambda run: None)
+    orchestrator.step(job, {"prepare": 0, "agent": 0, "judge": 1, "gpu": 0})
+    assert job["status"] == "failed"

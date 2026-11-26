@@ -19,6 +19,7 @@ import argparse
 import collections
 import json
 import os
+import random
 import socket
 import sys
 import time
@@ -174,7 +175,10 @@ def _run_finished(r, run: str) -> bool:
 
 def _reclaim_one(r, consumer: str, limiter: RateLimiter, cache: collections.OrderedDict) -> bool:
     """죽은 워커가 CLAIM_IDLE_SEC 넘게 들고 있던 항목을 하나 가져와 채점한다. 채점했으면 True."""
-    streams = [k(run, "tasks") for run in r.lrange(ACTIVE_RUNS, 0, -1)] + [GLOBAL_STREAM]
+    runs = r.lrange(ACTIVE_RUNS, 0, -1)
+    # 목록 순서대로 찾으면 장애 뒤 쌓인 항목을 앞 작업부터 다 되찾느라 뒤 작업이 멈춘다. 순서를 섞어 고르게 되찾는다.
+    random.shuffle(runs)
+    streams = [k(run, "tasks") for run in runs] + [GLOBAL_STREAM]
     for stream in streams:
         if not r.exists(stream):  # run 기록이 만료되었거나 지워졌다
             continue

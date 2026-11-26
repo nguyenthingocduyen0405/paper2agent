@@ -15,11 +15,19 @@ spec:
       labels: {app: claude-bridge}
     spec:
       # LLM 전용 노드(paperagent/role=llm, taint paperagent/dedicated=llm:NoSchedule)가 있으면 거기서 돈다.
-      # 그 노드가 없거나 내려가 있으면 기본 노드에서 돈다(preferred라서 서비스가 멈추지 않는다).
+      # 이미지는 레지스트리 없이 노드마다 직접 넣으므로(imagePullPolicy: Never), LLM 노드는 이번 태그의 이미지를
+      # 받았다는 라벨(paperagent/bridge-image=<태그>, bootstrap.sh 3b)이 있을 때만 쓸 수 있다. 라벨이 없거나
+      # 그 노드가 내려가 있으면 일반 노드(이미지를 빌드한 곳)에서 돈다. 이미지가 없는 노드에 묶여 멈추지 않는다.
       tolerations:
         - {key: paperagent/dedicated, operator: Equal, value: llm, effect: NoSchedule}
       affinity:
         nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:   # 둘 중 하나: 일반 노드, 또는 이번 태그 이미지를 받은 LLM 노드
+              - matchExpressions:
+                  - {key: paperagent/role, operator: DoesNotExist}
+              - matchExpressions:
+                  - {key: paperagent/bridge-image, operator: In, values: ["__TAG__"]}
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
               preference:
@@ -46,7 +54,9 @@ spec:
             httpGet: {path: /health, port: 8080}
             periodSeconds: 10
           resources:
-            requests: {cpu: 200m, memory: 512Mi}
+            # 실제로 Claude 프로세스 여러 개(하나에 수백 MB)를 띄우므로 넉넉히 잡는다. 요청보다 많이 쓰는 Pod는
+            # 메모리가 모자랄 때 먼저 쫓겨나는데, bridge가 쫓겨나면 모든 LLM 호출이 멈춘다.
+            requests: {cpu: 200m, memory: 2Gi}
             limits: {memory: 6Gi}
 ---
 apiVersion: v1
