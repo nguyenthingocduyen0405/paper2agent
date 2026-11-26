@@ -8,6 +8,8 @@ load_dotenv()
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6380/0")
 GROUP = "workers"
+GLOBAL_STREAM = "pb:global:tasks"
+MULTI_RUN_IDS = ("multi", "*", "auto")
 
 # 이 시간(초) 동안 XACK되지 않은 메시지는 죽은 워커의 것으로 보고 다른 워커가 가져간다.
 # 채점 1건의 최대 소요 시간보다 길어야 한다.

@@ -187,12 +187,13 @@ def _call(client: OpenAI, messages: list[dict]):
     )
 
 
-def judge_leaf(paper_md: str, addendum: str, submission_dir: Path, leaf: dict) -> dict:
+def judge_leaf(paper_md: str, addendum: str, submission_dir: Path, leaf: dict, *, mock: bool | None = None) -> dict:
     """리프 1개 채점. {"score", "verdict", "summary", "reason"}에 측정용 "usage", "parse_retries"를 덧붙여 돌려준다.
 
-    MOCK_JUDGE=1이면 LLM을 부르지 않고 MOCK_DELAY_SEC 기다린 뒤 무작위 판정을 돌려준다.
+    MOCK_JUDGE=1 또는 mock=True이면 LLM을 부르지 않고 MOCK_DELAY_SEC 기다린 뒤 무작위 판정을 돌려준다.
     """
-    if os.environ.get("MOCK_JUDGE") == "1":
+    use_mock = (os.environ.get("MOCK_JUDGE") == "1") if mock is None else mock
+    if use_mock:
         time.sleep(float(os.environ.get("MOCK_DELAY_SEC", "3")))
         usage = {"input_tokens": 0, "output_tokens": 0, "cached_tokens": 0, "calls": 0}
         verdict = random.choice(VERDICTS)

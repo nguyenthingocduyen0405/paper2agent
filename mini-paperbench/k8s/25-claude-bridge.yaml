@@ -28,7 +28,7 @@ spec:
             - name: CLAUDE_MODEL          # 요청의 model이 sonnet/opus/haiku/claude-*가 아니면 이 값
               value: "sonnet"
             - name: BRIDGE_MAX_CONCURRENCY   # 동시에 띄우는 Claude Code 프로세스 수(하나에 약 200MB)
-              value: "4"
+              value: "6"
             - name: BRIDGE_TIMEOUT_SECONDS
               value: "600"
           readinessProbe:
@@ -36,7 +36,7 @@ spec:
             periodSeconds: 10
           resources:
             requests: {cpu: 200m, memory: 512Mi}
-            limits: {memory: 3Gi}
+            limits: {memory: 3584Mi}
 ---
 apiVersion: v1
 kind: Service

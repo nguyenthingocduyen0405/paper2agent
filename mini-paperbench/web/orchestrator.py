@@ -24,8 +24,10 @@ from judge.common import connect, expire_run, k
 from web import blob, gpu, k8s, records, store
 
 log = logging.getLogger("orchestrator")
-MAX_AGENT_JOBS = int(os.environ.get("MAX_AGENT_JOBS", "1"))
-MAX_PREPARE_JOBS = int(os.environ.get("MAX_PREPARE_JOBS", "2"))
+MAX_AGENT_JOBS = int(os.environ.get("MAX_AGENT_JOBS", "3"))
+MAX_PREPARE_JOBS = int(os.environ.get("MAX_PREPARE_JOBS", "3"))
+MAX_JUDGE_JOBS = int(os.environ.get("MAX_JUDGE_JOBS", "4"))
+MULTI_RUN_JUDGE = os.environ.get("MULTI_RUN_JUDGE", "1") == "1"
 # 첫 검증에서 미충족 항목이 있으면 judge의 이유를 근거로 코드를 고치고 다시 검증한다(0이면 끈다)
 MAX_REPAIR_ROUNDS = int(os.environ.get("MAX_REPAIR_ROUNDS", "1"))
 # 채점 결과가 이 시간 동안 하나도 늘지 않으면 멈춘 것으로 본다(워커 Pod가 없거나 이미지 문제 등).
@@ -174,8 +176,14 @@ def _cancel(job: dict) -> None:
         k8s.delete_job(name)
     if job["stage"] == "repair" and k8s.pods_alive(repair_job(job)):
         return  # 다음 차례에 다시 본다
-    if job["stage"] in ("judge", "analyze") and k8s.worker_run()[0] == job["judge_run"]:
-        k8s.assign_workers("idle", False)
+    if job["stage"] in ("judge", "analyze"):
+        if MULTI_RUN_JUDGE:
+            try:
+                redis().set(k(job["judge_run"], "aborted"), f"cancelled by {by}")
+            except Exception:
+                log.debug("failed to mark aborted on cancel for %s", job["judge_run"], exc_info=True)
+        elif k8s.worker_run()[0] == job["judge_run"]:
+            k8s.assign_workers("idle", False)
     _judge_seen.pop(job["id"], None)
     job.pop("cancel_requested", None)
     job["cancel_requested_done"] = by
@@ -247,14 +255,19 @@ def step(job: dict, busy: dict) -> None:
             _fail(job, "코드 작성 Job을 찾을 수 없습니다")
 
     elif stage == "judge_wait":
-        if not busy["judge"]:
+        limit = MAX_JUDGE_JOBS if MULTI_RUN_JUDGE else 1
+        if int(busy["judge"]) < limit:
             args = ["--run", job["judge_run"], "--paper-dir", job["paper_dir"], "--submission-dir", job["submission_dir"]]
             if job.get("judge_category"):
                 args += ["--category", job["judge_category"]]
             if job.get("limit"):
                 args += ["--limit", str(job["limit"])]
+            if MULTI_RUN_JUDGE:
+                args += ["--global-queue"]
+                if job.get("mock"):
+                    args += ["--mock"]
             k8s.create_job("task-generator", gen_job(job), args)
-            busy["judge"] = True
+            busy["judge"] = int(busy["judge"]) + 1
             if _rejudging(job):
                 job.update(stage="judge", judge_step="gen", rejudge_started_at=time.time())
                 store.add_event(job, "고친 코드를 처음부터 다시 검증합니다")
@@ -269,7 +282,8 @@ def step(job: dict, busy: dict) -> None:
             state, detail = k8s.job_state(gen_job(job))
             if state == "succeeded" or (state == "missing" and r.exists(k(run, "total"))):
                 _save_log(job, gen_job(job), "judge-tasks.log")
-                k8s.assign_workers(run, bool(job.get("mock")))
+                if not MULTI_RUN_JUDGE:
+                    k8s.assign_workers(run, bool(job.get("mock")))
                 job["judge_step"] = "scoring"
             elif state in ("failed", "missing"):
                 _judge_fail(job, "검증 항목을 만들지 못했습니다", detail + "\n" + k8s.job_logs(gen_job(job), tail=30))
@@ -284,7 +298,7 @@ def step(job: dict, busy: dict) -> None:
             _judge_fail(job, "작업 큐가 초기화되어 검증을 이어갈 수 없습니다", "Redis의 채점 기록(AOF)이 지워졌습니다. 새 작업으로 다시 시작해 주세요.")
             return
         mock = "1" if job.get("mock") else "0"
-        if k8s.worker_run() != (run, mock):
+        if not MULTI_RUN_JUDGE and k8s.worker_run() != (run, mock):
             # bootstrap.sh를 다시 돌리거나 k8s_run.sh를 쓰면 워커의 RUN_ID가 바뀐다. 다시 맡긴다.
             log.warning("job %s: workers were reassigned elsewhere, assigning back", job["id"])
             k8s.assign_workers(run, bool(job.get("mock")))
@@ -371,8 +385,8 @@ def tick() -> None:
     gpu_jobs = gpu.active_jobs()
     busy = {"prepare": sum(1 for j in jobs if j["stage"] == "prepare"),
             "agent": sum(1 for j in jobs if j["stage"] in ("agent", "repair")),
-            # judge 워커는 run 하나씩: 코드 검증과 GPU 실행 뒤 실행·결과 검증이 서로 기다린다
-            "judge": any(j["stage"] in ("judge", "analyze") for j in jobs) or gpu.judge_busy(gpu_jobs),
+            # multi-run 모드에서는 MAX_JUDGE_JOBS개까지 동시에 검증한다
+            "judge": sum(1 for j in jobs if j["stage"] in ("judge", "analyze")) + gpu.judge_count(gpu_jobs),
             "gpu": sum(1 for j in gpu_jobs if gpu.state(j) == "running")}
     for job in jobs:
         before = (job["stage"], job["status"], job.get("judge_step"))

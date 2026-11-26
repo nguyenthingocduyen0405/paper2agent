@@ -32,6 +32,27 @@ def test_finish_and_fail_expire_redis_runs(monkeypatch):
 
 def test_step_queued_skip_agent_moves_to_judge_wait():
     job = {"id": "j3", "stage": "queued", "status": "running", "skip_agent": True, "events": []}
-    orchestrator.step(job, {"prepare": 0, "agent": 0, "judge": False, "gpu": 0})
+    orchestrator.step(job, {"prepare": 0, "agent": 0, "judge": 0, "gpu": 0})
     assert job["stage"] == "judge_wait"
     assert job["events"]
+
+
+def test_step_judge_wait_multi_run_allows_parallel_without_worker_reassign(monkeypatch):
+    created = []
+    reassigned = []
+    monkeypatch.setattr(orchestrator, "MULTI_RUN_JUDGE", True)
+    monkeypatch.setattr(orchestrator, "MAX_JUDGE_JOBS", 4)
+    monkeypatch.setattr(orchestrator.k8s, "create_job", lambda tpl, name, args: created.append((tpl, name, args)))
+    monkeypatch.setattr(orchestrator.k8s, "assign_workers", lambda *a, **kw: reassigned.append(a))
+
+    busy = {"prepare": 0, "agent": 0, "judge": 2, "gpu": 0}
+    job = {
+        "id": "j4", "stage": "judge_wait", "status": "running",
+        "judge_run": "j4", "paper_dir": "/data/p", "submission_dir": "/data/s",
+        "mock": True, "events": [],
+    }
+    orchestrator.step(job, busy)
+    assert job["stage"] == "judge" and job["judge_step"] == "gen"
+    assert busy["judge"] == 3
+    assert "--global-queue" in created[0][2] and "--mock" in created[0][2]
+    assert reassigned == []

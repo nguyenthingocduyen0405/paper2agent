@@ -138,3 +138,89 @@ def test_worker_wait_for_run_logs_once(capsys):
     worker.wait_for_run(FakeRedis(), "idle", poll_sec=0)
     lines = capsys.readouterr().out.strip().splitlines()
     assert lines == ["waiting for run 'idle' to be created"]
+
+
+def test_multi_run_enqueue_and_process_message(tmp_path: Path, monkeypatch):
+    from judge import generate_tasks
+
+    monkeypatch.setenv("MOCK_DELAY_SEC", "0")
+    paper_a = tmp_path / "paper_a"
+    sub_a = tmp_path / "sub_a"
+    paper_b = tmp_path / "paper_b"
+    sub_b = tmp_path / "sub_b"
+    for d in (paper_a, sub_a, paper_b, sub_b):
+        d.mkdir()
+    (paper_a / "paper.md").write_text("# Paper A\n", encoding="utf-8")
+    (paper_b / "paper.md").write_text("# Paper B\n", encoding="utf-8")
+
+    class FakeRedis:
+        def __init__(self):
+            self.kv = {}
+            self.hashes = {}
+            self.lists = {}
+            self.streams = {}
+            self.acked = []
+
+        def exists(self, key):
+            return 1 if key in self.kv or key in self.hashes else 0
+
+        def get(self, key):
+            return self.kv.get(key)
+
+        def set(self, key, val):
+            self.kv[key] = str(val)
+
+        def hset(self, key, name=None, value=None, mapping=None):
+            h = self.hashes.setdefault(key, {})
+            if mapping:
+                for mk, mv in mapping.items():
+                    h[mk] = str(mv)
+            elif name is not None:
+                h[name] = value
+
+        def hgetall(self, key):
+            return dict(self.hashes.get(key, {}))
+
+        def rpush(self, key, val):
+            self.lists.setdefault(key, []).append(val)
+
+        def xgroup_create(self, stream, group, id="0", mkstream=True):
+            self.streams.setdefault(stream, [])
+
+        def xadd(self, stream, fields):
+            self.streams.setdefault(stream, []).append(fields)
+
+        def xack(self, stream, group, msg_id):
+            self.acked.append((stream, msg_id))
+
+    class DummyLimiter:
+        def acquire(self, _tokens):
+            return 0.0
+
+    r = FakeRedis()
+    leaf_a = {"id": "la1", "requirements": "Req A", "task_category": "Code Development", "preceding": []}
+    leaf_b = {"id": "lb1", "requirements": "Req B", "task_category": "Code Development", "preceding": []}
+    s1 = generate_tasks.enqueue_run(r, "runA", paper_a, sub_a, [leaf_a], global_queue=True, mock=True)
+    s2 = generate_tasks.enqueue_run(r, "runB", paper_b, sub_b, [leaf_b], global_queue=True, mock=True)
+    assert s1 == common.GLOBAL_STREAM and s2 == common.GLOBAL_STREAM
+    assert len(r.streams[common.GLOBAL_STREAM]) == 2
+
+    # Process both interleaved runs on the same worker without restarting
+    import collections
+    cache = collections.OrderedDict()
+    for idx, fields in enumerate(r.streams[common.GLOBAL_STREAM]):
+        worker.process_message(r, common.GLOBAL_STREAM, "w1", DummyLimiter(), f"{idx}-0", fields, False, cache=cache)
+
+    assert "la1" in r.hashes[common.k("runA", "results")]
+    assert "lb1" in r.hashes[common.k("runB", "results")]
+    assert len(r.acked) == 2
+
+    # Aborted run message is skipped & ACKed without storing a result
+    r.set(common.k("runA", "aborted"), "cancelled")
+    leaf_a2 = {"id": "la2", "requirements": "Req A2", "task_category": "Code Development", "preceding": []}
+    worker.process_message(
+        r, common.GLOBAL_STREAM, "w1", DummyLimiter(), "9-0",
+        {"run": "runA", "leaf_id": "la2", "leaf": json.dumps(leaf_a2)}, False, cache=cache,
+    )
+    assert "la2" not in r.hashes[common.k("runA", "results")]
+    assert (common.GLOBAL_STREAM, "9-0") in r.acked

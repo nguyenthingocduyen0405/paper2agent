@@ -128,8 +128,12 @@ def active_jobs() -> list[dict]:
     return [j for j in jobs if j and is_active(j)]
 
 
+def judge_count(jobs: list[dict] | None = None) -> int:
+    return sum(1 for j in (jobs if jobs is not None else active_jobs()) if state(j) in ("judging", "analyze"))
+
+
 def judge_busy(jobs: list[dict] | None = None) -> bool:
-    return any(state(j) in ("judging", "analyze") for j in (jobs if jobs is not None else active_jobs()))
+    return judge_count(jobs) > 0
 
 
 def _end(job: dict, status: str, error: str) -> None:
@@ -206,24 +210,32 @@ def step(job: dict, busy: dict) -> None:
                  + "\n" + k8s.job_logs(g["k8s_job"], tail=30))
 
     elif st == "judge_wait":
-        if busy["judge"]:
+        multi = os.environ.get("MULTI_RUN_JUDGE", "1") == "1"
+        limit = int(os.environ.get("MAX_JUDGE_JOBS", "4")) if multi else 1
+        if int(busy["judge"]) >= limit:
             return
         judged = g["result"]["judged_dir"]
         args = ["--run", g["exec_run"], "--paper-dir", job["paper_dir"], "--submission-dir", judged]
         for cat in EXEC_CATEGORIES:
             args += ["--category", cat]
+        if multi:
+            args += ["--global-queue"]
+            if job.get("mock"):
+                args += ["--mock"]
         k8s.create_job("task-generator", k8s.job_name("gen", g["exec_run"]), args)
         g.update(status="judging", judge_step="gen", judge_started_at=time.time())
-        busy["judge"] = True
+        busy["judge"] = int(busy["judge"]) + 1
         store.add_event(job, "실행 기록으로 실행·결과 항목 검증을 시작했습니다")
 
     elif st == "judging":
+        multi = os.environ.get("MULTI_RUN_JUDGE", "1") == "1"
         r = redis()
         run = g["exec_run"]
         if g.get("judge_step") == "gen":
             kstate, detail = k8s.job_state(k8s.job_name("gen", run))
             if kstate == "succeeded" or (kstate == "missing" and r.exists(k(run, "total"))):
-                k8s.assign_workers(run, bool(job.get("mock")))
+                if not multi:
+                    k8s.assign_workers(run, bool(job.get("mock")))
                 g["judge_step"] = "scoring"
             elif kstate in ("failed", "missing"):
                 _end(job, "done", "실행·결과 항목을 검증하지 못했습니다(검증 항목 생성 실패).")
@@ -236,7 +248,7 @@ def step(job: dict, busy: dict) -> None:
             _end(job, "done", "작업 큐가 초기화되어 실행·결과 항목 검증을 이어갈 수 없습니다.")
             return
         mock = "1" if job.get("mock") else "0"
-        if k8s.worker_run() != (run, mock):
+        if not multi and k8s.worker_run() != (run, mock):
             k8s.assign_workers(run, bool(job.get("mock")))
         done = r.hlen(k(run, "results"))
         if done >= int(total):
