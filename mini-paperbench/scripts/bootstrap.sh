@@ -159,7 +159,11 @@ fi
 $KUBECTL -n paperbench rollout status deployment/redis --timeout=120s
 $KUBECTL -n paperbench rollout status deployment/judge-worker --timeout=120s
 $KUBECTL -n paperbench rollout status deployment/web --timeout=120s
-[ -n "$PUBLIC_HOST" ] && { $KUBECTL -n paperbench rollout status deployment/caddy --timeout=120s || true; }
+if [ -n "$PUBLIC_HOST" ]; then
+  # Caddyfile(ConfigMap)이 바뀌어도 Pod는 예전 설정으로 돈다. 다시 띄워 읽게 한다(인증서는 hostPath에 남아 있다)
+  $KUBECTL -n paperbench rollout restart deployment/caddy
+  $KUBECTL -n paperbench rollout status deployment/caddy --timeout=120s || true
+fi
 $KUBECTL -n paperbench get pods
 echo
 if grep -q '^PUBLIC_TUNNEL=1' .env 2>/dev/null; then
