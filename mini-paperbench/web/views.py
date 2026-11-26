@@ -852,7 +852,7 @@ def report_md(job: dict) -> str | None:
         if earlier:
             L += [f"GPU 실행은 이번이 {len(earlier) + 1}번째입니다. 이 보고서는 마지막 실행을 다룹니다. 앞선 실행의 결과는 다음과 같습니다.", ""]
             L += _table(["실행", "끝난 시각", "결과"], [
-                [f"{n}번째", time.strftime("%Y-%m-%d %H:%M", time.localtime(e["t"])),
+                [f"{n}번째", fmt_time(e["t"]),
                  e["text"].split(":", 1)[1].strip() if ":" in e["text"] else e["text"]]
                 for n, e in enumerate(earlier, 1)]) + [""]
         L += ["오류가 나면 PaperAgent가 실행 기록을 읽고 코드를 고쳐 다시 실행합니다. 시도마다 결과는 다음과 같습니다.", ""]
