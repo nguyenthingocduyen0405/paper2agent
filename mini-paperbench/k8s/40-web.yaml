@@ -71,7 +71,7 @@ spec:
             - name: MAX_AGENT_JOBS     # 동시에 돌리는 에이전트(코드 작성·수정) Job 수
               value: "3"
             - name: MAX_JUDGE_JOBS     # multi-run 큐에서 동시에 검증하는 작업 수
-              value: "4"
+              value: "6"
             - name: MULTI_RUN_JUDGE    # 1: 공용 스트림으로 재시작 없이 동시 검증
               value: "1"
             - name: S3_BUCKET          # 비우면 S3를 쓰지 않는다

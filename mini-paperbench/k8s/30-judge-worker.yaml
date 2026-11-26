@@ -6,7 +6,7 @@ metadata:
   name: judge-worker
   namespace: paperbench
 spec:
-  replicas: 4
+  replicas: 6
   selector:
     matchLabels: {app: judge-worker}
   template:
