@@ -32,6 +32,19 @@ def test_safe_next():
     assert web_app._safe_next("") == "/"
 
 
+def test_parse_arxiv_id_and_ssrf_safety():
+    assert web_app._parse_arxiv_id("2201.02177") == "2201.02177"
+    assert web_app._parse_arxiv_id("arXiv:2201.02177v2") == "2201.02177v2"
+    assert web_app._parse_arxiv_id("https://arxiv.org/abs/2201.02177") == "2201.02177"
+    assert web_app._parse_arxiv_id("https://arxiv.org/pdf/2201.02177v1.pdf") == "2201.02177v1"
+    assert web_app._parse_arxiv_id("hep-th/9901001") == "hep-th/9901001"
+    # SSRF / arbitrary host / path traversal must be rejected
+    assert web_app._parse_arxiv_id("http://169.254.169.254/latest/meta-data/") is None
+    assert web_app._parse_arxiv_id("https://evil.com/abs/2201.02177") is None
+    assert web_app._parse_arxiv_id("https://arxiv.org/abs/../../etc/passwd") is None
+    assert web_app._parse_arxiv_id("not-an-arxiv-id") is None
+
+
 def test_middleware_and_login_flow(temp_db, monkeypatch):
     # Prevent background orchestrator loop during unit tests
     async def _noop():

@@ -61,6 +61,7 @@ def _load_run_ctx(r, run: str, cache: collections.OrderedDict) -> dict | None:
         "submission_dir": submission_dir,
         "est_tokens": (len(paper_md) + 40_000) // 4,
         "mock": meta.get("mock") == "1" or os.environ.get("MOCK_JUDGE") == "1",
+        "quick": meta.get("quick") == "1",
     }
     cache[run] = ctx
     while len(cache) > MAX_RUN_CACHE:
@@ -108,7 +109,8 @@ def process_message(r, stream: str, consumer: str, limiter: RateLimiter,
     r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "start", "t": started}))
     waited = limiter.acquire(0 if ctx["mock"] else ctx["est_tokens"])
     try:
-        out = judge_leaf(ctx["paper_md"], ctx["addendum"], ctx["submission_dir"], leaf, mock=ctx["mock"])
+        out = judge_leaf(ctx["paper_md"], ctx["addendum"], ctx["submission_dir"], leaf,
+                         mock=ctx["mock"], quick=ctx["quick"])
     except Exception as e:  # ACK하지 않는다 → CLAIM_IDLE_SEC 뒤 다른 워커(또는 자신)가 다시 가져간다
         r.incr(k(run, "failures"))
         log(f"error on {leaf_id[:8]}: {type(e).__name__}: {str(e)[:200]}")

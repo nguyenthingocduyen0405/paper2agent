@@ -76,11 +76,17 @@ def test_build_messages_reproduce_log_inclusion(tmp_path: Path):
     (tmp_path / "reproduce.log").write_text("hi\n", encoding="utf-8")
     leaf_dev = {"requirements": "Implement model", "task_category": "Code Development", "preceding": []}
     leaf_exec = {"requirements": "Run training", "task_category": "Code Execution", "preceding": []}
+    leaf_res = {"requirements": "Match Table 1", "task_category": "Result Analysis", "preceding": []}
 
     msgs_dev = judge.build_messages("# Paper", "", tmp_path, leaf_dev)
     msgs_exec = judge.build_messages("# Paper", "", tmp_path, leaf_exec)
+    msgs_exec_quick = judge.build_messages("# Paper", "", tmp_path, leaf_exec, quick=True)
+    msgs_res_quick = judge.build_messages("# Paper", "", tmp_path, leaf_res, quick=True)
     assert not any("<reproduce.log>" in m["content"] for m in msgs_dev)
     assert any("<reproduce.log>" in m["content"] for m in msgs_exec)
+    assert not any("QUICK=1" in m["content"] for m in msgs_exec)
+    assert any("QUICK=1" in m["content"] for m in msgs_exec_quick)
+    assert any("prefer 'partial'" in m["content"] for m in msgs_res_quick)
 
 
 def test_is_fatal_llm_error():

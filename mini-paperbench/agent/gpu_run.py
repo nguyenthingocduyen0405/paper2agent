@@ -15,6 +15,7 @@ API 키(JPUSHARE_API_KEY)는 이 Job에만 들어간다(Secret jpushare).
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import io
 import json
@@ -23,6 +24,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 import urllib.error
@@ -46,6 +48,7 @@ PREINSTALLED = {
 }
 CONSTRAINTS = "torch==2.14.1\ntorchvision==0.29.1\nnumpy==2.5.3\n"
 MAX_WHEELS_BYTES = 420 * 1024 * 1024        # 코드 ZIP 한도는 500 MiB
+MAX_ZIP_BYTES = 470 * 1024 * 1024           # wheel + dataset + code 합계 상한(500 MiB 미만 유지)
 MAX_CODE_FILE = 50 * 1024 * 1024
 SKIP_DIRS = {".git", "__pycache__", ".venv", "venv", "node_modules", ".ipynb_checkpoints", "wandb"}
 TERMINAL = {"SUCCEEDED", "FAILED_RUNTIME", "FAILED_ENV", "FAILED_OOM_CONFIRMED", "FAILED_OOM_SUSPECT", "TIMED_OUT",
@@ -219,13 +222,188 @@ def fetch_wheels(lines: list[str], cache_root: Path, log) -> tuple[Path | None, 
     return dest, names, failed
 
 
+# ---------------------------------------------------------------- 표준 데이터셋 오프라인 준비(MNIST / FashionMNIST / CIFAR-10)
+
+DATASET_SPECS = {
+    "mnist": {
+        "pattern": re.compile(r"\b(?:datasets\.)?MNIST\s*\("),
+        "kind": "idx_gz",
+        "subdir": "MNIST/raw",
+        "mirrors": (
+            "https://ossci-datasets.s3.amazonaws.com/mnist/",
+            "https://storage.googleapis.com/cvdf-datasets/mnist/",
+        ),
+        "files": (
+            "train-images-idx3-ubyte.gz",
+            "train-labels-idx1-ubyte.gz",
+            "t10k-images-idx3-ubyte.gz",
+            "t10k-labels-idx1-ubyte.gz",
+        ),
+    },
+    "fashion_mnist": {
+        "pattern": re.compile(r"\b(?:datasets\.)?FashionMNIST\s*\("),
+        "kind": "idx_gz",
+        "subdir": "FashionMNIST/raw",
+        "mirrors": ("http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/",),
+        "files": (
+            "train-images-idx3-ubyte.gz",
+            "train-labels-idx1-ubyte.gz",
+            "t10k-images-idx3-ubyte.gz",
+            "t10k-labels-idx1-ubyte.gz",
+        ),
+    },
+    "cifar10": {
+        "pattern": re.compile(r"\b(?:datasets\.)?CIFAR10\s*\("),
+        "kind": "tar_gz",
+        "subdir": "cifar-10-batches-py",
+        "urls": ("https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz",),
+    },
+}
+
+
+def detect_datasets(code: Path) -> list[str]:
+    """제출물 코드에서 torchvision 표준 데이터셋(MNIST, FashionMNIST, CIFAR10) 사용을 감지한다."""
+    found: list[str] = []
+    texts = []
+    for p in sorted(code.rglob("*.py")):
+        if any(part in SKIP_DIRS for part in p.relative_to(code).parts):
+            continue
+        try:
+            texts.append(p.read_text(errors="replace"))
+        except OSError:
+            continue
+    blob = "\n".join(texts)
+    for name, spec in DATASET_SPECS.items():
+        if spec["pattern"].search(blob):
+            found.append(name)
+    return found
+
+
+def _download_bytes(urls: tuple[str, ...], timeout: int = 120) -> bytes:
+    last_err: Exception | None = None
+    for url in urls:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "PaperAgent/1.0"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception as e:
+            last_err = e
+    raise RuntimeError(f"download failed ({urls}): {last_err}")
+
+
+def prepare_datasets(names: list[str], cache_root: Path, log) -> list[tuple[str, Path]]:
+    """감지된 표준 데이터셋을 VM 캐시(data/gpu_datasets/)에 한 번만 받아 두고 경로 목록을 돌려준다."""
+    ready: list[tuple[str, Path]] = []
+    if not names:
+        return ready
+    cache_root.mkdir(parents=True, exist_ok=True)
+    for name in names:
+        spec = DATASET_SPECS.get(name)
+        if not spec:
+            continue
+        dest = cache_root / name
+        marker = dest / ".ready"
+        if marker.is_file():
+            log(f"dataset {name}: cache hit")
+            ready.append((name, dest))
+            continue
+        tmp = cache_root / f".tmp-{name}-{os.getpid()}"
+        shutil.rmtree(tmp, ignore_errors=True)
+        try:
+            if spec["kind"] == "idx_gz":
+                raw_dir = tmp / spec["subdir"]
+                raw_dir.mkdir(parents=True, exist_ok=True)
+                for fname in spec["files"]:
+                    gz_data = _download_bytes(tuple(m + fname for m in spec["mirrors"]))
+                    (raw_dir / fname[:-3]).write_bytes(gzip.decompress(gz_data))
+            elif spec["kind"] == "tar_gz":
+                tmp.mkdir(parents=True, exist_ok=True)
+                tar_data = _download_bytes(spec["urls"], timeout=240)
+                with tarfile.open(fileobj=io.BytesIO(tar_data), mode="r:gz") as tf:
+                    for member in tf.getmembers():
+                        target = (tmp / member.name).resolve()
+                        if not target.is_relative_to(tmp.resolve()):
+                            continue
+                        if member.isfile():
+                            target.parent.mkdir(parents=True, exist_ok=True)
+                            src = tf.extractfile(member)
+                            if src is not None:
+                                target.write_bytes(src.read())
+            (tmp / ".ready").write_text("ok\n")
+            shutil.rmtree(dest, ignore_errors=True)
+            tmp.rename(dest)
+            size_mb = sum(p.stat().st_size for p in dest.rglob("*") if p.is_file()) / 1e6
+            log(f"dataset {name}: cached ({size_mb:.1f} MB)")
+            ready.append((name, dest))
+        except Exception as e:
+            shutil.rmtree(tmp, ignore_errors=True)
+            log(f"dataset {name}: prepare failed (skipping): {str(e)[:200]}")
+    return ready
+
+
+SITE_CUSTOMIZE_PY = r'''"""PaperAgent offline dataset hook: seeds bundled torchvision datasets into any root dir."""
+import os
+import shutil
+from pathlib import Path
+
+_DS_ROOT = os.environ.get("PAPERAGENT_DATASETS_DIR", "")
+_MAP = {
+    "MNIST": "MNIST",
+    "FashionMNIST": "FashionMNIST",
+    "CIFAR10": "cifar-10-batches-py",
+}
+
+
+def _seed(root, folder):
+    if not _DS_ROOT or not root:
+        return
+    src = Path(_DS_ROOT) / folder
+    dst = Path(str(root)) / folder
+    if src.is_dir() and not dst.exists():
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            os.symlink(src, dst)
+        except OSError:
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+
+
+def _install():
+    if not _DS_ROOT or not Path(_DS_ROOT).is_dir():
+        return
+    try:
+        from torchvision import datasets as _tvd
+    except Exception:
+        return
+    for cls_name, folder in _MAP.items():
+        cls = getattr(_tvd, cls_name, None)
+        if cls is None or getattr(cls, "_paperagent_wrapped", False):
+            continue
+        orig = cls.__init__
+
+        def _make(orig_init, folder_name):
+            def _wrapped(self, *args, **kwargs):
+                root = args[0] if args else kwargs.get("root")
+                _seed(root, folder_name)
+                return orig_init(self, *args, **kwargs)
+            return _wrapped
+
+        cls.__init__ = _make(orig, folder)
+        cls._paperagent_wrapped = True
+
+
+_install()
+'''
+
+
 RUN_SH = r"""#!/usr/bin/env bash
-# PaperAgent가 JPUShare에서 reproduce.sh를 실행하는 스크립트(자동 생성). 인터넷 없이 미리 받은 wheel로 패키지를 깐다.
+# PaperAgent가 JPUShare에서 reproduce.sh를 실행하는 스크립트(자동 생성). 인터넷 없이 미리 받은 wheel·데이터셋으로 실행한다.
 W="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$W"
 OUT="${JOB_OUTPUT_DIR:-/output}"
 mkdir -p "$OUT/files"
 export PATH="$W/.paperagent/bin:$HOME/.local/bin:$PATH"
+export PYTHONPATH="$W/.paperagent/py:${PYTHONPATH:-}"
+export PAPERAGENT_DATASETS_DIR="$W/.paperagent/datasets"
 export PIP_NO_INDEX=1 PIP_FIND_LINKS="$W/.paperagent/wheels" PIP_DISABLE_PIP_VERSION_CHECK=1
 export PIP_BREAK_SYSTEM_PACKAGES=1 PIP_USER=1
 export MPLBACKEND=Agg PYTHONUNBUFFERED=1 PAPERAGENT_GPU_RUN=1
@@ -235,6 +413,15 @@ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1 WANDB_MODE=
   nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>&1 | head -8
   python3 --version
 } 2>&1 | tee "$OUT/env.log"
+if [ -d "$W/.paperagent/datasets" ]; then
+  mkdir -p "$W/data"
+  for ds in "$W/.paperagent/datasets"/*; do
+    [ -e "$ds" ] || continue
+    base=$(basename "$ds")
+    [ -e "$W/data/$base" ] || ln -s "$ds" "$W/data/$base"
+  done
+  echo "[paperagent] offline datasets ready: $(ls "$W/.paperagent/datasets" | tr '\n' ' ')" | tee -a "$OUT/env.log"
+fi
 if compgen -G ".paperagent/wheels/*.whl" > /dev/null; then
   if python3 -m pip install --no-deps .paperagent/wheels/*.whl > "$OUT/pip.log" 2>&1; then
     echo "[paperagent] installed $(ls .paperagent/wheels/*.whl | wc -l) packages from wheels" | tee -a "$OUT/env.log"
@@ -257,7 +444,8 @@ exit $code
 """
 
 
-def pack(code: Path, wheels: Path | None, wheel_names: list[str], run_sec: int) -> bytes:
+def pack(code: Path, wheels: Path | None, wheel_names: list[str], run_sec: int,
+         datasets: list[tuple[str, Path]] | None = None) -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for p in sorted(code.rglob("*")):
@@ -272,6 +460,7 @@ def pack(code: Path, wheels: Path | None, wheel_names: list[str], run_sec: int) 
         if (code / "requirements.txt").exists():
             z.write(code / "requirements.txt", ".paperagent/requirements.original.txt")
         run_sh = RUN_SH.replace("__RUN_SEC__", str(run_sec)).replace("__RUN_MIN__", str(run_sec // 60))
+        z.writestr(".paperagent/py/sitecustomize.py", SITE_CUSTOMIZE_PY)
         for name, body in ((".paperagent/run.sh", run_sh),
                            (".paperagent/bin/pip", '#!/usr/bin/env bash\nexec python3 -m pip "$@"\n'),
                            (".paperagent/bin/pip3", '#!/usr/bin/env bash\nexec python3 -m pip "$@"\n'),
@@ -283,6 +472,16 @@ def pack(code: Path, wheels: Path | None, wheel_names: list[str], run_sec: int) 
         if wheels:
             for w in sorted(wheels.glob("*.whl")):
                 z.write(w, f".paperagent/wheels/{w.name}", compress_type=zipfile.ZIP_STORED)
+        for _ds_name, ds_dir in datasets or []:
+            if buf.tell() > MAX_ZIP_BYTES:
+                break
+            for p in sorted(ds_dir.rglob("*")):
+                if not p.is_file() or p.name == ".ready":
+                    continue
+                if buf.tell() > MAX_ZIP_BYTES:
+                    break
+                rel = p.relative_to(ds_dir).as_posix()
+                z.write(p, f".paperagent/datasets/{rel}", compress_type=zipfile.ZIP_DEFLATED)
     return buf.getvalue()
 
 
@@ -503,9 +702,11 @@ def main() -> int:
             wheels, names, failed = fetch_wheels(keep, Path("data/gpu_wheels"), log)
         except Exception as e:
             return finish("error", f"필요한 패키지를 준비하지 못했습니다: {str(e)[-300:]}", attempt_dir)
-        art = pack(code, wheels, names, run_sec)
+        bundled_ds = prepare_datasets(detect_datasets(code), Path("data/gpu_datasets"), log)
+        art = pack(code, wheels, names, run_sec, datasets=bundled_ds)
+        ds_msg = f", datasets {[d for d, _ in bundled_ds]}" if bundled_ds else ""
         log(f"attempt {n}: zip {len(art) / 1e6:.1f} MB, wheels {len(names)}, preinstalled {len(dropped)}, "
-            f"not available {failed + unsupported}")
+            f"not available {failed + unsupported}{ds_msg}")
         try:
             jid = jpu.submit(art, "bash .paperagent/run.sh", f"paperagent-{args.run_id}-{n}",
                              f"PaperAgent: run reproduce.sh of job {args.run_id} (attempt {n}) for paper reproduction",

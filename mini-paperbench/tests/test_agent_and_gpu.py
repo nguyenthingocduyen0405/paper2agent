@@ -54,3 +54,26 @@ def test_gpu_run_pack_and_shorten_log(tmp_path: Path):
     long_log = "\n".join(f"line {i}" for i in range(2000))
     short = gpu_run.shorten_log(long_log)
     assert "line 0" in short and "line 1999" in short and "lines omitted" in short
+
+
+def test_gpu_run_detect_and_pack_offline_datasets(tmp_path: Path):
+    code = tmp_path / "code"
+    (code / "src").mkdir(parents=True)
+    (code / "src" / "data.py").write_text(
+        "from torchvision import datasets\nds = datasets.MNIST('./d', download=True)\nc = datasets.CIFAR10('./d')\n",
+        encoding="utf-8",
+    )
+    (code / "requirements.txt").write_text("torch\n", encoding="utf-8")
+    (code / "reproduce.sh").write_text("#!/usr/bin/env bash\necho ok\n", encoding="utf-8")
+    assert gpu_run.detect_datasets(code) == ["mnist", "cifar10"]
+
+    ds_dir = tmp_path / "ds_mnist"
+    (ds_dir / "MNIST" / "raw").mkdir(parents=True)
+    (ds_dir / "MNIST" / "raw" / "train-images-idx3-ubyte").write_bytes(b"mnist-bytes")
+
+    blob = gpu_run.pack(code, None, [], run_sec=300, datasets=[("mnist", ds_dir)])
+    with zipfile.ZipFile(io.BytesIO(blob)) as z:
+        names = set(z.namelist())
+        assert ".paperagent/py/sitecustomize.py" in names
+        assert ".paperagent/datasets/MNIST/raw/train-images-idx3-ubyte" in names
+        assert "PAPERAGENT_DATASETS_DIR" in z.read(".paperagent/run.sh").decode()

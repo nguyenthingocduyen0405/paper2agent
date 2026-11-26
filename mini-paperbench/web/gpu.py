@@ -218,6 +218,8 @@ def step(job: dict, busy: dict) -> None:
         args = ["--run", g["exec_run"], "--paper-dir", job["paper_dir"], "--submission-dir", judged]
         for cat in EXEC_CATEGORIES:
             args += ["--category", cat]
+        if (g.get("result") or {}).get("quick"):
+            args += ["--quick"]
         if multi:
             args += ["--global-queue"]
             if job.get("mock"):

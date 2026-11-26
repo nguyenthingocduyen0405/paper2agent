@@ -127,7 +127,7 @@ def read_submission(submission_dir: Path, task_category: str) -> str:
     return "\n\n".join(parts)
 
 
-def build_messages(paper_md: str, addendum: str, submission_dir: Path, leaf: dict) -> list[dict]:
+def build_messages(paper_md: str, addendum: str, submission_dir: Path, leaf: dict, *, quick: bool = False) -> list[dict]:
     category = leaf["task_category"]
     sub = Path(submission_dir)
     reproduce_sh = (sub / "reproduce.sh").read_text() if (sub / "reproduce.sh").exists() else "(Does not exist)"
@@ -147,13 +147,26 @@ def build_messages(paper_md: str, addendum: str, submission_dir: Path, leaf: dic
     ]
     if category != "Code Development":
         messages.append({"role": "user", "content": f"Here is the `reproduce.log` provided in the submission, if any:\n<reproduce.log>\n{reproduce_log}\n</reproduce.log>"})
+    criterion_text = CRITERION_PROMPT.format(
+        preceding_criteria="".join(f" -> {r}\n" for r in leaf["preceding"]),
+        criterion=leaf["requirements"],
+        task_category=category,
+        task_category_question=TASK_CATEGORY_QUESTIONS.get(category, "Does the submission satisfy this criterion?"),
+    )
+    if quick and category == "Code Execution":
+        criterion_text += (
+            "\n\nExecution context: reproduce.sh was intentionally run in reduced-budget QUICK=1 mode "
+            "(fewer epochs/steps/seeds for smoke testing). Judge whether this step actually executed cleanly "
+            "and produced the expected logs/outputs in QUICK=1 mode, rather than requiring full-paper step counts."
+        )
+    elif quick and category == "Result Analysis":
+        criterion_text += (
+            "\n\nExecution context: reproduce.sh was run in reduced-budget QUICK=1 mode (fewer epochs/steps/seeds). "
+            "If the expected result files/metrics were generated without errors but exact paper numbers were not reached "
+            "solely due to the reduced QUICK=1 budget, explain that clearly and prefer 'partial' over 'not_met'."
+        )
     messages += [
-        {"role": "user", "content": CRITERION_PROMPT.format(
-            preceding_criteria="".join(f" -> {r}\n" for r in leaf["preceding"]),
-            criterion=leaf["requirements"],
-            task_category=category,
-            task_category_question=TASK_CATEGORY_QUESTIONS.get(category, "Does the submission satisfy this criterion?"),
-        )},
+        {"role": "user", "content": criterion_text},
         {"role": "user", "content": GRADING_PROMPT},
     ]
     return messages
@@ -187,7 +200,7 @@ def _call(client: OpenAI, messages: list[dict]):
     )
 
 
-def judge_leaf(paper_md: str, addendum: str, submission_dir: Path, leaf: dict, *, mock: bool | None = None) -> dict:
+def judge_leaf(paper_md: str, addendum: str, submission_dir: Path, leaf: dict, *, mock: bool | None = None, quick: bool = False) -> dict:
     """리프 1개 채점. {"score", "verdict", "summary", "reason"}에 측정용 "usage", "parse_retries"를 덧붙여 돌려준다.
 
     MOCK_JUDGE=1 또는 mock=True이면 LLM을 부르지 않고 MOCK_DELAY_SEC 기다린 뒤 무작위 판정을 돌려준다.
@@ -200,7 +213,7 @@ def judge_leaf(paper_md: str, addendum: str, submission_dir: Path, leaf: dict, *
         return {"score": int(verdict == "met"), "verdict": verdict, "summary": "모의 채점", "reason": "mock",
                 "usage": usage, "parse_retries": 0}
     client = _client()
-    messages = build_messages(paper_md, addendum, submission_dir, leaf)
+    messages = build_messages(paper_md, addendum, submission_dir, leaf, quick=quick)
     usage = {"input_tokens": 0, "output_tokens": 0, "cached_tokens": 0, "calls": 0}
     last_error = None
     for attempt in range(1 + MAX_PARSE_RETRIES):

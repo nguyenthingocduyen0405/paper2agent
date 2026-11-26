@@ -13,8 +13,11 @@ import contextlib
 import json
 import logging
 import os
+import re
 import shutil
 import time
+import urllib.error
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import quote, urlsplit
@@ -392,6 +395,52 @@ def new_job_form(request: Request):
     return _new_form(request)
 
 
+_ARXIV_ID_RE = re.compile(r"^(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?/\d{7})(?:v\d+)?$")
+
+
+def _parse_arxiv_id(raw: str) -> str | None:
+    """arXiv ID 또는 URL(abs/pdf/html)에서 정규 ID만 뽑는다(SSRF 방지를 위해 허용된 형식만 받는다)."""
+    s = (raw or "").strip()
+    if not s:
+        return None
+    if s.lower().startswith("arxiv:"):
+        s = s[6:].strip()
+    if s.startswith(("http://", "https://")):
+        u = urlsplit(s)
+        if u.hostname not in ("arxiv.org", "www.arxiv.org", "export.arxiv.org"):
+            return None
+        path = u.path.strip("/")
+        for prefix in ("abs/", "pdf/", "html/"):
+            if path.startswith(prefix):
+                s = path[len(prefix):]
+                break
+        else:
+            return None
+        if s.endswith(".pdf"):
+            s = s[:-4]
+    return s if _ARXIV_ID_RE.fullmatch(s) else None
+
+
+def _fetch_arxiv_pdf(arxiv_id: str) -> tuple[bytes, str]:
+    """arXiv 공식 PDF 엔드포인트에서만 PDF를 내려받는다(최대 20MB)."""
+    url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
+    req = urllib.request.Request(url, headers={"User-Agent": "PaperAgent/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = r.read(MAX_UPLOAD + 1)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            raise ValueError(f"arXiv 논문({arxiv_id})을 찾을 수 없습니다.") from None
+        raise ValueError(f"arXiv에서 PDF를 내려받지 못했습니다(HTTP {e.code}).") from None
+    except (urllib.error.URLError, TimeoutError) as e:
+        raise ValueError(f"arXiv에 연결하지 못했습니다: {e}") from None
+    if len(data) > MAX_UPLOAD:
+        raise ValueError("arXiv PDF 파일이 너무 큽니다(20MB까지).")
+    if b"%PDF-" not in data[:1024]:
+        raise ValueError("arXiv에서 올바른 PDF 파일을 받지 못했습니다.")
+    return data, f"arxiv_{arxiv_id.replace('/', '_')}.pdf"
+
+
 async def _read_upload(f: UploadFile | None) -> bytes | None:
     if f is None or not f.filename:
         return None
@@ -405,6 +454,7 @@ async def _read_upload(f: UploadFile | None) -> bytes | None:
 async def create_job(
     request: Request,
     library_key: str = Form(""),
+    arxiv_url: str = Form(""),
     paper_file: UploadFile | None = File(None),
     rubric_file: UploadFile | None = File(None),
     addendum_file: UploadFile | None = File(None),
@@ -413,14 +463,15 @@ async def create_job(
     skip_submission: str = Form(""),
     new_rubric: str = Form(""),
 ):
-    # 사용자는 논문만 올린다. 예제 논문(실험용 설정)을 고르면 그것을 쓴다.
+    # 사용자는 논문 파일 또는 arXiv 링크/ID를 올린다. 예제 논문(실험용 설정)을 고르면 그것을 쓴다.
     # rubric_file, addendum_file은 화면에는 없고 API로 시험할 때만 쓴다(없으면 채점 기준을 자동으로 설계한다).
     # 같은 논문(파일 내용이 같으면)을 다시 올리면 전에 설계한 채점 기준을 다시 쓴다. 그래야 결과를 비교할 수 있다.
     user = _user(request)
     admin = user["role"] == "admin"
+    arxiv_url = arxiv_url.strip()
     source = "library" if library_key else "upload"
-    form = {"library_key": library_key, "limit": limit, "mock": mock, "skip_submission": skip_submission,
-            "new_rubric": new_rubric}
+    form = {"library_key": library_key, "arxiv_url": arxiv_url, "limit": limit, "mock": mock,
+            "skip_submission": skip_submission, "new_rubric": new_rubric}
     errors = []
     if not admin and (library_key or limit.strip() or mock or skip_submission or new_rubric):
         errors.append("실험용 설정은 관리자만 쓸 수 있습니다.")
@@ -429,8 +480,9 @@ async def create_job(
         errors.append("검증 항목 수는 1 이상의 숫자로 적어 주세요.")
     if skip_submission and skip_submission not in {s["dir"] for s in store.submissions()}:
         errors.append("고른 기존 제출물을 찾을 수 없습니다.")
-    if library_key and paper_file is not None and paper_file.filename:
-        errors.append("예제 논문을 고르면 파일을 올리지 않습니다. 둘 중 하나만 골라 주세요.")
+    has_file = paper_file is not None and bool(paper_file.filename)
+    if sum(bool(x) for x in (library_key, has_file, arxiv_url)) > 1:
+        errors.append("논문 파일, arXiv 주소, 예제 논문 가운데 하나만 골라 주세요.")
     quota = _quota(user)
     if quota and quota["left"] <= 0:
         errors.append(f"오늘 만들 수 있는 작업 {quota['limit']}개를 모두 썼습니다. 내일 다시 시도하거나 관리자에게 문의해 주세요.")
@@ -451,11 +503,20 @@ async def create_job(
             addendum = await _read_upload(addendum_file)
         except ValueError as e:
             return _new_form(request, [str(e)], form, 400)
+        paper_filename = paper_file.filename if paper_file and paper_file.filename else ""
+        if paper is None and arxiv_url:
+            aid = _parse_arxiv_id(arxiv_url)
+            if not aid:
+                return _new_form(request, ["올바른 arXiv ID 또는 주소가 아닙니다(예: 2201.02177 또는 https://arxiv.org/abs/2201.02177)."], form, 400)
+            try:
+                paper, paper_filename = await asyncio.to_thread(_fetch_arxiv_pdf, aid)
+            except ValueError as e:
+                return _new_form(request, [str(e)], form, 400)
         is_pdf = False
         if paper is None:
-            errors.append("논문 파일을 올려 주세요.")
+            errors.append("논문 파일을 올리거나 arXiv 주소를 입력해 주세요.")
         else:
-            name = paper_file.filename.lower()
+            name = paper_filename.lower()
             is_pdf = b"%PDF-" in paper[:1024]  # PDF 규격은 앞쪽 1KB 안에 머리말이 있으면 된다
             if name.endswith(".pdf") and not is_pdf:
                 errors.append("PDF 파일을 읽을 수 없습니다. 빈 파일이거나 손상된 파일입니다.")
@@ -490,15 +551,16 @@ async def create_job(
                 shutil.rmtree(store.job_dir(job_id), ignore_errors=True)
                 return _new_form(request, ["rubric.json을 읽을 수 없습니다. PaperBench 채점 기준 형식인지 확인해 주세요. "
                                            "채점 기준이 없으면 비워 두세요. 자동으로 만듭니다."], form, 400)
-        title = Path(paper_file.filename).stem if is_pdf else store.paper_title(paper_dir / "paper.md")
+        title = Path(paper_filename).stem if is_pdf else store.paper_title(paper_dir / "paper.md")
         fp = records.fingerprint(paper)
-        paper_id = records.register_paper(fp, None if is_pdf else title, paper_file.filename,
+        paper_id = records.register_paper(fp, None if is_pdf else title, paper_filename,
                                           "pdf" if is_pdf else "md", user["id"])
         known = records.get_paper(paper_id)
         if known is not None and known.title:
             title = known.title
+        source_label = f"arXiv ({_parse_arxiv_id(arxiv_url)})" if arxiv_url else ("직접 올린 논문" + (" (PDF)" if is_pdf else ""))
         job.update(paper_dir=paper_dir.as_posix(), title=title, paper_fingerprint=fp, paper_id=paper_id,
-                   source_label="직접 올린 논문" + (" (PDF)" if is_pdf else ""))
+                   source_label=source_label)
         reuse = None
         if rubric is not None:
             job.update(rubric_id=records.register_rubric(paper_id, paper_dir / "rubric.json", "given", job_id),

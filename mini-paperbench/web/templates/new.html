@@ -22,6 +22,12 @@
     </label>
     <p class="hint">따로 준비할 파일은 없습니다. 스캔한 PDF(글자가 이미지인 파일)는 읽지 못합니다.</p>
 
+    <div class="field mt">
+      <label class="title" for="arxiv_url">또는 arXiv 주소 / ID로 바로 가져오기</label>
+      <input type="text" name="arxiv_url" id="arxiv_url" value="{{ form.arxiv_url or '' }}" placeholder="예: 2201.02177 또는 https://arxiv.org/abs/2201.02177">
+      <p class="hint">파일을 직접 올리지 않고 arXiv 논문 번호나 링크만 넣으면 PDF를 자동으로 가져옵니다.</p>
+    </div>
+
     {% if quota %}
     <p class="hint">오늘 {{ quota.used }}개를 만들었습니다. {{ quota.left }}개를 더 만들 수 있습니다(하루 {{ quota.limit }}개).</p>
     {% endif %}

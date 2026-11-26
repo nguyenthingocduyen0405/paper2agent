@@ -484,9 +484,13 @@ def gpu_view(job: dict) -> dict | None:
     if score and path.exists():
         rows = _scored_rows(job, path)
         part = sum(1 for x in rows if x["verdict"] == "partial")
+        ce = [x for x in rows if not x["error"] and x.get("category") == "Code Execution"]
+        ra = [x for x in rows if not x["error"] and x.get("category") == "Result Analysis"]
         view["exec"] = {"rows": rows, **score, "failed": score["judged"] - score["passed"],
                         "partial": part, "unmet": score["judged"] - score["passed"] - part,
-                        "pct": round(100 * score["passed"] / score["judged"]) if score["judged"] else 0}
+                        "pct": round(100 * score["passed"] / score["judged"]) if score["judged"] else 0,
+                        "exec_passed": sum(x["score"] for x in ce), "exec_judged": len(ce),
+                        "res_passed": sum(x["score"] for x in ra), "res_judged": len(ra)}
     return view
 
 

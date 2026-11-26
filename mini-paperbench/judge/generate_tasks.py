@@ -14,7 +14,7 @@ from judge.rubric import load_leaves
 
 
 def enqueue_run(r, run: str, paper_dir: Path, submission_dir: Path, leaves: list[dict],
-                *, global_queue: bool = False, mock: bool = False) -> str:
+                *, global_queue: bool = False, mock: bool = False, quick: bool = False) -> str:
     if r.exists(k(run, "total")):
         raise SystemExit(f"run '{run}' already exists; use a new --run name")
     stream = GLOBAL_STREAM if global_queue else k(run, "tasks")
@@ -27,6 +27,7 @@ def enqueue_run(r, run: str, paper_dir: Path, submission_dir: Path, leaves: list
         "paper_dir": str(Path(paper_dir).resolve()),
         "submission_dir": str(Path(submission_dir).resolve()),
         "mock": "1" if mock else "0",
+        "quick": "1" if quick else "0",
         "created_at": time.time(),
     })
     r.set(k(run, "total"), len(leaves))
@@ -47,6 +48,7 @@ def main() -> None:
     ap.add_argument("--category", action="append", default=None, help="여러 번 줄 수 있다")
     ap.add_argument("--global-queue", action="store_true", help="공용 multi-run 스트림(pb:global:tasks)에 넣는다")
     ap.add_argument("--mock", action="store_true", help="이 run만 모의 채점(MOCK_JUDGE)으로 표시한다")
+    ap.add_argument("--quick", action="store_true", help="GPU 실행이 QUICK=1 모드로 돌았음을 judge에 알린다")
     args = ap.parse_args()
 
     r = connect()
@@ -55,7 +57,7 @@ def main() -> None:
         leaves = [l for l in leaves if l["task_category"] in args.category]
     leaves = leaves[: args.limit]
     stream = enqueue_run(r, args.run, Path(args.paper_dir), Path(args.submission_dir), leaves,
-                         global_queue=args.global_queue, mock=args.mock)
+                         global_queue=args.global_queue, mock=args.mock, quick=args.quick)
     print(f"run={args.run} tasks={len(leaves)} stream={stream}")
 
 
