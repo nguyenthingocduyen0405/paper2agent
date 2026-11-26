@@ -14,6 +14,17 @@ spec:
     metadata:
       labels: {app: claude-bridge}
     spec:
+      # LLM 전용 노드(paperagent/role=llm, taint paperagent/dedicated=llm:NoSchedule)가 있으면 거기서 돈다.
+      # 그 노드가 없거나 내려가 있으면 기본 노드에서 돈다(preferred라서 서비스가 멈추지 않는다).
+      tolerations:
+        - {key: paperagent/dedicated, operator: Equal, value: llm, effect: NoSchedule}
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - {key: paperagent/role, operator: In, values: [llm]}
       containers:
         - name: bridge
           image: paperbench/claude-bridge:__TAG__
@@ -27,8 +38,8 @@ spec:
               valueFrom: {secretKeyRef: {name: llm-keys, key: LLM_API_KEY}}
             - name: CLAUDE_MODEL          # 요청의 model이 sonnet/opus/haiku/claude-*가 아니면 이 값
               value: "sonnet"
-            - name: BRIDGE_MAX_CONCURRENCY   # 동시에 띄우는 Claude Code 프로세스 수(하나에 약 200MB)
-              value: "6"
+            - name: BRIDGE_MAX_CONCURRENCY   # 동시에 띄우는 Claude Code 프로세스 수(하나에 약 200MB).
+              value: "8"                      # judge-worker 6개가 다 써도 에이전트·준비 단계용 2개가 남는다
             - name: BRIDGE_TIMEOUT_SECONDS
               value: "600"
           readinessProbe:
@@ -36,7 +47,7 @@ spec:
             periodSeconds: 10
           resources:
             requests: {cpu: 200m, memory: 512Mi}
-            limits: {memory: 3584Mi}
+            limits: {memory: 6Gi}
 ---
 apiVersion: v1
 kind: Service

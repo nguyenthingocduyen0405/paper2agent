@@ -57,6 +57,21 @@ for img in $IMAGES; do
   sudo docker save "paperbench/$img:$TAG" | sudo k3s ctr images import -
 done
 
+# 3b. LLM 전용 노드(.env의 LLM_NODE=사설 IP)가 있으면 claude-bridge 이미지를 그 노드에도 넣는다.
+#     레지스트리 없이 노드 사이 SSH(키 ~/.ssh/paperagent_nodes)로 보낸다. 노드가 꺼져 있으면 건너뛴다
+#     (bridge는 그때 이 노드에서 돈다).
+LLM_NODE=$(grep -E '^LLM_NODE=' .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r"' || true)
+if [ "$USE_BRIDGE" = 1 ] && [ -n "$LLM_NODE" ]; then
+  NODE_SSH="ssh -i $HOME/.ssh/paperagent_nodes -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new ubuntu@$LLM_NODE"
+  if ! $NODE_SSH true 2>/dev/null; then
+    echo "skip: LLM node $LLM_NODE unreachable"
+  elif $NODE_SSH "sudo k3s ctr images ls -q" | grep -q "paperbench/claude-bridge:$TAG"; then
+    echo "skip: claude-bridge:$TAG already on $LLM_NODE"
+  else
+    sudo docker save "paperbench/claude-bridge:$TAG" | $NODE_SSH "sudo k3s ctr images import -"
+  fi
+fi
+
 # 4. /data: 논문·JudgeEval·합성 논문을 받아서 hostPath(/data)에 둔다
 step "4/6 /data"
 if [ ! -f /data/papers/semantic-self-consistency/paper.md ] || [ ! -d /data/synthetic ]; then
