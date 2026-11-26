@@ -630,9 +630,45 @@ def _repair_note(x: dict) -> str:
     return ""
 
 
-def _item_lines(x: dict, head: str) -> list[str]:
-    return ([f"{head} {x['n']}. {_mark(x)}", "", f"기준: {x['requirements']}", ""]
-            + _evidence_lines(x.get("evidence")) + [f"판단 이유: {x['reason'] or x['error']}", ""])
+def _kind(x: dict) -> str:
+    return CATEGORY_LABEL.get(x.get("category"), (x.get("category") or "-", ""))[0]
+
+
+def _evidence_cell(ev: dict | None) -> str:
+    if not ev:
+        return "-"
+    note = "" if ev["found"] else " (논문 원문에서 같은 문장을 찾지 못했습니다. 직접 확인해 주세요)"
+    return f"“{ev['text']}”{note}"
+
+
+def _table(head: list[str], rows: list[list], align: list[str] | None = None) -> list[str]:
+    """마크다운 표. 칸 안의 줄바꿈과 |는 _cell이 정리한다."""
+    return (["| " + " | ".join(head) + " |", "|" + "|".join(align or ["---"] * len(head)) + "|"]
+            + ["| " + " | ".join(_cell(c) for c in r) + " |" for r in rows])
+
+
+def _verdict_table(items: list[dict], area_no: dict | None = None, kind_col: bool = False) -> list[str]:
+    """판정표: 기준마다 충족, 부분, 미충족 칸 가운데 하나에 ✓, 판단 근거는 한 줄 요약."""
+    head = ["#"] + (["영역"] if area_no is not None else []) + (["종류"] if kind_col else []) + \
+        ["평가 기준", "충족", "부분", "미충족", "판단 근거"]
+    align = ["---"] * (len(head) - 4) + [":-:", ":-:", ":-:", "---"]
+    rows = []
+    for x in items:
+        why = f"검증 오류: {_short(x['error'], 100)}" if x["error"] else (x["summary"] or _short(x["reason"], 120))
+        rows.append([x["n"]] + ([area_no.get(x["id"], "")] if area_no is not None else []) + ([_kind(x)] if kind_col else [])
+                    + [_short(x["requirements"], 110)] + ["✓" if x["verdict"] == v else "" for v in ("met", "partial", "not_met")]
+                    + [_repair_note(x) + why])
+    return _table(head, rows, align)
+
+
+def _detail_table(items: list[dict], kind_col: bool = False, has_ev: bool | None = None) -> list[str]:
+    """부록의 항목별 자세한 결과: 판정, 평가 기준 전문, (논문 근거), 판단 이유 전문.
+    has_ev: 논문 근거 칸을 둘지. 영역마다 표가 나뉘어도 칸이 같도록 부르는 쪽이 작업 전체로 정한다."""
+    has_ev = any(x.get("evidence") for x in items) if has_ev is None else has_ev
+    head = ["#"] + (["종류"] if kind_col else []) + ["판정", "평가 기준"] + (["논문 근거"] if has_ev else []) + ["판단 이유"]
+    rows = [[x["n"]] + ([_kind(x)] if kind_col else []) + [_mark(x), x["requirements"]]
+            + ([_evidence_cell(x.get("evidence"))] if has_ev else []) + [x["reason"] or x["error"] or ""] for x in items]
+    return _table(head, rows)
 
 
 def report_md(job: dict) -> str | None:
@@ -768,22 +804,17 @@ def report_md(job: dict) -> str | None:
           "코드만으로는 충족 여부를 확정하기 어려운 경우입니다. 부분은 충족으로 세지 않습니다. 판단 이유 전체는 부록 A에 있습니다."]
     if not res["graded3"]:
         L.append("이 작업은 3단계 판정을 쓰기 전에 검증해서 충족과 미충족으로만 판정했습니다(부분 칸이 비어 있음).")
-    L += ["", "| # | 영역 | 평가 기준 | 충족 | 부분 | 미충족 | 판단 근거 |", "|---|---|---|:-:|:-:|:-:|---|"]
-    for x in rows:
-        marks = " | ".join("✓" if x["verdict"] == v else "" for v in ("met", "partial", "not_met"))
-        why = f"검증 오류: {_short(x['error'], 100)}" if x["error"] else (x["summary"] or _short(x["reason"], 120))
-        L.append(f"| {x['n']} | {area_no.get(x['id'], '')} | {_cell(_short(x['requirements'], 110))} | {marks} | "
-                 f"{_cell(_repair_note(x) + why)} |")
+    L += [""] + _verdict_table(rows, area_no)
     L += ["", "### 4.3 충족하지 못한 항목", ""]
     if failed_rows:
         L += ["부분 충족과 미충족 항목입니다. 번호는 4.2 표와 부록 A의 번호와 같습니다.", ""]
-        for x in failed_rows:
-            L += [f"- {x['n']}. [{x['v_label']}] {_short(x['requirements'], 200)}", f"  - 판단 이유: {_short(x['reason'], 400)}"]
+        L += _table(["#", "판정", "평가 기준", "판단 이유"],
+                    [[x["n"], x["v_label"], _short(x["requirements"], 200), _short(x["reason"], 400)] for x in failed_rows])
     else:
         L.append("충족하지 못한 항목이 없습니다.")
     if error_rows:
-        L += ["", "검증하지 못한 항목:", ""]
-        L += [f"- {x['n']}. {_short(x['requirements'], 200)} (오류: {_short(x['error'], 200)})" for x in error_rows]
+        L += ["", "검증하지 못한 항목입니다.", ""]
+        L += _table(["#", "평가 기준", "오류"], [[x["n"], _short(x["requirements"], 200), _short(x["error"], 200)] for x in error_rows])
     L.append("")
     sub = 4
     if rv and rv["state"] != "nothing":
@@ -792,39 +823,40 @@ def report_md(job: dict) -> str | None:
         if rv["state"] == "done":
             b = rv["before"]
             L += [f"첫 검증에서 미충족이던 {rv['failed_before']}개 항목과 검증기가 적은 이유를 근거로 코드를 고치고, "
-                  "모든 항목을 처음부터 다시 검증했습니다.", "",
-                  f"- 충족: 고치기 전 {b['passed']}/{b['judged']}, 고친 뒤 {rv['after']['passed']}/{rv['after']['judged']}",
-                  f"- 고쳐서 충족: {rv.get('fixed', 0)}개, 고친 뒤에도 미충족: {rv.get('still', 0)}개, "
-                  f"고친 뒤 미충족으로 바뀐 항목: {rv.get('broke', 0)}개",
-                  f"- 고친 파일: {', '.join(rv['changed']) or '없음'} (바뀐 내용은 PAPERAGENT_REPAIR.diff)"]
-            L += [f"  - `{f['path']}`: {f['change']}" for f in rv["fixes"]]
+                  "모든 항목을 처음부터 다시 검증했습니다.", ""]
+            L += _table(["구분", "결과"], [
+                ["충족", f"고치기 전 {b['passed']}/{b['judged']}, 고친 뒤 {rv['after']['passed']}/{rv['after']['judged']}"],
+                ["고쳐서 충족", f"{rv.get('fixed', 0)}개"],
+                ["고친 뒤에도 충족하지 못함", f"{rv.get('still', 0)}개"],
+                ["고치기 전에는 충족", f"{rv.get('broke', 0)}개"]])
+            if rv["fixes"]:
+                L += ["", "고친 파일입니다. 바뀐 내용 전체는 PAPERAGENT_REPAIR.diff에 있습니다.", ""]
+                L += _table(["파일", "바뀐 내용"], [[f"`{f['path']}`", f["change"]] for f in rv["fixes"]])
         elif rv["state"] == "undone":
-            L.append(f"- {rv['error']}")
+            L.append(rv["error"])
         if rv["not_fixable"]:
-            L.append("- 코드를 고쳐서는 충족할 수 없다고 본 항목:")
-            L += [f"  - {x['requirement']} (이유: {x['why']})" for x in rv["not_fixable"]]
+            L += ["", "코드를 고쳐서는 충족할 수 없다고 본 항목입니다.", ""]
+            L += _table(["평가 기준", "이유"], [[x["requirement"], x["why"]] for x in rv["not_fixable"]])
         L.append("")
     if ran:
         L += [f"### 4.{sub} GPU 실행", "",
-              "오류가 나면 PaperAgent가 실행 기록을 읽고 코드를 고쳐 다시 실행했습니다.", "",
-              f"- 결과: {gv['final']}. {gv.get('message') or ''}".rstrip()]
-        for a in gv["attempts"]:
-            line = f"- {a['n']}번째 실행: {a['state_label']}"
-            if a.get("run"):
-                line += f", {a['run']} 동안 실행"
-            L.append(line)
-            if a.get("fix"):
-                L.append(f"  - 고친 내용: {a['fix']['diagnosis']} (파일: {', '.join(a['fix']['files']) or '없음'})")
+              f"결과: {gv['final']}. {gv.get('message') or ''}".rstrip(),
+              "", "오류가 나면 PaperAgent가 실행 기록을 읽고 코드를 고쳐 다시 실행합니다. 시도마다 결과는 다음과 같습니다.", ""]
+        L += _table(["시도", "결과", "실행 시간", "고친 내용"], [
+            [f"{a['n']}번째", a["state_label"] + (" (시간 제한)" if a.get("time_limit") else ""), a.get("run") or "-",
+             (f"{a['fix']['diagnosis']} (파일: {', '.join(a['fix']['files']) or '없음'})" if a.get("fix") else "-")]
+            for a in gv["attempts"]])
+        L.append("")
         if gv.get("changed_files"):
-            L.append(f"- 실행하면서 고친 파일은 PAPERAGENT_GPU_RUN/fixed_files/에 있습니다: {', '.join(gv['changed_files'])}")
-        L += ["- 실행 기록은 PAPERAGENT_GPU_RUN/reproduce.log, 실행 중 생긴 파일은 PAPERAGENT_GPU_RUN/outputs/에 있습니다.", ""]
+            L.append(f"실행하면서 고친 파일은 PAPERAGENT_GPU_RUN/fixed_files/에 있습니다: {', '.join(gv['changed_files'])}. ")
+        L += ["실행 기록은 PAPERAGENT_GPU_RUN/reproduce.log, 실행 중 생긴 파일은 PAPERAGENT_GPU_RUN/outputs/에 있습니다.", ""]
         if ex:
-            L += ["#### 실행과 결과 확인 항목 검증", "",
+            L += ["#### 실행과 결과 확인 항목 판정표", "",
                   f"실행 기록과 결과 파일을 보고 실행(Code Execution)과 결과 확인(Result Analysis) 항목 {ex['judged']}개를 검증했습니다. "
                   f"{ex['passed']}개 충족({ex['pct']}%)"
-                  + (f", {_gap(ex['partial'], ex['unmet'], True)}." if ex["partial"] else "."), ""]
-            for x in ex["rows"]:
-                L += _item_lines(x, "#####")
+                  + (f", {_gap(ex['partial'], ex['unmet'], True)}." if ex["partial"] else ".")
+                  + " 판단 이유 전체는 부록 B에 있습니다.", ""]
+            L += _verdict_table(ex["rows"], kind_col=True) + [""]
 
     # 5. 논의: 남은 확인 거리와 한계
     L += ["## 5. 논의", ""]
@@ -833,9 +865,9 @@ def report_md(job: dict) -> str | None:
         L += ["### 5.1 직접 실행해서 확인할 항목", "",
               "코드를 실행한 뒤 확인할 항목입니다. 코드만 읽는 자동 검증에는 넣지 않았습니다."
               + (" GPU 실행 기록으로 검증한 결과는 4장에 있지만, 논문 수치와의 비교는 직접 확인해 주세요." if ex else ""), ""]
-        L += [f"- [{i['cat'][0]}] {i['requirement']}" for i in later[:100]]
+        L += _table(["#", "종류", "확인할 내용"], [[n, i["cat"][0], i["requirement"]] for n, i in enumerate(later[:100], 1)])
         if len(later) > 100:
-            L.append(f"- 외 {len(later) - 100}개 (PAPERAGENT_RUBRIC.json 참고)")
+            L += ["", f"이 밖에 {len(later) - 100}개 항목이 PAPERAGENT_RUBRIC.json에 있습니다."]
         L += ["", "### 5.2 한계", ""]
     else:
         L += ["### 5.1 한계", ""]
@@ -849,19 +881,16 @@ def report_md(job: dict) -> str | None:
         L.append("- 채점 기준도 LLM이 설계했으므로 논문의 모든 실험과 세부 설정을 담지 못했을 수 있습니다.")
     L += ["- 검증도 LLM이 하므로 틀릴 수 있습니다. 그래서 항목마다 판단 이유를 함께 적었습니다.", ""]
 
-    # 부록 A: 모든 항목의 기준, 논문 근거, 판단 이유
+    # 부록 A: 모든 항목의 기준, 논문 근거, 판단 이유. 영역마다 표를 나누되 칸은 모두 같다
+    any_ev = any(x.get("evidence") for x in rows)
     L += ["## 부록 A. 항목별 검증 결과", "", "채점 기준 순서대로 모든 검증 항목의 결과입니다.", ""]
     for a in areas:
         if not a["rows"]:
             continue
-        L += [f"### 영역 {a['n']}. {a['name']}", ""]
-        for x in a["rows"]:
-            L += _item_lines(x, "####")
+        L += [f"### 영역 {a['n']}. {a['name']}", ""] + _detail_table(a["rows"], has_ev=any_ev) + [""]
+    if ex:
+        L += ["## 부록 B. 실행과 결과 확인 항목 검증 결과", "",
+              "GPU 실행 기록과 결과 파일로 검증한 항목의 결과입니다. 번호는 4장의 실행과 결과 확인 항목 판정표와 같습니다.", ""]
+        L += _detail_table(ex["rows"], kind_col=True) + [""]
     return "\n".join(L)
 
-
-def _evidence_lines(ev: dict | None) -> list[str]:
-    if not ev:
-        return []
-    note = "" if ev["found"] else " (논문 원문에서 같은 문장을 찾지 못했습니다. 직접 확인해 주세요)"
-    return [f"논문 근거: “{ev['text']}”{note}", ""]
