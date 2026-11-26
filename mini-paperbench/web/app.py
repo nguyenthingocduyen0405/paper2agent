@@ -97,10 +97,24 @@ def _wait_page(status: int = 503) -> HTMLResponse:
 
 
 def _same_origin(request: Request) -> bool:
+    host = request.headers.get("host", "")
     origin = request.headers.get("origin")
-    if not origin or origin == "null":
-        return origin is None
-    return urlsplit(origin).netloc == request.headers.get("host", "")
+    if origin is not None:
+        return bool(origin) and origin != "null" and urlsplit(origin).netloc == host
+    referer = request.headers.get("referer")
+    if referer is not None:
+        return bool(referer) and urlsplit(referer).netloc == host
+    sec_fetch_site = request.headers.get("sec-fetch-site")
+    if sec_fetch_site is not None:
+        return sec_fetch_site.strip().lower() in ("same-origin", "none")
+    return True
+
+
+def _client_ip(request: Request) -> str:
+    xff = request.headers.get("x-forwarded-for", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else ""
 
 
 @app.middleware("http")
@@ -177,7 +191,7 @@ def login_form(request: Request, next: str = "/"):
 
 @app.post("/login")
 def login(request: Request, username: str = Form(""), password: str = Form(""), next: str = Form("/")):
-    user, error = auth.authenticate(username, password)
+    user, error = auth.authenticate(username, password, _client_ip(request))
     if user is None:
         return _render(request, "login.html", {"next": _safe_next(next), "error": error, "username": username}, 400)
     token = auth.new_session(user["id"])

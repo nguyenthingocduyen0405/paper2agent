@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mini-paperbench
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            mini-paperbench/requirements.txt
+            mini-paperbench/web/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r web/requirements.txt pytest httpx
+
+      - name: Syntax check
+        run: python -m compileall -q web judge agent hermes claude-bridge
+
+      - name: Run unit tests
+        run: pytest -v

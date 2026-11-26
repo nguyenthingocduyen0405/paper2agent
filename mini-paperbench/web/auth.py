@@ -28,7 +28,10 @@ DEFAULT_DAILY_LIMIT = 3
 SERVICE_USER = "service"
 _N, _R, _P = 2 ** 14, 8, 1
 LOCK_AFTER, LOCK_SEC = 5, 60
+IP_LOCK_AFTER = 15
+_MAX_TRACKED_KEYS = 4096
 _failures: dict[str, list[float]] = {}
+_ip_failures: dict[str, list[float]] = {}
 _fail_lock = threading.Lock()
 
 
@@ -117,32 +120,53 @@ def active_admins() -> int:
                             .where(db.users.c.role == "admin", db.users.c.disabled.is_(False))).scalar() or 0
 
 
-def _locked(username: str) -> bool:
+def _prune_bucket(bucket: dict[str, list[float]], key: str, now: float) -> list[float]:
+    recent = [t for t in bucket.get(key, []) if now - t < LOCK_SEC]
+    if recent:
+        bucket[key] = recent
+    else:
+        bucket.pop(key, None)
+    if len(bucket) > _MAX_TRACKED_KEYS:
+        stale = [k for k, ts in bucket.items() if not any(now - t < LOCK_SEC for t in ts)]
+        for k in stale:
+            bucket.pop(k, None)
+    return recent
+
+
+def _locked(username: str, client_ip: str = "") -> bool:
     now = time.time()
     with _fail_lock:
-        recent = [t for t in _failures.get(username, []) if now - t < LOCK_SEC]
-        _failures[username] = recent
-        return len(recent) >= LOCK_AFTER
+        if len(_prune_bucket(_failures, username, now)) >= LOCK_AFTER:
+            return True
+        if client_ip and len(_prune_bucket(_ip_failures, client_ip, now)) >= IP_LOCK_AFTER:
+            return True
+        return False
 
 
-def _note_failure(username: str) -> None:
+def _note_failure(username: str, client_ip: str = "") -> None:
+    now = time.time()
     with _fail_lock:
-        _failures.setdefault(username, []).append(time.time())
+        _prune_bucket(_failures, username, now)
+        _failures.setdefault(username, []).append(now)
+        if client_ip:
+            _prune_bucket(_ip_failures, client_ip, now)
+            _ip_failures.setdefault(client_ip, []).append(now)
 
 
-def authenticate(username: str, password: str) -> tuple[dict | None, str]:
-    """(사용자, 오류 문구). 같은 아이디로 연달아 틀리면 잠시 막는다."""
+def authenticate(username: str, password: str, client_ip: str = "") -> tuple[dict | None, str]:
+    """(사용자, 오류 문구). 같은 아이디 또는 같은 IP에서 연달아 틀리면 잠시 막는다."""
     username = (username or "").strip()
-    if _locked(username):
+    client_ip = (client_ip or "").strip()
+    if _locked(username, client_ip):
         return None, "비밀번호를 여러 번 틀렸습니다. 1분 뒤에 다시 시도해 주세요."
     with db.engine().connect() as conn:
         row = conn.execute(select(db.users).where(db.users.c.username == username)).first()
     if row is None or row.role == "service":
         verify_password(password or "", _DUMMY_HASH)
-        _note_failure(username)
+        _note_failure(username, client_ip)
         return None, "아이디 또는 비밀번호가 맞지 않습니다."
     if not verify_password(password or "", row.password_hash):
-        _note_failure(username)
+        _note_failure(username, client_ip)
         return None, "아이디 또는 비밀번호가 맞지 않습니다."
     if row.disabled:
         return None, "사용이 중지된 계정입니다. 관리자에게 문의해 주세요."

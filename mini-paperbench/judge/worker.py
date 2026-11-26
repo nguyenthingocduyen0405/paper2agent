@@ -22,117 +22,129 @@ from judge.common import (CLAIM_IDLE_SEC, GROUP, MAX_DELIVERIES, RATE_LIMIT_RPM,
 from judge.judge import is_fatal_llm_error, judge_leaf
 from judge.ratelimit import RateLimiter
 
-ap = argparse.ArgumentParser()
-ap.add_argument("--run", default=os.environ.get("RUN_ID"))
-ap.add_argument("--exit-when-done", action="store_true", help="모든 작업이 끝나면 종료")
-args = ap.parse_args()
-if not args.run:
-    ap.error("--run or RUN_ID is required")
-
-r = connect()
-run = args.run
-stream = k(run, "tasks")
-consumer = f"{socket.gethostname()}-{os.getpid()}"
-limiter = RateLimiter(r, RATE_LIMIT_RPM, RATE_LIMIT_TPM)
-
-# 작업 생성기보다 워커가 먼저 뜰 수 있다(쿠버네티스). run이 생길 때까지 기다린다.
-while not r.exists(k(run, "total")):
-    print(f"waiting for run '{run}' to be created", flush=True)
-    time.sleep(5)
-meta = r.hgetall(k(run, "meta"))
-paper_dir = Path(meta["paper_dir"])
-submission_dir = Path(meta["submission_dir"])
-paper_md = (paper_dir / "paper.md").read_text()
-addendum = "\n".join(
-    (paper_dir / f).read_text() for f in ("addendum.md", "judge.addendum.md") if (paper_dir / f).exists()
-).strip()
-est_tokens = (len(paper_md) + 40_000) // 4  # rate limiter용 대략적 입력 토큰 수(논문 + 제출물)
+def wait_for_run(r, run: str, poll_sec: float = 5.0) -> None:
+    """작업 생성기보다 워커가 먼저 뜰 수 있다(쿠버네티스). run이 생길 때까지 한 번만 알리고 기다린다."""
+    logged = False
+    while not r.exists(k(run, "total")):
+        if not logged:
+            print(f"waiting for run '{run}' to be created", flush=True)
+            logged = True
+        time.sleep(poll_sec)
 
 
-def log(msg: str) -> None:
-    print(f"[{consumer}] {msg}", flush=True)
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--run", default=os.environ.get("RUN_ID"))
+    ap.add_argument("--exit-when-done", action="store_true", help="모든 작업이 끝나면 종료")
+    args = ap.parse_args()
+    if not args.run:
+        ap.error("--run or RUN_ID is required")
 
+    r = connect()
+    run = args.run
+    stream = k(run, "tasks")
+    consumer = f"{socket.gethostname()}-{os.getpid()}"
+    limiter = RateLimiter(r, RATE_LIMIT_RPM, RATE_LIMIT_TPM)
 
-def save(leaf_id: str, result: dict) -> None:
-    r.hset(k(run, "results"), leaf_id, json.dumps(result, ensure_ascii=False))
+    wait_for_run(r, run)
+    meta = r.hgetall(k(run, "meta"))
+    paper_dir = Path(meta["paper_dir"])
+    submission_dir = Path(meta["submission_dir"])
+    paper_md = (paper_dir / "paper.md").read_text()
+    addendum = "\n".join(
+        (paper_dir / f).read_text() for f in ("addendum.md", "judge.addendum.md") if (paper_dir / f).exists()
+    ).strip()
+    est_tokens = (len(paper_md) + 40_000) // 4  # rate limiter용 대략적 입력 토큰 수(논문 + 제출물)
 
+    def log(msg: str) -> None:
+        print(f"[{consumer}] {msg}", flush=True)
 
-def process(msg_id: str, fields: dict, reclaimed: bool) -> None:
-    leaf = json.loads(fields["leaf"])
-    leaf_id = fields["leaf_id"]
-    if reclaimed:
-        r.incr(k(run, "retries"))
-        # 몇 번째 배달인지 확인해서, 계속 실패하는 메시지는 실패로 기록하고 끝낸다
-        info = r.xpending_range(stream, GROUP, min=msg_id, max=msg_id, count=1)
-        if info and info[0]["times_delivered"] > MAX_DELIVERIES:
-            save(leaf_id, {"leaf_id": leaf_id, "error": "max deliveries exceeded", "worker": consumer})
-            r.xack(stream, GROUP, msg_id)
-            log(f"gave up {leaf_id[:8]}")
+    def save(leaf_id: str, result: dict) -> None:
+        r.hset(k(run, "results"), leaf_id, json.dumps(result, ensure_ascii=False))
+
+    def process(msg_id: str, fields: dict, reclaimed: bool) -> None:
+        leaf = json.loads(fields["leaf"])
+        leaf_id = fields["leaf_id"]
+        if reclaimed:
+            r.incr(k(run, "retries"))
+            # 몇 번째 배달인지 확인해서, 계속 실패하는 메시지는 실패로 기록하고 끝낸다
+            info = r.xpending_range(stream, GROUP, min=msg_id, max=msg_id, count=1)
+            if info and info[0]["times_delivered"] > MAX_DELIVERIES:
+                save(leaf_id, {"leaf_id": leaf_id, "error": "max deliveries exceeded", "worker": consumer})
+                r.xack(stream, GROUP, msg_id)
+                log(f"gave up {leaf_id[:8]}")
+                return
+
+        started = time.time()
+        r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "start", "t": started}))
+        waited = limiter.acquire(est_tokens if os.environ.get("MOCK_JUDGE") != "1" else 0)
+        try:
+            out = judge_leaf(paper_md, addendum, submission_dir, leaf)
+        except Exception as e:  # ACK하지 않는다 → CLAIM_IDLE_SEC 뒤 다른 워커(또는 자신)가 다시 가져간다
+            r.incr(k(run, "failures"))
+            log(f"error on {leaf_id[:8]}: {type(e).__name__}: {str(e)[:200]}")
+            if is_fatal_llm_error(e):
+                # 사용 한도·인증 실패: 재시도해도 풀리지 않는다. run을 중단 표시하고 모든 워커가 멈춘다.
+                r.set(k(run, "aborted"), f"{type(e).__name__}: {str(e)[:300]}")
             return
+        finished = time.time()
+        save(leaf_id, {
+            "leaf_id": leaf_id,
+            "category": leaf["task_category"],
+            "requirements": leaf["requirements"],
+            "score": out["score"],
+            "verdict": out.get("verdict"),
+            "summary": out.get("summary", ""),
+            "reason": out["reason"],
+            "usage": out["usage"],
+            "parse_retries": out["parse_retries"],
+            "worker": consumer,
+            "started_at": started,
+            "finished_at": finished,
+            "ratelimit_wait_sec": round(waited, 2),
+        })
+        r.xack(stream, GROUP, msg_id)  # 결과 저장 후 ACK: 저장 전에 죽으면 다시 처리된다
+        r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "done", "t": finished}))
+        log(f"done {leaf_id[:8]} {out.get('verdict') or out['score']} {finished - started:.1f}s")
 
-    started = time.time()
-    r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "start", "t": started}))
-    waited = limiter.acquire(est_tokens if os.environ.get("MOCK_JUDGE") != "1" else 0)
-    try:
-        out = judge_leaf(paper_md, addendum, submission_dir, leaf)
-    except Exception as e:  # ACK하지 않는다 → CLAIM_IDLE_SEC 뒤 다른 워커(또는 자신)가 다시 가져간다
-        r.incr(k(run, "failures"))
-        log(f"error on {leaf_id[:8]}: {type(e).__name__}: {str(e)[:200]}")
-        if is_fatal_llm_error(e):
-            # 사용 한도·인증 실패: 재시도해도 풀리지 않는다. run을 중단 표시하고 모든 워커가 멈춘다.
-            r.set(k(run, "aborted"), f"{type(e).__name__}: {str(e)[:300]}")
-        return
-    finished = time.time()
-    save(leaf_id, {
-        "leaf_id": leaf_id,
-        "category": leaf["task_category"],
-        "requirements": leaf["requirements"],
-        "score": out["score"],
-        "verdict": out.get("verdict"),
-        "summary": out.get("summary", ""),
-        "reason": out["reason"],
-        "usage": out["usage"],
-        "parse_retries": out["parse_retries"],
-        "worker": consumer,
-        "started_at": started,
-        "finished_at": finished,
-        "ratelimit_wait_sec": round(waited, 2),
-    })
-    r.xack(stream, GROUP, msg_id)  # 결과 저장 후 ACK: 저장 전에 죽으면 다시 처리된다
-    r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "done", "t": finished}))
-    log(f"done {leaf_id[:8]} {out.get('verdict') or out['score']} {finished - started:.1f}s")
-
-
-log("started")
-total = int(r.get(k(run, "total")))
-while True:
-    if r.exists(k(run, "aborted")):
-        log(f"run aborted: {r.get(k(run, 'aborted'))}")
-        sys.exit(3)
-    if not r.exists(k(run, "total")):
-        # run 기록이 지워졌다(정리했거나 Redis가 다시 떴다). 죽지 않고 다른 run을 맡을 때까지 쉰다.
-        log("run is gone from Redis; idle until reassigned")
-        time.sleep(30)
-        continue
-    try:
-        # 1) 죽은 워커가 들고 있던 메시지 먼저
-        _, claimed, _ = r.xautoclaim(stream, GROUP, consumer, min_idle_time=int(CLAIM_IDLE_SEC * 1000), count=1)
-        if claimed:
-            msg_id, fields = claimed[0]
-            log(f"reclaimed {fields['leaf_id'][:8]}")
-            process(msg_id, fields, reclaimed=True)
+    log("started")
+    total = int(r.get(k(run, "total")))
+    idle_logged = False
+    while True:
+        if r.exists(k(run, "aborted")):
+            log(f"run aborted: {r.get(k(run, 'aborted'))}")
+            sys.exit(3)
+        if not r.exists(k(run, "total")):
+            # run 기록이 지워졌다(정리했거나 Redis가 다시 떴다). 죽지 않고 다른 run을 맡을 때까지 쉰다.
+            if not idle_logged:
+                log("run is gone from Redis; idle until reassigned")
+                idle_logged = True
+            time.sleep(30)
             continue
-        # 2) 새 메시지
-        resp = r.xreadgroup(GROUP, consumer, {stream: ">"}, count=1, block=2000)
-    except ResponseError as e:
-        if "NOGROUP" not in str(e):
-            raise
-        continue  # 스트림이 방금 지워졌다: 위에서 run이 없어진 것으로 처리한다
-    if resp:
-        msg_id, fields = resp[0][1][0]
-        process(msg_id, fields, reclaimed=False)
-        continue
-    # 3) 읽을 게 없음
-    if args.exit_when_done and r.hlen(k(run, "results")) >= total:
-        log("all tasks done, exiting")
-        break
+        idle_logged = False
+        try:
+            # 1) 죽은 워커가 들고 있던 메시지 먼저
+            _, claimed, _ = r.xautoclaim(stream, GROUP, consumer, min_idle_time=int(CLAIM_IDLE_SEC * 1000), count=1)
+            if claimed:
+                msg_id, fields = claimed[0]
+                log(f"reclaimed {fields['leaf_id'][:8]}")
+                process(msg_id, fields, reclaimed=True)
+                continue
+            # 2) 새 메시지
+            resp = r.xreadgroup(GROUP, consumer, {stream: ">"}, count=1, block=2000)
+        except ResponseError as e:
+            if "NOGROUP" not in str(e):
+                raise
+            continue  # 스트림이 방금 지워졌다: 위에서 run이 없어진 것으로 처리한다
+        if resp:
+            msg_id, fields = resp[0][1][0]
+            process(msg_id, fields, reclaimed=False)
+            continue
+        # 3) 읽을 게 없음
+        if args.exit_when_done and r.hlen(k(run, "results")) >= total:
+            log("all tasks done, exiting")
+            break
+
+
+if __name__ == "__main__":
+    main()

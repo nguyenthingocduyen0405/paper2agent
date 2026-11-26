@@ -17,11 +17,26 @@ MAX_DELIVERIES = int(os.environ.get("MAX_DELIVERIES", "3"))  # 이 횟수를 넘
 RATE_LIMIT_RPM = int(os.environ.get("RATE_LIMIT_RPM", "15"))
 RATE_LIMIT_TPM = int(os.environ.get("RATE_LIMIT_TPM", "250000"))
 
+# 완료된 run의 Redis 키를 이 시간(초) 뒤 자동 정리한다(기본 7일, 0 이하이면 유지).
+RUN_TTL_SEC = int(os.environ.get("REDIS_RUN_TTL_SEC", str(7 * 24 * 3600)))
+RUN_KEYS = ("tasks", "total", "meta", "results", "events", "retries", "failures", "aborted")
+
 
 def connect() -> redis.Redis:
     return redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
 
 def k(run: str, name: str) -> str:
-    """run별 키: stream, total, meta, results, events, retries"""
+    """run별 키: tasks, total, meta, results, events, retries, failures, aborted"""
     return f"pb:{run}:{name}"
+
+
+def expire_run(r, run: str, ttl_sec: int = RUN_TTL_SEC) -> int:
+    """완료·중단된 run의 Redis 키에 만료 시간을 설정한다."""
+    if ttl_sec <= 0 or not run:
+        return 0
+    updated = 0
+    for suffix in RUN_KEYS:
+        if r.expire(k(run, suffix), ttl_sec):
+            updated += 1
+    return updated

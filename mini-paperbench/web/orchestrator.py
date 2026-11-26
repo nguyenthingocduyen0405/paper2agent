@@ -20,7 +20,7 @@ import shutil
 import time
 from pathlib import Path
 
-from judge.common import connect, k
+from judge.common import connect, expire_run, k
 from web import blob, gpu, k8s, records, store
 
 log = logging.getLogger("orchestrator")
@@ -79,11 +79,21 @@ def _save_log(job: dict, name: str, filename: str) -> None:
         (d / filename).write_text(text)
 
 
+def _expire_run(run: str | None) -> None:
+    if not run:
+        return
+    try:
+        expire_run(redis(), run)
+    except Exception:
+        log.debug("failed to set TTL on Redis keys for run %s", run, exc_info=True)
+
+
 def _fail(job: dict, message: str, detail: str = "") -> None:
     if any(h in detail.lower() for h in RATE_LIMIT_HINTS):
         message += " (Claude 사용 한도에 걸린 것으로 보입니다. 한도가 풀린 뒤 새 작업으로 다시 시작해 주세요.)"
     job.update(status="failed", failed_stage=job["stage"], error=message,
                error_detail=detail.strip()[-4000:], finished_at=time.time())
+    _expire_run(job.get("judge_run"))
     store.add_event(job, message)
 
 
@@ -98,6 +108,10 @@ def _wants_repair(job: dict, score: dict) -> bool:
 
 def _finish(job: dict, score: dict, text: str = "검증을 마쳤습니다") -> None:
     job.update(stage="done", status="done", finished_at=time.time(), score=score)
+    _expire_run(job.get("judge_run"))
+    rep = job.get("repair") or {}
+    if rep.get("first_run") and rep.get("first_run") != job.get("judge_run"):
+        _expire_run(rep["first_run"])
     store.add_event(job, text)
 
 
@@ -170,6 +184,7 @@ def _cancel(job: dict) -> None:
         return
     job.update(status="cancelled", failed_stage=job["stage"], error=f"{by}님이 작업을 취소했습니다",
                finished_at=time.time())
+    _expire_run(job.get("judge_run"))
     store.add_event(job, job["error"])
 
 
