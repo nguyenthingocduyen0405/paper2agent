@@ -23,19 +23,24 @@ def enqueue_run(r, run: str, paper_dir: Path, submission_dir: Path, leaves: list
     except ResponseError as e:
         if "BUSYGROUP" not in str(e):
             raise
-    r.hset(k(run, "meta"), mapping={
+    target = r.pipeline(transaction=True) if hasattr(r, "pipeline") else r
+    target.hset(k(run, "meta"), mapping={
         "paper_dir": str(Path(paper_dir).resolve()),
         "submission_dir": str(Path(submission_dir).resolve()),
         "mock": "1" if mock else "0",
         "quick": "1" if quick else "0",
         "created_at": time.time(),
     })
-    r.set(k(run, "total"), len(leaves))
+    target.set(k(run, "total"), len(leaves))
     for leaf in leaves:
         fields = {"leaf_id": leaf["id"], "leaf": json.dumps(leaf)}
         if global_queue:
             fields["run"] = run
-        r.xadd(stream, fields)
+            target.xadd(stream, fields, maxlen=10000, approximate=True)
+        else:
+            target.xadd(stream, fields)
+    if target is not r:
+        target.execute()
     return stream
 
 

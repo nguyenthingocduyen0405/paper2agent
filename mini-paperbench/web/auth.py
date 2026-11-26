@@ -130,6 +130,8 @@ def _prune_bucket(bucket: dict[str, list[float]], key: str, now: float) -> list[
         stale = [k for k, ts in bucket.items() if not any(now - t < LOCK_SEC for t in ts)]
         for k in stale:
             bucket.pop(k, None)
+        while len(bucket) > _MAX_TRACKED_KEYS:
+            bucket.pop(next(iter(bucket)))
     return recent
 
 

@@ -166,6 +166,7 @@ def test_multi_run_enqueue_and_process_message(tmp_path: Path, monkeypatch):
             self.lists = {}
             self.streams = {}
             self.acked = []
+            self.deleted = []
 
         def exists(self, key):
             return 1 if key in self.kv or key in self.hashes else 0
@@ -193,11 +194,14 @@ def test_multi_run_enqueue_and_process_message(tmp_path: Path, monkeypatch):
         def xgroup_create(self, stream, group, id="0", mkstream=True):
             self.streams.setdefault(stream, [])
 
-        def xadd(self, stream, fields):
+        def xadd(self, stream, fields, **_kw):
             self.streams.setdefault(stream, []).append(fields)
 
         def xack(self, stream, group, msg_id):
             self.acked.append((stream, msg_id))
+
+        def xdel(self, stream, msg_id):
+            self.deleted.append((stream, msg_id))
 
     class DummyLimiter:
         def acquire(self, _tokens):
@@ -220,6 +224,16 @@ def test_multi_run_enqueue_and_process_message(tmp_path: Path, monkeypatch):
     assert "la1" in r.hashes[common.k("runA", "results")]
     assert "lb1" in r.hashes[common.k("runB", "results")]
     assert len(r.acked) == 2
+    assert len(r.deleted) == 2  # GLOBAL_STREAM trimmed via XDEL after XACK
+
+    # Missing paper.md (deleted job race) returns None cleanly without crashing worker
+    r.hset(common.k("runMissing", "meta"), mapping={"paper_dir": str(tmp_path / "gone"), "submission_dir": str(sub_a)})
+    r.set(common.k("runMissing", "total"), "1")
+    worker.process_message(
+        r, common.GLOBAL_STREAM, "w1", DummyLimiter(), "8-0",
+        {"run": "runMissing", "leaf_id": "lm1", "leaf": json.dumps(leaf_a)}, False, cache=cache,
+    )
+    assert (common.GLOBAL_STREAM, "8-0") in r.acked
 
     # Aborted run message is skipped & ACKed without storing a result
     r.set(common.k("runA", "aborted"), "cancelled")

@@ -102,3 +102,13 @@ def test_bearer_service_account(temp_db, monkeypatch):
     assert auth.user_for_bearer("Bearer svc-secret-token")["role"] == "service"
     assert auth.user_for_bearer("Bearer wrong-token") is None
     assert auth.user_for_bearer("Basic abc") is None
+
+
+def test_lockout_bucket_hard_memory_cap(monkeypatch):
+    monkeypatch.setattr(auth, "_MAX_TRACKED_KEYS", 5)
+    bucket: dict[str, list[float]] = {}
+    now = time.time()
+    for i in range(12):
+        bucket[f"u{i}"] = [now]
+        auth._prune_bucket(bucket, f"u{i}", now)
+    assert len(bucket) <= 5

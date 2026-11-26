@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import ipaddress
 import json
 import logging
 import os
@@ -100,24 +101,59 @@ def _wait_page(status: int = 503) -> HTMLResponse:
 
 
 def _same_origin(request: Request) -> bool:
-    host = request.headers.get("host", "")
+    host = (request.headers.get("host") or "").strip().lower()
+    if not host:
+        return False
+    https = _secure_cookie(request)
     origin = request.headers.get("origin")
     if origin is not None:
-        return bool(origin) and origin != "null" and urlsplit(origin).netloc == host
+        if not origin or origin == "null":
+            return False
+        u = urlsplit(origin)
+        return u.netloc.lower() == host and (not https or u.scheme == "https")
     referer = request.headers.get("referer")
     if referer is not None:
-        return bool(referer) and urlsplit(referer).netloc == host
+        u = urlsplit(referer)
+        return bool(u.netloc) and u.netloc.lower() == host and (not https or u.scheme == "https")
     sec_fetch_site = request.headers.get("sec-fetch-site")
     if sec_fetch_site is not None:
         return sec_fetch_site.strip().lower() in ("same-origin", "none")
-    return True
+    # 비브라우저 API 클라이언트(Authorization: Bearer, 세션 쿠키 없음)만 헤더 없이 허용한다
+    has_bearer = (request.headers.get("authorization") or "").startswith("Bearer ")
+    has_cookie = bool(getattr(request, "cookies", None) and request.cookies.get(auth.COOKIE))
+    return has_bearer and not has_cookie
+
+
+_TRUSTED_PROXY_NETS = (
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("::1/128"),
+)
+
+
+def _is_trusted_proxy(ip: str) -> bool:
+    try:
+        addr = ipaddress.ip_address(ip)
+        return any(addr in net for net in _TRUSTED_PROXY_NETS)
+    except ValueError:
+        return False
 
 
 def _client_ip(request: Request) -> str:
-    xff = request.headers.get("x-forwarded-for", "")
-    if xff:
-        return xff.split(",")[0].strip()
-    return request.client.host if request.client else ""
+    peer = request.client.host if request.client else ""
+    if peer and _is_trusted_proxy(peer):
+        cf_ip = (request.headers.get("cf-connecting-ip") or "").strip()
+        if cf_ip:
+            return cf_ip
+        xff = request.headers.get("x-forwarded-for", "")
+        if xff:
+            # 신뢰할 수 있는 프록시(Caddy/cloudflared)가 맨 뒤에 붙인 직전 홉을 사용한다(클라이언트 위조 방지)
+            hops = [h.strip() for h in xff.split(",") if h.strip()]
+            if hops:
+                return hops[-1]
+    return peer
 
 
 @app.middleware("http")
@@ -127,7 +163,7 @@ async def auth_middleware(request: Request, call_next):
         return await call_next(request)
     if not _ready.is_set():
         return _wait_page()
-    if request.method == "POST" and not _same_origin(request):
+    if request.method not in ("GET", "HEAD", "OPTIONS") and not _same_origin(request):
         return PlainTextResponse("다른 사이트에서 보낸 요청은 받지 않습니다.", status_code=403)
     try:
         if path in PUBLIC_PATHS:
@@ -224,7 +260,7 @@ def account_save(request: Request, current: str = Form(""), new: str = Form(""),
     errors = []
     if user["role"] == "service":
         errors.append("서비스 계정은 비밀번호가 없습니다.")
-    elif auth.authenticate(user["username"], current)[0] is None:
+    elif auth.authenticate(user["username"], current, _client_ip(request))[0] is None:
         errors.append("지금 비밀번호가 맞지 않습니다.")
     if len(new) < auth.MIN_PASSWORD:
         errors.append(f"새 비밀번호는 {auth.MIN_PASSWORD}자 이상으로 정해 주세요.")
@@ -396,6 +432,7 @@ def new_job_form(request: Request):
 
 
 _ARXIV_ID_RE = re.compile(r"^(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?/\d{7})(?:v\d+)?$")
+_ARXIV_HOSTS = ("arxiv.org", "www.arxiv.org", "export.arxiv.org")
 
 
 def _parse_arxiv_id(raw: str) -> str | None:
@@ -405,9 +442,9 @@ def _parse_arxiv_id(raw: str) -> str | None:
         return None
     if s.lower().startswith("arxiv:"):
         s = s[6:].strip()
-    if s.startswith(("http://", "https://")):
+    if s.lower().startswith(("http://", "https://")):
         u = urlsplit(s)
-        if u.hostname not in ("arxiv.org", "www.arxiv.org", "export.arxiv.org"):
+        if (u.hostname or "").lower() not in _ARXIV_HOSTS:
             return None
         path = u.path.strip("/")
         for prefix in ("abs/", "pdf/", "html/"):
@@ -421,12 +458,24 @@ def _parse_arxiv_id(raw: str) -> str | None:
     return s if _ARXIV_ID_RE.fullmatch(s) else None
 
 
+class _ArxivOnlyRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        u = urlsplit(newurl)
+        host = (u.hostname or "").lower()
+        if u.scheme != "https" or not (host == "arxiv.org" or host.endswith(".arxiv.org")):
+            raise urllib.error.URLError(f"blocked non-arXiv redirect to {newurl}")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_arxiv_opener = urllib.request.build_opener(_ArxivOnlyRedirect)
+
+
 def _fetch_arxiv_pdf(arxiv_id: str) -> tuple[bytes, str]:
-    """arXiv 공식 PDF 엔드포인트에서만 PDF를 내려받는다(최대 20MB)."""
+    """arXiv 공식 PDF 엔드포인트에서만 PDF를 내려받는다(최대 20MB, 리다이렉트도 arxiv.org HTTPS로 제한)."""
     url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
     req = urllib.request.Request(url, headers={"User-Agent": "PaperAgent/1.0"})
     try:
-        with urllib.request.urlopen(req, timeout=30) as r:
+        with _arxiv_opener.open(req, timeout=30) as r:
             data = r.read(MAX_UPLOAD + 1)
     except urllib.error.HTTPError as e:
         if e.code == 404:

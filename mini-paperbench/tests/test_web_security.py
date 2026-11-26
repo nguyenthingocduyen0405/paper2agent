@@ -8,20 +8,38 @@ from web import app as web_app
 from web import auth
 
 
-def _fake_req(headers: dict[str, str]):
-    return SimpleNamespace(headers={k.lower(): v for k, v in headers.items()})
+def _fake_req(headers: dict[str, str], cookies: dict[str, str] | None = None, client_host: str = "127.0.0.1"):
+    return SimpleNamespace(
+        headers={k.lower(): v for k, v in headers.items()},
+        cookies=cookies or {},
+        client=SimpleNamespace(host=client_host),
+    )
 
 
 def test_same_origin_checks():
     assert web_app._same_origin(_fake_req({"host": "example.com", "origin": "https://example.com"}))
     assert not web_app._same_origin(_fake_req({"host": "example.com", "origin": "https://evil.com"}))
     assert not web_app._same_origin(_fake_req({"host": "example.com", "origin": "null"}))
+    assert not web_app._same_origin(_fake_req({"host": "", "referer": "/login"}))
     assert web_app._same_origin(_fake_req({"host": "example.com", "referer": "https://example.com/login"}))
     assert not web_app._same_origin(_fake_req({"host": "example.com", "referer": "https://evil.com/phish"}))
     assert web_app._same_origin(_fake_req({"host": "example.com", "sec-fetch-site": "same-origin"}))
     assert not web_app._same_origin(_fake_req({"host": "example.com", "sec-fetch-site": "cross-site"}))
-    # Non-browser API client (no browser origin/referer/sec-fetch headers)
+    # Headerless request with session cookie must be rejected; Bearer-only API client is allowed
+    assert not web_app._same_origin(_fake_req({"host": "example.com"}, cookies={auth.COOKIE: "sess"}))
     assert web_app._same_origin(_fake_req({"host": "web:8000", "authorization": "Bearer tok"}))
+
+
+def test_client_ip_ignores_untrusted_xff():
+    # Public peer cannot spoof X-Forwarded-For
+    req_public = _fake_req({"x-forwarded-for": "1.2.3.4"}, client_host="8.8.8.8")
+    assert web_app._client_ip(req_public) == "8.8.8.8"
+    # Trusted private proxy: uses rightmost hop (appended by proxy, not attacker-prepended leftmost)
+    req_proxy = _fake_req({"x-forwarded-for": "9.9.9.9, 203.0.113.42"}, client_host="10.42.0.37")
+    assert web_app._client_ip(req_proxy) == "203.0.113.42"
+    # Cloudflare proxy header takes precedence when peer is trusted private proxy
+    req_cf = _fake_req({"cf-connecting-ip": "203.0.113.88", "x-forwarded-for": "1.1.1.1"}, client_host="10.42.0.35")
+    assert web_app._client_ip(req_cf) == "203.0.113.88"
 
 
 def test_safe_next():
@@ -43,6 +61,15 @@ def test_parse_arxiv_id_and_ssrf_safety():
     assert web_app._parse_arxiv_id("https://evil.com/abs/2201.02177") is None
     assert web_app._parse_arxiv_id("https://arxiv.org/abs/../../etc/passwd") is None
     assert web_app._parse_arxiv_id("not-an-arxiv-id") is None
+
+    # Redirect handler must block redirects to non-arXiv hosts (e.g. EC2 IMDS)
+    import urllib.error
+    import pytest
+    handler = web_app._ArxivOnlyRedirect()
+    with pytest.raises(urllib.error.URLError):
+        handler.redirect_request(None, None, 302, "Found", {}, "http://169.254.169.254/latest/meta-data/")
+    with pytest.raises(urllib.error.URLError):
+        handler.redirect_request(None, None, 302, "Found", {}, "https://evil.example/paper.pdf")
 
 
 def test_middleware_and_login_flow(temp_db, monkeypatch):

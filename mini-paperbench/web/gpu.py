@@ -15,7 +15,7 @@ from pathlib import Path
 
 from sqlalchemy import select
 
-from judge.common import connect, k
+from judge.common import connect, expire_run, k
 from judge.rubric import load_leaves
 from web import db, k8s, records, store
 
@@ -141,6 +141,11 @@ def _end(job: dict, status: str, error: str) -> None:
     g.update(status=status, finished_at=time.time())
     if error:
         g["error"] = error
+    if g.get("exec_run"):
+        try:
+            expire_run(redis(), g["exec_run"])
+        except Exception:
+            log.debug("failed to set TTL for gpu exec_run %s", g["exec_run"], exc_info=True)
     job["archived_at"] = None   # GPU 실행 결과까지 다시 S3에 올린다
 
 
@@ -264,6 +269,10 @@ def step(job: dict, busy: dict) -> None:
             _seen[run] = (done, time.time())
         elif time.time() - since > JUDGE_STALL_SEC:
             _seen.pop(run, None)
+            try:
+                r.set(k(run, "aborted"), "stalled")
+            except Exception:
+                pass
             _end(job, "done", f"실행·결과 항목 검증이 {JUDGE_STALL_SEC / 60:.0f}분 동안 진행되지 않아 멈췄습니다.")
 
     elif st == "analyze":
@@ -281,6 +290,10 @@ def step(job: dict, busy: dict) -> None:
             _end(job, "done", "실행·결과 항목 검증 결과를 정리하지 못했습니다.")
 
 
+_step_errors: dict[str, int] = {}
+MAX_STEP_ERRORS = int(os.environ.get("MAX_STEP_ERRORS", "120"))
+
+
 def tick(busy: dict) -> None:
     jobs = active_jobs()
     busy.setdefault("gpu", sum(1 for j in jobs if state(j) == "running"))
@@ -288,9 +301,14 @@ def tick(busy: dict) -> None:
         before = (state(job), job["gpu"].get("judge_step"))
         try:
             step(job, busy)
-        except Exception:  # 쿠버네티스·Redis 일시 오류: 다음 차례에 다시 한다
+            _step_errors.pop(job["id"], None)
+        except Exception as e:  # 쿠버네티스·Redis 일시 오류: 다음 차례에 다시 한다
             log.exception("gpu step failed for job %s", job["id"])
-            continue
+            n = _step_errors[job["id"]] = _step_errors.get(job["id"], 0) + 1
+            if n < MAX_STEP_ERRORS:
+                continue
+            _step_errors.pop(job["id"], None)
+            _end(job, "failed", f"GPU 단계 진행 중 같은 오류가 반복되었습니다: {type(e).__name__}: {e}")
         if (state(job), job["gpu"].get("judge_step")) != before:
             store.save(job)
             _save_run(job)

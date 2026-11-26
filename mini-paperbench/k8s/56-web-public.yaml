@@ -8,6 +8,7 @@ metadata:
   namespace: paperbench
 spec:
   type: LoadBalancer
+  externalTrafficPolicy: Local
   selector:
     app: web
   ports:

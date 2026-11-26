@@ -126,6 +126,8 @@ def _undo_repair(job: dict, message: str, detail: str = "") -> None:
         shutil.rmtree(sub, ignore_errors=True)
         shutil.copytree(before, sub)
     rep.update(rejudge=False, undone=True, error=message, error_detail=detail.strip()[-2000:])
+    if rep.get("run"):
+        _expire_run(rep["run"])
     job["judge_run"] = rep["first_run"]
     _finish(job, rep["before"], message)
     records.after_judge(job)
@@ -315,6 +317,10 @@ def step(job: dict, busy: dict) -> None:
             _judge_seen[job["id"]] = (done, time.time())
         elif time.time() - since > JUDGE_STALL_SEC:
             _judge_seen.pop(job["id"], None)
+            try:
+                r.set(k(run, "aborted"), "stalled")
+            except Exception:
+                pass
             _judge_fail(job, f"자동 검증이 {JUDGE_STALL_SEC / 60:.0f}분 동안 진행되지 않아 멈췄습니다",
                   f"{done}/{total} 항목 검증 후 멈춤. judge-worker Pod 상태를 확인해 주세요 (kubectl -n paperbench get pods).")
 

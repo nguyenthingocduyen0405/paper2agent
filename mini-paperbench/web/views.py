@@ -858,7 +858,7 @@ def report_md(job: dict) -> str | None:
             L += ["#### 실행과 결과 확인 항목 판정표", "",
                   f"실행 기록과 결과 파일을 보고 실행(Code Execution)과 결과 확인(Result Analysis) 항목 {ex['judged']}개를 검증했습니다. "
                   f"{ex['passed']}개 충족({ex['pct']}%)"
-                  + (f", {_gap(ex['partial'], ex['unmet'], True)}." if ex["partial"] else ".")
+                  + (f", {_gap(ex['partial'], ex['unmet'], True)}." if ex["failed"] else ".")
                   + " 판단 이유 전체는 부록 B에 있습니다.", ""]
             L += _verdict_table(ex["rows"], kind_col=True) + [""]
 

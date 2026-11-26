@@ -244,7 +244,7 @@ DATASET_SPECS = {
         "pattern": re.compile(r"\b(?:datasets\.)?FashionMNIST\s*\("),
         "kind": "idx_gz",
         "subdir": "FashionMNIST/raw",
-        "mirrors": ("http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/",),
+        "mirrors": ("https://github.com/zalandoresearch/fashion-mnist/raw/master/data/fashion/",),
         "files": (
             "train-images-idx3-ubyte.gz",
             "train-labels-idx1-ubyte.gz",
@@ -358,8 +358,14 @@ def _seed(root, folder):
     if not _DS_ROOT or not root:
         return
     src = Path(_DS_ROOT) / folder
-    dst = Path(str(root)) / folder
-    if src.is_dir() and not dst.exists():
+    dst = Path(os.path.expanduser(str(root))) / folder
+    if not src.is_dir():
+        return
+    if dst.is_symlink() and not dst.exists():
+        dst.unlink(missing_ok=True)
+    elif dst.is_dir() and not any(dst.iterdir()):
+        dst.rmdir()
+    if not dst.exists():
         dst.parent.mkdir(parents=True, exist_ok=True)
         try:
             os.symlink(src, dst)
@@ -376,15 +382,20 @@ def _install():
         return
     for cls_name, folder in _MAP.items():
         cls = getattr(_tvd, cls_name, None)
-        if cls is None or getattr(cls, "_paperagent_wrapped", False):
+        if cls is None or "_paperagent_wrapped" in cls.__dict__:
             continue
         orig = cls.__init__
+        if getattr(orig, "_paperagent_init", False):
+            cls._paperagent_wrapped = True
+            continue
 
-        def _make(orig_init, folder_name):
+        def _make(orig_init, default_folder):
             def _wrapped(self, *args, **kwargs):
                 root = args[0] if args else kwargs.get("root")
-                _seed(root, folder_name)
+                resolved = next((_MAP[c.__name__] for c in type(self).__mro__ if c.__name__ in _MAP), default_folder)
+                _seed(root, resolved)
                 return orig_init(self, *args, **kwargs)
+            _wrapped._paperagent_init = True
             return _wrapped
 
         cls.__init__ = _make(orig, folder)
@@ -473,13 +484,12 @@ def pack(code: Path, wheels: Path | None, wheel_names: list[str], run_sec: int,
             for w in sorted(wheels.glob("*.whl")):
                 z.write(w, f".paperagent/wheels/{w.name}", compress_type=zipfile.ZIP_STORED)
         for _ds_name, ds_dir in datasets or []:
-            if buf.tell() > MAX_ZIP_BYTES:
-                break
-            for p in sorted(ds_dir.rglob("*")):
-                if not p.is_file() or p.name == ".ready":
-                    continue
-                if buf.tell() > MAX_ZIP_BYTES:
-                    break
+            ds_files = [p for p in sorted(ds_dir.rglob("*")) if p.is_file() and p.name != ".ready"]
+            # 전체 데이터셋을 넣었을 때 ZIP 상한을 넘으면 반쪽짜리 손상 데이터셋 대신 통째로 건너뛴다
+            ds_raw_size = sum(p.stat().st_size for p in ds_files)
+            if buf.tell() + ds_raw_size > MAX_ZIP_BYTES:
+                continue
+            for p in ds_files:
                 rel = p.relative_to(ds_dir).as_posix()
                 z.write(p, f".paperagent/datasets/{rel}", compress_type=zipfile.ZIP_DEFLATED)
     return buf.getvalue()

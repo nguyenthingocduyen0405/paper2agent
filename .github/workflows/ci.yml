@@ -26,8 +26,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r web/requirements.txt pytest httpx
 
-      - name: Syntax check
-        run: python -m compileall -q web judge agent hermes claude-bridge
+      - name: Syntax and manifest check
+        run: |
+          python -m compileall -q web judge agent hermes claude-bridge
+          python -c "import pathlib, yaml; [list(yaml.safe_load_all(p.read_text(encoding='utf-8'))) for p in pathlib.Path('k8s').rglob('*.yaml')]; print('k8s YAML OK')"
+          bash -n scripts/*.sh
 
       - name: Run unit tests
         run: pytest -v

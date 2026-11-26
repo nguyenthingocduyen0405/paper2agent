@@ -80,9 +80,9 @@ PY
 }
 
 restore() {
-  echo "== restore judge-worker (RUN_ID=idle, 2 replicas, configmap defaults)"
-  $K set env deploy/judge-worker RUN_ID=idle MOCK_JUDGE- RATE_LIMIT_RPM- CLAIM_IDLE_SEC- >/dev/null
-  $K scale deploy/judge-worker --replicas=2 >/dev/null
+  echo "== restore judge-worker (RUN_ID=multi, 6 replicas, configmap defaults)"
+  $K set env deploy/judge-worker RUN_ID=multi MOCK_JUDGE- RATE_LIMIT_RPM- CLAIM_IDLE_SEC- >/dev/null
+  $K scale deploy/judge-worker --replicas=6 >/dev/null
   $K rollout status deploy/judge-worker --timeout=300s >/dev/null
 }
 trap restore EXIT

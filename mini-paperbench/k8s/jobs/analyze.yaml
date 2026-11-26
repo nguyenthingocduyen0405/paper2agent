@@ -17,6 +17,9 @@ spec:
           imagePullPolicy: Never
           command: ["python", "-m", "judge.analyze"]
           args: __ARGS__
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {memory: 256Mi}
           envFrom:
             - configMapRef: {name: llm-config}
             - secretRef: {name: llm-keys}

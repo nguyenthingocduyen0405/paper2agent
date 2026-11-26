@@ -77,3 +77,38 @@ def test_gpu_run_detect_and_pack_offline_datasets(tmp_path: Path):
         assert ".paperagent/py/sitecustomize.py" in names
         assert ".paperagent/datasets/MNIST/raw/train-images-idx3-ubyte" in names
         assert "PAPERAGENT_DATASETS_DIR" in z.read(".paperagent/run.sh").decode()
+
+
+def test_sitecustomize_wraps_fashion_mnist_subclass(tmp_path: Path, monkeypatch):
+    import sys
+    import types
+
+    ds_root = tmp_path / "bundled"
+    (ds_root / "MNIST" / "raw").mkdir(parents=True)
+    (ds_root / "MNIST" / "raw" / "f").write_bytes(b"m")
+    (ds_root / "FashionMNIST" / "raw").mkdir(parents=True)
+    (ds_root / "FashionMNIST" / "raw" / "f").write_bytes(b"fm")
+
+    class MNIST:
+        def __init__(self, root, download=False):
+            self.root = root
+
+    class FashionMNIST(MNIST):
+        pass
+
+    tv = types.ModuleType("torchvision")
+    tv_ds = types.ModuleType("torchvision.datasets")
+    tv_ds.MNIST = MNIST
+    tv_ds.FashionMNIST = FashionMNIST
+    tv.datasets = tv_ds
+    monkeypatch.setitem(sys.modules, "torchvision", tv)
+    monkeypatch.setitem(sys.modules, "torchvision.datasets", tv_ds)
+    monkeypatch.setenv("PAPERAGENT_DATASETS_DIR", str(ds_root))
+
+    ns: dict = {}
+    exec(compile(gpu_run.SITE_CUSTOMIZE_PY, "sitecustomize.py", "exec"), ns)
+
+    out_root = tmp_path / "user_data"
+    FashionMNIST(str(out_root), download=True)
+    assert (out_root / "FashionMNIST" / "raw" / "f").read_bytes() == b"fm"
+    assert not (out_root / "MNIST").exists()

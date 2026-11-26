@@ -51,10 +51,13 @@ def _load_run_ctx(r, run: str, cache: collections.OrderedDict) -> dict | None:
         return None
     paper_dir = Path(meta["paper_dir"])
     submission_dir = Path(meta["submission_dir"])
-    paper_md = (paper_dir / "paper.md").read_text()
-    addendum = "\n".join(
-        (paper_dir / f).read_text() for f in ("addendum.md", "judge.addendum.md") if (paper_dir / f).exists()
-    ).strip()
+    try:
+        paper_md = (paper_dir / "paper.md").read_text()
+        addendum = "\n".join(
+            (paper_dir / f).read_text() for f in ("addendum.md", "judge.addendum.md") if (paper_dir / f).exists()
+        ).strip()
+    except OSError:
+        return None
     ctx = {
         "paper_md": paper_md,
         "addendum": addendum,
@@ -84,9 +87,14 @@ def process_message(r, stream: str, consumer: str, limiter: RateLimiter,
     def save(result: dict) -> None:
         r.hset(k(run, "results"), leaf_id, json.dumps(result, ensure_ascii=False))
 
+    def ack_and_trim() -> None:
+        r.xack(stream, GROUP, msg_id)
+        if stream == GLOBAL_STREAM and hasattr(r, "xdel"):
+            r.xdel(stream, msg_id)
+
     if not run or r.exists(k(run, "aborted")) or not r.exists(k(run, "total")):
         # 중단되었거나 이미 정리된 run의 메시지는 버리고 ACK한다(다른 run을 막지 않게)
-        r.xack(stream, GROUP, msg_id)
+        ack_and_trim()
         return
 
     if reclaimed:
@@ -95,14 +103,14 @@ def process_message(r, stream: str, consumer: str, limiter: RateLimiter,
         info = r.xpending_range(stream, GROUP, min=msg_id, max=msg_id, count=1)
         if info and info[0]["times_delivered"] > MAX_DELIVERIES:
             save({"leaf_id": leaf_id, "error": "max deliveries exceeded", "worker": consumer})
-            r.xack(stream, GROUP, msg_id)
+            ack_and_trim()
             log(f"gave up {leaf_id[:8]}")
             return
 
     run_cache = cache if cache is not None else collections.OrderedDict()
     ctx = _load_run_ctx(r, run, run_cache)
     if ctx is None:
-        r.xack(stream, GROUP, msg_id)
+        ack_and_trim()
         return
 
     started = time.time()
@@ -118,26 +126,27 @@ def process_message(r, stream: str, consumer: str, limiter: RateLimiter,
             # 사용 한도·인증 실패: 재시도해도 풀리지 않는다. run을 중단 표시한다.
             r.set(k(run, "aborted"), f"{type(e).__name__}: {str(e)[:300]}")
             if run_override is None:
-                r.xack(stream, GROUP, msg_id)
+                ack_and_trim()
         return
     finished = time.time()
-    save({
-        "leaf_id": leaf_id,
-        "category": leaf["task_category"],
-        "requirements": leaf["requirements"],
-        "score": out["score"],
-        "verdict": out.get("verdict"),
-        "summary": out.get("summary", ""),
-        "reason": out["reason"],
-        "usage": out["usage"],
-        "parse_retries": out["parse_retries"],
-        "worker": consumer,
-        "started_at": started,
-        "finished_at": finished,
-        "ratelimit_wait_sec": round(waited, 2),
-    })
-    r.xack(stream, GROUP, msg_id)  # 결과 저장 후 ACK: 저장 전에 죽으면 다시 처리된다
-    r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "done", "t": finished}))
+    if r.exists(k(run, "total")) and not r.exists(k(run, "aborted")):
+        save({
+            "leaf_id": leaf_id,
+            "category": leaf["task_category"],
+            "requirements": leaf["requirements"],
+            "score": out["score"],
+            "verdict": out.get("verdict"),
+            "summary": out.get("summary", ""),
+            "reason": out["reason"],
+            "usage": out["usage"],
+            "parse_retries": out["parse_retries"],
+            "worker": consumer,
+            "started_at": started,
+            "finished_at": finished,
+            "ratelimit_wait_sec": round(waited, 2),
+        })
+        r.rpush(k(run, "events"), json.dumps({"leaf_id": leaf_id, "worker": consumer, "event": "done", "t": finished}))
+    ack_and_trim()  # 결과 저장 후 ACK + 공용 스트림이면 XDEL로 메모리 누적 방지
     log(f"done {leaf_id[:8]} {out.get('verdict') or out['score']} {finished - started:.1f}s")
 
 
@@ -164,14 +173,18 @@ def run_multi_loop(r, consumer: str, limiter: RateLimiter) -> None:
                 process_message(r, stream, consumer, limiter, msg_id, fields, reclaimed=True, cache=cache)
                 continue
             resp = r.xreadgroup(GROUP, consumer, {stream: ">"}, count=1, block=2000)
+            if resp:
+                msg_id, fields = resp[0][1][0]
+                process_message(r, stream, consumer, limiter, msg_id, fields, reclaimed=False, cache=cache)
         except ResponseError as e:
             if "NOGROUP" in str(e):
                 _ensure_group(r, stream)
                 continue
-            raise
-        if resp:
-            msg_id, fields = resp[0][1][0]
-            process_message(r, stream, consumer, limiter, msg_id, fields, reclaimed=False, cache=cache)
+            print(f"[{consumer}] redis error: {type(e).__name__}: {str(e)[:200]}", flush=True)
+            time.sleep(2)
+        except Exception as e:
+            print(f"[{consumer}] unexpected loop error: {type(e).__name__}: {str(e)[:200]}", flush=True)
+            time.sleep(2)
 
 
 def main() -> None:
