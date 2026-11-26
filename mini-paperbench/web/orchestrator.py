@@ -91,7 +91,19 @@ def _expire_run(run: str | None) -> None:
         log.debug("failed to set TTL on Redis keys for run %s", run, exc_info=True)
 
 
+def _stop_run(run: str | None, why: str) -> None:
+    """워커가 이 run의 남은 항목을 채점하지 않게 표시한다. 이미 적힌 이유(stalled, 한도 초과 등)는 그대로 둔다."""
+    if not run or not MULTI_RUN_JUDGE:
+        return
+    try:
+        redis().set(k(run, "aborted"), why, nx=True)
+    except Exception:
+        log.debug("failed to mark run %s aborted", run, exc_info=True)
+
+
 def _fail(job: dict, message: str, detail: str = "") -> None:
+    if job["stage"] in ("judge", "analyze"):
+        _stop_run(job.get("judge_run"), "failed: " + message)  # 실패한 작업의 남은 항목에 LLM을 더 쓰지 않는다
     if any(h in detail.lower() for h in RATE_LIMIT_HINTS):
         message += " (Claude 사용 한도에 걸린 것으로 보입니다. 한도가 풀린 뒤 새 작업으로 다시 시작해 주세요.)"
     job.update(status="failed", failed_stage=job["stage"], error=message,
@@ -138,6 +150,7 @@ def _judge_fail(job: dict, message: str, detail: str = "") -> None:
     """검증 단계의 실패. 고친 코드를 다시 검증하던 중이면 작업 전체를 실패로 두지 않는다."""
     if _rejudging(job):
         _judge_seen.pop(job["id"], None)
+        _stop_run(job.get("judge_run"), "failed: " + message)
         _undo_repair(job, f"{message}. 고치기 전 코드와 첫 검증 결과로 마칩니다", detail)
     else:
         _fail(job, message, detail)

@@ -85,3 +85,26 @@ def test_cancel_marks_run_aborted_at_once_and_is_not_reported_as_llm_failure(mon
     monkeypatch.setattr(orchestrator, "_expire_run", lambda run: None)
     orchestrator.step(job, {"prepare": 0, "agent": 0, "judge": 1, "gpu": 0})
     assert job["status"] == "failed"
+
+
+def test_failed_judge_stops_remaining_items_but_keeps_an_earlier_reason(monkeypatch):
+    fakeredis = __import__("pytest").importorskip("fakeredis")
+    from judge.common import k
+
+    r = fakeredis.FakeRedis(decode_responses=True)
+    monkeypatch.setattr(orchestrator, "_redis", r)
+    monkeypatch.setattr(orchestrator, "MULTI_RUN_JUDGE", True)
+    monkeypatch.setattr(orchestrator, "_expire_run", lambda run: None)
+
+    job = {"id": "j6", "stage": "judge", "status": "running", "judge_run": "j6", "events": []}
+    orchestrator._fail(job, "작업을 진행하다 같은 오류가 계속 났습니다", "boom")
+    assert r.get(k("j6", "aborted")).startswith("failed:")  # 워커가 남은 항목을 버린다
+
+    r.set(k("j7", "aborted"), "stalled")
+    job7 = {"id": "j7", "stage": "judge", "status": "running", "judge_run": "j7", "events": []}
+    orchestrator._fail(job7, "멈춤")
+    assert r.get(k("j7", "aborted")) == "stalled"
+
+    job8 = {"id": "j8", "stage": "agent", "status": "running", "judge_run": "j8", "events": []}
+    orchestrator._fail(job8, "코드 작성 실패")
+    assert r.get(k("j8", "aborted")) is None  # 검증 전 단계의 실패는 run을 건드리지 않는다
